@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="view_payment_method_form" model="ir.ui.view">
+    	<field name="name">view.payment.method.form</field>
+        <field name="model">l10n.ec.payment.method</field>
+	    <field name="type">form</field>
+	    <field name="arch" type="xml">
+	    	<form string="Payment Method">
+	    		<sheet>
+	    			<group>
+		  				<field name="l10n_ec_code" required="1"/>
+		  				<field name="l10n_ec_name" required="1"/>
+		  			    <field name="sequence" required="1"/>
+		  			    <field name="active"/>
+				    </group>
+	    		</sheet>
+              	<div class="oe_chatter">
+                	<field name="message_follower_ids" widget="mail_followers"/>
+                  	<field name="message_ids" widget="mail_thread"/>
+				</div>   
+	        </form>
+		</field>
+	</record>
+	
+	<record id="view_payment_method_tree" model="ir.ui.view" >
+		<field name="name">view.payment.method.tree</field>
+	    <field name="model">l10n.ec.payment.method</field>
+	    <field name="type">tree</field>
+	    <field name="arch" type="xml">
+	        <tree string="Payment Method">
+				<field name="l10n_ec_code"/>
+				<field name="l10n_ec_name"/>
+				<field name="sequence"/>
+	        </tree>
+		</field>
+	</record>
+	
+	<record id="view_payment_method_filter" model="ir.ui.view">
+    	<field name="name">view.payment.method.filter</field>
+        <field name="model">l10n.ec.payment.method</field> 
+        <field name="arch" type="xml">
+        	<search string="Search Payment Method">
+                <field name="l10n_ec_code"/>
+             	<field name="l10n_ec_name"/>
+          	</search>
+       	</field>
+    </record>
+    
+   	<record id="action_view_payment_method" model="ir.actions.act_window">
+       <field name="name">Forma de pago</field>
+       <field name="res_model">l10n.ec.payment.method</field>
+       <field name="view_mode">tree,form</field>
+       <field name="view_id" eval="False"/>
+       <field name="search_view_id" ref="view_payment_method_filter"/>
+    </record>
+    
+	<menuitem id="menu_view_payment_method" action="action_view_payment_method" parent="l10n_ec_electronic_document.action_sri_menu" sequence="6"/>
+
+</odoo>
