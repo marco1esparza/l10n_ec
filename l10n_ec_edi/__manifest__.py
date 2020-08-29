@@ -34,12 +34,15 @@
         #Data
         'data/printer_point_data.xml',
         'data/payment_method_data.xml',
-        #'data/account_edi_format_data.xml',
+        'data/account_edi_format_data.xml',
         #Security
        'security/ir.model.access.csv',
         #Views
         'views/printer_point_view.xml',
+        'views/digital_signature_view.xml',
+        'views/res_company_view.xml',
         'views/res_users_view.xml',
+        'views/res_partner_view.xml',
         'views/payment_method_view.xml',
         'views/account_move_view.xml',
         'views/report_invoice.xml',

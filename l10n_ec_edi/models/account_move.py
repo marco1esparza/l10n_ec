@@ -100,10 +100,19 @@ class AccountMove(models.Model):
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
+        res = super(AccountMove, self).post()
         for invoice in self:
             if invoice.l10n_latam_country_code == 'EC':
                 invoice.l10n_latam_document_number = invoice._get_internal_number_by_sequence()
-        return  super(AccountMove, self).post()
+                #Facturas de ventas electronicas
+                if invoice.type in ('out_invoice') and invoice.l10n_ec_printer_id.l10n_ec_allow_electronic_document:
+                    for document in invoice.edi_document_ids:
+                        if document.state not in ('sent'):
+                            document.edi_format_id = self.env.ref('l10n_ec_edi.ec_edi_format_invoice').id
+                            #TODO: implementar estos dos metodos
+                            #document.get_access_key()
+                            document.attempt_electronic_document()
+        return res
     
     def view_credit_note(self):
         '''

@@ -28,9 +28,9 @@
                                     <strong>Address:</strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/>
                                 </td>
                             </tr>
-                            <tr t-if="o.l10n_ec_printer_id.l10n_ar_printer_point_partner_id">
+                            <tr t-if="o.l10n_ec_printer_id.l10n_ec_printer_point_address">
                                 <td class="border-top-0 p-2" style="font-size:12px;">
-                                    <strong>Printer point address:</strong> <span t-esc="o.l10n_ec_printer_id.l10n_ar_printer_point_partner_id._get_complete_address()"/>
+                                    <strong>Printer point address:</strong> <span t-esc="o.l10n_ec_printer_id.l10n_ec_printer_point_address"/>
                                 </td>
                             </tr>
                             <tr>
