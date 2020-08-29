@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+	<record id="view_partner_commercial_name_form" model="ir.ui.view">
+		<field name="name">view.partner.commercial.name.form</field>
+		<field name="model">res.partner</field>
+		<field name="inherit_id" ref="base.view_partner_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='name']" position="after">
+				<separator/>
+				<field name="l10n_commercial_name" placeholder="Commercial Name" attrs="{'invisible':[('company_type','=','person')]}"/>
+			</xpath>
+		</field>
+	</record>
+
+</odoo>
+    
