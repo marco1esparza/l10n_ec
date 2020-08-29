@@ -34,7 +34,7 @@
         #Data
         'data/printer_point_data.xml',
         'data/payment_method_data.xml',
-        'data/account_edi_format_data.xml',
+        #'data/account_edi_format_data.xml',
         #Security
        'security/ir.model.access.csv',
         #Views
