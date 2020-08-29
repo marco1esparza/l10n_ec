@@ -126,6 +126,12 @@ class L10NECSRIPrinterPoint(models.Model):
         default=lambda self: self.env.user.company_id.id,
         help=''
         )
+    l10n_ar_printer_point_partner_id = fields.Many2one(
+        'res.partner', 'Printer Point Address',
+        domain="['|', ('id', '=', l10n_ec_company_id), '&', "
+               "('id', 'child_of', l10n_ec_company_id), "
+               "('type', 'in', ['invoice', 'delivery'])]",
+        help='This is the address used for invoice reports of this Printer Point')
 
     @api.constrains('l10n_ec_name')
     def _number_unique(self):

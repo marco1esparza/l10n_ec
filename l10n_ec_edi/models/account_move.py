@@ -191,6 +191,16 @@ class AccountMove(models.Model):
             invoice.l10n_ec_electronic_method = electronic_method
             invoice.l10n_ec_card_method = card_method
             invoice.l10n_ec_other_method = other_method
+
+    def _get_name_invoice_report(self, report_xml_id):
+        self.ensure_one()
+        if self.l10n_latam_use_documents and self.company_id.country_id.code == 'EC':
+            custom_report = {
+                'account.report_invoice_document_with_payments': 'l10n_ec_edi.report_invoice_document_with_payments',
+                'account.report_invoice_document': 'l10n_ec_edi.report_invoice_document',
+            }
+            return custom_report.get(report_xml_id) or report_xml_id
+        return super()._get_name_invoice_report(report_xml_id)
     
     #Columns
     l10n_ec_printer_id = fields.Many2one(

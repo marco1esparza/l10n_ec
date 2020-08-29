@@ -41,7 +41,8 @@
         'views/printer_point_view.xml',
         'views/res_users_view.xml',
         'views/payment_method_view.xml',
-        'views/account_move_view.xml'
+        'views/account_move_view.xml',
+        'views/report_invoice.xml',
     ],
     'installable': True
 }

@@ -13,6 +13,7 @@
 						<field name="l10n_ec_prefix" readonly="1" attrs="{'invisible': [('l10n_ec_company_id', '=', False)]}"/>
 						<field name="l10n_ec_allow_electronic_document"/>
 						<field name="l10n_ec_company_id" readonly="1" invisible="1"/>
+						<field name="l10n_ar_printer_point_partner_id"/>
 						<field name="l10n_ec_invoice_sequence_id"
 							   attrs="{'invisible': [('l10n_ec_prefix', '=', False)]}"
 							   domain="[('code', '=', 'l10n.ec.sri.printer.point'), ('prefix', '=', l10n_ec_prefix)]"
