@@ -125,6 +125,8 @@
 	    </field>
 	</record>
 
-	<menuitem id="menu_view_printer_point" action="action_view_printer_point" parent="l10n_ec_electronic_document.action_sri_menu" sequence="2"/>
+	<menuitem id="action_sri_menu" name="SRI" parent="account.menu_finance_configuration" sequence="4"/>
+
+	<menuitem id="menu_view_printer_point" action="action_view_printer_point" parent="action_sri_menu" sequence="2"/>
 
 </odoo>

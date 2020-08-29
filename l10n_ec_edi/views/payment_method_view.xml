@@ -55,6 +55,6 @@
        <field name="search_view_id" ref="view_payment_method_filter"/>
     </record>
     
-	<menuitem id="menu_view_payment_method" action="action_view_payment_method" parent="l10n_ec_electronic_document.action_sri_menu" sequence="6"/>
+	<menuitem id="menu_view_payment_method" action="action_view_payment_method" parent="action_sri_menu" sequence="6"/>
 
 </odoo>
