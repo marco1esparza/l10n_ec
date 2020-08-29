@@ -16,7 +16,7 @@
 						attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('out_invoice', 'out_refund'))], 'required': [('l10n_latam_country_code', '=', 'EC'), ('type', 'in', ('out_invoice', 'out_refund'))]}"
 						options="{'no_create': True, 'no_open': True}"/>
 					<field name="l10n_ec_authorization"
-						attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('out_invoice', 'out_refund'))]}"/>
+						attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('in_invoice', 'in_refund'))]}"/>
             	</xpath>
             	<xpath expr="//button[@name='open_reconcile_view']" position="after">
 	            	<button name="view_credit_note" string="Notas de crédito" type="object" icon="fa-files-o"
