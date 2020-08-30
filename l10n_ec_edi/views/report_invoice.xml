@@ -2,10 +2,6 @@
 <odoo>
 
     <template id="report_invoice_document" inherit_id="account.report_invoice_document" primary="True">
-        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
-            <attribute name="t-call">web.basic_layout</attribute>
-        </xpath>
-
         <xpath expr="//h2" position="attributes">
             <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
         </xpath>
@@ -13,43 +9,43 @@
         <xpath expr="//h2" position="before">
             <table class="table table-borderless w-100">
                 <tr>
-                    <td class="w-50 pr-1">
+                    <td class="pr-1" style="width: 30%">
                         <div class="col-md-12 text-center pb-2">
-                            <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" class="float-left pt-3" alt="Logo" style="max-height: 300px;"/>
+                            <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" class="float-left pt-3" alt="Logo" style="max-width: 300px;"/>
                         </div>
-                        <table class="table table-condensed" style="border: 1px solid black;">
+                        <table class="table table-borderless">
                             <tr>
                                 <td class="text-center p-2">
                                     <strong><span t-field="o.company_id.partner_id.name"/></strong>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="border-top-0 p-2" style="font-size:12px;">
+                                <td class="p-2" style="font-size:12px;">
                                     <strong>Address:</strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/>
                                 </td>
                             </tr>
                             <tr t-if="o.l10n_ec_printer_id.l10n_ec_printer_point_address">
-                                <td class="border-top-0 p-2" style="font-size:12px;">
+                                <td class="p-2" style="font-size:12px;">
                                     <strong>Printer point address:</strong> <span t-esc="o.l10n_ec_printer_id.l10n_ec_printer_point_address"/>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="border-top-0 p-2" style="font-size:12px;">
+                                <td class="p-2" style="font-size:12px;">
                                     <strong>Obliged to keep accounting:</strong>
                                     <t t-if="o.company_id.l10n_ec_forced_accounting">Yes</t>
                                     <t t-else="">No</t>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="border-top-0 p-2" style="font-size:12px;">
+                                <td class="p-2" style="font-size:12px;">
                                     <strong>Special Taxpayer No.:</strong>
                                     <span t-field="o.company_id.l10n_ec_special_contributor_number"/>
                                 </td>
                             </tr>
                         </table>
                     </td>
-                    <td class="w-50 pr-1">
-                        <table class="table table-condensed" style="border: 1px solid black;">
+                    <td class="pr-1" style="width: 70%">
+                        <table class="table table-condensed">
                             <tr>
                                 <td lass="border-top-0 p-1" >
                                     <strong>
@@ -97,14 +93,14 @@
                 </tr>
             </table>
 
-            <table name="social_reason" class="table table-condensed w-100" style="font-size:12px; border: 1px solid black;">
+            <table name="social_reason" class="table table-condensed w-100" style="font-size:13px;">
                 <tr>
-                    <td class="border-top-0 p-1"><strong>Company Name / Name and Surname: </strong><span t-field="o.partner_id"/></td>
-                    <td class="border-top-0 p-1"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
-                    <td class="border-top-0 p-1"></td>
+                    <td class="p-1"><strong>Company Name / Name and Surname: </strong><span t-field="o.partner_id"/></td>
+                    <td class="p-1"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
+                    <td class="p-1"></td>
                 </tr>
                 <tr>
-                    <td colspan="3" class="border-top-0 p-1"><strong>Invoice date: </strong><span t-esc="o.invoice_date"/></td>
+                    <td colspan="3" class="p-1"><strong>Invoice date: </strong><span t-esc="o.invoice_date"/></td>
                 </tr>
             </table>
         </xpath>
