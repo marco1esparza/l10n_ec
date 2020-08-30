@@ -206,7 +206,7 @@ class AccountEdiFormat(models.Model):
         #     reader_buffer.close()
         #     buffer.close()
         # return pdf_content
-        return False
+        return pdf_content
 
     ####################################################
     # Import Internal methods (not meant to be overridden)
@@ -252,7 +252,7 @@ class AccountEdiFormat(models.Model):
         * xml_tree:         The tree of the xml if type is xml.
         * pdf_reader:       The pdf_reader if type is pdf.
         """
-        # to_process = []
+        to_process = []
         # try:
         #     buffer = io.BytesIO(content)
         #     pdf_reader = OdooPdfFileReader(buffer)
@@ -273,8 +273,7 @@ class AccountEdiFormat(models.Model):
         #     'pdf_reader': pdf_reader,
         # })
         #
-        # return to_process
-        return False
+        return to_process
 
     def _decode_attachment(self, attachment):
         """Decodes an ir.attachment and unwrap sub-attachment into a list of dictionary each representing an attachment.
