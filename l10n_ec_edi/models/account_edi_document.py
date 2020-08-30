@@ -291,11 +291,12 @@ class AccountEdiDocument(models.Model):
             infoFactElements.extend([
                 ('obligadoContabilidad', 'SI' if self.move_id.company_id.l10n_ec_forced_accounting else 'NO'),
                 ('tipoIdentificacionComprador', self.move_id.partner_id.get_invoice_ident_type()),
-                ('razonSocialComprador', get_SRI_normalized_text(get_invoice_partner_data['invoice_name'])),
+                #TODO: cuando se arregle el metodo get_SRI_normalized_text borrar la sig linea y descomentar la otra
+                ('razonSocialComprador', get_invoice_partner_data['invoice_name']),
+                #('razonSocialComprador', get_SRI_normalized_text(get_invoice_partner_data['invoice_name'])),
                 ('identificacionComprador', get_invoice_partner_data['invoice_vat']),
                 ('totalSinImpuestos', self.move_id.amount_untaxed),
-                #TODO implementar
-                #('totalDescuento', self.move_id.total_discount),
+                ('totalDescuento', self.move_id.l10n_ec_total_discount)#TODO: estan saliendo con muchos decimales
             ])
 #             if document_type.code == '41':
 #                 amount_total, totalComprobantesReembolso, totalImpuestoReembolso = 0, 0, 0
@@ -456,8 +457,7 @@ class AccountEdiDocument(models.Model):
             detalle_data = []
             if each.product_id.get_product_code():
                 if type == 'out_invoice':
-                    #detalle_data = self.getCodigoPrincipal(detalle_data, each)
-                    detalle_data.append(('codigoInterno', each.product_id.get_product_code()[:25]))
+                    detalle_data = self.getCodigoPrincipal(detalle_data, each)
 #                 elif type == 'out_refund':
 #                     detalle_data.append(('codigoInterno', each.product_id.get_product_code()[:25]))
             detalle_data.append(('descripcion', each.name[:300]))
@@ -465,7 +465,7 @@ class AccountEdiDocument(models.Model):
             #TODO: usar algo similar al price_unit-final que deberia ser este l10n_latam_price_net o algo parecido
             detalle_data.append(('precioUnitario',each.l10n_latam_price_net)) #price_unit
             #TODO: agregar un campo funional total_discunt para tener el valor en dolares no %
-            detalle_data.append(('descuento', each.discount))
+            detalle_data.append(('descuento', each.l10n_ec_total_discount))
             detalle_data.append(('precioTotalSinImpuesto', each.l10n_latam_price_subtotal))
             if type == 'out_invoice':
                 detalle_data.append(('detallesAdicionales', None))
@@ -573,6 +573,16 @@ class AccountEdiDocument(models.Model):
         result = etree.SubElement(_parent, _tag, attrib,nsmap, **_extra)
         result.text = (text if not text is None and isinstance(text, str) else not text is None and str(text)) or None
         return result
+    
+    def getCodigoPrincipal(self, detalle_data, each):
+        '''
+        Hook se utilizara para aumentar el codigoAuxiliar
+        en un modulo especifico del cliente.
+        El metodo "get_product_code" retorna al referencia interna o el codigo de barra
+        #TODO: implementar codigoAuxiliar para todos los clientes.
+        '''
+        detalle_data.append(('codigoPrincipal', each.product_id.get_product_code()[:25]))
+        return detalle_data
     
     #Columns
     l10n_ec_access_key = fields.Char(
