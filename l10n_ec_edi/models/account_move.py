@@ -30,7 +30,8 @@ class AccountMove(models.Model):
         Este metodo setea el numero del documento en base al prefijo del punto de impresion
         '''
         if self.l10n_latam_country_code == 'EC':
-            self.l10n_ec_printer_id = self._default_l10n_ec_printer_id()
+            if not self.l10n_ec_printer_id:
+                self.l10n_ec_printer_id = self._default_l10n_ec_printer_id()
             self.l10n_latam_document_number = self._suggested_internal_number(self.l10n_ec_printer_id.id, self.type)
 
     @api.onchange('l10n_latam_document_number')
@@ -211,6 +212,15 @@ class AccountMove(models.Model):
             return custom_report.get(report_xml_id) or report_xml_id
         return super()._get_name_invoice_report(report_xml_id)
     
+    def _compute_total_invoice_ec(self):
+        '''
+        '''
+        for invoice in self:
+            l10n_ec_total_discount = 0.0
+            for line in invoice.invoice_line_ids:
+                l10n_ec_total_discount += line.l10n_ec_total_discount
+            invoice.l10n_ec_total_discount = l10n_ec_total_discount
+    
     #Columns
     l10n_ec_printer_id = fields.Many2one(
         'l10n.ec.sri.printer.point',
@@ -269,6 +279,44 @@ class AccountMove(models.Model):
         method=True,
         store=True,
         help='Es la sumatoria de las formas de pago con códigos 02, 03, 04, 05, 06, 08, 09, 12, 13, 14, 15, 20, 21.'
+        )
+    l10n_ec_total_discount = fields.Monetary(
+        compute='_compute_total_invoice_ec',
+        string='Total Discount',
+        method=True, 
+        store=False,
+        readonly=True,
+        help='Total sum of the discount granted'
+        )
+
+
+class AccountMoveLine(models.Model):
+    _inherit='account.move.line'
+
+    def _compute_total_invoice_line_ec(self):
+        '''
+        '''
+        for line in self:
+            if line.discount:
+                if line.tax_ids:
+                    taxes_res = line.tax_ids._origin.compute_all(self.l10n_latam_price_unit,
+                        quantity=self.quantity, currency=self.currency_id, product=self.product_id, partner=self.partner_id, is_refund=self.move_id.type in ('out_refund', 'in_refund'))
+                    total_discount = taxes_res['total_excluded'] - self.l10n_latam_price_subtotal    
+                else:
+                    total_discount = (self.quantity * self.l10n_latam_price_unit) - self.l10n_latam_price_subtotal
+                #In case of multi currency, round before it's use for computing debit credit
+                if self.currency_id:
+                    total_discount = self.currency_id.round(total_discount)
+            self.l10n_ec_total_discount = total_discount 
+
+    #Columns
+    l10n_ec_total_discount = fields.Monetary(
+        string='Total Discount', 
+        compute='_compute_total_invoice_line_ec', 
+        method=True,
+        store=False,
+        readonly=True,                                     
+        help='Indicates the monetary discount applied to the total invoice line.'
         )
 
 
