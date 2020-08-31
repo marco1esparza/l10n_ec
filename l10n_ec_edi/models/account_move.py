@@ -216,9 +216,30 @@ class AccountMove(models.Model):
         '''
         for invoice in self:
             l10n_ec_total_discount = 0.0
-            for line in invoice.invoice_line_ids:
-                l10n_ec_total_discount += line.l10n_ec_total_discount
+            l10n_ec_base_doce_iva = 0.0
+            l10n_ec_vat_doce_subtotal = 0.0
+            l10n_ec_base_cero_iva = 0.0
+            l10n_ec_base_tax_free = 0.0
+            l10n_ec_base_not_subject_to_vat = 0.0
+            for invoice_line in invoice.invoice_line_ids:
+                l10n_ec_total_discount += invoice_line.l10n_ec_total_discount
+            for move_line in invoice.line_ids:
+                if move_line.tax_group_id:
+                    if move_line.tax_group_id.l10n_ec_type in ['vat12', 'vat14']:
+                        l10n_ec_base_doce_iva += move_line.tax_base_amount
+                        l10n_ec_vat_doce_subtotal += move_line.price_subtotal
+                    if move_line.tax_group_id.l10n_ec_type in ['zero_vat']:
+                        l10n_ec_base_cero_iva += move_line.tax_base_amount
+                    if move_line.tax_group_id.l10n_ec_type in ['exempt_vat']:
+                        l10n_ec_base_tax_free += move_line.tax_base_amount
+                    if move_line.tax_group_id.l10n_ec_type in ['not_charged_vat']:
+                        l10n_ec_base_not_subject_to_vat += move_line.tax_base_amount
             invoice.l10n_ec_total_discount = l10n_ec_total_discount
+            invoice.l10n_ec_base_doce_iva = l10n_ec_base_doce_iva
+            invoice.l10n_ec_vat_doce_subtotal = l10n_ec_vat_doce_subtotal
+            invoice.l10n_ec_base_cero_iva = l10n_ec_base_cero_iva
+            invoice.l10n_ec_base_tax_free = l10n_ec_base_tax_free
+            invoice.l10n_ec_base_not_subject_to_vat = l10n_ec_base_not_subject_to_vat
     
     #Columns
     l10n_ec_printer_id = fields.Many2one(
@@ -246,7 +267,8 @@ class AccountMove(models.Model):
         string='Payment Methods',
         help='Estos valores representan la forma estimada de pago de la factura, son '
              'utilizados con fines informativos en documentos impresos y documentos '
-             'electrónicos. No tienen efecto contable.')
+             'electrónicos. No tienen efecto contable.'
+        )
     l10n_ec_effective_method = fields.Float(
         compute='compute_payment_method',
         string='Effective', 
@@ -286,6 +308,46 @@ class AccountMove(models.Model):
         store=False,
         readonly=True,
         help='Total sum of the discount granted'
+        )
+    l10n_ec_base_doce_iva = fields.Monetary(
+        string='VAT 12 Base',
+        compute='_compute_total_invoice_ec',
+        method=True,
+        store=False, 
+        readonly=True, 
+        help='Summation of total prices included discount of products that tax VAT 12%'
+        )
+    l10n_ec_vat_doce_subtotal = fields.Monetary(
+        string='VAT Value 12', 
+        compute='_compute_total_invoice_ec', 
+        method=True, 
+        store=False,
+        readonly=True, 
+        help='Generated VAT'
+        )
+    l10n_ec_base_cero_iva = fields.Monetary(
+        string='VAT 0 Base', 
+        compute='_compute_total_invoice_ec', 
+        method=True,
+        store=False,
+        readonly=True,
+        help='Sum of total prices included discount of products that tax VAT 0%'
+        )
+    l10n_ec_base_tax_free = fields.Monetary(
+        string='Base Exempt VAT',
+        compute='_compute_total_invoice_ec',
+        method=True,
+        store=False,
+        readonly=True,
+        help='Sum of total prices included discount of products exempt from VAT'
+        )    
+    l10n_ec_base_not_subject_to_vat = fields.Monetary(
+        string='Base Not Object VAT',
+        compute='_compute_total_invoice_ec',
+        method=True,
+        store=False,
+        readonly=True, 
+        help='Sum of total prices included discount of products not subject to VAT'
         )
 
 
