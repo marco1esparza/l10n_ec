@@ -3,9 +3,9 @@
 
 from openerp import fields, models, api
 from odoo.exceptions import UserError
-from OpenSSL import crypto
-from cryptography import x509
-from cryptography.hazmat.backends import default_backend
+#from OpenSSL import crypto
+#from cryptography import x509
+#from cryptography.hazmat.backends import default_backend
 import base64
 import logging
 

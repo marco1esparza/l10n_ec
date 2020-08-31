@@ -12,3 +12,4 @@ from . import res_partner
 from . import payment_method
 from . import account_move
 from . import account_edi_document
+from . import account_edi_format

@@ -159,53 +159,30 @@ class AccountEdiDocument(models.Model):
         #Calcula el digito de control.
         Control = (11 - (x % 11)) % 11
         return Control
-
+    
     def attempt_electronic_document(self):
-        '''
-        Intenta ejecutar el proceso completo de generar el documento electronico
-        '''
-        if self.state in ('sent'):
-            raise ValidationError("No se puede enviar al SRI documentos previamente enviados: Documento %s" % str(self.l10n_ec_access_key or self.id))
-        if self.state in ('canceled'):
+        #First some validations
+        self.ensure_one()
+        if document.state in ('sent'):
+            raise ValidationError("No se puede enviar al SRI documentos previamente enviados: Documento %s" % str(self.name))
+        if document.state in ('canceled'):
             raise ValidationError("No se puede enviar al SRI documentos previamente anulados: Documento %s \n"
-                                  "En su lugar debe crear un nuevo documento electrónico" % str(self.l10n_ec_access_key or self.id)) 
-        if self.state in ('to_send'):
-            self.generate_request_xml_file()
-        #decidimos si nos conectamos al servidor o si lo procesamos localmente
-        connect_to_server = self.env.context.get('connect_to_server', False) #contexto que fuerza conexion desde cron o boton
-        type_document = self.document_id._name
-        if not connect_to_server:
-            #Sin enviar al SRI autorizaremos el documento de forma OFFLINE
-            #Nota: El cron y el boton si se conectan al SRI pues tienen el contexto "connect_to_server"
-            self.update_filler_number_and_access_key()
-            self.state = 'sri_authorized_offline'
-            self.validation_result_message = "Autorizado Offline"
-            self.set_authorizations(self.l10n_ec_access_key)
-            return
-        if self.state in ELECTRONIC_STATES_DRAFT + ELECTRONIC_STATES_OFFLINE:
-            self.update_filler_number_and_access_key()
-            #el siguiente metodo debe invocarse al final pues puede ocurir erroes en la comunicación
-            self.upload_electronic_document_request()
-            #TODO: marco el momento en que fue enviado el documento (reutilizo la fecha de reintento)(Aqui se debe guardar el secuencial consumido en el documento, especialmente facturas)
-            self.send_document_datetime = today
-            #TODO podriamos revisar si hay aprobacion inmediata y escribir el estado aprobado
-            #pero no forma parte del primer sprint, ademas con offline no es perceptible por el usuario  
-        elif self.state in ELECTRONIC_STATES_SENT:
-            #en estos casos estamos a la espera de la respuesta del SRI
-            #consultamos y actualizamos el estado
-            self.download_electronic_document_reply()
-            
-    def generate_request_xml_file(self):
+                                  "En su lugar debe crear un nuevo documento electrónico" % str(self.name)) 
+        if document.state not in ('to_send'):
+            raise ValidationError("Error, solo se puede enviar al SRI documentos en estado A ENVIAR: Documento" %s % str(self.name))
+
+    
+    def _l10n_ec_edi_generate_request(self):
         '''
         Escribe el archivo xml en el campo designado para ello
         '''
         for document in self:
             document.l10n_ec_request_xml_file_name = document.move_id.name + '_draft.xml'
-            xml_string = document.generate_request_xml_string()
+            xml_string = document._l10n_ec_generate_request_xml_string()
             document.l10n_ec_request_xml_file = base64.encodestring(xml_string)
 
     @api.model
-    def generate_request_xml_string(self):
+    def _l10n_ec_generate_request_xml_string(self):
         '''        
         Retorna como string el contenido del reporte xml de documento electronico 
         '''
@@ -225,7 +202,8 @@ class AccountEdiDocument(models.Model):
         xml_content = clean_xml(etree_content, context=context)
         try: #validamos el XML contra el XSD
             if self.move_id.type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18','01','41']:
-                validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
+                #validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
+                pass
         except ValueError: 
             raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
         return xml_content
@@ -473,7 +451,7 @@ class AccountEdiDocument(models.Model):
             self.create_TreeElements(detalle, detalle_data)
             if type == 'out_invoice':
                 detallesAdicionales = detalle.find('detallesAdicionales')
-                self.create_SubElement(detallesAdicionales, 'detAdicional', attrib={'valor': each.product_uom_id.name, 'nombre': 'uom'})
+                self.create_SubElement(detallesAdicionales, 'detAdicional', attrib={'valor': each.product_uom_id.name or 'Unidad', 'nombre': 'uom'})
             impuestos = detalle.find('impuestos')
 #             #TODO: implememtar la siguiente seccion de impuesto
 #             for linetax in each.invoice_line_tax_ids:
