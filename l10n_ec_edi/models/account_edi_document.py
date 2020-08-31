@@ -10,29 +10,26 @@ import base64
 from odoo.addons.l10n_ec_edi.models.common_methods import get_SRI_normalized_text, clean_xml, validate_xml_vs_xsd, XSD_SRI_110_FACTURA
 from odoo.addons.l10n_ec_edi.models.amount_to_words import amount_to_words_es
 
+DEFAULT_ECUADORIAN_DATE_FORMAT = '%d-%m-%Y'
 
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
     
-    def get_access_key(self):
-        '''
-        Genera la clave de acceso del documento electronico
-        Para esta revision en account.invoice se envia el mismo
-        tipo de documento para evitar errores.
-        '''
+    def _l10n_ec_set_access_key(self):
+        #writes de access key of the document
         self.ensure_one()
-        if not self.document_id:
-            return False
-        related_document = self.document_id
+        if not self.move_id:
+            raise ValidationError("Error, el documento electrónico no está vinculado a un asiento contable" %s % str(self.name))
+        related_document = self.move_id
         # cargamos los datos generales
         data_model = related_document._name
-        filler = self.filler_number
+        filler = 3 #puede ser cualquier numero, 3 de trescloud! :)
         # Dato para el portal web
-        if data_model == 'account.invoice':
+        if data_model == 'account.move':
             date = related_document.invoice_date
             document_type = related_document.type
             code_document_type = str(
-                related_document.document_invoice_type_id.code
+                related_document.l10n_latam_document_type_id.code
             )
             if document_type in ('out_invoice','out_refund'):
                 if code_document_type in ('18', '41'):
@@ -42,42 +39,51 @@ class AccountEdiDocument(models.Model):
                 if code_document_type in ('03', '41'):
                     # Factura de venta y reembolso se mapea con codigo '01'
                     code_document_type = '03'
-            document_type_id = related_document.document_invoice_type_id.id
             serie = related_document.l10n_latam_document_number
         else:
             raise ValidationError(
                 u'No se ha implementado documentos electronicos para '
                 u'este modelo de datos'
             )
-        # Datos para el portal web
-        vat_emmiter = _get_clear_vat(
-            str(related_document.company_id.partner_id.vat)
-        )
-
-        cadena = self.gen_access_key(
+        if not related_document.company_id.vat:
+            raise ValidationError(u'Please setup your VAT number in the company form')
+        access_key = self.l10n_ec_get_access_key(
             filler, date, code_document_type, serie,
-            related_document.company_id.partner_id.vat,
-            self.environment_type,
+            related_document.company_id.vat,
+            self.move_id.company_id.l10n_ec_environment_type,
         )
-        # agregado campos que se obtienen desde el access
-        # key ademas de la clave
-        self.write({
-            'access_key': cadena,
-            'name': cadena,
-            'document_date': date,
-            'l10n_latam_document_number': serie,
-            'document_type_id': document_type_id,
-            'commercial_partner_id': self.document_id.partner_id.commercial_partner_id.id,
-            'vat_emmiter': vat_emmiter
-        })
-        return cadena
+        self.l10n_ec_access_key = access_key
     
     @api.model
-    def gen_access_key(self, filler_number, date, code_document_type,
+    def l10n_ec_get_access_key(self, filler_number, date, code_document_type,
                        l10n_latam_document_number, company_vat, environment_type):
         '''
         Genera la clave de acceso del documento electronico
         '''
+        def AuxGenerateModulus11(Numero):
+            '''
+            Input en la forma: 
+            Numero=2334568734
+            '''
+            if str(Numero) != Numero:
+               Numero = str(Numero)    
+            x = 0
+            factor = 2
+            for c in reversed(Numero):    
+                try:
+                    int(c)
+                except ValueError:
+                    # not numeric
+                    continue           
+                else:
+                    # numeric
+                    x += int(c) * factor
+                    factor += 1
+                    if factor == 8:
+                        factor = 2
+            #Calcula el digito de control.
+            Control = (11 - (x % 11)) % 11
+            return Control
 
         # cargamos los datos generales
         cadena = ''
@@ -85,18 +91,10 @@ class AccountEdiDocument(models.Model):
         cod_number = '0' * (fill - len(str(filler_number))) + \
                      str(filler_number)
         type_emm = '1'
-        vat_emmiter = _get_clear_vat(company_vat)
+        #vat_emmiter = _get_clear_vat(company_vat)
+        vat_emmiter = company_vat
         '''first value date'''
-        fdate = date.find('-')
-        fdateo = date.find('/')
-        if fdate != -1:
-            date = date.split('-')
-            # si es un datetime se remueven las horas minutos y segundos
-            cadena = '' + date[2][:2] + date[1] + date[0]
-        elif fdateo != -1:
-            date = date.split('/')
-            # si es un datetime se remueven las horas minutos y segundos
-            cadena = '' + date[2][:2] + date[1] + date[0]
+        date = date.strftime(DEFAULT_ECUADORIAN_DATE_FORMAT)
         '''second value tipo de comprobante, tabla 4 de la ficha
          tecnica de docs electronicos'''
         cadena += code_document_type
@@ -123,7 +121,7 @@ class AccountEdiDocument(models.Model):
         '''eigth value tipo emision siempre sera 1 '''
         cadena += type_emm
         number_c = int(cadena)
-        digit_ver = self.GenerateModulus11(number_c)
+        digit_ver = AuxGenerateModulus11(number_c)
         # Cuando el resultado del dígito verificador obtenido
         # sea igual a once (11), el digito verificador será el cero (0) y
         # cuando el resultado del dígito verificador obtenido sea igual
@@ -135,81 +133,36 @@ class AccountEdiDocument(models.Model):
         cadena = cadena + str(digit_ver)
         return cadena
     
-    def GenerateModulus11(self, Numero):
+    def _l10n_ec_generate_request_xml_file(self):
         '''
-        Input en la forma: 
-        Numero=2334568734
+        Escribe el archivo xml request en el campo designado para ello
         '''
-        if str(Numero) != Numero:
-           Numero = str(Numero)    
-        x = 0
-        factor = 2
-        for c in reversed(Numero):    
-            try:
-                int(c)
-            except ValueError:
-                # not numeric
-                continue           
-            else:
-                # numeric
-                x += int(c) * factor
-                factor += 1
-                if factor == 8:
-                    factor = 2
-        #Calcula el digito de control.
-        Control = (11 - (x % 11)) % 11
-        return Control
-    
-    def attempt_electronic_document(self):
-        #First some validations
         self.ensure_one()
-        if document.state in ('sent'):
-            raise ValidationError("No se puede enviar al SRI documentos previamente enviados: Documento %s" % str(self.name))
-        if document.state in ('canceled'):
-            raise ValidationError("No se puede enviar al SRI documentos previamente anulados: Documento %s \n"
-                                  "En su lugar debe crear un nuevo documento electrónico" % str(self.name)) 
-        if document.state not in ('to_send'):
-            raise ValidationError("Error, solo se puede enviar al SRI documentos en estado A ENVIAR: Documento" %s % str(self.name))
-
-    
-    def _l10n_ec_edi_generate_request(self):
-        '''
-        Escribe el archivo xml en el campo designado para ello
-        '''
-        for document in self:
-            document.l10n_ec_request_xml_file_name = document.move_id.name + '_draft.xml'
-            xml_string = document._l10n_ec_generate_request_xml_string()
-            document.l10n_ec_request_xml_file = base64.encodestring(xml_string)
-
-    @api.model
-    def _l10n_ec_generate_request_xml_string(self):
-        '''        
-        Retorna como string el contenido del reporte xml de documento electronico 
-        '''
-        context = self.env.context.copy()
-        if not context.get('lang',False) or not context.get('tz', False) or not context.get('uid', False):  
-            #TODO: Investigar el error, a veces el context llega incompleto y el reporte no se puede generar, parece ser cuando se viene desde el cron
-            user = self.env.user
-            if not context.get('lang', False):
-                context.update({'lang': user.lang})
-            if not context.get('tz', False):
-                context.update({'tz': user.tz})
-            if not context.get('uid', False):
-                context.update({'uid': user.id})
-        assert len(self) == 1, u'Esta opción sólo debe utilizarse para un solo identificador a la vez.'
+        #TODO V13 REMOVER, dudo que el error de contexto se siga presentando
+#         context = self.env.context.copy()
+#         if not context.get('lang',False) or not context.get('tz', False) or not context.get('uid', False):  
+#             #TODO: Investigar el error, a veces el context llega incompleto y el reporte no se puede generar, parece ser cuando se viene desde el cron
+#             user = self.env.user
+#             if not context.get('lang', False):
+#                 context.update({'lang': user.lang})
+#             if not context.get('tz', False):
+#                 context.update({'tz': user.tz})
+#             if not context.get('uid', False):
+#                 context.update({'uid': user.id})
         #generamos y validamos el documento
-        etree_content = self.create_electronic_document()
-        xml_content = clean_xml(etree_content, context=context)
-        try: #validamos el XML contra el XSD
-            if self.move_id.type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18','01','41']:
+        if self.move_id.type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18','41']:
+            etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
+            xml_content = clean_xml(etree_content)
+            try: #validamos el XML contra el XSD
                 #validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
                 pass
-        except ValueError: 
-            raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
-        return xml_content
+            except ValueError: 
+                raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
+        self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
+        self.l10n_ec_request_xml_file = base64.encodestring(xml_content)
     
     @api.model
-    def create_electronic_document(self):
+    def _l10n_ec_get_xml_request_for_sale_invoice(self):
         # INICIO CREACION DE FACTURA
         type = self.move_id.type
         document_type = self.move_id.l10n_latam_document_type_id

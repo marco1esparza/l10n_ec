@@ -108,12 +108,10 @@ class AccountMove(models.Model):
                 #Facturas de ventas electronicas
                 if invoice.type in ('out_invoice') and invoice.l10n_ec_printer_id.l10n_ec_allow_electronic_document:
                     for document in invoice.edi_document_ids:
-                        if document.state not in ('sent'):
-                            document.edi_format_id = self.env.ref('l10n_ec_edi.ec_edi_format_invoice_18').id
-                            if not document.access_key:
-                                #needed to print offline RIDE and populate request after validations
-                                document._l10n_ecupdate_filler_number_and_access_key()
-                                document._l10n_ec_edi_generate_request()
+                        if document.state in ('to_send'):
+                            #needed to print offline RIDE and populate request after validations
+                            document._l10n_ec_set_access_key()
+                            document._l10n_ec_generate_request_xml_file()
         return res
     
     def view_credit_note(self):

@@ -14,7 +14,7 @@ import base64
 
 _logger = logging.getLogger(__name__)
 
-DEFAULT_FACTUR_ECUADORIAN_DATE_FORMAT = '%d-%m-%Y'
+
 
 
 class AccountEdiFormat(models.Model):
@@ -40,7 +40,7 @@ class AccountEdiFormat(models.Model):
         :return: True if such a web service is available, False otherwise.
         """
         self.ensure_one()
-        return False if self.code in ['l10n_ec_sale_18'] else super()._needs_web_services() 
+        return True if self.code in ['l10n_ec_sale_18'] else super()._needs_web_services() 
 
     
     def _is_compatible_with_journal(self, journal):
@@ -73,31 +73,25 @@ class AccountEdiFormat(models.Model):
             return edi_result
         test_mode = True #Hasta que Pato complete el firmado y el envío al SRI
         for invoice in invoices:
+            #First some validations
+            self.ensure_one()
+            if invoice.edi_state in ('sent'):
+                raise ValidationError("No se puede enviar al SRI documentos previamente enviados: Documento %s" % str(self.name))
+            if invoice.edi_state in ('canceled'):
+                raise ValidationError("No se puede enviar al SRI documentos previamente anulados: Documento %s \n"
+                                      "En su lugar debe crear un nuevo documento electrónico" % str(self.name)) 
+            if invoice.edi_state not in ('to_send'):
+                raise ValidationError("Error, solo se puede enviar al SRI documentos en estado A ENVIAR: Documento" %s % str(self.name))
             if len(invoice.edi_document_ids) != 1: #Primera versión, como en v10, relación 1 a 1
                 raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar" %s % str(invoice.name))
             document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_send")
-            #Generate the XML request
-            request = document._l10n_ec_edi_generate_request()
-            if request.get('errors'):
-                edi_result[invoice] = {
-                    'error': self._l10n_ec_edi_format_error_message(_("Failure during the generation of the electronic document XML:"), request['errors']),
-                }
-                continue
-            #Validate XML request vs XSD
-            validation = document._l10n_ec_edi_xml_vs_xsd(invoice)
-            if validation.get('errors'):
-                edi_result[invoice] = {
-                    'error': self._l10n_ec_edi_format_error_message(_("Failure during the internal validation of the electronic document vs XSD:"), validation['errors']),
-                }
-                continue
             #Sign the XML request
-            if not test_mode:
-                signed = document._l10n_ec_edi_signing(invoice)
-                if signed .get('errors'):
-                    edi_result[invoice] = {
-                        'error': self._l10n_ec_edi_format_error_message(_("Failure during the digital signing of the electronic document:"), signed['errors']),
-                    }
-                    continue
+            signed = document._l10n_ec_edi_signing(invoice)
+            if signed .get('errors'):
+                edi_result[invoice] = {
+                    'error': self._l10n_ec_edi_format_error_message(_("Failure during the digital signing of the electronic document:"), signed['errors']),
+                }
+                continue
             #Send the XML request to Tax Authority
             if not test_mode:
                 #Firts try to download reply, if not available try sending again
