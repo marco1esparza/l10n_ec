@@ -77,7 +77,8 @@ class L10NECSRIPrinterPoint(models.Model):
         help=''
         )
     l10n_ec_allow_electronic_document = fields.Boolean(
-        string=u'Permitir la emisión de doc electrónicos', 
+        string=u'Permitir la emisión de doc electrónicos',
+        default=True, 
         help=u'Active esta opción para habilitar la emisión de doc electrónicos'
         )
     l10n_ec_invoice_sequence_id = fields.Many2one(

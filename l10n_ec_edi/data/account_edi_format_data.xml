@@ -4,7 +4,7 @@
 
 		<record id="ec_edi_format_invoice" model="account.edi.format">
 			<field name="name">Factura</field>
-			<field name="code">18</field>
+			<field name="code">l10n_ec_sale_18</field>
 		</record>
 
 	</data>
