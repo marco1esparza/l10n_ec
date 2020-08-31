@@ -527,15 +527,15 @@ class AccountEdiDocument(models.Model):
         ocurra un error posterior el sistema persista el hecho de que remitio la informacion
         a un servidor externo
         '''
-        # Se verifica PRIMERO si ya existe el documento para evitar errores
         already_process = False
-        reply = self._l10n_ec_check_electronic_document(self.access_key)
+        #reply = self._l10n_ec_check_electronic_document(self.access_key) #TODO ver si es necesario, parece que esta en en validarComprobante
+        reply = False
         if not reply:
             # Se realiza la firma del documento
-            signed_xml = self.sign_digital_xml(self.access_key,
-                                               self.sudo().company_id.digital_cert_id.cert_encripted,
-                                               self.sudo().company_id.digital_cert_id.password_p12,
-                                               self.request_xml_file)
+            signed_xml = self._l10n_ec_sign_digital_xml(self.l10n_ec_access_key,
+                                               self.sudo().move_id.company_id.l10n_ec_digital_cert_id.l10n_ec_cert_encripted,
+                                               self.sudo().move_id.company_id.l10n_ec_digital_cert_id.l10n_ec_password_p12,
+                                               self.l10n_ec_request_xml_file)
             client = self._l10n_ec_open_connection_sri(timeout=10, mode='reception')
             reply = client.service.validarComprobante(signed_xml)
             # Hasta este momento el documento ha sido recibido, se lo marca como tal
@@ -561,7 +561,7 @@ class AccountEdiDocument(models.Model):
         if not already_process:
             self.download_electronic_document_reply()
     
-    def sign_digital_xml(self, access_key, cert_encripted, password_p12, draft_electronic_document_in_xml, path_temp='/tmp/'):
+    def _l10n_ec_sign_digital_xml(self, access_key, cert_encripted, password_p12, draft_electronic_document_in_xml, path_temp='/tmp/'):
         #To be redefined in module l10n_ec_digital_signature
         return True
     

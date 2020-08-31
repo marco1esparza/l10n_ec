@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'   
     
-    def sign_digital_xml(self, access_key, cert_encripted, password_p12, draft_electronic_document_in_xml, path_temp='/tmp/'):
+    def _l10n_ec_sign_digital_xml(self, access_key, cert_encripted, password_p12, draft_electronic_document_in_xml, path_temp='/tmp/'):
         '''
         Realizamos el firmado del documento xml previo a su envio
         Se utiliza libreria externa en JAVA compilada por TRESCLOUD
