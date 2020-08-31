@@ -10,7 +10,13 @@ import base64
 from odoo.addons.l10n_ec_edi.models.common_methods import get_SRI_normalized_text, clean_xml, validate_xml_vs_xsd, XSD_SRI_110_FACTURA
 from odoo.addons.l10n_ec_edi.models.amount_to_words import amount_to_words_es
 
+from suds.client import Client #para los webservices, pip install suds-community
 DEFAULT_ECUADORIAN_DATE_FORMAT = '%d-%m-%Y'
+ELECTRONIC_SRI_WSDL_RECEPTION_OFFLINE = 'https://cel.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl'
+ELECTRONIC_SRI_WSDL_RECEPTION_TEST_OFFLINE = 'https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl'
+ELECTRONIC_SRI_WSDL_AUTORIZATION_OFFLINE = 'https://cel.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl'
+ELECTRONIC_SRI_WSDL_AUTORIZATION_TEST_OFFLINE = 'https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl'
+
 
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
@@ -515,7 +521,95 @@ class AccountEdiDocument(models.Model):
         detalle_data.append(('codigoPrincipal', each.product_id.get_product_code()[:25]))
         return detalle_data
     
-    #Columns
+    def _l10n_ec_upload_electronic_document(self):
+        '''Envia la peticion de aprobacion del documento electronico al servidor externo
+        Tiene un cuidado especial con los commits pues se debe cuidar que a pesar de que
+        ocurra un error posterior el sistema persista el hecho de que remitio la informacion
+        a un servidor externo
+        '''
+        # Se verifica PRIMERO si ya existe el documento para evitar errores
+        already_process = False
+        reply = self._l10n_ec_check_electronic_document(self.access_key)
+        if not reply:
+            # Se realiza la firma del documento
+            signed_xml = self.sign_digital_xml(self.access_key,
+                                               self.sudo().company_id.digital_cert_id.cert_encripted,
+                                               self.sudo().company_id.digital_cert_id.password_p12,
+                                               self.request_xml_file)
+            client = self._l10n_ec_open_connection_sri(timeout=10, mode='reception')
+            reply = client.service.validarComprobante(signed_xml)
+            # Hasta este momento el documento ha sido recibido, se lo marca como tal
+            self.set_sri_received()
+            # En esta caso el estado DEVUELTA es uno especial, que no se registra en el SRI
+            # por eso hay que analizar la respuesta
+            if 'estado' in reply and reply.estado == 'DEVUELTA':
+                res = {}
+                mensaje = reply.comprobantes.comprobante[0].mensajes.mensaje[0]
+                # Hay algun problema, se entrega este error al sistema
+                res = {
+                    'EstadoActual': unicode(reply.estado),
+                    'Mensaje': unicode(mensaje.tipo + ", " + mensaje.identificador + ", " + mensaje.mensaje), 
+                    'Detalle': unicode(mensaje.informacionAdicional),
+                    'NumeroAutorizacion': '0000000000',
+                    'ClaveAcceso': unicode(reply.comprobantes.comprobante[0].claveAcceso)
+                    }
+                self._process_electronic_document_reply(res)
+                already_process = True
+            # Esperamos 1 segundo para que el SRI procese el documento
+            time.sleep(1)
+        # Descargamos el estado del documento que ya fue recibido si no ha sido procesado todavia
+        if not already_process:
+            self.download_electronic_document_reply()
+    
+    def sign_digital_xml(self, access_key, cert_encripted, password_p12, draft_electronic_document_in_xml, path_temp='/tmp/'):
+        #To be redefined in module l10n_ec_digital_signature
+        return True
+    
+    def _l10n_ec_check_electronic_document(self, access_key):
+        '''
+        Consulta el estado de un documento electronico en el SRI
+        Retorna el estado como texto
+        '''
+        client = self._l10n_ec_open_connection_sri()
+        response = client.service.autorizacionComprobante(access_key)
+        if response.numeroComprobantes != '0':
+            # se encontro al menons un documento asociado a la clave requerida
+            return response
+        else:
+            return {}
+        
+    def _l10n_ec_download_electronic_document_reply(self):
+        #Consulta el estado del doc electronico al servidor externo y procesa la respuesta
+        reply = self.check_electronic_document_sri(self.access_key)
+        result = self.env['l10n.ec.common.methods'].parse_result(reply)
+        self.write_xml_reply(result.get('xml_as_text'))
+        self._process_electronic_document_reply()
+    
+    def _l10n_ec_open_connection_sri(self, timeout=10, mode='autorization'):
+        '''
+        Nos conectamos al sistema del S.R.I. de documentos electronicos
+        Este paso depende de que se requiere hacer ya que el SRI expone 2 servicios
+        uno para enviar los documentos y otro para verificar su estado, ademas de que
+        tiene diferencaicion si es offline o no. 
+        Para esta version se forzara siempre el modo offline
+        mode: permite indicar en que modo se realizara la conexion, 
+              autorization -> conecta al WS que permite consultar el estado de los documentos
+              reception -> conecta al WS que permite enviar documentos    
+        '''
+        environment_type = self.move_id.company_id.environment_type
+        if environment_type == '1': #SRI Test Environment
+            if mode == 'autorization':
+                WSDL_URL = ELECTRONIC_SRI_WSDL_AUTORIZATION_TEST_OFFLINE
+            elif mode == 'reception':
+                WSDL_URL = ELECTRONIC_SRI_WSDL_RECEPTION_TEST_OFFLINE
+        elif environment_type == '2': #SRI Production Environment
+            if mode == 'autorization':
+                WSDL_URL = ELECTRONIC_SRI_WSDL_AUTORIZATION_OFFLINE
+            elif mode == 'reception':
+                WSDL_URL = ELECTRONIC_SRI_WSDL_RECEPTION_OFFLINE
+        client = Client(WSDL_URL)
+        return client
+    
     l10n_ec_access_key = fields.Char(
         string='Access Key', 
         readonly=True,
