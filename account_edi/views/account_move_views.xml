@@ -40,7 +40,6 @@
                 <xpath expr="//field[@name='invoice_incoterm_id']" position="after">
                     <field name="edi_document_ids" invisible="0" />
                     <field name="edi_state" invisible="0" />
-                    <field name="edi_state"/>
                     <!-- 
                     <field name="edi_state" attrs="{'invisible': ['|', ('edi_document_ids', '=', []), ('state', '=', 'draft')]}"/>
                      -->
