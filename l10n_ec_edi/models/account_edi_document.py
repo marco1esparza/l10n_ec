@@ -603,15 +603,13 @@ class AccountEdiDocument(models.Model):
                                            self.l10n_ec_request_xml_file)
         client = self._l10n_ec_open_connection_sri(mode='reception')
         reply = client.service.validarComprobante(signed_xml)
-        if reply.comprobantes.comprobante[0].claveAcceso == 'N/A':
+        if reply.comprobantes and reply.comprobantes.comprobante[0].claveAcceso == 'N/A':
             raise ValidationError(str(reply.comprobantes.comprobante[0].mensajes.mensaje))
         
     def _l10n_ec_download_electronic_document_reply(self):
         #Consulta el estado del doc electronico al servidor externo y procesa la respuesta
         client = self._l10n_ec_open_connection_sri()
         access_key = self.l10n_ec_access_key
-        #access_key = "3108202001179236683600120010020000019670000000315"
-        #access_key = "3108202001179236683600120010020000019670000000"
         state = 'not_yet_ready'
         response = client.service.autorizacionComprobante(access_key)
         msgs = ''
