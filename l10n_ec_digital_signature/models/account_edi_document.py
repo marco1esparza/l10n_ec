@@ -28,18 +28,19 @@ class AccountEdiDocument(models.Model):
             allow write a file
             '''
             f=open(path,'w')
-            f.write(data)
+            f.buffer.write(data)
+            #f.write(data)
             f.close()
         def open_file(path):
             '''
             allow read a file and return the content
             '''    
-            f=open(path,'r')
+            f=open(path,'rb')
             data = f.read()
             return data
         # todo se maneja por archivo, para evitar problemas se usa la clave para nombrarlos
         # path general: /tmp/
-        path_temp = "/tmp/"
+        path_temp = "/tmp/"#"."#
         file_p12 = path_temp + access_key + ".p12"
         file_xml = path_temp + access_key + ".xml"
         file_sign_xml = access_key + "_sign.xml"
@@ -55,6 +56,12 @@ class AccountEdiDocument(models.Model):
         sign_path = os.path.join(os.path.dirname(__file__), JAR_PATH)
         command = [
             JAVA_CMD,
+            #Parameters to avoid Error occurred during initialization of VM Could not allocate metaspace: 1073741824 bytes
+            '-XX:MaxHeapSize=512m', 
+            '-XX:InitialHeapSize=512m',
+            '-XX:CompressedClassSpaceSize=64m',
+            '-XX:MaxMetaspaceSize=128m',
+            '-XX:+UseConcMarkSweepGC',
             '-jar',
             sign_path,
             file_p12,
@@ -76,10 +83,10 @@ class AccountEdiDocument(models.Model):
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
         )
-        res = p.communicate()
-        if 'Error:' in res[0]:
-            _logger.error('Error en proceso JAVA: %s' % str(res))
-            raise NameError('Error al firmar el documento electronico, revise el log del sistema')
+        #para que esta secci[on... parece repetida__
+        outs, errs = p.communicate()
+        if errs:
+            raise NameError('Error en proceso JAVA: %s' % str(errs))
         xml_sign = open_file(path_temp + file_sign_xml)
         os.remove(file_p12)
         os.remove(file_xml)

@@ -11,12 +11,16 @@ from datetime import date, datetime
 import logging
 import base64
 
+import xml.etree.ElementTree as ElementTree
+from xml.dom import minidom
+
 _logger = logging.getLogger(__name__)
 
 
 class AccountEdiFormat(models.Model):
     _inherit = 'account.edi.format'
-
+    
+    #Redefinitions based on account_edi
     def _is_required_for_invoice(self, invoice):
         """ Indicate if this EDI must be generated for the invoice passed as parameter.
 
@@ -82,31 +86,37 @@ class AccountEdiFormat(models.Model):
                 raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar" %s % str(invoice.name))
             document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_send")
             #Sign the XML request and Send the XML request to Tax Authority
-            if not test_mode:
-                #Firts try to download reply, if not available try sending again
-                #download = document._l10n_ec_download_electronic_document()
-                upload = document._l10n_ec_upload_electronic_document()
-                if upload.get('errors'):
-                    edi_result[invoice] = {
-                        'error': self._l10n_ec_edi_format_error_message(_("Failure reported by Tax Authority:"), upload['errors']),
-                    }
-                    continue
-            #Create attachment
-            electronic_document_attachment = self.env['ir.attachment'].create({
-                'name': invoice.name,
-                'res_id': invoice.id,
-                'res_model': invoice._name,
-                'type': 'binary',
-                'datas': download['electronic_authorized'],
-                'mimetype': 'application/xml',
-                'description': _('Ecuadorian electronic document for the %s document.') % invoice.name,
-            })
-            edi_result[invoice] = {'attachment': electronic_document_attachment}
-            #Chatter, no_new_invoice to prevent creation of another new invoice "from the attachment"
-            invoice.with_context(no_new_invoice=True).message_post(
-                body=_("The ecuadorian electronic document was successfully created, signed and validated by the tax authority"),
-                attachment_ids=electronic_document_attachment.ids,
-            )
+            if test_mode:
+                return edi_result
+            #Firts try to download reply, if not available try sending again
+            response_state, response, msgs = document._l10n_ec_download_electronic_document_reply()
+            if response_state == 'non-existent':
+                document._l10n_ec_upload_electronic_document()
+                time.sleep(1) # Esperamos 1 segundo para que el SRI procese el documento
+                response_state, response, msgs = document._l10n_ec_download_electronic_document_reply()
+            if msgs: #TODO V13: Capturar y presentar mejor los errores
+                edi_result[invoice] = {
+                    'error': self._l10n_ec_edi_format_error_message(_("Failure reported by Tax Authority:"), msgs),
+                }
+                continue
+            if response_state in ['sent']:
+                #Create attachment, only if successful
+                datas = self._l10n_ec_build_external_xml(response).encode('utf-8')
+                electronic_document_attachment = self.env['ir.attachment'].create({
+                    'name': invoice.name,
+                    'res_id': invoice.id,
+                    'res_model': invoice._name,
+                    'type': 'binary',
+                    'datas': datas,
+                    'mimetype': 'application/xml',
+                    'description': _('Ecuadorian electronic document for the %s document.') % invoice.name,
+                })
+                edi_result[invoice] = {'attachment': electronic_document_attachment}
+                #Chatter, no_new_invoice to prevent creation of another new invoice "from the attachment"
+                invoice.with_context(no_new_invoice=True).message_post(
+                    body=_("The ecuadorian electronic document was successfully created, signed and validated by the tax authority"),
+                    attachment_ids=electronic_document_attachment.ids,
+                )
         return edi_result
 
     def _cancel_invoice_edi(self, invoices, test_mode=False):
@@ -126,7 +136,50 @@ class AccountEdiFormat(models.Model):
         #TODO: Agregar fecha y hora del error, pues en v13 ya no tenemos el campo de fecha de ultimo reintento
         bullet_list_msg = ''.join('<li>%s</li>' % msg for msg in errors)
         return '%s<ul>%s</ul>' % (error_title, bullet_list_msg)
-        
-        
+    
+    def _l10n_ec_build_external_xml(self, result):
+        '''
+        Costruye un xml similar al del SRI para ser almacenado y enviado por correo
+        Tiene las siguientes particularidaes:
+        - Almacena el contenido del comprobante en un CDATA para evitar distorsiones
+        - No hay formato del SRI establecido para este xml, nos basamos en el porveedor puntonet para construirlo
+        @result es la respuesta del webservice del SRI
+        '''
+        root = ElementTree.Element("RespuestaAutorizacionComprobante")
+        ElementTree.SubElement(root, "claveAccesoConsultada").text = result.claveAccesoConsultada
+        ElementTree.SubElement(root, "numeroComprobantes").text = result.numeroComprobantes
+        autorizaciones = ElementTree.SubElement(root, "autorizaciones")
+        autorizacion = ElementTree.SubElement(autorizaciones, "autorizacion")
+        ElementTree.SubElement(autorizacion, "estado").text = result.autorizaciones.autorizacion[0].estado
+        # Cuando el documento es 'NO AUTORIZADO' se envia el numero 0000000000 como autorizacion
+        if 'numeroAutorizacion' in result.autorizaciones.autorizacion[0]: 
+            ElementTree.SubElement(autorizacion, "numeroAutorizacion").text = result.autorizaciones.autorizacion[0].numeroAutorizacion
+        else: 
+            ElementTree.SubElement(autorizacion, "numeroAutorizacion").text = '0000000000'
+        date_format = result.autorizaciones.autorizacion[0].fechaAutorizacion.strftime('%Y-%m-%dT%H:%M:%S.000%Z')
+        ElementTree.SubElement(autorizacion, "fechaAutorizacion").text = date_format
+        ElementTree.SubElement(autorizacion, "ambiente").text = result.autorizaciones.autorizacion[0].ambiente
+        # pulimos la respuesta para hacerla estandar
+        comprobante = result.autorizaciones.autorizacion[0].comprobante
+        comprobante = "<![CDATA[" + comprobante + "]]>" 
+        ElementTree.SubElement(autorizacion, "comprobante").text = comprobante 
+        # Mensajes retornados
+        mensajes = ElementTree.SubElement(autorizacion, "mensajes")
+        mesage_tit = ''
+        mesage_desc = ''
+        data_error = result.autorizaciones.autorizacion[0].mensajes
+        if data_error:
+            data_error = data_error[0][0]
+            mesage_tit = data_error.tipo + ", " + data_error.identificador + ", " + data_error.mensaje
+            mesage_desc = data_error.informacionAdicional
+        ElementTree.SubElement(mensajes, "mensaje").text = mesage_tit
+        ElementTree.SubElement(mensajes, "detalle").text = mesage_desc
+        parse_pretty = minidom.parseString('<?xml version="1.0" encoding="utf-8"?>' + ElementTree.tostring(root, encoding='utf-8').decode())
+        response = parse_pretty.toprettyxml()
+        # Cambiar codigo mayor que, menor que, comillas simples por el caracter adecuado
+        response = response.replace("&lt;", "<")
+        response = response.replace("&gt;", ">")
+        response = response.replace("&quot;", "'")
+        return response
         
         
