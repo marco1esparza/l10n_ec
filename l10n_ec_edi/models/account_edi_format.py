@@ -68,7 +68,6 @@ class AccountEdiFormat(models.Model):
         edi_result = super()._post_invoice_edi(invoices, test_mode=test_mode)
         if self.code not in ['l10n_ec_sale_18']:
             return edi_result
-        test_mode = True #Hasta que Pato complete el firmado y el envío al SRI
         for invoice in invoices:
             #First some validations
             self.ensure_one()
@@ -82,17 +81,10 @@ class AccountEdiFormat(models.Model):
             if len(invoice.edi_document_ids) != 1: #Primera versión, como en v10, relación 1 a 1
                 raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar" %s % str(invoice.name))
             document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_send")
-            #Sign the XML request
-            signed = document._l10n_ec_edi_signing(invoice)
-            if signed .get('errors'):
-                edi_result[invoice] = {
-                    'error': self._l10n_ec_edi_format_error_message(_("Failure during the digital signing of the electronic document:"), signed['errors']),
-                }
-                continue
-            #Send the XML request to Tax Authority
+            #Sign the XML request and Send the XML request to Tax Authority
             if not test_mode:
                 #Firts try to download reply, if not available try sending again
-                download = document._l10n_ec_download_electronic_document()
+                #download = document._l10n_ec_download_electronic_document()
                 upload = document._l10n_ec_upload_electronic_document()
                 if upload.get('errors'):
                     edi_result[invoice] = {
