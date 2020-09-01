@@ -11,10 +11,7 @@ from datetime import date, datetime
 import logging
 import base64
 
-
 _logger = logging.getLogger(__name__)
-
-
 
 
 class AccountEdiFormat(models.Model):
