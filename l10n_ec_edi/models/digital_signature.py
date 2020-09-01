@@ -53,8 +53,13 @@ class L10NECDigitalSignature(models.Model):
         para obtener la informacion, segun recomendacion de OpenSSL
         """
         # Lectura de la firma desde el campo binario
-        data = base64.b64decode(self.l10n_ec_cert_encripted) 
-        p12 = crypto.load_pkcs12(data, passphrase=bytes(password_crypt))
+        data = base64.b64decode(self.l10n_ec_cert_encripted)
+        try:
+            #p12 = crypto.load_pkcs12(data, password_crypt)
+            p12 = crypto.load_pkcs12(data, passphrase=bytes(password_crypt, encoding='utf8'))
+        except Exception as e:
+            raise UserError(e)
+        
         # Se ha identificado que los certificados p12 al pedir uno nuevo y al emitirse
         # para la misma persona se incluyen en el archivo todos los certificados. La 
         # libreria de encripcion en python o por bash siempre lee las fechas del primer
@@ -69,9 +74,8 @@ class L10NECDigitalSignature(models.Model):
         # Guardamos la llave primaria
         self.l10n_ec_private_key = crypto.dump_privatekey(crypto.FILETYPE_PEM, p12.get_privatekey())
         # Guardamos la firma
-        self.l10n_ec_signature = crypto.dump_signature(crypto.FILETYPE_PEM, p12.get_signature())
-        #
-        #
+        #TODO V13: Habilitar este campo
+        #self.l10n_ec_signature = crypto.dump_signature(crypto.FILETYPE_PEM, p12.get_signature())
         # Creo un listado de certificados para analizarlos
         list_cert = {}
         # lista de certificados ca
@@ -99,29 +103,11 @@ class L10NECDigitalSignature(models.Model):
         self.l10n_ec_name = final_signature.serial_number
         self.l10n_ec_not_valid_after = final_signature.l10n_ec_not_valid_after
         self.l10n_ec_not_valid_before = final_signature.l10n_ec_not_valid_before
-        self.l10n_ec_password_p12 = password_crypt
-        self.l10n_ec_state = 'confirmed'
+        
 
     def button_aprove(self):
-        """
-        Este metodo permite procesar el archivo encriptado para obtener
-        los datos requeridos pidiendo la contraseña al usuario
-        """
-        company_signature_confirmed = self.search([('l10n_ec_company_id', '=', self.l10n_ec_company_id.id), ('l10n_ec_state', '=', 'confirmed')])
-        if company_signature_confirmed:
-            raise UserError(u'Solo se puede existir una firma confirmado por compania!')
-        res = self.env.ref('l10n_ec_electronic_document.view_wizard_digital_signature')
-        return {
-            'name': u'Ingresar a contraseña para desencriptar la firma',
-            'view_type': 'form',
-            'view_mode': 'form',
-            'context': {'signature': self.id},
-            'view_id': res.id if res else False,
-            'res_model': 'wizard.digital.signature',
-            'type': 'ir.actions.act_window',
-            'nodestroy': True,
-            'target': 'new'
-        }
+        #self.get_digital_signature(self.l10n_ec_password_p12)
+        self.l10n_ec_state = 'confirmed'
     
     def button_cancel(self):
         """

@@ -104,7 +104,8 @@ class AccountEdiDocument(models.Model):
         #vat_emmiter = _get_clear_vat(company_vat)
         vat_emmiter = company_vat
         '''first value date'''
-        date = date.strftime(DEFAULT_ECUADORIAN_DATE_FORMAT)
+        date = date.strftime('%d%m%Y')
+        cadena += date
         '''second value tipo de comprobante, tabla 4 de la ficha
          tecnica de docs electronicos'''
         cadena += code_document_type
@@ -165,7 +166,6 @@ class AccountEdiDocument(models.Model):
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
                 validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
-                pass
             except ValueError: 
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
         self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
@@ -592,71 +592,43 @@ class AccountEdiDocument(models.Model):
             raise
         return code
     
-    def _l10n_ec_upload_electronic_document(self):
-        '''Envia la peticion de aprobacion del documento electronico al servidor externo
-        Tiene un cuidado especial con los commits pues se debe cuidar que a pesar de que
-        ocurra un error posterior el sistema persista el hecho de que remitio la informacion
-        a un servidor externo
-        '''
-        already_process = False
-        #reply = self._l10n_ec_check_electronic_document(self.access_key) #TODO ver si es necesario, parece que esta en en validarComprobante
-        reply = False
-        if not reply:
-            # Se realiza la firma del documento
-            signed_xml = self._l10n_ec_sign_digital_xml(self.l10n_ec_access_key,
-                                               self.sudo().move_id.company_id.l10n_ec_digital_cert_id.l10n_ec_cert_encripted,
-                                               self.sudo().move_id.company_id.l10n_ec_digital_cert_id.l10n_ec_password_p12,
-                                               self.l10n_ec_request_xml_file)
-            client = self._l10n_ec_open_connection_sri(timeout=10, mode='reception')
-            reply = client.service.validarComprobante(signed_xml)
-            # Hasta este momento el documento ha sido recibido, se lo marca como tal
-            self.set_sri_received()
-            # En esta caso el estado DEVUELTA es uno especial, que no se registra en el SRI
-            # por eso hay que analizar la respuesta
-            if 'estado' in reply and reply.estado == 'DEVUELTA':
-                res = {}
-                mensaje = reply.comprobantes.comprobante[0].mensajes.mensaje[0]
-                # Hay algun problema, se entrega este error al sistema
-                res = {
-                    'EstadoActual': unicode(reply.estado),
-                    'Mensaje': unicode(mensaje.tipo + ", " + mensaje.identificador + ", " + mensaje.mensaje), 
-                    'Detalle': unicode(mensaje.informacionAdicional),
-                    'NumeroAutorizacion': '0000000000',
-                    'ClaveAcceso': unicode(reply.comprobantes.comprobante[0].claveAcceso)
-                    }
-                self._process_electronic_document_reply(res)
-                already_process = True
-            # Esperamos 1 segundo para que el SRI procese el documento
-            time.sleep(1)
-        # Descargamos el estado del documento que ya fue recibido si no ha sido procesado todavia
-        if not already_process:
-            self.download_electronic_document_reply()
-    
     def _l10n_ec_sign_digital_xml(self, access_key, cert_encripted, password_p12, draft_electronic_document_in_xml, path_temp='/tmp/'):
         #To be redefined in module l10n_ec_digital_signature
         return True
-    
-    def _l10n_ec_check_electronic_document(self, access_key):
-        '''
-        Consulta el estado de un documento electronico en el SRI
-        Retorna el estado como texto
-        '''
-        client = self._l10n_ec_open_connection_sri()
-        response = client.service.autorizacionComprobante(access_key)
-        if response.numeroComprobantes != '0':
-            # se encontro al menons un documento asociado a la clave requerida
-            return response
-        else:
-            return {}
+
+    def _l10n_ec_upload_electronic_document(self):
+        # Se realiza la firma del documento
+        signed_xml = self._l10n_ec_sign_digital_xml(self.l10n_ec_access_key,
+                                           self.sudo().move_id.company_id.l10n_ec_digital_cert_id.l10n_ec_cert_encripted,
+                                           self.sudo().move_id.company_id.l10n_ec_digital_cert_id.l10n_ec_password_p12,
+                                           self.l10n_ec_request_xml_file)
+        client = self._l10n_ec_open_connection_sri(mode='reception')
+        reply = client.service.validarComprobante(signed_xml)
+        if reply.comprobantes.comprobante[0].claveAcceso == 'N/A':
+            raise ValidationError(str(reply.comprobantes.comprobante[0].mensajes.mensaje))
         
     def _l10n_ec_download_electronic_document_reply(self):
         #Consulta el estado del doc electronico al servidor externo y procesa la respuesta
-        reply = self.check_electronic_document_sri(self.access_key)
-        result = self.env['l10n.ec.common.methods'].parse_result(reply)
-        self.write_xml_reply(result.get('xml_as_text'))
-        self._process_electronic_document_reply()
+        client = self._l10n_ec_open_connection_sri()
+        access_key = self.l10n_ec_access_key
+        #access_key = "3108202001179236683600120010020000019670000000315"
+        #access_key = "3108202001179236683600120010020000019670000000"
+        state = 'not_yet_ready'
+        response = client.service.autorizacionComprobante(access_key)
+        msgs = ''
+        if response.autorizaciones:
+            if response.autorizaciones.autorizacion[0].estado == 'AUTORIZADO':
+                state = 'sent'
+            #TODO descargar el estado final ANULADO
+        elif response.numeroComprobantes == '0':
+            state = 'non-existent'
+        elif int(response.numeroComprobantes) > 0:
+            #Cuando el documento ya existe en el SRI, aunque con errores
+            msgs = response.autorizaciones.autorizacion[0].mensajes
+        return state, response, msgs
+
     
-    def _l10n_ec_open_connection_sri(self, timeout=10, mode='autorization'):
+    def _l10n_ec_open_connection_sri(self, mode='autorization'):
         '''
         Nos conectamos al sistema del S.R.I. de documentos electronicos
         Este paso depende de que se requiere hacer ya que el SRI expone 2 servicios
@@ -667,7 +639,7 @@ class AccountEdiDocument(models.Model):
               autorization -> conecta al WS que permite consultar el estado de los documentos
               reception -> conecta al WS que permite enviar documentos    
         '''
-        environment_type = self.move_id.company_id.environment_type
+        environment_type = self.move_id.company_id.l10n_ec_environment_type
         if environment_type == '1': #SRI Test Environment
             if mode == 'autorization':
                 WSDL_URL = ELECTRONIC_SRI_WSDL_AUTORIZATION_TEST_OFFLINE
@@ -679,6 +651,7 @@ class AccountEdiDocument(models.Model):
             elif mode == 'reception':
                 WSDL_URL = ELECTRONIC_SRI_WSDL_RECEPTION_OFFLINE
         client = Client(WSDL_URL)
+        #client = Client(WSDL_URL,retxml=True,prettyxml=True)
         return client
     
     l10n_ec_access_key = fields.Char(
