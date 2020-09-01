@@ -51,5 +51,6 @@ class Company(models.Model):
     l10n_ec_forced_accounting = fields.Boolean(
         string='Forced to Keep Accounting Books',
         track_visibility='onchange',
+        default=True,
         help='If set you are obligated to keep accounting, it will be used for printing electronic invoices and reports'
         )

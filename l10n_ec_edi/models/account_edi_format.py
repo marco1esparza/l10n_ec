@@ -13,6 +13,7 @@ import base64
 
 import xml.etree.ElementTree as ElementTree
 from xml.dom import minidom
+from time import sleep
 
 _logger = logging.getLogger(__name__)
 
@@ -92,7 +93,7 @@ class AccountEdiFormat(models.Model):
             response_state, response, msgs = document._l10n_ec_download_electronic_document_reply()
             if response_state == 'non-existent':
                 document._l10n_ec_upload_electronic_document()
-                time.sleep(1) # Esperamos 1 segundo para que el SRI procese el documento
+                sleep(2) # Esperamos 2 segundos para que el SRI procese el documento
                 response_state, response, msgs = document._l10n_ec_download_electronic_document_reply()
             if msgs: #TODO V13: Capturar y presentar mejor los errores
                 edi_result[invoice] = {

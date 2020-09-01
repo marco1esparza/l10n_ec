@@ -92,4 +92,4 @@ class AccountEdiDocument(models.Model):
         os.remove(file_p12)
         os.remove(file_xml)
         os.remove(path_temp + file_sign_xml)
-        return base64.b64encode(xml_sign)
+        return base64.b64encode(xml_sign).decode()
