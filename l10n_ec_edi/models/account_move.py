@@ -22,36 +22,29 @@ class AccountMove(models.Model):
                 if self.type in ['out_invoice', 'in_invoice']:
                     l10n_ec_payment_method_id = payment_method_ids[0].id
             self.l10n_ec_payment_method_id = l10n_ec_payment_method_id
-        return res
-
-    @api.onchange('l10n_ec_printer_id')
-    def onchange_l10n_ec_printer_id(self):
-        '''
-        Este metodo setea el numero del documento en base al prefijo del punto de impresion
-        '''
-        if self.l10n_latam_country_code == 'EC':
             if not self.l10n_ec_printer_id:
                 self.l10n_ec_printer_id = self._default_l10n_ec_printer_id()
-            self.l10n_latam_document_number = self._suggested_internal_number(self.l10n_ec_printer_id.id, self.type)
+        return res
+
+    @api.onchange('l10n_ec_printer_id', 'l10n_latam_document_type_id')
+    def onchange_l10n_ec_printer_id(self):
+        '''
+        Este metodo setea el numero del documento en False cada vez que se cambia de Punto de Impresion y Tipo Documento
+        '''
+        if self.l10n_latam_country_code == 'EC':
+            self.l10n_latam_document_number = False
 
     @api.onchange('l10n_latam_document_number')
     def onchange_l10n_latam_document_number(self):
         '''
         Este método agrega relleno del numero de factura en caso que lo requiera
         '''
-        if self.l10n_latam_country_code == 'EC':
-            number_split = self.l10n_latam_document_number.split('-')
-            if len(number_split) == 3 and number_split[2] != '':
-                if len(number_split[2]) < 17:
-                    #Require auto complete
-                    pos = 0
-                    fill = 9 - len(number_split[2])
-                    for car in number_split[2]:
-                        if car != '0':
-                            break
-                        pos = pos + 1
-                    number_split[2] = number_split[2][:pos] + '0' * fill + number_split[2][pos:]
-                    self.l10n_latam_document_number =  number_split[0] + '-' + number_split[1] + '-' + number_split[2]
+        number = self.l10n_latam_document_number
+        if self.l10n_latam_country_code == 'EC' and self.l10n_latam_document_number and self.l10n_ec_printer_id:
+            number_split = number.split('-')
+            number = number_split[len(number_split)-1]
+            number = self.l10n_ec_printer_id.prefix + number.zfill(9)
+        self.l10n_latam_document_number = number
 
     @api.onchange('invoice_date', 'invoice_payment_term_id', 'l10n_ec_payment_method_id', 'invoice_line_ids', 'invoice_date_due')
     def onchange_set_l10n_ec_invoice_payment_method_ids(self):
@@ -101,12 +94,14 @@ class AccountMove(models.Model):
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
+        for invoice in self:
+            if not invoice.company_id.vat:
+                raise ValidationError(u'Please setup your VAT number in the company form')
         res = super(AccountMove, self).post() #TODO JOSE: Al llamar a super ya nos comemos las secuencias nativas, deberíamos comernoslas una sola vez
         for invoice in self:
             if invoice.l10n_latam_country_code == 'EC':
-                invoice.l10n_latam_document_number = invoice._get_internal_number_by_sequence()
                 #Facturas de ventas electronicas
-                if invoice.type in ('out_invoice') and invoice.l10n_ec_printer_id.l10n_ec_allow_electronic_document:
+                if invoice.type in ('out_invoice') and invoice.l10n_ec_printer_id.allow_electronic_document:
                     for document in invoice.edi_document_ids:
                         if document.state in ('to_send'):
                             #needed to print offline RIDE and populate request after validations
@@ -130,7 +125,7 @@ class AccountMove(models.Model):
         printer_id = self.l10n_ec_printer_id.id or self._default_l10n_ec_printer_id()
         if not printer_id:
             return self.l10n_latam_document_number
-        printer_obj = self.env['l10n.ec.sri.printer.point']
+        printer_obj = self.env['l10n_ec.sri.printer.point']
         printer = printer_obj.browse(printer_id)
         document_type = {
             'out_invoice': 'invoice',
@@ -149,7 +144,7 @@ class AccountMove(models.Model):
         if self.l10n_latam_country_code == 'EC':
             printer_id = self.env.user.l10n_ec_printer_id.id
             if not printer_id:
-                printers = self.env['l10n.ec.sri.printer.point'].search([], limit=1)
+                printers = self.env['l10n_ec.sri.printer.point'].search([], limit=1)
                 if printers:
                     printer_id = printers[0].id
         return printer_id
@@ -162,13 +157,13 @@ class AccountMove(models.Model):
         internal_number = False
         if type in ['out_invoice', 'out_refund']:
             internal_number = '001-001-'
-            printer = self.env['l10n.ec.sri.printer.point'].browse(printer_id)
-            if printer.l10n_ec_prefix:
-                internal_number = printer.l10n_ec_prefix
+            printer = self.env['l10n_ec.sri.printer.point'].browse(printer_id)
+            if printer.prefix:
+                internal_number = printer.prefix
             else:
                 if not printer:
-                    printer = self.env['l10n.ec.sri.printer.point'].browse(self._default_l10n_ec_printer_id())
-                    internal_number = printer.l10n_ec_prefix
+                    printer = self.env['l10n_ec.sri.printer.point'].browse(self._default_l10n_ec_printer_id())
+                    internal_number = printer.prefix
         if type in ['in_invoice', 'in_refund']:
             internal_number = '001-001-'
         return internal_number
@@ -219,10 +214,27 @@ class AccountMove(models.Model):
             for line in invoice.invoice_line_ids:
                 l10n_ec_total_discount += line.l10n_ec_total_discount
             invoice.l10n_ec_total_discount = l10n_ec_total_discount
+
+    def _get_document_type_sequence(self):
+        """ Return the match sequences for the given journal and invoice """
+        self.ensure_one()
+        if self.l10n_latam_country_code == 'EC':
+            res = self.l10n_ec_printer_id.l10n_ec_sequence_ids.filtered(
+                lambda x: x.l10n_latam_document_type_id == self.l10n_latam_document_type_id)
+            return res
+        return super()._get_document_type_sequence()
+
+    @api.depends('l10n_latam_document_type_id', 'l10n_ec_printer_id')
+    def _compute_l10n_latam_sequence(self):
+        recs_with_l10n_ec_printer_id = self.filtered('l10n_ec_printer_id')
+        for rec in recs_with_l10n_ec_printer_id:
+            rec.l10n_latam_sequence_id = rec._get_document_type_sequence()
+        remaining = self - recs_with_l10n_ec_printer_id
+        remaining.l10n_latam_sequence_id = False
     
     #Columns
     l10n_ec_printer_id = fields.Many2one(
-        'l10n.ec.sri.printer.point',
+        'l10n_ec.sri.printer.point',
         string='Punto de emisión', readonly = True,
         states = {'draft': [('readonly', False)]},
         default=_default_l10n_ec_printer_id,

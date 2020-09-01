@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	
+	<record id="view_printer_point_form" model="ir.ui.view">
+		<field name="name">view.printer.point.form</field>
+		<field name="model">l10n_ec.sri.printer.point</field>
+		<field name="type">form</field>
+		<field name="arch" type="xml">
+            <form string="Printer Point">
+            	<group>
+	                <group name="group_left" string="Printer Point">
+	                	<field name="name" required="1"/>
+						<field name="prefix" readonly="1" attrs="{'invisible': [('company_id', '=', False)]}"/>
+						<field name="allow_electronic_document"/>
+						<field name="company_id" readonly="1" invisible="1"/>
+						<field name="printer_point_address"/>
+						<field name="l10n_ec_sequence_ids" nolabel="1" colspan="2">
+							<tree create="false" delete="false" editable="top" default_order="id">
+								<field name="name" readonly="True" string="Sequence"/>
+								<field name="number_next_actual" string="Next Number"/>
+								<field name="id" invisible="1"/>
+							</tree>
+						</field>
+	                </group>
+	            </group>
+			</form>
+		</field>
+	</record>
+
+	<record id="view_printer_point_tree" model="ir.ui.view">
+		<field name="name">view.printer.point.tree</field>
+		<field name="model">l10n_ec.sri.printer.point</field>
+		<field name="type">tree</field>
+		<field name="arch" type="xml">
+			<tree string="Printer Point">
+			    <field name="name"/>
+			    <field name="prefix"/>
+			</tree>
+		</field>
+	</record>
+
+	<record id="action_view_printer_point" model="ir.actions.act_window">
+		<field name="name">Punto de emisión</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">l10n_ec.sri.printer.point</field>
+		<field name="view_mode">tree,form</field>
+		<field name="help" type="html">
+	      <p class="oe_view_nocontent_create">
+	        Click to define a new printer point.
+	      </p><p>
+	        Define the printing points used by your company.
+	      </p>
+	    </field>
+	</record>
+
+	<menuitem id="action_sri_menu" name="SRI" parent="account.menu_finance_configuration" sequence="4"/>
+
+	<menuitem id="menu_view_printer_point" action="action_view_printer_point" parent="action_sri_menu" sequence="2"/>
+
+</odoo>

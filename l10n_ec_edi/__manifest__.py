@@ -32,13 +32,13 @@
     ],    
     'data': [
         #Data
-        'data/printer_point_data.xml',
+        'data/l10n_ec_sri_printer_point_data.xml',
         'data/payment_method_data.xml',
         'data/account_edi_format_data.xml',
         #Security
        'security/ir.model.access.csv',
         #Views
-        'views/printer_point_view.xml',
+        'views/l10n_ec_sri_printer_point_view.xml',
         'views/digital_signature_view.xml',
         'views/res_company_view.xml',
         'views/res_users_view.xml',
