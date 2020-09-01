@@ -12,6 +12,10 @@ from odoo.addons.l10n_ec_edi.models.amount_to_words import amount_to_words_es
 
 DEFAULT_ECUADORIAN_DATE_FORMAT = '%d-%m-%Y'
 
+_IVA_CODES = ('vat12', 'vat14' 'zero_vat', 'not_charged_vat', 'exempt_vat') 
+_ICE_CODES = ('ice',) 
+_IRBPNR_CODES = ('irbpnr',)
+
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
     
@@ -154,7 +158,7 @@ class AccountEdiDocument(models.Model):
             etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
-                #validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
+                validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
                 pass
             except ValueError: 
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
@@ -304,83 +308,82 @@ class AccountEdiDocument(models.Model):
         # sido creado un impuesto, de otro modo la factura debe tener algun valor
         totalConImpuestos = infoFactura.find('totalConImpuestos')
         taxes_zero = True
-        #TODO:implementar todo esto
-#         # Esta parte analiza el 12% y 14%
-#         if self.base_doce_iva != 0:
-#             totalImpuesto = self.create_SubElement(totalConImpuestos, 'totalImpuesto')
-#             totalconImpuesto = [] 
-#             totalconImpuesto.append(('codigo', '2')) #tabla 16
-#             #el sri permite facturas simultaneas con base 12% y base14%
-#             #pero nuestro sistema solo permite el uno o el otro, por eso el if
-#             #TODO v11 hacer un campo funcional que abstraiga esta logica en el pie de la factura 
-#             vat_percentages = []
-#             for tax_line in self.tax_line_ids:
-#                 if tax_line.tax_id.type_ec != 'vat':
-#                     continue #pasamos al siguiente impuesto, solo me interesan los de iva
-#                 vat_percentages.append(tax_line.tax_id.amount)
-#             vat_percentages = list(set(vat_percentages)) #removemos duplicados
-#             if len(vat_percentages) != 1:
-#                 raise UserError('No se puede determinar si es IVA 12% o IVA 14%')
-#             if vat_percentages[0] == 12.0:
-#                 vcodigoPorcentaje = '2'
-#             elif vat_percentages[0] == 14.0:
-#                 vcodigoPorcentaje = '3'
-#             totalconImpuesto.append(('codigoPorcentaje', vcodigoPorcentaje))
-#             totalconImpuesto.append(('baseImponible', self.base_doce_iva))
-#             totalconImpuesto.append(('valor', self.vat_doce_subtotal))
-#             self.create_TreeElements(totalImpuesto, totalconImpuesto)
-#             taxes_zero = False
-#         # Esta parte analiza el IVA 0%
-#         if self.base_cero_iva != 0:
-#             totalImpuesto = self.create_SubElement(totalConImpuestos, 'totalImpuesto')
-#             totalconImpuesto = [] 
-#             totalconImpuesto.append(('codigo', '2'))
-#             totalconImpuesto.append(('codigoPorcentaje', '0'))
-#             totalconImpuesto.append(('baseImponible', self.base_cero_iva))
-#             totalconImpuesto.append(('valor', '0'))
-#             self.create_TreeElements(totalImpuesto, totalconImpuesto)
-#             taxes_zero = False
-#         # Esta parte analiza el iva exento 
-#         if self.base_tax_free != 0:
-#             totalImpuesto = self.create_SubElement(totalConImpuestos, 'totalImpuesto')
-#             totalconImpuesto = [] 
-#             totalconImpuesto.append(('codigo', '2'))
-#             totalconImpuesto.append(('codigoPorcentaje', '7'))
-#             totalconImpuesto.append(('baseImponible', self.base_tax_free))
-#             totalconImpuesto.append(('valor', '0'))
-#             self.create_TreeElements(totalImpuesto, totalconImpuesto)
-#             taxes_zero = False
-#         # Esta parte analiza el no objeto de iva%
-#         if self.base_not_subject_to_vat != 0:
-#             totalImpuesto = self.create_SubElement(totalConImpuestos, 'totalImpuesto')
-#             totalconImpuesto = [] 
-#             totalconImpuesto.append(('codigo', '2'))
-#             totalconImpuesto.append(('codigoPorcentaje', '6'))
-#             totalconImpuesto.append(('baseImponible', self.base_not_subject_to_vat))
-#             totalconImpuesto.append(('valor', '0'))
-#             self.create_TreeElements(totalImpuesto, totalconImpuesto)
-#             taxes_zero = False
-#         # Para emitir facturas con subtotal 0.0, como no hay impuestos entonces creamos un impuesto de 12% iva con 0.0 en el valor del IVA
-#         if taxes_zero:
-#             totalImpuesto = self.create_SubElement(totalConImpuestos, 'totalImpuesto')
-#             totalconImpuesto = []
-#             totalconImpuesto.append(('codigo', '2'))
-#             totalconImpuesto.append(('codigoPorcentaje', '2'))
-#             totalconImpuesto.append(('baseImponible', '0'))
-#             totalconImpuesto.append(('valor', '0'))
-#             self.create_TreeElements(totalImpuesto, totalconImpuesto)
-#         if type == 'out_invoice':
-#             pagos = infoFactura.find('pagos')
-#             # CREACION DE PAGOS
-#             for payment in self.move_id.l10n_ec_invoice_payment_method_ids:
-#                 pago = self.create_SubElement(pagos, 'pago')
-#                 pago_data = [
-#                     ('formaPago', payment.l10n_ec_payment_method_id.code),
-#                     ('total', '{0:.2f}'.format(payment.l10n_ec_amount)),
-#                     ('plazo', payment.l10n_ec_days_payment_term),
-#                     ('unidadTiempo','dias')
-#                 ]
-#                 self.create_TreeElements(pago, pago_data)
+        # Esta parte analiza el 12% y 14%
+        if self.move_id.l10n_ec_base_doce_iva != 0:
+            totalImpuesto = self.create_SubElement(totalConImpuestos, 'totalImpuesto')
+            totalconImpuesto = [] 
+            totalconImpuesto.append(('codigo', '2')) #tabla 16
+            #el sri permite facturas simultaneas con base 12% y base14%
+            #pero nuestro sistema solo permite el uno o el otro, por eso el if
+            #TODO v11 hacer un campo funcional que abstraiga esta logica en el pie de la factura 
+            vat_percentages = []
+            for move_line in self.move_id.line_ids:
+                if move_line.tax_group_id:
+                    if move_line.tax_group_id.l10n_ec_type in ['vat12', 'vat14']:
+                        vat_percentages.append(move_line.tax_line_id.amount)
+            vat_percentages = list(set(vat_percentages)) #removemos duplicados
+            if len(vat_percentages) != 1:
+                raise UserError('No se puede determinar si es IVA 12% o IVA 14%')
+            if vat_percentages[0] == 12.0:
+                vcodigoPorcentaje = '2'
+            elif vat_percentages[0] == 14.0:
+                vcodigoPorcentaje = '3'
+            totalconImpuesto.append(('codigoPorcentaje', vcodigoPorcentaje))
+            totalconImpuesto.append(('baseImponible', self.move_id.l10n_ec_base_doce_iva))
+            totalconImpuesto.append(('valor', self.move_id.l10n_ec_vat_doce_subtotal))
+            self.create_TreeElements(totalImpuesto, totalconImpuesto)
+            taxes_zero = False
+        # Esta parte analiza el IVA 0%
+        if self.move_id.l10n_ec_base_cero_iva != 0:
+            totalImpuesto = self.create_SubElement(totalConImpuestos, 'totalImpuesto')
+            totalconImpuesto = [] 
+            totalconImpuesto.append(('codigo', '2'))
+            totalconImpuesto.append(('codigoPorcentaje', '0'))
+            totalconImpuesto.append(('baseImponible', self.move_id.l10n_ec_base_cero_iva))
+            totalconImpuesto.append(('valor', '0'))
+            self.create_TreeElements(totalImpuesto, totalconImpuesto)
+            taxes_zero = False
+        # Esta parte analiza el iva exento 
+        if self.move_id.l10n_ec_base_tax_free != 0:
+            totalImpuesto = self.create_SubElement(totalConImpuestos, 'totalImpuesto')
+            totalconImpuesto = [] 
+            totalconImpuesto.append(('codigo', '2'))
+            totalconImpuesto.append(('codigoPorcentaje', '7'))
+            totalconImpuesto.append(('baseImponible', self.move_id.l10n_ec_base_tax_free))
+            totalconImpuesto.append(('valor', '0'))
+            self.create_TreeElements(totalImpuesto, totalconImpuesto)
+            taxes_zero = False
+        # Esta parte analiza el no objeto de iva%
+        if self.move_id.l10n_ec_base_not_subject_to_vat != 0:
+            totalImpuesto = self.create_SubElement(totalConImpuestos, 'totalImpuesto')
+            totalconImpuesto = [] 
+            totalconImpuesto.append(('codigo', '2'))
+            totalconImpuesto.append(('codigoPorcentaje', '6'))
+            totalconImpuesto.append(('baseImponible', self.move_id.l10n_ec_base_not_subject_to_vat))
+            totalconImpuesto.append(('valor', '0'))
+            self.create_TreeElements(totalImpuesto, totalconImpuesto)
+            taxes_zero = False
+        # Para emitir facturas con subtotal 0.0, como no hay impuestos entonces creamos un impuesto de 12% iva con 0.0 en el valor del IVA
+        if taxes_zero:
+            totalImpuesto = self.create_SubElement(totalConImpuestos, 'totalImpuesto')
+            totalconImpuesto = []
+            totalconImpuesto.append(('codigo', '2'))
+            totalconImpuesto.append(('codigoPorcentaje', '2'))
+            totalconImpuesto.append(('baseImponible', '0'))
+            totalconImpuesto.append(('valor', '0'))
+            self.create_TreeElements(totalImpuesto, totalconImpuesto)
+        if type == 'out_invoice':
+            pagos = infoFactura.find('pagos')
+            # CREACION DE PAGOS
+            for payment in self.move_id.l10n_ec_invoice_payment_method_ids:
+                pago = self.create_SubElement(pagos, 'pago')
+                pago_data = [
+                    ('formaPago', payment.l10n_ec_payment_method_id.l10n_ec_code),
+                    ('total', '{0:.2f}'.format(payment.l10n_ec_amount)),
+                    ('plazo', payment.l10n_ec_days_payment_term),
+                    ('unidadTiempo','dias')
+                ]
+                self.create_TreeElements(pago, pago_data)
         # DETALLES DE LA FACTURA
         detalles = etree.SubElement(factura, 'detalles')
         for each in self.move_id.invoice_line_ids:
@@ -406,21 +409,20 @@ class AccountEdiDocument(models.Model):
                 detallesAdicionales = detalle.find('detallesAdicionales')
                 self.create_SubElement(detallesAdicionales, 'detAdicional', attrib={'valor': each.product_uom_id.name or 'Unidad', 'nombre': 'uom'})
             impuestos = detalle.find('impuestos')
-#             #TODO: implememtar la siguiente seccion de impuesto
-#             for linetax in each.invoice_line_tax_ids:
-#                 if linetax.type_ec in ('vat', 'zero_vat', 'not_charged_vat', 'exempt_vat', 'ice', 'irbpnr'):
-#                     impuesto = self.create_SubElement(impuestos, 'impuesto')
-#                     tax_data, valor, tarifa, codigoPorc = [], 0.0, 0, 0
-#                     try:
-#                         valor, tarifa, codigoPorc = self._get_tax_value_amount(linetax, 12, each.invoice_id.base_doce_iva, each.price_subtotal)
-#                     except:
-#                         raise ValidationError(u'No se puede procesar el documento debido a que no se ha implementado los casos ICE o IRBPNR.')
-#                     tax_data.append(('codigo', self._get_code(linetax)))
-#                     tax_data.append(('codigoPorcentaje', codigoPorc)) 
-#                     tax_data.append(('tarifa', tarifa))
-#                     tax_data.append(('baseImponible', each.price_subtotal))
-#                     tax_data.append(('valor', '{0:.2f}'.format(valor)))
-#                     self.create_TreeElements(impuesto, tax_data)
+            for linetax in each.tax_ids:
+                if linetax.tax_group_id.l10n_ec_type in ('vat12', 'vat14' 'zero_vat', 'not_charged_vat', 'exempt_vat', 'ice', 'irbpnr'):
+                    impuesto = self.create_SubElement(impuestos, 'impuesto')
+                    tax_data, valor, tarifa, codigoPorc = [], 0.0, 0, 0
+                    try:
+                        valor, tarifa, codigoPorc = self._get_tax_value_amount(linetax, 12, each.move_id.l10n_ec_base_doce_iva, each.price_subtotal)
+                    except:
+                        raise ValidationError(u'No se puede procesar el documento debido a que no se ha implementado los casos ICE o IRBPNR.')
+                    tax_data.append(('codigo', self._get_code(linetax)))
+                    tax_data.append(('codigoPorcentaje', codigoPorc)) 
+                    tax_data.append(('tarifa', tarifa))
+                    tax_data.append(('baseImponible', each.price_subtotal))
+                    tax_data.append(('valor', '{0:.2f}'.format(valor)))
+                    self.create_TreeElements(impuesto, tax_data)
 #         if document_type.code == '41':
 #             reembolsos = self.create_SubElement(factura, 'reembolsos')
 #             for each in self.account_refund_client_ids:
@@ -514,6 +516,75 @@ class AccountEdiDocument(models.Model):
         '''
         detalle_data.append(('codigoPrincipal', each.product_id.get_product_code()[:25]))
         return detalle_data
+    
+    def _get_code(self, tax_id):
+        """
+        Este metodo devuelve los codigos para IVA, ICE o IRBPNR
+        """
+        if tax_id.tax_group_id.l10n_ec_type in _IVA_CODES:
+            return 2
+        elif tax_id.tax_group_id.l10n_ec_type in _ICE_CODES:
+            return 3
+        elif tax_id.tax_group_id.l10n_ec_type in _IRBPNR_CODES:
+            return 5
+        else: 
+            raise ValidationError(u'No se ha implementado ningún código en los documentos '
+                                  u'electrónicos para este tipo de impuestos.')
+    
+    def _get_tax_value_amount(self, tax_id, tax_amount, amount_graba, price_subtotal):
+        '''
+        Se obtiene el valor del impuesto por la linea de factura
+        :param tax_id: impuestos en la factura.
+        :param tax_amount: Monto de porcentaje de IVA
+        :param amount_graba:  Monto base de la factura de los productos que graban IVA
+        :param price_subtotal: Subtotal de la precios de la linea
+        '''
+        code = self._get_tax_code_iva_invoice(tax_id, tax_amount, amount_graba)
+        value = 0
+        value_tax = 0
+        if code == 3:
+            value = price_subtotal * 0.14
+            value_tax = 14
+        elif code == 2:
+            value = price_subtotal * 0.12
+            value_tax = 12
+        # Estos codigos con iva 0, exento, y no objeto de iva por eso el valos es 0
+        elif code in (0, 6, 7):
+            value = price_subtotal * 0.0
+            value_tax = 0
+        return value, value_tax, code
+    
+    def _get_tax_code_iva_invoice(self, tax_id, tax_amount, amount_graba):
+        '''
+        Se obtiene el codigo del impuesto por la linea de factura
+        :param tax_id: impuestos en la factura.
+        :param tax_amount: Monto de porcentaje de IVA
+        :param amount_graba:  Monto base de la factura de los productos que graban IVA
+        '''
+        code = 0
+        if 'vat12' in tax_id.tax_group_id.l10n_ec_type or 'vat14' in tax_id.tax_group_id.l10n_ec_type:
+            if tax_id.tax_group_id.l10n_ec_type in['vat12', 'vat14']:
+                if tax_id.amount_type == 'percent':
+                    if tax_id.amount == 14.0:
+                        code = 3
+                    elif tax_id.amount == 12.0:
+                        code = 2
+                elif tax_id.amount_type == 'code':
+                    if amount_graba:
+                        if tax_amount == 0.14:
+                            code = 3
+                        elif tax_amount == 0.12:
+                            code = 2
+            elif tax_id.tax_group_id.l10n_ec_type == 'zero_vat':
+                code = 0
+            elif tax_id.tax_group_id.l10n_ec_type == 'not_charged_vat':
+                code = 6
+            elif tax_id.tax_group_id.l10n_ec_type == 'exempt_vat':
+                code = 7
+        # TODO: Implementar todos los otros casos que no son para el IVA ej. ICE, IRBPNR
+        else:
+            raise
+        return code
     
     #Columns
     l10n_ec_access_key = fields.Char(
