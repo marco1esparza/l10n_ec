@@ -9,39 +9,6 @@ import re
 class L10nEcSRIPrinterPoint(models.Model):
     _name = 'l10n_ec.sri.printer.point'
 
-    def unlink(self):
-        '''
-        Invocamos el metodo unlink para eliminar el punto de impresion y las secuencias asociadas
-        '''
-        for printer in self:
-            pass
-        return super(L10nEcSRIPrinterPoint, self).unlink()
-
-    @api.model
-    def get_next_sequence_number(self, printer, document_type, number):
-        '''
-        For a specific type of document, the current printer tries to get
-          the next number from the sequence. if no sequence exists, we must
-          return the same input number or current printer's prefix. If the
-          number is well-formatted and for the current printer point, we must
-          return such number - respecting it.
-        '''
-        number = (number or '').strip()
-        if not printer or re.match('^\d{3}-\d{3}-\d{9}$', number) and number.startswith(printer.prefix):
-            return number
-        #sequence = {
-        #    'invoice': printer.invoice_sequence_id,
-        #    'refund': printer.credit_note_sequence_id,
-        #    'debit': printer.debit_note_sequence_id,
-        #    'purchClear': printer.purchase_clearance_sequence_id,
-        #    'withhold': printer.withhold_sequence_id,
-        #    'waybill': printer.waybill_sequence_id
-        #}.get(document_type, False)
-        sequence = False
-        if not sequence:
-            return number or printer.prefix
-        return sequence.next_by_id()
-
     @api.depends('name')
     def _get_prefix(self):
         '''
