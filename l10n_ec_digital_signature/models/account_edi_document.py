@@ -8,6 +8,8 @@ import base64
 import logging
 _logger = logging.getLogger(__name__)
 
+from odoo.exceptions import UserError
+
 
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'   
@@ -46,8 +48,7 @@ class AccountEdiDocument(models.Model):
         file_sign_xml = access_key + "_sign.xml"
         # creacion de archivos
         if not cert_encripted:
-            _logger.error('La firma digital tiene una longitud de 0 bytes')
-            raise NameError('La firma digital tiene una longitud de 0 bytes')
+            raise UserError('La firma digital tiene 0 bytes, quizá deba subir su firma digital en Contabilidad / Configuración / Firmas Digitales')
         write_file(file_p12, base64.b64decode(cert_encripted))
         write_file(file_xml, base64.b64decode(draft_electronic_document_in_xml))
         # ejecucion del aplicativo

@@ -102,6 +102,7 @@ class AccountEdiFormat(models.Model):
             if response_state in ['sent']:
                 #Create attachment, only if successful
                 datas = self._l10n_ec_build_external_xml(response).encode('utf-8')
+                datas = base64.encodebytes(datas)
                 electronic_document_attachment = self.env['ir.attachment'].create({
                     'name': invoice.name,
                     'res_id': invoice.id,

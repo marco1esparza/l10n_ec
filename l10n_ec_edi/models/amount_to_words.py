@@ -10,6 +10,7 @@ UNIDADES = ( '', 'Un ', 'Dos ', 'Tres ', 'Cuatro ', 'Cinco ', 'Seis ', 'Siete ',
 DECENAS = ('Veinti', 'Treinta ', 'Cuarenta ', 'Cincuenta ', 'Sesenta ', 'Setenta ', 'Ochenta ', 'Noventa ', 'Cien ')
 CENTENAS = ('Ciento ', 'Doscientos ', 'Trescientos ', 'Cuatrocientos ', 'Quinientos ', 'Seiscientos ', 'Setecientos ', 'Ochocientos ', 'Novecientos '  )      
 
+#TODO Se sugiere remover porque ya existe en currency
 def number_to_word(number_in):
     '''
     Convierte un numero a letras
