@@ -29,7 +29,7 @@ class AccountEdiDocument(models.Model):
         #writes de access key of the document
         self.ensure_one()
         if not self.move_id:
-            raise ValidationError("Error, el documento electrónico no está vinculado a un asiento contable" %s % str(self.name))
+            raise ValidationError("Error, el documento electrónico no está vinculado a un asiento contable %s" % self.name)
         related_document = self.move_id
         # cargamos los datos generales
         data_model = related_document._name
@@ -55,8 +55,7 @@ class AccountEdiDocument(models.Model):
                 u'No se ha implementado documentos electronicos para '
                 u'este modelo de datos'
             )
-        if not related_document.company_id.vat:
-            raise ValidationError(u'Please setup your VAT number in the company form')
+
         access_key = self.l10n_ec_get_access_key(
             filler, date, code_document_type, serie,
             related_document.company_id.vat,
@@ -223,7 +222,7 @@ class AccountEdiDocument(models.Model):
 #                 infoFactura = etree.SubElement(factura, 'infoLiquidacionCompra')
         infoFactElements = [
             ('fechaEmision', datetime.strftime(self.move_id.invoice_date,'%d/%m/%Y')),
-            ('dirEstablecimiento', self.move_id.l10n_ec_printer_id.l10n_ec_printer_point_address)
+            ('dirEstablecimiento', self.move_id.l10n_ec_printer_id.printer_point_address)
         ]
         if type == 'out_invoice':
             if self.move_id.company_id.l10n_ec_special_contributor_number:
@@ -482,8 +481,8 @@ class AccountEdiDocument(models.Model):
         infoAdicional = self.create_SubElement(factura, 'infoAdicional')
         if get_invoice_partner_data['invoice_email']:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'email'}, text=get_invoice_partner_data['invoice_email'])
-        if self.move_id.l10n_ec_printer_id.l10n_ec_name[:3]: 
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'tienda'}, text=self.move_id.l10n_ec_printer_id.l10n_ec_name[:3])
+        if self.move_id.l10n_ec_printer_id.name[:3]:
+            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'tienda'}, text=self.move_id.l10n_ec_printer_id.name[:3])
         if self.move_id.user_id.name: 
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'vendedor'}, text=self.move_id.user_id.name)
         if self.move_id.narration:

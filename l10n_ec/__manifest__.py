@@ -63,7 +63,7 @@ Authors:
         'data/account_chart_template_configure_data.xml',
         'data/res_country.xml', #TODO move into Odoo core
         #Partners data
-        'data/res.country.state.csv',
+        'data/res_country_state_data.xml',
         'data/res_bank_data.xml',
         'data/l10n_latam_identification_type_data.xml',
         'data/res_partner_data.xml',

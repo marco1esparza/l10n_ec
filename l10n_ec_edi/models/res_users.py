@@ -10,7 +10,7 @@ class Users(models.Model):
     
     #Columns
     l10n_ec_printer_id = fields.Many2one(
-        'l10n.ec.sri.printer.point', 
+        'l10n_ec.sri.printer.point',
         string='Default Printer Point',
         help='Punto de emisión asignado al usuario, por ejemplo 001-001'
         )
