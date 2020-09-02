@@ -72,9 +72,10 @@ class AccountEdiFormat(models.Model):
         edi_result = super()._post_invoice_edi(invoices, test_mode=test_mode)
         if self.code not in ['l10n_ec_sale_18']:
             return edi_result
+        if test_mode:
+                return edi_result
         for invoice in invoices:
             #First some validations
-            self.ensure_one()
             if invoice.edi_state in ('sent'):
                 raise ValidationError("No se puede enviar al SRI documentos previamente enviados: Documento %s" % str(self.name))
             if invoice.edi_state in ('canceled'):
@@ -85,9 +86,6 @@ class AccountEdiFormat(models.Model):
             if len(invoice.edi_document_ids) != 1: #Primera versión, como en v10, relación 1 a 1
                 raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar" %s % str(invoice.name))
             document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_send")
-            #Sign the XML request and Send the XML request to Tax Authority
-            if test_mode:
-                return edi_result
             #Firts try to download reply, if not available try sending again
             response_state, response, msgs = document._l10n_ec_download_electronic_document_reply()
             if response_state == 'non-existent':
@@ -129,8 +127,34 @@ class AccountEdiFormat(models.Model):
         * error:            An error if the edi was not successfully cancelled.
         """
         # TO OVERRIDE
-        self.ensure_one()
-        return super()._cancel_invoice_edi(invoices, test_mode)
+        edi_result = super()._cancel_invoice_edi(invoices, test_mode=test_mode)
+        if self.code  not in ['l10n_ec_sale_18']:
+            return edi_result
+        if test_mode:
+            return edi_result
+        for invoice in invoices:
+            #here invoice refers to any document, an invoice, withhold, waybill
+            document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_cancel")
+            #Firts try to download reply, if not available try sending again
+            response_state, response, msgs = document._l10n_ec_download_electronic_document_reply()
+            if msgs: #TODO V13: Capturar y presentar mejor los errores
+                edi_result[invoice] = {
+                    'error': self._l10n_ec_edi_format_error_message(_("Failure reported by Tax Authority:"), msgs),
+                }
+                continue
+            if response_state not in ['non-existent']:
+                msg = ''
+                edi_result[invoice] = {
+                    'error': self._l10n_ec_edi_format_error_message(_("First you should void the document in SRI web site"), msgs),
+                }                
+            if response_state in ['non-existent']:
+                res = {'success': True} #indicates cancell operation success
+                edi_result[invoice] = res
+                #Chatter, no_new_invoice to prevent creation of another new invoice "from the attachment"
+                invoice.with_context(no_new_invoice=True).message_post(
+                    body=_("The ecuadorian electronic document was successfully voided")
+                )
+        return edi_result
     
     def _l10n_ec_edi_format_error_message(self, error_title, errors):
         #TODO: Agregar fecha y hora del error, pues en v13 ya no tenemos el campo de fecha de ultimo reintento

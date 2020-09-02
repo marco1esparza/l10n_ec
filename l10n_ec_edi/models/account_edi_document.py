@@ -612,13 +612,13 @@ class AccountEdiDocument(models.Model):
         access_key = self.l10n_ec_access_key
         #access_key = "3108202001179236683600120010020000019670000000315"
         #access_key = "3108202001179236683600120010020000019670000000"
+        #access_key = "0806202007179126948900120010110000428902912200518" #void
         state = 'not_yet_ready'
         response = client.service.autorizacionComprobante(access_key)
         msgs = ''
         if response.autorizaciones:
             if response.autorizaciones.autorizacion[0].estado == 'AUTORIZADO':
                 state = 'sent'
-            #TODO descargar el estado final ANULADO
         elif response.numeroComprobantes == '0':
             state = 'non-existent'
         elif int(response.numeroComprobantes) > 0:
