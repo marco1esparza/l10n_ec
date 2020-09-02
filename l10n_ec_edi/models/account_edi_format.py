@@ -3,7 +3,7 @@
 
 from odoo import api, models, fields, _
 from odoo.tests.common import Form
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError, except_orm
 from odoo.tools import float_repr
 
 import re
@@ -29,7 +29,7 @@ class AccountEdiFormat(models.Model):
         :returns:       True if the EDI must be generated, False otherwise.
         """
         self.ensure_one()
-        if self.code != 'l10n_ec_sale_18':
+        if self.code != 'l10n_ec_tax_authority':
             if invoice.l10n_latam_country_code == 'EC':
                 if invoice.l10n_ec_printer_id.l10n_ec_allow_electronic_document:
                     if invoice.l10n_latam_document_type_id.code in ['18']:
@@ -42,7 +42,7 @@ class AccountEdiFormat(models.Model):
         :return: True if such a web service is available, False otherwise.
         """
         self.ensure_one()
-        return True if self.code in ['l10n_ec_sale_18'] else super()._needs_web_services() 
+        return True if self.code == 'l10n_ec_tax_authority' else super()._needs_web_services() 
 
     
     def _is_compatible_with_journal(self, journal):
@@ -71,12 +71,13 @@ class AccountEdiFormat(models.Model):
         #replaces good old attempt_electronic_document from v10
         #llamamos a super para anexar los errores en "edi_result"
         edi_result = super()._post_invoice_edi(invoices, test_mode=test_mode)
-        if self.code not in ['l10n_ec_sale_18']:
+        if self.code != 'l10n_ec_tax_authority':
             return edi_result
         if test_mode:
                 return edi_result
         for invoice in invoices:
             #First some validations
+            msgs = []
             if invoice.edi_state in ('sent'):
                 raise ValidationError("No se puede enviar al SRI documentos previamente enviados: Documento %s" % str(self.name))
             if invoice.edi_state in ('canceled'):
@@ -88,14 +89,19 @@ class AccountEdiFormat(models.Model):
                 raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar" %s % str(invoice.name))
             document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_send")
             #Firts try to download reply, if not available try sending again
-            response_state, response, msgs = document._l10n_ec_download_electronic_document_reply()
+            response_state, response = document._l10n_ec_download_electronic_document_reply()
             if response_state == 'non-existent':
-                document._l10n_ec_upload_electronic_document()
+                try:
+                    document._l10n_ec_upload_electronic_document()
+                except except_orm as err: #Most errors captured inside Odoo
+                    msgs.append(err.name)
+                except: #all other errors drop to standard output (screen and log)
+                    raise
                 sleep(2) # Esperamos 2 segundos para que el SRI procese el documento
-                response_state, response, msgs = document._l10n_ec_download_electronic_document_reply()
-            if msgs: #TODO V13: Capturar y presentar mejor los errores
+                response_state, response = document._l10n_ec_download_electronic_document_reply()
+            if msgs:
                 edi_result[invoice] = {
-                    'error': self._l10n_ec_edi_format_error_message(_("Failure reported by Tax Authority:"), msgs),
+                    'error': self._l10n_ec_edi_format_error_message(_("Errors reported by Tax Authority:"), msgs),
                 }
                 continue
             if response_state in ['sent']:
@@ -130,24 +136,20 @@ class AccountEdiFormat(models.Model):
         """
         # TO OVERRIDE
         edi_result = super()._cancel_invoice_edi(invoices, test_mode=test_mode)
-        if self.code  not in ['l10n_ec_sale_18']:
+        if self.code  != 'l10n_ec_tax_authority':
             return edi_result
         if test_mode:
             return edi_result
         for invoice in invoices:
             #here invoice refers to any document, an invoice, withhold, waybill
             document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_cancel")
+            msgs = []
             #Firts try to download reply, if not available try sending again
-            response_state, response, msgs = document._l10n_ec_download_electronic_document_reply()
-            if msgs: #TODO V13: Capturar y presentar mejor los errores
-                edi_result[invoice] = {
-                    'error': self._l10n_ec_edi_format_error_message(_("Failure reported by Tax Authority:"), msgs),
-                }
-                continue
+            response_state, response = document._l10n_ec_download_electronic_document_reply()
             if response_state not in ['non-existent']:
-                msg = ''
+                msgs.append('Por favor verifique que el documento halla sido previamente anulado en el portal web del SRI')
                 edi_result[invoice] = {
-                    'error': self._l10n_ec_edi_format_error_message(_("First you should void the document in SRI web site"), msgs),
+                    'error': self._l10n_ec_edi_format_error_message(_("Error on cancellation"), msgs),
                 }                
             if response_state in ['non-existent']:
                 res = {'success': True} #indicates cancell operation success

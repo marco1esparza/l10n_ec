@@ -106,6 +106,7 @@ class AccountMove(models.Model):
                         if document.state in ('to_send'):
                             #needed to print offline RIDE and populate request after validations
                             document._l10n_ec_set_access_key()
+                            self.l10n_ec_authorization = document._l10n_ec_access_key #for auditing manual changes
                             document._l10n_ec_generate_request_xml_file()
         return res
     
@@ -130,26 +131,7 @@ class AccountMove(models.Model):
                 if printers:
                     printer_id = printers[0].id
         return printer_id
-
-    @api.model
-    def _suggested_internal_number(self, printer_id, type):
-        '''
-        Numero de factura sugerida para facturas de venta y compra, depende del punto de impresion
-        '''
-        internal_number = False
-        if type in ['out_invoice', 'out_refund']:
-            internal_number = '001-001-'
-            printer = self.env['l10n_ec.sri.printer.point'].browse(printer_id)
-            if printer.prefix:
-                internal_number = printer.prefix
-            else:
-                if not printer:
-                    printer = self.env['l10n_ec.sri.printer.point'].browse(self._default_l10n_ec_printer_id())
-                    internal_number = printer.prefix
-        if type in ['in_invoice', 'in_refund']:
-            internal_number = '001-001-'
-        return internal_number
-
+    
     @api.depends('l10n_ec_invoice_payment_method_ids')
     def compute_payment_method(self):
         '''
@@ -234,6 +216,18 @@ class AccountMove(models.Model):
             rec.l10n_latam_sequence_id = rec._get_document_type_sequence()
         remaining = self - recs_with_l10n_ec_printer_id
         remaining.l10n_latam_sequence_id = False
+    
+    
+    def button_draft(self):
+        if self.l10n_latam_country_code == 'EC':
+            for move in self:
+                if move.edi_document_ids:
+                    raise UserError(_(
+                        "You can't set to draft the journal entry %s because an electronic document has already been requested. "
+                        "Please leave this document in cancel state and create a new one instead"
+                    ) % move.display_name)
+        res = super().button_draft()
+        return res
     
     #Columns
     l10n_ec_printer_id = fields.Many2one(
