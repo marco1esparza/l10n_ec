@@ -12,10 +12,6 @@
             <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
         </xpath>
 
-        <xpath expr="//t[@t-set='address']" position="inside">
-            Prueba
-        </xpath>
-
         <xpath expr="//h2" position="before">
             <table class="table table-borderless w-100">
                 <tr>
