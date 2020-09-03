@@ -4,7 +4,7 @@
 import odoo
 from odoo import api, SUPERUSER_ID
 
-def migrate(cr, version):
+def l10n_ec_set_doc_type_no_update_false(cr):
     registry = odoo.registry(cr.dbname)
     env = api.Environment(cr, SUPERUSER_ID, {})
     xml_record_ids = env['ir.model.data'].search([
@@ -13,3 +13,6 @@ def migrate(cr, version):
     ]).ids
     if xml_record_ids:
         cr.execute("update ir_model_data set noupdate = 'f' where id in %s", (tuple(xml_record_ids),))
+
+def migrate(cr, version):
+    l10n_ec_set_doc_type_no_update_false(cr)
