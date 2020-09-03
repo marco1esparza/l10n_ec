@@ -1,918 +1,1038 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-#	* ecua_invoice
+# 	* l10n_ec_edi
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 10.0\n"
+"Project-Id-Version: Odoo Server 13.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-27 17:08+0000\n"
-"PO-Revision-Date: 2017-05-27 17:08+0000\n"
-"Last-Translator: <>\n"
+"POT-Creation-Date: 2020-09-03 18:42+0000\n"
+"PO-Revision-Date: 2020-09-03 18:42+0000\n"
+"Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.printer_point_form_view
-msgid "Accounting Configuration"
-msgstr "Configuración contable"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_state
+msgid ""
+"* The 'Draft' state is used when a user is creating a new pair key. Warning: everybody can see the key.\n"
+"* The 'Confirmed' state is used when the key is completed and save in the system\n"
+"* The 'Canceled' state is used when the key is not more used by any reason, except expiration.\n"
+"* The 'Expiration state is showed when the signature is expired"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_account_invoice_filter_add_printer_point
-msgid "Canceled"
-msgstr "Anuladas"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Access Key:</strong>"
+msgstr "<strong>Clave de Acceso:</strong>"
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_supplier_form_ecua
-msgid "Change Reason"
-msgstr "Razón del cambio"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Authorization No.:</strong><br/>"
+msgstr "<strong>Autorización No.:</strong><br/>"
 
-#. module: ecua_invoice
-#: model:ir.actions.act_window,help:ecua_invoice.action_printer_point_view
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Branch Office address:</strong>"
+msgstr "<strong>Dirección Sucursal:</strong>"
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Company Name / Name and Surname: </strong>"
+msgstr "<strong>Razón Social / Nombres y Apellidos: </strong>"
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Headquarters Address:</strong>"
+msgstr "<strong>Dirección Matriz:</strong>"
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Identification: </strong>"
+msgstr "<strong>Identificación: </strong>"
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Method of payment</strong>"
+msgstr "<strong>Forma de Pago</strong>"
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Obliged to keep accounting:</strong>"
+msgstr "<strong>Obligado a llevar contabilidad:</strong>"
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Payment term (Days)</strong>"
+msgstr "<strong>Término de Pago (Días)</strong>"
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Special Taxpayer Number:</strong>"
+msgstr "<strong>Contribuyente Especial Nro:</strong>"
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Subtotal</strong>"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Total amount</strong>"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<strong>Total</strong>"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_edi_document__l10n_ec_access_key
+msgid "Access Key"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_needaction
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__active
+msgid "Active"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__allow_electronic_document
+msgid "Active esta opción para habilitar la emisión de doc electrónicos"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__l10n_ec_amount
+msgid "Amount"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_attachment_count
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_authorization
+msgid "Autorización"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_base_tax_free
+msgid "Base Exempt VAT"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_base_not_subject_to_vat
+msgid "Base Not Object VAT"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_form
+msgid "Cancel"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields.selection,name:l10n_ec_edi.selection__l10n_ec_digital_signature__l10n_ec_state__cancel
+msgid "Cancelled"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_card_method
+msgid "Card Credit / Debit"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.actions.act_window,help:l10n_ec_edi.action_view_printer_point
 msgid "Click to define a new printer point."
-msgstr "Pulse para definir un nuevo punto de emisión."
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_res_company
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__l10n_ec_code
+msgid "Code"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_partner__l10n_commercial_name
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_users__l10n_commercial_name
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_partner_commercial_name_form
+msgid "Commercial Name"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_res_company
 msgid "Companies"
 msgstr "Compañías"
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_company_id
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_company_id
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__company_id
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
 msgid "Company"
-msgstr "Compañía"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_create_uid
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_form
+msgid "Confirm"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields.selection,name:l10n_ec_edi.selection__l10n_ec_digital_signature__l10n_ec_state__confirmed
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
+msgid "Confirmed"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__create_uid
 msgid "Created by"
-msgstr "Creado por"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_create_date
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__create_date
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__create_date
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__create_date
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__create_date
 msgid "Created on"
-msgstr "Creado el"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-msgid "Credit Notes"
-msgstr "Notas de crédito"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__l10n_ec_days_payment_term
+msgid "Days Payment Term"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_customer_credit_note_journal_id
-msgid "Customer Credit Note Journal"
-msgstr "Diario para notas de crédito"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_invoice_sequence_id
-msgid "Customer Invoices Sequential"
-msgstr "Secuencial para facturas"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-msgid "Customer Name"
-msgstr "Nombre del cliente"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_credit_note_sequence_id
-msgid "Customer Refunds Sequential"
-msgstr "Secuencial para notas de crédito"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-msgid "Customer VAT"
-msgstr "NIF del cliente"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_debit_note_sequence_id
-msgid "Debit Notes Sequential"
-msgstr "Secuencial para notas de débito"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_default_account_credit_note_id
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_default_account_credit_note_id
-msgid "Default Account Credit Note"
-msgstr "Cuenta para notas de crédito por defecto"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_default_document_journal_id
-msgid "Default Document Journal"
-msgstr "Diario para documentos por defecto"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_default_invoice_journal_id
-msgid "Default Invoice Journal"
-msgstr "Diario de facturas por defecto"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_customer_invoice_journal_id
-msgid "Customer Invoice Journal"
-msgstr "Diario de factura de cliente"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_default_payable_abroad_id
-msgid "Default Payable Abroad"
-msgstr "Cuenta por pagar del exterior por defecto"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_default_payable_local_id
-msgid "Default Payable Local"
-msgstr "Cuenta por pagar locales por defecto"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_users_printer_id
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_users__l10n_ec_printer_id
 msgid "Default Printer Point"
-msgstr "Punto de emisión por defecto"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_default_receivable_id
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_default_receivable_id
-msgid "Default Receivable"
-msgstr "Cuenta por cobrar por defecto"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_default_receivable_related_part_id
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_default_receivable_related_part_id
-msgid "Default Receivable Related Part"
-msgstr "Cuenta por cobrar partes relacionadas por defecto"
-
-#. module: ecua_invoice
-#: model:ir.actions.act_window,help:ecua_invoice.action_printer_point_view
+#. module: l10n_ec_edi
+#: model_terms:ir.actions.act_window,help:l10n_ec_edi.action_view_printer_point
 msgid "Define the printing points used by your company."
-msgstr "Defina aquí los puntos de emisión que serán usados por su compañía."
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_display_name
-#: model:ir.model.fields,field_description:ecua_invoice.field_trait_context_for_fields_display_name
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid "Detalle Forma de Pago SRI"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__l10n_ec_digital_cert_id
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_form
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_tree
+msgid "Digital Signature"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.actions.act_window,name:l10n_ec_edi.action_digital_signature
+#: model:ir.ui.menu,name:l10n_ec_edi.menu_digital_signature
+msgid "Digital Signatures"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_res_company__l10n_ec_digital_cert_id
+msgid "Digital signature valid to send electronic documents to SRI"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__display_name
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__display_name
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__display_name
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__display_name
 msgid "Display Name"
-msgstr "Nombre a mostrar"
+msgstr ""
 
-#. module: ecua_invoice
-#: sql_constraint:account.invoice:0
-msgid "Dummy check, always true, used to replace the previous constraint"
-msgstr "Cambiando restriccion, siempre verdadera, utilizada para reemplazar la restricción anterior"
+#. module: l10n_ec_edi
+#: model:ir.model.fields.selection,name:l10n_ec_edi.selection__l10n_ec_digital_signature__l10n_ec_state__draft
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
+msgid "Draft"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_company_form_adjust_journal
-msgid "Ecuadorian Configurations"
-msgstr "Configuraciones Ecuatorianas"
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_account_edi_format
+msgid "EDI format"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sale_order_printer_id
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_printer_id
-msgid "The printer point or cash of my company where receive or send documents"
-msgstr "El punto de emisión o caja de mi empresa donde recibo o emito documentos"
+#. module: l10n_ec_edi
+#: code:addons/l10n_ec_edi/models/account_edi_format.py:0
+#, python-format
+msgid "Ecuadorian electronic document for the %s document."
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_company_form_adjust_journal
-msgid "Example 2010301 ACCOUNTS AND DOCUMENTS PAYABLE LOCALS"
-msgstr "Ejemplo 2010301 CUENTAS Y DOCUMENTOS POR PAGAR LOCALES"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_effective_method
+msgid "Effective"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_company_form_adjust_journal
-msgid "Example 2010302 ACCOUNTS AND DOCUMENTS PAYABLE FROM THE EXTERIOR"
-msgstr "Ejemplo 2010302 CUENTAS Y DOCUMENTOS POR PAGAR DEL EXTERIOR"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_edi_document__l10n_ec_request_xml_file
+msgid ""
+"El archivo XML enviado al proveedor de documentos electronicos, guardado "
+"para depuracion"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_company_form_adjust_journal
-msgid "Example 2020401 MISCELLANEOUS / LOCAL RELATED ACCOUNTS"
-msgstr "Ejemplo 2020401 CUENTAS POR PAGAR DIVERSAS / RELACIONADAS LOCALES"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_edi_document__l10n_ec_response_xml_file
+msgid "El archivo XML retornado por el proveedor de documentos electronicos"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_company_form_adjust_journal
-msgid "Example 2020402 MISCELLANEOUS / RELATED EXTERNAL PAYABLES"
-msgstr "Ejemplo 2020402 CUENTAS POR PAGAR DIVERSAS / RELACIONADAS DEL EXTERIOR"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_res_company__l10n_ec_legal_name
+msgid ""
+"El nombre de la compañía a ser enviado al SRI en documentos electrónicos, "
+"103, 104, ATS, etc. Utilizado también para enviarlo al IESS en archivos CSV."
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.printer_point_form_view
-#: model:ir.ui.view,arch_db:ecua_invoice.view_company_form_adjust_journal
-msgid "Example 101020501 DOCUMENTS AND ACCOUNTS RECEIVED FROM NON-RELATED CLIENTS OF ORDINARY ACTIVITIES THAT DO NOT GENERATE INTERESTS"
-msgstr "Ejemplo 101020501 DOCUMENTOS Y CUENTAS POR COBRAR CLIENTE NO RELACIONADOS DE ACTIVIDADES ORDINARIAS QUE NO GENEREN INTERESES LOCALES"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_edi_document__l10n_ec_request_xml_file_name
+msgid ""
+"El nombre del archivo XML enviado al proveedor de documentos electronicos, "
+"guardado para depuracion"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.printer_point_form_view
-#: model:ir.ui.view,arch_db:ecua_invoice.view_company_form_adjust_journal
-msgid "Example 101020502 DOCUMENTS AND ACCOUNTS RECEIVED FROM NON-RELATED CLIENTS OF ORDINARY ACTIVITIES THAT DO NOT GENERATE FOREIGN INTERESTS"
-msgstr "Ejemplo 101020502 DOCUMENTOS Y CUENTAS POR COBRAR CLIENTE NO RELACIONADOS DE ACTIVIDADES ORDINARIAS QUE NO GENEREN INTERESES EXTRANJERO"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_edi_document__l10n_ec_response_xml_file_name
+msgid ""
+"El nombre del archivo XML retornado por el proveedor de documentos "
+"electronicos"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.printer_point_form_view
-#: model:ir.ui.view,arch_db:ecua_invoice.view_company_form_adjust_journal
-msgid "Example 101020601 DOCUMENTS AND ACCOUNTS RECEIVED FROM LOCAL RELATED CLIENTS"
-msgstr "Ejemplo 101020601 DOCUMENTOS Y CUENTAS POR COBRAR CLIENTE RELACIONADOS LOCALES"
+#. module: l10n_ec_edi
+#: code:addons/l10n_ec_edi/models/account_edi_document.py:0
+#, python-format
+msgid ""
+"El numero de documento %s presenta errores al generar la clave de acceso: %s"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.printer_point_form_view
-#: model:ir.ui.view,arch_db:ecua_invoice.view_company_form_adjust_journal
-msgid "Example 101020602 DOCUMENTS AND ACCOUNTS RECEIVED FROM EXTERNAL RELATED CLIENTS"
-msgstr "Ejemplo 101020602 DOCUMENTOS Y CUENTAS POR COBRAR CLIENTE RELACIONADOS EXTERIOR"
+#. module: l10n_ec_edi
+#: model:ir.model.constraint,message:l10n_ec_edi.constraint_l10n_ec_sri_printer_point_l10n_ec_sri_printer_point_name_unique
+msgid "El punto de emisión debe ser único por compañía."
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_supplier_form_ecua
-msgid "Explain the reason for modifying the invoice, for example a devolution"
-msgstr "Explique la rason para modificar la factura, por ejemplo una devolución o un descuento especial"
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_account_edi_document
+msgid "Electronic Document for an account.move"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_id
-#: model:ir.model.fields,field_description:ecua_invoice.field_trait_context_for_fields_id
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_electronic_method
+msgid "Electronic Money"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: code:addons/l10n_ec_edi/models/account_edi_format.py:0
+#, python-format
+msgid "Error on cancellation"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: code:addons/l10n_ec_edi/models/account_edi_format.py:0
+#, python-format
+msgid "Errors reported by Tax Authority:"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_effective_method
+msgid "Es la sumatoria de las formas de pago con código 01."
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_electronic_method
+msgid "Es la sumatoria de las formas de pago con código 17."
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_other_method
+msgid ""
+"Es la sumatoria de las formas de pago con códigos 02, 03, 04, 05, 06, 08, "
+"09, 12, 13, 14, 15, 20, 21."
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_card_method
+msgid "Es la sumatoria de las formas de pago con códigos 10, 11, 16, 18, 19."
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_invoice_payment_method_ids
+msgid ""
+"Estos valores representan la forma estimada de pago de la factura, son "
+"utilizados con fines informativos en documentos impresos y documentos "
+"electrónicos. No tienen efecto contable."
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields.selection,name:l10n_ec_edi.selection__l10n_ec_digital_signature__l10n_ec_state__expired
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
+msgid "Expired"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__l10n_ec_code
+msgid "Field of two digits that indicate the code for this payment method"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_follower_ids
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_channel_ids
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_channel_ids
+msgid "Followers (Channels)"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_partner_ids
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__l10n_ec_forced_accounting
+msgid "Forced to Keep Accounting Books"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.actions.act_window,name:l10n_ec_edi.action_view_payment_method
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_payment_method_id
+#: model:ir.ui.menu,name:l10n_ec_edi.menu_view_payment_method
+msgid "Forma de pago"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_payment_method_id
+msgid "Forma de pago del SRI"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_vat_doce_subtotal
+msgid "Generated VAT"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
+msgid "Group By"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__id
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__id
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__id
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_credit_note_sequence_id
-msgid "If specified, will be used by the printer point to specify the next number for the credit notes"
-msgstr "Si se especifica, será usada por el punto de emisión para especificar el próximo número a usar en las notas de cŕedito"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_res_company__l10n_ec_environment_type
+msgid ""
+"Identifica si Odoo emitira los documentos electronicos en un Ambiente de "
+"Pruebas o de Produccion"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_debit_note_sequence_id
-msgid "If specified, will be used by the printer point to specify the next number for the debit notes"
-msgstr "Si se especifica, será usada por el punto de emisión para especificar el próximo número a usar en las notas de débito"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_needaction
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_unread
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__message_needaction
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__message_unread
+msgid "If checked, new messages require your attention."
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_invoice_sequence_id
-msgid "If specified, will be used by the printer point to specify the next number for the invoices"
-msgstr "Si se especifica, será usada por el punto de emisión para especificar el próximo número a usar en las facturas"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_has_error
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_has_sms_error
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__message_has_error
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_waybill_sequence_id
-msgid "If specified, will be used by the printer point to specify the next number for the waybills"
-msgstr "Si se especifica, será usada por el punto de emisión para especificar el próximo número a usar en las las guías de remisión"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_res_company__l10n_ec_forced_accounting
+msgid ""
+"If set you are obligated to keep accounting, it will be used for printing "
+"electronic invoices and reports"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_withhold_sequence_id
-msgid "If specified, will be used by the printer point to specify the next number for the withholds"
-msgstr "Si se especifica, será usada por el punto de emisión para especificar el próximo número a usar en las retenciones"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_res_company__l10n_ec_special_contributor_number
+msgid ""
+"If set, your company is considered a Special Tax Contributor, this number "
+"will be printed in electronic invoices and reports"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_account_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_account_invoice_filter_add_printer_point
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move_line__l10n_ec_total_discount
+msgid "Indicates the monetary discount applied to the total invoice line."
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__l10n_ec_invoice_id
 msgid "Invoice"
-msgstr "Factura"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_invoice_address
-msgid "Invoice Address"
-msgstr "Dirección"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_is_follower
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_is_follower
+msgid "Is Follower"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_internal_number
-#: model:ir.model.fields,field_description:account.field_account_invoice_internal_number
-msgid "Invoice Number"
-msgstr "Número"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_invoice_payment_method__l10n_ec_amount
+msgid "Is the pay value for this payment method"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_invoice_name
-msgid "Invoice Partner"
-msgstr "Nombre"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_authorization
+msgid ""
+"It is for the authorization to issue the document, select a release from the"
+" list. Only existing authorizations are displayed according to the date of "
+"the document."
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_invoice_phone
-msgid "Invoice Phone"
-msgstr "Teléfono"
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_account_move
+msgid "Journal Entries"
+msgstr "Asientos contables"
 
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_account_invoice_refund
-msgid "Invoice Refund"
-msgstr "Nota de crédito"
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_account_move_line
+msgid "Journal Item"
+msgstr "Apunte contable"
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_invoice_vat
-msgid "Invoice VAT"
-msgstr "CI/RUC/Pass"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_invoice_address
-msgid "Invoice address as in VAT document, saved in invoice only not in partner"
-msgstr "Dirección de facturación como en el documento NIF, guardando en la factura no sólo en el cliente"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_invoice_phone
-msgid "Invoice phone as in VAT document, saved in invoice only not in partner"
-msgstr "Teléfono de facturación como en el documento NIF, guardando en la factura no sólo en el cliente"
-
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_account_journal
-msgid "Journal"
-msgstr "Diario"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_journal_credit_notes_id
-msgid "Journal Credit Notes"
-msgstr "Diario para notas de crédito"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_journal_returned_checks_id
-msgid "Journal Returned Checks"
-msgstr "Diario para cheques devueltos"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_users_form_printer_point
-msgid "La siguiente lista de puntos de emisión determina aquellos a los cuales el usuario tiene acceso, caso de no seleccionar ninguno, tiene acceso a todos."
-msgstr "La siguiente lista de puntos de emisión determina aquellos a los cuales el usuario tiene acceso, caso de no seleccionar ninguno, tiene acceso a todos."
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point___last_update
-#: model:ir.model.fields,field_description:ecua_invoice.field_trait_context_for_fields___last_update
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature____last_update
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method____last_update
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method____last_update
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point____last_update
 msgid "Last Modified on"
-msgstr "Última modificación en"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_write_uid
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__write_uid
 msgid "Last Updated by"
-msgstr "Última actualización por"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_write_date
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__write_date
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__write_date
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__write_date
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__write_date
 msgid "Last Updated on"
-msgstr "Última actualización el"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_invoice_rectification_id
-msgid "Modified Invoice"
-msgstr "Factura modificada"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "Logo"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_invoice_rectification_ids
-msgid "Credit Notes"
-msgstr "Notas de crédito"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_main_attachment_id
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_res_partner
-msgid "Partner"
-msgstr "Empresa"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_has_error
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_has_error
+msgid "Message Delivery error"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_payable_related_abroad_id
-msgid "Payable Related Abroad"
-msgstr "Cuenta por pagar relacionadas extranjeras"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_ids
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_ids
+msgid "Messages"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_payable_related_local_id
-msgid "Payable Related Local"
-msgstr "Cuenta por pagar relacionadas locales"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_edi_document__l10n_ec_request_xml_file_name
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_edi_document__l10n_ec_response_xml_file_name
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__l10n_ec_name
+msgid "Name"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_supplier_form_ecua
-msgid "Phone Number"
-msgstr "Teléfono"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "No"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.actions.act_window,name:ecua_invoice.action_printer_point_view
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_printer_id
-#: model:ir.model.fields,field_description:ecua_invoice.field_sale_order_printer_id
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_name
-#: model:ir.ui.menu,name:ecua_invoice.printer_point_menu
-#: model:ir.ui.view,arch_db:ecua_invoice.view_account_invoice_filter_add_printer_point
-#: model:ir.ui.view,arch_db:ecua_invoice.ecua_view_sales_order_filter
-#: model:ir.ui.view,arch_db:ecua_invoice.printer_point_form_view
-#: model:ir.ui.view,arch_db:ecua_invoice.printer_point_tree_view
-#: model:ir.ui.view,arch_db:ecua_invoice.view_users_form_printer_point
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__l10n_ec_legal_name
+msgid "Nombre legal"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_not_valid_after
+msgid "Not valid after Date of signature"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_not_valid_before
+msgid "Not valid before Date of signature"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid "Notas de crédito"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_needaction_counter
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_has_error_counter
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_needaction_counter
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__message_needaction_counter
+msgid "Number of messages which requires an action"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_has_error_counter
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_unread_counter
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__message_unread_counter
+msgid "Number of unread messages"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_cert_encripted
+msgid "Original encripted signature"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_other_method
+msgid "Others"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_password_p12
+msgid "Password file .p12"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_password_p12
+msgid "Password to desencrypt .p12 file"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_payment_method_form
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_payment_method_tree
+msgid "Payment Method"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_invoice_payment_method_ids
+msgid "Payment Methods"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_invoice_payment_method__l10n_ec_days_payment_term
+msgid "Payment term in days"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__l10n_ec_percentage
+msgid "Percentage"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_invoice_payment_method__l10n_ec_percentage
+msgid "Percentage of the amount of the payment"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__allow_electronic_document
+msgid "Permitir la emisión de doc electrónicos"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_edi_document__l10n_ec_request_xml_file
+msgid "Peticion XML"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__name
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_printer_point_form
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_printer_point_tree
 msgid "Printer Point"
-msgstr "Punto de emisión"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_users_printer_ids
-#: model:ir.model.fields,field_description:ecua_invoice.field_sale_shop_printer_point_ids
-#: model:ir.ui.view,arch_db:ecua_invoice.view_shop_form_printer
-#: model:ir.ui.view,arch_db:ecua_invoice.view_shop_form_printer
-msgid "Printer Points"
-msgstr "Puntos de Emisión"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__printer_point_address
+msgid "Printer Point Address"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_prefix
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__prefix
 msgid "Printer Prefix"
-msgstr "Prefijo del punto de emisión"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_users_printer_id
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_private_key
+msgid "Private Key"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_product_product
+msgid "Product"
+msgstr "Producto"
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields.selection,name:l10n_ec_edi.selection__res_company__l10n_ec_environment_type__2
+msgid "Production Environmet"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.actions.act_window,name:l10n_ec_edi.action_view_printer_point
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_printer_id
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_ir_sequence__l10n_ec_printer_id
+#: model:ir.ui.menu,name:l10n_ec_edi.menu_view_printer_point
+msgid "Punto de emisión"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_res_users__l10n_ec_printer_id
 msgid "Punto de emisión asignado al usuario, por ejemplo 001-001"
-msgstr "Punto de emisión asignado al usuario, por ejemplo 001-001"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_sale_order_ids
-msgid "Sale Orders"
-msgstr "Pedidos de ventas"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid ""
+"Resolución SRI \"NAC-DGERCGC16-00000247\", el medio y la forma de pago prevista \n"
+"\t\t\t\t\t\t\tdeben ser registradas en la factura. Esta sección tiene fines \"informativos\" en \n"
+"\t\t\t\t\t\t\tdocumentos impresos y documentos electrónicos. No tienen efecto contable."
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_sale_order
-msgid "Sales Order"
-msgstr "Pedido de venta"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_edi_document__l10n_ec_response_xml_file
+msgid "Respuesta XML"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_sale_order_line
-msgid "Sales Order Line"
-msgstr "Línea de pedido de venta"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_has_sms_error
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_default_receivable_id
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_default_receivable_related_part_id
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_default_receivable_id
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_default_receivable_related_part_id
-msgid "Sales of this printing point will be credited to this account receivable, under the following prevalence order: Accounts Receivable defined in the company, Accounts Receivable defined at the printing point, Accounts Receivable defined in the Company"
-msgstr "Las ventas de este punto de emisión se acreditarán a esta cuenta por cobrar, bajo el siguiente orden de prevalencia: Cuenta por Cobrar definida en la empresa, Cuenta por Cobrar definida en el punto de emisión, Cuenta por Cobrar definida en la Compañía."
+#. module: l10n_ec_edi
+#: model:ir.ui.menu,name:l10n_ec_edi.action_sri_menu
+msgid "SRI"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_supplier_form_ecua
-msgid "Street and Building Number"
-msgstr "Dirección y número"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
+msgid "Search Digital Signature"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_supplier_form_ecua
-msgid "Supplier Name"
-msgstr "Nombre del proveedor"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_payment_method_filter
+msgid "Search Payment Method"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_supplier_form_ecua
-msgid "Supplier VAT"
-msgstr "NIF del proveedor"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_form
+msgid "Send to Draft"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_payable_related_local_id
-msgid "The default account payable used in the purchase registry for related parties domiciled in Ecuador usually corresponds to account 2020401 Miscellaneous Related Accounts Payable"
-msgstr "La cuenta por pagar por defecto, utilizada en el registro de compras, para partes relacionadas domiciliadas en el Ecuador, usualmente corresponde a la cuenta 2020401 Cuentas por Pagar Diversas Relacionadas Locales."
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_ir_sequence
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__sequence
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_printer_point_form
+msgid "Sequence"
+msgstr "Secuencia"
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_payable_related_abroad_id
-msgid "The default account payable used in the purchase registry for related parties for foreign usually corresponds to account 2020402 Miscellaneous Foreign-Related Accounts Payable"
-msgstr "La cuenta por pagar por defecto, utilizada en el registro de compras, para partes relacionadas domiciliadas en el exterior, usualmente corresponde a la cuenta 2020402 Cuentas por Pagar Diversas Relacionadas del Exterior."
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__l10n_ec_sequence_ids
+msgid "Sequences"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_default_payable_local_id
-msgid "The default account payable, used in the purchase register to suppliers generally domiciled in Ecuador, usually corresponds to account 2010301 - Accounts and Documents to Pay for Local"
-msgstr "La cuenta por pagar por defecto, utilizada en el registro de compras a proveedores en general domiciliados en el Ecuador, usualmente corresponde a la cuenta 2010301 - Cuentas y Documentos por Pagar Locales."
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_name
+msgid "Serial Number of Digital Signature"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_default_payable_abroad_id
-msgid "The default account payable, used in the purchase register, for foreign suppliers, usually corresponds to the account 2010302 Accounts Payable from the Outside"
-msgstr "La cuenta por pagar por defecto, utilizada en el registro de compras, para proveedores del exterior, usualmente corresponde a la cuenta 2010302 Cuentas por Pagar del Exterior."
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_not_valid_after
+msgid "Show the Date after the signature is not valid"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sale_order_warning_msgs
-msgid "This field determines whether the sales order is in state of exception"
-msgstr "Este campo determina cuando la orden de venta esta en estado de excepción"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_not_valid_before
+msgid "Show the Date before the signature is not valid"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_invoice_rectification_id
-msgid "This field sets the invoice that is being modified"
-msgstr "Este campo define la factura que se esta modificando"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_company_id
+msgid "Show the company asociated to this document"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_invoice_rectification_ids
-msgid "This field sets the invoices those are modifying the actual invoice"
-msgstr "Este campo define las notas de créditos que modifican la factura actual"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_name
+msgid "Show the unique serial number of signature"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_invoice_name
-msgid "This field stores the name of the partner at the time the invoice is made"
-msgstr "Este campo almacena el nombre del partner al momento que se crea la factura"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_signature
+msgid "Signature"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_invoice_vat
-msgid "This field stores the vat of the partner at the time the invoice is made"
-msgstr "Este campo almacena el nif del partner al momento que se crea la factura"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__l10n_ec_special_contributor_number
+msgid "Special Tax Contributor Number"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_sale_order_ids
-msgid "This is the list of sale orders that have generated this invoices"
-msgstr "Esta es la lista de órdenes de venta que han generado estas facturas"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_state
+msgid "State"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_customer_credit_note_journal_id
-msgid "This journal will be used as an everyday default customer credit notes"
-msgstr "Este diario va ser usado como diario por defecto para notas de crédito de cliente"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
+msgid "Status"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_customer_invoice_journal_id
-msgid "This journal will be used as an everyday default customer invoices"
-msgstr "Este diario va ser usado como diario por defecto para facturas de cliente"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_signature
+msgid "Store the certficate obtain from the encripted file"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_name
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_cert_encripted
+msgid "Store the original signatured encripted"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__l10n_ec_private_key
+msgid "Store the private key obtain from the encripted file"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_base_tax_free
+msgid "Sum of total prices included discount of products exempt from VAT"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_base_not_subject_to_vat
+msgid "Sum of total prices included discount of products not subject to VAT"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_base_cero_iva
+msgid "Sum of total prices included discount of products that tax VAT 0%"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_base_doce_iva
+msgid ""
+"Summation of total prices included discount of products that tax VAT 12%"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "Tax ID"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields.selection,name:l10n_ec_edi.selection__res_company__l10n_ec_environment_type__1
+msgid "Testing Environment"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: code:addons/l10n_ec_edi/models/account_edi_format.py:0
+#, python-format
+msgid ""
+"The ecuadorian electronic document was successfully created, signed and "
+"validated by the tax authority"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: code:addons/l10n_ec_edi/models/account_edi_format.py:0
+#, python-format
+msgid "The ecuadorian electronic document was successfully voided"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_printer_id
+msgid ""
+"The printer point or cash of my company where receive or send documents"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_invoice_payment_method__l10n_ec_invoice_id
+msgid "This field help to relate to account invoice object"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__printer_point_address
+msgid "This is the address used for invoice reports of this Printer Point"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__name
 msgid "This number is assigned by the SRI"
-msgstr "Este número esta asignado por el SRI"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_total_with_tax
-msgid "Total With Taxes"
-msgstr "Total con impuestos"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_total_discount
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move_line__l10n_ec_total_discount
+msgid "Total Discount"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_total_to_withhold
-msgid "Total to Withhold"
-msgstr "Total a retener"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid "Total Percentage"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_internal_number
-msgid "Unique number of the invoice, computed automatically when the invoice is created"
-msgstr "Número único de la factura, computado automáticamente cuando se crea la factura"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid "Total amount"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_default_document_journal_id
-msgid "Used for checks and other securities in documents that have not yet been deposited (Example: Checks Postfechados)"
-msgstr "Usado para cheques y otros valores en documentos que aún no han sido depositados (Ejemplo: Cheques Postfechados)"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_total_discount
+msgid "Total sum of the discount granted"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_default_invoice_journal_id
-msgid "Used in sales orders and sales invoices. In sales invoices it can be overridden by the daily rate of tax document"
-msgstr "Usado en órdenes de venta y facturas de venta. En facturas de venta puede ser sobreescrito por el diario del tipo de documento tributario"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__l10n_ec_environment_type
+msgid "Type of Environment"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_journal_credit_notes_id
-msgid "Used to issue credit notes sales"
-msgstr "Usado para la emisión de notas de crédito en ventas"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid "Términos de pago"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_journal_returned_checks_id
-msgid "Used to protest customer checks, creating a new account receivable"
-msgstr "Usado para protestar cheques del cliente, generando una nueva cuenta por cobrar"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_account_edi_document__l10n_ec_access_key
+msgid ""
+"Unique code to identify this document, is generated based on date, vat code,"
+" serial number, and other related fields"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_res_users
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_unread
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_unread
+msgid "Unread Messages"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_unread_counter
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__message_unread_counter
+msgid "Unread Messages Counter"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_res_users
 msgid "Users"
 msgstr "Usuarios"
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_base_cero_iva
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_base_cero_iva_signed
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_base_cero_iva
 msgid "VAT 0 Base"
-msgstr "Base IVA 0%"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_base_doce_iva
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_base_doce_iva_signed
-msgid "VAT 12 Base"
-msgstr "Base grava IVA"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_total_iva
-msgid "VAT Total"
-msgstr "Total IVA"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_vat_cero_subtotal
-msgid "VAT Value 0"
-msgstr "Valor IVA 0%"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_vat_doce_subtotal
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_vat_doce_subtotal_signed
-msgid "VAT Value 12"
-msgstr "Valor IVA"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sale_order_warning_msgs
-msgid "Warnings"
-msgstr "Advertencias"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_waybill_sequence_id
-msgid "Waybills Sequential"
-msgstr "Secuencial para guías de remisión"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_default_account_credit_note_id
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_default_account_credit_note_id
-msgid "When an account has been selected, the credit notes of this printing point will be credited to this account receivable or payable, if no account has been selected, the Default Receivable will be used"
-msgstr "Cuando se ha seleccionado una cuenta, las notas de crédito de este punto de emisión se acreditarán a esta cuenta por cobrar o pagar, si no se ha seleccionado ninguna cuenta se utilizará la Cuenta por Cobrar por defecto."
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_withhold_sequence_id
-msgid "Withholds Sequential"
-msgstr "Secuencial para retenciones"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_users_printer_ids
-msgid "This field defines the printing dots for which the user is enabled"
-msgstr "Este campo define los puntos de emisión para los cuales el usuario esta habilitado"
-
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_ir_sequence
-msgid "ir.sequence"
-msgstr "Secuencias"
-
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_sri_printer_point
-msgid "sri.printer.point"
-msgstr "Punto de emisión"
-
-#. module: ecua_invoice
-#: model:ir.model,name:ecua_invoice.model_trait_context_for_fields
-msgid "trait.context.for.fields"
-msgstr "trait.context.for.fields"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_company_form_adjust_journal
-msgid "Accounting"
-msgstr "Contabilidad"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_supplier_form_ecua
-msgid "View Credit Notes"
-msgstr "Ver notas de crédito"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_base_tax_free
-#: model:ir.model.fields,field_description:ecua_invoice.field_purchase_order_base_tax_free
-msgid "Base Exempt VAT"
-msgstr "Base exento IVA"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_base_tax_free
-#: model:ir.model.fields,help:ecua_invoice.field_purchase_order_base_tax_free
-msgid "Show the base value of tax free"
-msgstr "Muestra el valor de la base exento de IVA"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_base_not_subject_to_vat
-#: model:ir.model.fields,field_description:ecua_invoice.field_purchase_order_base_not_subject_to_vat
-msgid "Base Not Object VAT"
-msgstr "Base no objeto de IVA"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_base_not_subject_to_vat
-#: model:ir.model.fields,help:ecua_invoice.field_purchase_order_base_not_subject_to_vat
-msgid "Show the base value of vat base not subject to vat"
-msgstr "Muestra el valor de la base no objeto de IVA"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_line_price_unit_final
-msgid "Price Unit Final"
-msgstr "Precio unitario final"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_line_price_unit_final
-msgid "Unit price after the discount applied and without taxes"
-msgstr "Precio unitario luego de aplicado el descuento y sin impuestos"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_line_amount_unit_discount
-msgid "Amount Unit Discounted"
-msgstr "Precio unitario con descuento"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_line_amount_unit_discount
-msgid "Indicates the unit monetary value of the discount, the formula is: Unit Price - Value Tax included - Final Unit Price"
-msgstr "Indica el valor monetario unitario del descuento, la fórmula es: Precio unitario - Impuesto sobre el valor incluido - Precio unitario final"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_total_undiscounted
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_line_total_undiscounted
-msgid "Total Undiscounted"
-msgstr "Total sin descuento"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_line_total_undiscounted
-msgid "Indicates the total undiscounted, its formula is: Unit value without tax * Amount"
-msgstr "Indica el total sin descuento, su fórmula es: Valor unitario sin impuestos * Importe"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_total_discount
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_line_total_discount
-msgid "Total Discount"
-msgstr "Descuento total"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_line_total_discount
-msgid "Indicates the monetary discount applied to the total invoice line, the formula is: Subtotal Without Discount - Price Subtotal"
-msgstr "Indica el descuento monetario aplicado a la línea de factura total, la fórmula es: Subtotal sin descuento - Precio subtotal"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_total_undiscounted
-msgid "Sum of total prices excluding discount"
-msgstr "Sumatoria de los precios totales sin incluir descuento"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_total_discount
-msgid "Total sum of the discount granted"
-msgstr "Sumatoria total del descuento otorgado"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_base_tax_free
-msgid "Sum of total prices included discount of products exempt from VAT"
-msgstr "Sumatoria de precios totales incluido descuento de productos exentos de IVA"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_base_not_subject_to_vat
-msgid "Sum of total prices included discount of products not subject to VAT"
-msgstr "Sumatoria de precios totales incluido descuento de productos no objeto de IVA"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_base_cero_iva
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_base_cero_iva_signed
-msgid "Sum of total prices included discount of products that tax VAT 0%"
-msgstr "Sumatoria de precios totales incluido descuento de productos que gravan IVA 0%"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_base_doce_iva
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_base_doce_iva_signed
-msgid "Summation of total prices included discount of products that tax VAT 12%"
-msgstr "Sumatoria de precios totales incluido descuento de productos que gravan IVA 12%"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_vat_doce_subtotal
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_vat_doce_subtotal_signed
-msgid "Generated VAT"
-msgstr "IVA generado"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_total_with_tax
-msgid "Result of the sum of taxable amount plus the Value of VAT"
-msgstr "Resultado de la sumatoria de Base imponible más el Valor del IVA"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_total_to_withhold
-msgid "Sum of values to be retained"
-msgstr "Sumatoria de los valores a retener"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_supplier_form_ecua
-msgid "Auto-detect"
-msgstr "Seleccione la posición fiscal"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_default_receivable_local_id
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_default_receivable_local_id
-msgid "Default Receivable Local"
-msgstr "Cuenta por cobrar locales por defecto"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_default_receivable_abroad_id
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_default_receivable_abroad_id
-msgid "Default Receivable Abroad"
-msgstr "Cuenta por cobrar del exterior por defecto"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_receivable_related_local_id
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_receivable_related_local_id
-msgid "Receivable Related Local"
-msgstr "Cuenta por cobrar relacionadas locales"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_res_company_receivable_related_abroad_id
-#: model:ir.model.fields,field_description:ecua_invoice.field_sri_printer_point_receivable_related_abroad_id
-msgid "Receivable Related Abroad"
-msgstr "Cuenta por cobrar relacionadas extranjeras"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_default_receivable_local_id
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_default_receivable_local_id
-msgid "The default account receivable, used in the sale register to customers generally domiciled in Ecuador"
-msgstr "La cuenta por cobrar por defecto, utilizada en el registro de ventas a clientes en general domiciliados en el Ecuador"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_default_receivable_abroad_id
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_default_receivable_abroad_id
-msgid "The default account receivable, used in the sale register, for foreign customers"
-msgstr "La cuenta por cobrar por defecto, utilizada en el registro de ventas, para clientes del exterior"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_receivable_related_local_id
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_receivable_related_local_id
-msgid "The default account receivable used in the sale registry for related parties domiciled in Ecuador"
-msgstr "La cuenta por cobrar por defecto, utilizada en el registro de ventas, para partes relacionadas domiciliadas en el Ecuador"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_res_company_receivable_related_abroad_id
-#: model:ir.model.fields,help:ecua_invoice.field_sri_printer_point_receivable_related_abroad_id
-msgid "The default account receivable used in the sale registry for related parties for foreign customers"
-msgstr "La cuenta por cobrar por defecto, utilizada en el registro de ventas, para partes relacionadas domiciliadas en el exterior"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid ""
-"<br/>\n"
-"                            <strong>Date: </strong>"
 msgstr ""
-"<br/>\n"
-"                            <strong>Fecha: </strong>"
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong><span style=\"font-size:16px;\">COMPROBANTE DIARIO</span></strong>"
-msgstr "<strong><span style=\"font-size:16px;\">COMPROBANTE DIARIO</span></strong>"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_base_doce_iva
+msgid "VAT 12 Base"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong>Account</strong>"
-msgstr "<strong>Cuenta</strong>"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_vat_doce_subtotal
+msgid "VAT Value 12"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong>Analytic</strong>"
-msgstr "<strong>Analítico</strong>"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_invoice_payment_method__l10n_ec_payment_method_id
+msgid "Way of payment of the SRI"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<br/>\n"
-"                            <strong>Beneficiary: </strong>"
-msgstr "<br/>\n"
-"                            <strong>Beneficiario: </strong>"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__l10n_ec_payment_method_id
+msgid "Way to Pay"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong>Code</strong>"
-msgstr "<strong>Código</strong>"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__website_message_ids
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__website_message_ids
+msgid "Website Messages"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong>Credit</strong>"
-msgstr "<strong>Haber</strong>"
+#. module: l10n_ec_edi
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__website_message_ids
+#: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__website_message_ids
+msgid "Website communication history"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong>Debit</strong>"
-msgstr "<strong>Debe</strong>"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "Yes"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong>Product</strong>"
-msgstr "<strong>Producto</strong>"
+#. module: l10n_ec_edi
+#: code:addons/l10n_ec_edi/models/account_move.py:0
+#, python-format
+msgid ""
+"You can't set to draft the journal entry %s because an electronic document "
+"has already been requested. Please leave this document in cancel state and "
+"create a new one instead"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong>Qty</strong>"
-msgstr "<strong>Cantidad</strong>"
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_l10n_ec_digital_signature
+msgid "l10n.ec.digital.signature"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong>Reference</strong>"
-msgstr "<strong>Referencia</strong>"
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_l10n_ec_invoice_payment_method
+msgid "l10n.ec.invoice.payment.method"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong>TOTAL</strong>"
-msgstr "<strong>TOTAL</strong>"
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_l10n_ec_payment_method
+msgid "l10n.ec.payment.method"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.actions.report.xml,name:ecua_invoice.action_account_move_report
-msgid "Account Move"
-msgstr "Comprobante diario"
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_l10n_ec_sri_printer_point
+msgid "l10n_ec.sri.printer.point"
+msgstr ""
 
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_sale_shop_active
-msgid "Active"
-msgstr "Activo"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_move_print_form
-msgid "Print"
-msgstr "Imprimir"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.report_accountmove_document
-msgid "<strong>Date Due: </strong>"
-msgstr "<strong>Fecha de vencimiento: </strong>"
-
-#. module: ecua_invoice
-#: model:ir.actions.act_window,name:ecua_invoice.action_tax_manual_base
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_tax_manual_base
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_supplier_form_ecua
-msgid "Manual Base"
-msgstr "Base manual"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_tax_manual_base
-msgid "Manual tax base"
-msgstr "Base de impuesto manual"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,field_description:ecua_invoice.field_account_invoice_tax_change_base
-msgid "Change Base"
-msgstr "Cambiar base"
-
-#. module: ecua_invoice
-#: model:ir.model.fields,help:ecua_invoice.field_account_invoice_tax_change_base
-msgid "Determine if the tax can be manually based"
-msgstr "Determina si la base del impuesto puede ser cambiada manualmente"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_tax_manual_base_form
-msgid "Update"
-msgstr "Actualizar"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.view_tax_manual_base_form
-msgid "Cancel"
-msgstr "Cancelar"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-msgid "Name of person / Company"
-msgstr "Nombre de la Empresa / Persona"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-msgid "RUC / NIF / PASSPORT"
-msgstr "RUC / Cédula / Pasaporte"
-
-#. module: ecua_invoice
-#: model:ir.ui.view,arch_db:ecua_invoice.invoice_customer_form_ecua
-msgid "Social Reason"
-msgstr "Razón social"
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "on"
+msgstr ""
