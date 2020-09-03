@@ -5,6 +5,10 @@ import odoo
 from odoo import api, SUPERUSER_ID
 
 def l10n_ec_set_doc_type_no_update_true(cr):
+    '''
+        Setea el ir.model.data de los tipos de documentos a noupdate = True para que no
+        sean modificados en proximas actualizaciones del modulo.
+        '''
     env = api.Environment(cr, SUPERUSER_ID, {})
     xml_record_ids = env['ir.model.data'].search([
         ('model', 'in', ['l10n_latam.document.type']),
