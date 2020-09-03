@@ -40,6 +40,13 @@ class AccountEdiDocument(models.Model):
             f=open(path,'rb')
             data = f.read()
             return data
+        def run_command(command):
+            p = subprocess.Popen(command,
+                                 stdout = subprocess.PIPE,
+                                 stderr = subprocess.STDOUT)
+            
+            
+            return iter(p.stdout.readline, b'')
         # todo se maneja por archivo, para evitar problemas se usa la clave para nombrarlos
         # path general: /tmp/
         path_temp = "/tmp/"#"."#
@@ -53,7 +60,27 @@ class AccountEdiDocument(models.Model):
         write_file(file_xml, base64.b64decode(draft_electronic_document_in_xml))
         # ejecucion del aplicativo
         JAR_PATH = '../java-lib/3CXAdESBESSSign.jar'
-        JAVA_CMD = 'java'
+        JAVA_CMD = '/home/odoo/jdk-14.0.2/bin/java' #Odoo.sh path for java
+        try: #lets find out if java is installed elsewhere
+            has_java_installed = list(run_command([
+                'java',
+                '-XX:MaxHeapSize=512m', 
+                '-XX:InitialHeapSize=512m',
+                '-XX:CompressedClassSpaceSize=64m',
+                '-XX:MaxMetaspaceSize=128m',
+                '-XX:+UseConcMarkSweepGC',
+                '-version',
+                ]))
+        except FileNotFoundError:
+            print("File does not exist")
+        except:
+            raise
+        else:
+            #no exception raised, java is installed
+            if has_java_installed:
+                JAVA_CMD = 'java'
+        finally:
+            pass
         sign_path = os.path.join(os.path.dirname(__file__), JAR_PATH)
         command = [
             JAVA_CMD,
@@ -73,12 +100,14 @@ class AccountEdiDocument(models.Model):
         ]
         try:
             subprocess.check_output(command)
+        except FileNotFoundError as err:
+            raise UserError('Error, perhaps Java is not installed, contact technical support: %s' % str(err))
         except subprocess.CalledProcessError as e:
             returncode = e.returncode
             output = e.output
             _logger.error('Llamada a proceso JAVA codigo: %s' % returncode)
             _logger.error('Error: %s' % output)
-            raise NameError('Error: %s' % output)
+            raise UserError('Error: %s' % output)
         p = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
@@ -87,9 +116,10 @@ class AccountEdiDocument(models.Model):
         #para que esta secci[on... parece repetida__
         outs, errs = p.communicate()
         if errs:
-            raise NameError('Error en proceso JAVA: %s' % str(errs))
+            raise UserError('Error en proceso JAVA: %s' % str(errs))
         xml_sign = open_file(path_temp + file_sign_xml)
         os.remove(file_p12)
         os.remove(file_xml)
         os.remove(path_temp + file_sign_xml)
         return base64.b64encode(xml_sign).decode()
+
