@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <template id="external_layout_standard" inherit_id="web.external_layout_standard" >
+        <xpath expr="//div[contains(@t-attf-class, 'o_report_layout_standard')]//t[@t-call='web.address_layout']" position="attributes">
+            <attribute name="t-if">o and o._name != 'account.move' and o.company_id.partner_id.country_id.code != 'EC'</attribute>
+        </xpath>
+    </template>
+
     <template id="report_invoice_document" inherit_id="account.report_invoice_document" primary="True">
         <xpath expr="//h2" position="attributes">
             <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
