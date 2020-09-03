@@ -399,4 +399,3 @@ class L10NECInvoicePaymentMethod(models.Model):
         string='Invoice', 
         help='This field help to relate to account invoice object'
         )
-   
