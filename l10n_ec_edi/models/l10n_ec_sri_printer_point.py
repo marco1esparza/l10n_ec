@@ -68,7 +68,7 @@ class L10nEcSRIPrinterPoint(models.Model):
         # Create Sequences
         internal_types = ['invoice', 'debit_note', 'credit_note']
         domain = [('country_id.code', '=', 'EC'), ('internal_type', 'in', internal_types),
-                  ('l10n_ec_authorization', '=', 'own')]
+                  ('l10n_ec_authorization', '=', 'own'), ('code', '!=', '41')]
         documents = self.env['l10n_latam.document.type'].search(domain)
         for document in documents:
             sequences |= self.env['ir.sequence'].create({
@@ -78,3 +78,9 @@ class L10nEcSRIPrinterPoint(models.Model):
                 'l10n_ec_printer_id': self.id,
             })
         return sequences
+
+    @api.constrains('name')
+    def _check_name(self):
+        valid = re.search("([0-9]{3,}-[0-9]{3,})", self.name)
+        if not valid:
+            raise ValidationError('El Punto de Emision no es valido. Ejem.: 000-000')
