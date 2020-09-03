@@ -7,7 +7,7 @@ from datetime import datetime
 from lxml import etree
 import base64
 
-from odoo.addons.l10n_ec_edi.models.common_methods import get_SRI_normalized_text, clean_xml, validate_xml_vs_xsd, XSD_SRI_110_FACTURA
+from odoo.addons.l10n_ec_edi.models.common_methods import get_SRI_normalized_text, clean_xml, validate_xml_vs_xsd, XSD_SRI_110_FACTURA, XSD_SRI_110_NOTA_CREDITO
 from odoo.addons.l10n_ec_edi.models.amount_to_words import amount_to_words_es
 
 from suds.client import Client #para los webservices, pip install suds-community
@@ -148,23 +148,15 @@ class AccountEdiDocument(models.Model):
         Escribe el archivo xml request en el campo designado para ello
         '''
         self.ensure_one()
-        #TODO V13 REMOVER, dudo que el error de contexto se siga presentando
-#         context = self.env.context.copy()
-#         if not context.get('lang',False) or not context.get('tz', False) or not context.get('uid', False):  
-#             #TODO: Investigar el error, a veces el context llega incompleto y el reporte no se puede generar, parece ser cuando se viene desde el cron
-#             user = self.env.user
-#             if not context.get('lang', False):
-#                 context.update({'lang': user.lang})
-#             if not context.get('tz', False):
-#                 context.update({'tz': user.tz})
-#             if not context.get('uid', False):
-#                 context.update({'uid': user.id})
         #generamos y validamos el documento
-        if self.move_id.type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18','41']:
+        if self.move_id.type in ('out_invoice', 'out_refund'):
             etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
-                validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
+                if self.move_id.type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18','41']:
+                    validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
+                elif self.move_id.type in ('out_refund') and self.move_id.l10n_latam_document_type_id.code in ['04']:
+                    validate_xml_vs_xsd(xml_content, XSD_SRI_110_NOTA_CREDITO)
             except ValueError: 
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
         self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
@@ -180,8 +172,8 @@ class AccountEdiDocument(models.Model):
                 factura = etree.Element('factura', {'id': 'comprobante', 'version': '1.1.0'})
 #             elif document_type.code == '05':
 #                 return self._getNotaDebito()
-#         elif type == 'out_refund':
-#             factura = etree.Element('notaCredito', {'id': 'comprobante', 'version': '1.1.0'})
+        elif type == 'out_refund':
+            factura = etree.Element('notaCredito', {'id': 'comprobante', 'version': '1.1.0'})
 #         elif type == 'in_invoice':
 #             if document_type.code in ('03','41'):
 #                 factura = etree.Element('liquidacionCompra', {'id': 'comprobante', 'version': '1.1.0'})
@@ -200,8 +192,8 @@ class AccountEdiDocument(models.Model):
         ])
         if type == 'out_invoice':
             infoTribElements.append(('codDoc', '01'))
-#         elif type == 'out_refund':
-#             infoTribElements.append(('codDoc',document_type.code))
+        elif type == 'out_refund':
+            infoTribElements.append(('codDoc',document_type.code))
 #         elif type == 'in_invoice':
 #             if document_type.code in ('03','41'):
 #                 infoTribElements.append(('codDoc', '03'))
@@ -215,8 +207,8 @@ class AccountEdiDocument(models.Model):
         # CREACION INFO FACTURA
         if type == 'out_invoice':
             infoFactura = etree.SubElement(factura, 'infoFactura')
-#         elif type == 'out_refund':
-#             infoFactura = etree.SubElement(factura, 'infoNotaCredito')
+        elif type == 'out_refund':
+            infoFactura = etree.SubElement(factura, 'infoNotaCredito')
 #         elif type == 'in_invoice':
 #             if document_type.code in ('03', '41'):
 #                 infoFactura = etree.SubElement(factura, 'infoLiquidacionCompra')
@@ -224,10 +216,10 @@ class AccountEdiDocument(models.Model):
             ('fechaEmision', datetime.strftime(self.move_id.invoice_date,'%d/%m/%Y')),
             ('dirEstablecimiento', self.move_id.l10n_ec_printer_id.printer_point_address)
         ]
+        get_invoice_partner_data = self.move_id.partner_id.get_invoice_partner_data()
         if type == 'out_invoice':
             if self.move_id.company_id.l10n_ec_special_contributor_number:
                 infoFactElements.append(('contribuyenteEspecial', self.move_id.company_id.l10n_ec_special_contributor_number))
-            get_invoice_partner_data = self.move_id.partner_id.get_invoice_partner_data()
             infoFactElements.extend([
                 ('obligadoContabilidad', 'SI' if self.move_id.company_id.l10n_ec_forced_accounting else 'NO'),
                 ('tipoIdentificacionComprador', self.move_id.partner_id.get_invoice_ident_type()),
@@ -251,23 +243,23 @@ class AccountEdiDocument(models.Model):
 #                     ('totalBaseImponibleReembolso', totalComprobantesReembolso),
 #                     ('totalImpuestoReembolso', totalImpuestoReembolso),
 #                 ])
-#         elif type == 'out_refund':
-#             infoFactElements.extend([
-#                 ('tipoIdentificacionComprador', get_invoice_ident_type(self)),
-#                 ('razonSocialComprador', self.invoice_name),
-#                 ('identificacionComprador', get_identification(self.invoice_vat))
-#             ])
-#             if self.company_id.special_tax_contributor_number:
-#                 infoFactElements.append(('contribuyenteEspecial', self.company_id.special_tax_contributor_number))   
-#             infoFactElements.extend([
-#                 ('obligadoContabilidad', 'SI' if self.company_id.forced_accounting else 'NO'),
-#                 ('codDocModificado', '01'),
-#                 ('numDocModificado', self.invoice_rectification_id.l10n_latam_document_number),
-#                 ('fechaEmisionDocSustento', datetime.strptime(self.invoice_rectification_id.invoice_date,'%Y-%m-%d').strftime('%d/%m/%Y')),
-#                 ('totalSinImpuestos', self.amount_untaxed),
-#                 ('valorModificacion', self.amount_total),
-#                 ('moneda', 'DOLAR')
-#             ])
+        elif type == 'out_refund':
+            infoFactElements.extend([
+                ('tipoIdentificacionComprador', self.move_id.partner_id.get_invoice_ident_type()),
+                ('razonSocialComprador', get_invoice_partner_data['invoice_name']),
+                ('identificacionComprador', get_invoice_partner_data['invoice_vat'])
+            ])
+            if self.move_id.company_id.l10n_ec_special_contributor_number:
+                infoFactElements.append(('contribuyenteEspecial', self.move_id.company_id.l10n_ec_special_contributor_number)) 
+            infoFactElements.extend([
+                ('obligadoContabilidad', 'SI' if self.move_id.company_id.l10n_ec_forced_accounting else 'NO'),
+                ('codDocModificado', '01'),
+                ('numDocModificado', self.move_id.reversed_entry_id.l10n_latam_document_number),
+                ('fechaEmisionDocSustento', datetime.strftime(self.move_id.reversed_entry_id.invoice_date,'%d/%m/%Y')),
+                ('totalSinImpuestos', self.move_id.amount_untaxed),
+                ('valorModificacion', self.move_id.amount_total),
+                ('moneda', 'DOLAR')
+            ])
 #         elif type == 'in_invoice':
 #             if document_type.code in ('03','41'):
 #                 if self.company_id.special_tax_contributor_number:
@@ -300,8 +292,10 @@ class AccountEdiDocument(models.Model):
                 ('importeTotal', '{0:.2f}'.format(self.move_id.amount_total)),
                 ('pagos', None),
             ])
-#         elif type == 'out_refund':
-#             infoFactElements.append(('motivo', self.name))
+        #TODO: evaluar este campo con andres en v10 el campo name es Razón del cambio, pero en v13
+        #es el nombre del doc.
+        elif type == 'out_refund':
+            infoFactElements.append(('motivo', self.move_id.name))
 #         if type == 'in_invoice':
 #             if document_type.code in ('03','41'):
 #                 infoFactElements.extend([
@@ -397,8 +391,8 @@ class AccountEdiDocument(models.Model):
             if each.product_id.get_product_code():
                 if type == 'out_invoice':
                     detalle_data = self.getCodigoPrincipal(detalle_data, each)
-#                 elif type == 'out_refund':
-#                     detalle_data.append(('codigoInterno', each.product_id.get_product_code()[:25]))
+                elif type == 'out_refund':
+                    detalle_data.append(('codigoInterno', each.product_id.get_product_code()[:25]))
             detalle_data.append(('descripcion', each.name[:300]))
             detalle_data.append(('cantidad', each.quantity))
             #TODO: usar algo similar al price_unit-final que deberia ser este l10n_latam_price_net o algo parecido
