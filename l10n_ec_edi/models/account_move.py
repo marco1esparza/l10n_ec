@@ -106,7 +106,7 @@ class AccountMove(models.Model):
                         if document.state in ('to_send'):
                             #needed to print offline RIDE and populate request after validations
                             document._l10n_ec_set_access_key()
-                            self.l10n_ec_authorization = document._l10n_ec_access_key #for auditing manual changes
+                            self.l10n_ec_authorization = document.l10n_ec_access_key #for auditing manual changes
                             document._l10n_ec_generate_request_xml_file()
         return res
     
