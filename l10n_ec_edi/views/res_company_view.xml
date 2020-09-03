@@ -6,21 +6,13 @@
 		<field name="model">res.company</field>
 		<field name="inherit_id" ref="base.view_company_form"/>
 		<field name="arch" type="xml">
-			<xpath expr="//field[@name='partner_id']" position="after">
-				<field name="l10n_ec_legal_name" options='{"no_open": True, "create":False, "create_edit": False}'/>
+			<xpath expr="//field[@name='company_registry']" position="after">
+				<field name="l10n_ec_special_contributor_number"/>
+				<field name="l10n_ec_forced_accounting"/>
+				<field name="l10n_ec_legal_name"/>
+				<field name="l10n_ec_environment_type"/>
+				<field name="l10n_ec_digital_cert_id"/>
 			</xpath>
-   			<xpath expr="//notebook" position="inside">
-   				<page string="Electronic Document">
-                    <group>
-                        <group>
-                            <field name="l10n_ec_environment_type"/>
-							<field name="l10n_ec_digital_cert_id"/>
-							<field name="l10n_ec_special_contributor_number"/>
-							<field name="l10n_ec_forced_accounting"/>
-                        </group>
-                    </group>
-                </page>
-     		</xpath>
 		</field>
    	 </record>
 

@@ -30,6 +30,7 @@
 		<record id="ec_04" model="l10n_latam.document.type">
 			<field name="code">18</field>
 			<field name="name">Factura de Venta</field>
+			<field name="report_name">Factura</field>
 			<field name="doc_code_prefix">Fact.</field>
 			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>

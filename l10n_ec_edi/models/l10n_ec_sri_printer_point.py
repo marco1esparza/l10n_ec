@@ -73,7 +73,7 @@ class L10nEcSRIPrinterPoint(models.Model):
         for document in documents:
             sequences |= self.env['ir.sequence'].create({
                 'name': '%s - %s' % (document.name, self.name),
-                'padding': 8, 'prefix': self.prefix,
+                'padding': 9, 'prefix': self.prefix,
                 'l10n_latam_document_type_id': document.id,
                 'l10n_ec_printer_id': self.id,
             })

@@ -5,6 +5,10 @@
         <xpath expr="//h2" position="attributes">
             <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
         </xpath>
+        
+		<xpath expr="//t[@t-set='address']" position="attributes">
+			<attribute name="invisible">1</attribute>
+		</xpath>
 
         <xpath expr="//h2" position="before">
             <table class="table table-borderless w-100">
@@ -16,17 +20,23 @@
                         <table class="table table-borderless">
                             <tr>
                                 <td class="text-center p-2">
-                                    <strong><span t-field="o.company_id.partner_id.name"/></strong>
+                                    <strong><span t-field="o.company_id.l10n_ec_legal_name"/></strong>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="p-2" style="font-size:12px;">
-                                    <strong>Address:</strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/>
+                                    <strong>Headquarters Address:</strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/>
                                 </td>
                             </tr>
                             <tr t-if="o.l10n_ec_printer_id.printer_point_address">
                                 <td class="p-2" style="font-size:12px;">
-                                    <strong>Printer point address:</strong> <span t-esc="o.l10n_ec_printer_id.printer_point_address"/>
+                                    <strong>Branch Office address:</strong> <span t-esc="o.l10n_ec_printer_id.printer_point_address"/>
+                                </td>
+                            </tr>
+                            <tr t-if="o.company_id.l10n_ec_special_contributor_number">
+                                <td class="p-2" style="font-size:12px;">
+                                    <strong>Special Taxpayer Number:</strong>
+                                    <span t-field="o.company_id.l10n_ec_special_contributor_number"/>
                                 </td>
                             </tr>
                             <tr>
@@ -34,12 +44,6 @@
                                     <strong>Obliged to keep accounting:</strong>
                                     <t t-if="o.company_id.l10n_ec_forced_accounting">Yes</t>
                                     <t t-else="">No</t>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="p-2" style="font-size:12px;">
-                                    <strong>Special Taxpayer No.:</strong>
-                                    <span t-field="o.company_id.l10n_ec_special_contributor_number"/>
                                 </td>
                             </tr>
                         </table>
@@ -55,36 +59,42 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="border-top-0 text-center p-1" style="font-size:25px; letter-spacing: 2px;">
-                                    <h3><t t-if="o.l10n_latam_document_type_id" t-esc="o.l10n_latam_document_type_id.report_name or o.l10n_latam_document_type_id.name" /></h3>
+                                <td class="border-top-0 p-1" style="font-size:25px; letter-spacing: 2px;">
+                                    <h3>
+                                    	<t t-if="o.l10n_latam_document_type_id" t-esc="o.l10n_latam_document_type_id.report_name or o.l10n_latam_document_type_id.name" />
+                                    </h3><span t-esc="o.l10n_latam_document_number or o.name"/>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="border-top-0 text-center p-1">
-                                    <h3>No. <t t-esc="o.l10n_latam_document_number or o.name"/></h3>
+                                <td class="border-top-0 p-1">
+                                    
                                 </td>
                             </tr>
                             <tr>
-                                <td class="border-top-0 text-center p-1">
+                                <td class="border-top-0 p-1">
                                     <strong>Authorization No.:</strong><br/>
                                     <span class="text-center" t-field="o.l10n_ec_authorization"/>
                                 </td>
                             </tr>
+                            <!-- Los RIDE que se descarguen del portal web del SRI contendrán hora y fecha de autorización, dicha información no es
+								 obligatoria registrarla en el RIDE generado por los emisores de comprobantes electrónicos.
                             <tr>
                                 <td class="border-top-0 p-1">
                                     <strong>Date and time of Authorization:</strong>
                                 </td>
-                            </tr>
+                            </tr>-->
                             <tr>
                                 <td class="border-top-0 p-1">
                                     <div>
-                                        <strong>Access Key: </strong>
+                                        <strong>Access Key:</strong>
                                     </div>
                                     <div class="text-justify">
-                                        <img style="width:100%; height:15.5mm;" t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', '28082020011792100120010010000004690000000012' , 370, 113)"/>
+                                        <img style="width:100%; height:15.5mm;" 
+                                        	 t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.l10n_ec_authorization, 370, 113)"
+                                        	 />
                                     </div>
                                     <div class="text-center">
-                                        <strong>28082020011792100120010010000004690000000012</strong>
+                                        <strong><span t-field="o.l10n_ec_authorization"/></strong>
                                     </div>
                                 </td>
                             </tr>
@@ -98,9 +108,6 @@
                     <td class="p-1"><strong>Company Name / Name and Surname: </strong><span t-field="o.partner_id"/></td>
                     <td class="p-1"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
                     <td class="p-1"></td>
-                </tr>
-                <tr>
-                    <td colspan="3" class="p-1"><strong>Invoice date: </strong><span t-esc="o.invoice_date"/></td>
                 </tr>
             </table>
         </xpath>
