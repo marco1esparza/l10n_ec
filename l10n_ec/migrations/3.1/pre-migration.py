@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from odoo import api, SUPERUSER_ID
+import odoo
+
 def migrate(cr, version):
     l10n_ec_delete_view_accounts(cr)
     l10n_ec_set_doc_type_no_update_false(cr)
