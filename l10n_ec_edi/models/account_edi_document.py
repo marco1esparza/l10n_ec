@@ -292,10 +292,8 @@ class AccountEdiDocument(models.Model):
                 ('importeTotal', '{0:.2f}'.format(self.move_id.amount_total)),
                 ('pagos', None),
             ])
-        #TODO: evaluar este campo con andres en v10 el campo name es Razón del cambio, pero en v13
-        #es el nombre del doc.
         elif type == 'out_refund':
-            infoFactElements.append(('motivo', self.move_id.name))
+            infoFactElements.append(('motivo', self.move_id.ref))
 #         if type == 'in_invoice':
 #             if document_type.code in ('03','41'):
 #                 infoFactElements.extend([
