@@ -101,7 +101,7 @@ class AccountMove(models.Model):
         for invoice in self:
             if invoice.l10n_latam_country_code == 'EC':
                 #Facturas de ventas electronicas
-                if invoice.type in ('out_invoice') and invoice.l10n_ec_printer_id.allow_electronic_document:
+                if invoice.type in ('out_invoice', 'out_refund') and invoice.l10n_ec_printer_id.allow_electronic_document:
                     for document in invoice.edi_document_ids:
                         if document.state in ('to_send'):
                             #needed to print offline RIDE and populate request after validations
