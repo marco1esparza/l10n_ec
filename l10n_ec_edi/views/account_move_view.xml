@@ -33,10 +33,10 @@
 						<group col="4" colspan="4">
 			 				<field name="l10n_ec_invoice_payment_method_ids" force_save="1" readonly="1" nolabel="1">
 			                	<tree string="Payment Method">
-			                        <field name="l10n_ec_payment_method_id"/>
-			                        <field name="l10n_ec_days_payment_term"/>
-			                        <field name="l10n_ec_percentage" sum="Total Percentage"/>
-			                        <field name="l10n_ec_amount" sum="Total amount"/>
+			                        <field name="payment_method_id"/>
+			                        <field name="days_payment_term"/>
+			                        <field name="percentage" sum="Total Percentage"/>
+			                        <field name="amount" sum="Total amount"/>
 			                   	</tree>
 			 				</field>
 			 			</group>

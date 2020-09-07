@@ -13,7 +13,7 @@ class Company(models.Model):
         deja vacio 
         """
         for company in self:
-            valid_cert = self.env['l10n.ec.digital.signature'].search([('l10n_ec_company_id', '=', company.id), ('l10n_ec_state', '=', 'confirmed')], limit=1)
+            valid_cert = self.env['l10n_ec.digital.signature'].search([('l10n_ec_company_id', '=', company.id), ('l10n_ec_state', '=', 'confirmed')], limit=1)
             if valid_cert:
                 company.l10n_ec_digital_cert_id = valid_cert[0] 
             else:
@@ -38,7 +38,7 @@ class Company(models.Model):
         help='Identifica si Odoo emitira los documentos electronicos en un Ambiente de Pruebas o de Produccion'
     )
     l10n_ec_digital_cert_id = fields.Many2one(
-        'l10n.ec.digital.signature',
+        'l10n_ec.digital.signature',
         compute='_digital_signature',
         string="Digital Signature",
         help='Digital signature valid to send electronic documents to SRI'

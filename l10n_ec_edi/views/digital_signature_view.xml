@@ -8,27 +8,27 @@
 		<field name="arch" type="xml">
 			<form string="Digital Signature">
 				<header>
-					<button name="button_aprove" attrs="{'invisible': [('l10n_ec_state', '!=', 'draft')]}" string="Confirm" type="object"/>
-					<button name="button_cancel" attrs="{'invisible': [('l10n_ec_state', '!=', 'confirmed')]}" string="Cancel" type="object"/>
-					<button name="button_draft" attrs="{'invisible': [('l10n_ec_state', '!=', 'cancel')]}" string="Send to Draft" type="object"/>
-					<field name="l10n_ec_state" widget="statusbar" statusbar_visible="draft,confirmed,cancel"/>
+					<button name="button_aprove" attrs="{'invisible': [('state', '!=', 'draft')]}" string="Confirm" type="object"/>
+					<button name="button_cancel" attrs="{'invisible': [('state', '!=', 'confirmed')]}" string="Cancel" type="object"/>
+					<button name="button_draft" attrs="{'invisible': [('state', '!=', 'cancel')]}" string="Send to Draft" type="object"/>
+					<field name="state" widget="statusbar" statusbar_visible="draft,confirmed,cancel"/>
 				</header>
 				<sheet string="Digital Signature">
 					<div>
-						<label for="l10n_ec_name" attrs="{'invisible': [('l10n_ec_state','=','draft')]}"/>
+						<label for="name" attrs="{'invisible': [('state','=','draft')]}"/>
 						<h1 class="mt0">
-							<field name="l10n_ec_name" class="oe_inline" attrs="{'invisible': [('l10n_ec_state', '=', 'draft')]}"/>
+							<field name="name" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
 						</h1>
 					</div>
 					<group col="2">
 						<group>
-							<field name="l10n_ec_company_id" attrs="{'readonly': [('l10n_ec_state','!=','draft')]}"/>
-							<field name="l10n_ec_cert_encripted" attrs="{'readonly': [('l10n_ec_state','!=','draft')]}"/>
-							<field name="l10n_ec_password_p12" password="True" attrs="{'readonly': [('l10n_ec_state','!=','draft')]}"/>
+							<field name="company_id" attrs="{'readonly': [('state','!=','draft')]}"/>
+							<field name="cert_encripted" attrs="{'readonly': [('state','!=','draft')]}"/>
+							<field name="password_p12" password="True" attrs="{'readonly': [('state','!=','draft')]}"/>
 						</group>
 						<group>
-							<field name="l10n_ec_not_valid_after" attrs="{'invisible': [('l10n_ec_state','=','draft')]}"/>
-							<field name="l10n_ec_not_valid_before" attrs="{'invisible': [('l10n_ec_state','=','draft')]}"/>
+							<field name="not_valid_after" attrs="{'invisible': [('state','=','draft')]}"/>
+							<field name="not_valid_before" attrs="{'invisible': [('state','=','draft')]}"/>
 						</group>
 					</group>
 				</sheet>
@@ -46,11 +46,11 @@
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
 			<tree string="Digital Signature">
-				<field name="l10n_ec_name"/>
-				<field name="l10n_ec_company_id"/>
-				<field name="l10n_ec_not_valid_after"/>
-				<field name="l10n_ec_not_valid_before"/>
-				<field name="l10n_ec_state"/>
+				<field name="name"/>
+				<field name="company_id"/>
+				<field name="not_valid_after"/>
+				<field name="not_valid_before"/>
+				<field name="state"/>
 			</tree>
 		</field>
 	</record>
@@ -60,51 +60,19 @@
 		<field name="model">l10n.ec.digital.signature</field>
 		<field name="arch" type="xml">
 			<search string="Search Digital Signature">
-				<field name="l10n_ec_name" filter_domain="[('l10n_ec_name','ilike',self)]"/>
-				<field name="l10n_ec_company_id" filter_domain="[('l10n_ec_company_id','ilike',self)]"/>
-				<field name="l10n_ec_not_valid_after" filter_domain="[('l10n_ec_not_valid_after','ilike',self)]"/>
-				<field name="l10n_ec_not_valid_before" filter_domain="[('l10n_ec_not_valid_before','ilike',self)]"/>
-				<filter string="Draft" name="draft" domain="[('l10n_ec_state','=','draft')]"/>
-				<filter string="Confirmed" name="confirmed" domain="[('l10n_ec_state','=','confirmed')]"/>
-				<filter string="Cancel" name="cancel" domain="[('l10n_ec_state','=','cancel')]"/>
-				<filter string="Expired" name="expired" domain="[('l10n_ec_state','=','expired')]"/>
+				<field name="name" filter_domain="[('name','ilike',self)]"/>
+				<field name="company_id" filter_domain="[('company_id','ilike',self)]"/>
+				<field name="not_valid_after" filter_domain="[('not_valid_after','ilike',self)]"/>
+				<field name="not_valid_before" filter_domain="[('not_valid_before','ilike',self)]"/>
+				<filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+				<filter string="Confirmed" name="confirmed" domain="[('state','=','confirmed')]"/>
+				<filter string="Cancel" name="cancel" domain="[('state','=','cancel')]"/>
+				<filter string="Expired" name="expired" domain="[('state','=','expired')]"/>
 				<group expand="0" string="Group By">
-					<filter string="Company" name="l10n_ec_company_id" context="{'group_by':'l10n_ec_company_id'}"/>
-					<filter string="Status" name="l10n_ec_state" context="{'group_by':'l10n_ec_state'}"/>
+					<filter string="Company" name="company_id" context="{'group_by':'company_id'}"/>
+					<filter string="Status" name="state" context="{'group_by':'state'}"/>
 				</group>
 			</search>
-		</field>
-	</record>
-
-	<record id="view_digital_signature_kanban" model="ir.ui.view">
-		<field name="name">view.digital.signature.kanban</field>
-		<field name="model">l10n.ec.digital.signature</field>
-		<field name="arch" type="xml">
-			<kanban class="o_kanban_mobile">
-				<field name="l10n_ec_name"/>
-				<field name="l10n_ec_company_id"/>
-				<field name="l10n_ec_state"/>
-				<templates>
-					<t t-name="kanban-box">
-						<div t-attf-class="oe_kanban_card oe_kanban_global_click">
-							<div class="row">
-								<div class="col-xs-6">
-									<strong>
-										<span t-if="record.l10n_ec_state">
-											<t t-esc="record.l10n_ec_state.value"/>
-										</span>
-									</strong>
-								</div>
-								<div class="col-xs-6 pull-right text-right">
-									<strong>
-										<field name="l10n_ec_company_id"/>
-									</strong>
-								</div>
-							</div>
-						</div>
-					</t>
-				</templates>
-			</kanban>
 		</field>
 	</record>
 

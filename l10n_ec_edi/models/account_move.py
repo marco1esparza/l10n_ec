@@ -40,34 +40,34 @@ class AccountMove(models.Model):
             in_draft_mode = self != self._origin
             existing_move_lines = self.line_ids.filtered(lambda line: line.account_id.user_type_id.type in ('receivable'))
             existing_lines_index = 0
-            new_payment_method_lines = self.env['l10n.ec.invoice.payment.method']
+            new_payment_method_lines = self.env['l10n_ec.invoice.payment.method']
             existing_payment_method_lines = self.l10n_ec_invoice_payment_method_ids
             for line in existing_move_lines:
                 #Como es para reportar al SRI se computa en base al date_invoice y no en base al date_start_payment_term
                 percentage = 0.0
                 if self.amount_total > 0.0:
                     percentage = round((float(line.debit) * 100.0 / float(self.amount_total)), 3)
-                l10n_ec_days_payment_term = 0
+                days_payment_term = 0
                 if line.date_maturity:
                     invoice_date = self.invoice_date or fields.Date.context_today(self)
-                    l10n_ec_days_payment_term = (line.date_maturity - invoice_date).total_seconds() / (3600 * 24)
+                    days_payment_term = (line.date_maturity - invoice_date).total_seconds() / (3600 * 24)
                 if existing_lines_index < len(existing_payment_method_lines):
                     candidate = existing_payment_method_lines[existing_lines_index]
                     existing_lines_index += 1
                     candidate.update({
-                        'l10n_ec_payment_method_id': self.l10n_ec_payment_method_id.id,
-                        'l10n_ec_days_payment_term':l10n_ec_days_payment_term,
-                        'l10n_ec_percentage': percentage,
-                        'l10n_ec_amount': line.debit
+                        'payment_method_id': self.l10n_ec_payment_method_id.id,
+                        'days_payment_term': days_payment_term,
+                        'percentage': percentage,
+                        'amount': line.debit
                     })
                 else:
-                    create_method = in_draft_mode and self.env['l10n.ec.invoice.payment.method'].new or self.env['l10n.ec.invoice.payment.method'].create
+                    create_method = in_draft_mode and self.env['l10n_ec.invoice.payment.method'].new or self.env['l10n.ec.invoice.payment.method'].create
                     candidate = create_method({
-                        'l10n_ec_payment_method_id': self.l10n_ec_payment_method_id.id,
-                        'l10n_ec_days_payment_term': l10n_ec_days_payment_term,
-                        'l10n_ec_percentage': percentage,
-                        'l10n_ec_amount': line.debit,
-                        'l10n_ec_invoice_id': self.id
+                        'payment_method_id': self.l10n_ec_payment_method_id.id,
+                        'days_payment_term': days_payment_term,
+                        'percentage': percentage,
+                        'amount': line.debit,
+                        'invoice_id': self.id
                     })
                 new_payment_method_lines += candidate
             self.l10n_ec_invoice_payment_method_ids -= existing_payment_method_lines - new_payment_method_lines
@@ -137,17 +137,17 @@ class AccountMove(models.Model):
             other_method = 0.0
             for line in invoice.filtered(lambda x:x.l10n_latam_country_code == 'EC').l10n_ec_invoice_payment_method_ids:
                 #Efectivo
-                if line.l10n_ec_payment_method_id.l10n_ec_code == '01':
-                    effective_method += line.l10n_ec_amount
+                if line.l10n_ec_payment_method_id.code == '01':
+                    effective_method += line.amount
                 #Dinero Electrónico
-                elif line.l10n_ec_payment_method_id.l10n_ec_code == '17':
-                    electronic_method += line.l10n_ec_amount
+                elif line.l10n_ec_payment_method_id.code == '17':
+                    electronic_method += line.amount
                 #Tarjetas Débito/Crédito
-                elif line.l10n_ec_payment_method_id.l10n_ec_code in ('10','11','16','18','19'):
-                    card_method += line.l10n_ec_amount
+                elif line.l10n_ec_payment_method_id.code in ('10','11','16','18','19'):
+                    card_method += line.amount
                 #Otros
                 else:
-                    other_method += line.l10n_ec_amount
+                    other_method += line.amount
             invoice.l10n_ec_effective_method = effective_method
             invoice.l10n_ec_electronic_method = electronic_method
             invoice.l10n_ec_card_method = card_method
@@ -236,15 +236,15 @@ class AccountMove(models.Model):
         help='Authorization number for issuing the tributary document, assigned by SRI, can be 10 numbers long, 41, or 49.'
         )
     l10n_ec_payment_method_id = fields.Many2one(
-        'l10n.ec.payment.method',
+        'l10n_ec.payment.method',
         string='Forma de pago', readonly = True,
         states = {'draft': [('readonly', False)]},
         ondelete='restrict',
         help='Payment method to report to tax authority, if unknown select the most likely option'
         )
     l10n_ec_invoice_payment_method_ids = fields.One2many(
-        'l10n.ec.invoice.payment.method',
-        'l10n_ec_invoice_id',
+        'l10n_ec.invoice.payment.method',
+        'invoice_id',
         string='Payment Methods',
         copy=True,
         help='Estos valores representan la forma estimada de pago de la factura, son '
@@ -256,7 +256,6 @@ class AccountMove(models.Model):
         string='Effective', 
         digits=dp.get_precision('Account'),
         method=True,
-        store=True,
         help='Es la sumatoria de las formas de pago con código 01.'
         )
     l10n_ec_electronic_method = fields.Float(
@@ -264,7 +263,6 @@ class AccountMove(models.Model):
         string='Electronic Money',
         digits=dp.get_precision('Account'),
         method=True,
-        store=True,
         help='Es la sumatoria de las formas de pago con código 17.'
         )
     l10n_ec_card_method = fields.Float(
@@ -272,7 +270,6 @@ class AccountMove(models.Model):
         string='Card Credit / Debit', 
         digits=dp.get_precision('Account'),
         method=True,
-        store=True,
         help='Es la sumatoria de las formas de pago con códigos 10, 11, 16, 18, 19.'
         )
     l10n_ec_other_method = fields.Float(
@@ -280,7 +277,6 @@ class AccountMove(models.Model):
         string='Others', 
         digits=dp.get_precision('Account'),
         method=True,
-        store=True,
         help='Es la sumatoria de las formas de pago con códigos 02, 03, 04, 05, 06, 08, 09, 12, 13, 14, 15, 20, 21.'
         )
     l10n_ec_total_discount = fields.Monetary(
@@ -365,29 +361,28 @@ class AccountMoveLine(models.Model):
 
 
 class L10NECInvoicePaymentMethod(models.Model):
-    _name = 'l10n.ec.invoice.payment.method'
-     
-    #Columns
-    l10n_ec_payment_method_id = fields.Many2one(
-        'l10n.ec.payment.method',
+    _name = 'l10n_ec.invoice.payment.method'
+    
+    payment_method_id = fields.Many2one(
+        'l10n_ec.payment.method',
         string='Way to Pay', 
         help='Way of payment of the SRI'
         )
-    l10n_ec_days_payment_term = fields.Integer(
+    days_payment_term = fields.Integer(
         string='Days Payment Term', 
         help='Payment term in days'
         )
-    l10n_ec_percentage = fields.Float(
+    percentage = fields.Float(
         string='Percentage',
         digits=(3,3),
         help='Percentage of the amount of the payment'
         )
-    l10n_ec_amount = fields.Float(
+    amount = fields.Float(
         string='Amount',
         digits=(16,2), 
         help='Is the pay value for this payment method'
         )
-    l10n_ec_invoice_id = fields.Many2one(
+    move_id = fields.Many2one(
         'account.move',
         required=True,
         string='Invoice', 

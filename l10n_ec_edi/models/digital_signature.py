@@ -21,8 +21,8 @@ EC_STATE_SIGNATURE = [
 
 
 class L10NECDigitalSignature(models.Model):
-    _name = "l10n.ec.digital.signature"
-    _rec_name = "l10n_ec_name"
+    _name = "l10n_ec.digital.signature"
+    _description = 'XaDES Digital Signature'
     _inherit = ['mail.thread']
 
     def unlink(self):
@@ -110,57 +110,50 @@ class L10NECDigitalSignature(models.Model):
         self.l10n_ec_state = 'confirmed'
     
     def button_cancel(self):
-        """
-        Permite pasar al estado cancelado la firma digital
-        """
         self.l10n_ec_state = 'cancel'
      
     def button_draft(self):
-        """
-        Permite pasar al estado borrador la firma digital
-        """
         self.l10n_ec_state = 'draft'
-
-    # Columns
-    l10n_ec_name = fields.Char(
+    
+    name = fields.Char(
         string='Serial Number of Digital Signature',
         readonly=True,
         track_visibility='onchange',
         help='Show the unique serial number of signature'
         )
-    l10n_ec_cert_encripted = fields.Binary(
+    cert_encripted = fields.Binary(
         string='Original encripted signature',
         track_visibility='onchange',
         attachment = True,
         help='Store the original signatured encripted'
         )
-    l10n_ec_not_valid_after = fields.Datetime(
+    not_valid_after = fields.Datetime(
         string='Not valid after Date of signature',
         readonly=True,
         track_visibility='onchange',
         help='Show the Date after the signature is not valid'
         )
-    l10n_ec_not_valid_before = fields.Datetime(
+    not_valid_before = fields.Datetime(
         string='Not valid before Date of signature',
         readonly=True,
         track_visibility='onchange',
         help='Show the Date before the signature is not valid'
         )
-    l10n_ec_private_key = fields.Text(
+    private_key = fields.Text(
         string='Private Key',
         readonly=True,
         help='Store the private key obtain from the encripted file'
         )
-    l10n_ec_signature = fields.Text(
+    signature = fields.Text(
         string='Signature',
         readonly=True,
         help='Store the certficate obtain from the encripted file'
         )
-    l10n_ec_password_p12 = fields.Char(
+    password_p12 = fields.Char(
         string='Password file .p12',
         help='Password to desencrypt .p12 file'
         )
-    l10n_ec_company_id = fields.Many2one(
+    company_id = fields.Many2one(
         'res.company', 
         string='Company',
         required=True,
@@ -168,7 +161,7 @@ class L10NECDigitalSignature(models.Model):
         track_visibility='onchange',
         help='Show the company asociated to this document'
         )
-    l10n_ec_state = fields.Selection(
+    state = fields.Selection(
         EC_STATE_SIGNATURE,
         string='State',
         default='draft',
