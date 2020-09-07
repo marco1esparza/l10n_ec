@@ -9,11 +9,11 @@
             <form string="Printer Point">
             	<group>
 	                <group name="group_left" string="Printer Point">
-	                	<field name="company_id" readonly="1" invisible="1"/>
 	                	<field name="name" required="1"/>
 	                	<field name="printer_point_address"/>
 						<field name="allow_electronic_document"/>
-						<field name="l10n_ec_sequence_ids" nolabel="1" colspan="2">
+						<field name="company_id" groups="base.group_multi_company" required="1"/>
+						<field name="sequence_ids" nolabel="1" colspan="2">
 							<tree create="false" delete="false" editable="top" default_order="id">
 								<field name="name" readonly="True" string="Sequence"/>
 								<field name="prefix" readonly="True"/>

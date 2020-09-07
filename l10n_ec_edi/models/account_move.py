@@ -110,10 +110,14 @@ class AccountMove(models.Model):
             printer_id = self.env['l10n_ec.printer.id'].browse(self._context['default_l10n_ec_printer_id'])
             return printer_id
         printer_id = False
-        if self.env.company.country_id.code == 'EC': #self.l10n_latam_country_code is still empty
-            printer_id = self.env.user.l10n_ec_printer_id.id
-            if not printer_id: #search first printer point
-                printer_id = self.env['l10n_ec.sri.printer.point'].search([('company_id', '=', company_id)], order="sequence asc", limit=1)
+        company_id = self.env.company #self.l10n_latam_country_code is still empty
+        if company_id.country_id.code == 'EC':
+            type = self._context.get('default_type',False) #self.type is not yet populated
+            if type in ['out_invoice', 'in_invoice', 'out_refund', 'in_refund']:
+                #regular account.move doesn't need a printer point
+                printer_id = self.env.user.l10n_ec_printer_id.id
+                if not printer_id: #search first printer point
+                    printer_id = self.env['l10n_ec.sri.printer.point'].search([('company_id', '=', company_id.id)], order="sequence asc", limit=1)
         return printer_id
 
     @api.model
@@ -122,9 +126,15 @@ class AccountMove(models.Model):
         Este metodo obtiene el punto de emisión configurado en las preferencias del usuario, en caso
         que no tenga, se obtiene el primer punto de impresion que exista generalmente es el 001-001
         '''
+        
+        if self._context.get('default_l10n_ec_payment_method_id'):
+            payment_method_id = self.env['l10n_ec.payment.method'].browse(self._context['default_l10n_ec_payment_method_id'])
+            return payment_method_id
         payment_method_id = False
-        if self.l10n_latam_country_code == 'EC':
-            if self.type in ['out_invoice', 'in_invoice']:
+        company_id = self.env.company #self.l10n_latam_country_code is still empty
+        if company_id.country_id.code == 'EC':
+            type = self._context.get('default_type',False) #self.type is not yet populated
+            if type in ['out_invoice', 'in_invoice']:
                 payment_method_id = self.env['l10n_ec.payment.method'].search([], order="sequence asc", limit=1)
         return payment_method_id
         
@@ -140,13 +150,13 @@ class AccountMove(models.Model):
             other_method = 0.0
             for line in invoice.filtered(lambda x:x.l10n_latam_country_code == 'EC').l10n_ec_invoice_payment_method_ids:
                 #Efectivo
-                if line.l10n_ec_payment_method_id.code == '01':
+                if line.payment_method_id.code == '01':
                     effective_method += line.amount
                 #Dinero Electrónico
-                elif line.l10n_ec_payment_method_id.code == '17':
+                elif line.payment_method_id.code == '17':
                     electronic_method += line.amount
                 #Tarjetas Débito/Crédito
-                elif line.l10n_ec_payment_method_id.code in ('10','11','16','18','19'):
+                elif line.payment_method_id.code in ('10','11','16','18','19'):
                     card_method += line.amount
                 #Otros
                 else:
@@ -200,7 +210,7 @@ class AccountMove(models.Model):
         """ Return the match sequences for the given journal and invoice """
         self.ensure_one()
         if self.l10n_latam_country_code == 'EC':
-            res = self.l10n_ec_printer_id.l10n_ec_sequence_ids.filtered(
+            res = self.l10n_ec_printer_id.sequence_ids.filtered(
                 lambda x: x.l10n_latam_document_type_id == self.l10n_latam_document_type_id)
             return res
         return super()._get_document_type_sequence()
@@ -213,14 +223,13 @@ class AccountMove(models.Model):
         remaining = self - recs_with_l10n_ec_printer_id
         remaining.l10n_latam_sequence_id = False
     
-    
     def button_draft(self):
         if self.l10n_latam_country_code == 'EC':
             for move in self:
                 if move.edi_document_ids:
                     raise UserError(_(
                         "You can't set to draft the journal entry %s because an electronic document has already been requested. "
-                        "Please leave this document in cancel state and create a new one instead"
+                        "Instead you can cancel this document and then create a new one"
                     ) % move.display_name)
         res = super().button_draft()
         return res
@@ -229,7 +238,7 @@ class AccountMove(models.Model):
         'l10n_ec.sri.printer.point',
         string='Punto de emisión', readonly = True,
         states = {'draft': [('readonly', False)]},
-        default=_default_l10n_ec_printer_id,
+        default = _default_l10n_ec_printer_id,
         ondelete='restrict',
         help='The tax authority authorized printer point from where to send or receive invoices'
         )
@@ -242,6 +251,7 @@ class AccountMove(models.Model):
         'l10n_ec.payment.method',
         string='Forma de pago', readonly = True,
         states = {'draft': [('readonly', False)]},
+        default = _default_l10n_ec_payment_method_id,
         ondelete='restrict',
         help='Payment method to report to tax authority, if unknown select the most likely option'
         )

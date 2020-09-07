@@ -100,6 +100,9 @@ class AccountEdiFormat(models.Model):
                     raise
                 sleep(2) # Esperamos 2 segundos para que el SRI procese el documento
                 response_state, response = document._l10n_ec_download_electronic_document_reply()
+            elif response_state == 'rejected':
+                msgs.append(str(response.autorizaciones.autorizacion[0].mensajes))
+                msgs.append('Corrija el problema reportado por el SRI, anule el documento en Odoo, y reintente nuevamente')
             if msgs:
                 edi_result[invoice] = {
                     'error': self._l10n_ec_edi_format_error_message(_("Errors reported by Tax Authority:"), msgs),
