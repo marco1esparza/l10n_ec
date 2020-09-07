@@ -67,7 +67,7 @@ class AccountMove(models.Model):
                         'days_payment_term': days_payment_term,
                         'percentage': percentage,
                         'amount': line.debit,
-                        'invoice_id': self.id
+                        'move_id': self.id
                     })
                 new_payment_method_lines += candidate
             self.l10n_ec_invoice_payment_method_ids -= existing_payment_method_lines - new_payment_method_lines
@@ -106,11 +106,14 @@ class AccountMove(models.Model):
         Este metodo obtiene el punto de emisión configurado en las preferencias del usuario, en caso
         que no tenga, se obtiene el primer punto de impresion que exista generalmente es el 001-001
         '''
+        if self._context.get('default_l10n_ec_printer_id'):
+            printer_id = self.env['l10n_ec.printer.id'].browse(self._context['default_l10n_ec_printer_id'])
+            return printer_id
         printer_id = False
-        if self.l10n_latam_country_code == 'EC':
+        if self.env.company.country_id.code == 'EC': #self.l10n_latam_country_code is still empty
             printer_id = self.env.user.l10n_ec_printer_id.id
             if not printer_id: #search first printer point
-                printer_id = self.env['l10n_ec.sri.printer.point'].search([], order="sequence asc", limit=1)
+                printer_id = self.env['l10n_ec.sri.printer.point'].search([('company_id', '=', company_id)], order="sequence asc", limit=1)
         return printer_id
 
     @api.model
@@ -244,7 +247,7 @@ class AccountMove(models.Model):
         )
     l10n_ec_invoice_payment_method_ids = fields.One2many(
         'l10n_ec.invoice.payment.method',
-        'invoice_id',
+        'move_id',
         string='Payment Methods',
         copy=True,
         help='Estos valores representan la forma estimada de pago de la factura, son '
