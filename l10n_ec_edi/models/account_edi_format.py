@@ -29,11 +29,12 @@ class AccountEdiFormat(models.Model):
         :returns:       True if the EDI must be generated, False otherwise.
         """
         self.ensure_one()
-        if self.code != 'l10n_ec_tax_authority':
-            if invoice.l10n_latam_country_code == 'EC':
-                if invoice.l10n_ec_printer_id.l10n_ec_allow_electronic_document:
-                    if invoice.l10n_latam_document_type_id.code in ['18']:
-                        return True
+        if invoice.l10n_latam_country_code == 'EC' and self.code == 'l10n_ec_tax_authority':
+            is_required_for_invoice = False
+            if invoice.l10n_latam_document_type_id.code in ['18']:
+                if invoice.l10n_ec_printer_id.allow_electronic_document:
+                    is_required_for_invoice = True
+            return is_required_for_invoice 
         return super()._is_required_for_invoice(invoice)
 
     def _needs_web_services(self):
