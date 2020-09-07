@@ -137,13 +137,13 @@
                     <t t-foreach="o.l10n_ec_invoice_payment_method_ids" t-as="payment_method">
                         <tr style="">
                             <td class="text-center">
-                                <span t-field="payment_method.l10n_ec_days_payment_term"/>
+                                <span t-field="payment_method.days_payment_term"/>
                             </td>
                             <td class="text-center">
-                                <span t-field="payment_method.l10n_ec_payment_method_id"/>
+                                <span t-field="payment_method.payment_method_id"/>
                             </td>
                             <td class="text-center">
-                                <span t-field="payment_method.l10n_ec_amount"/>
+                                <span t-field="payment_method.amount"/>
                             </td>
 
                         </tr>

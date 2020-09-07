@@ -375,9 +375,9 @@ class AccountEdiDocument(models.Model):
             for payment in self.move_id.l10n_ec_invoice_payment_method_ids:
                 pago = self.create_SubElement(pagos, 'pago')
                 pago_data = [
-                    ('formaPago', payment.l10n_ec_payment_method_id.l10n_ec_code),
-                    ('total', '{0:.2f}'.format(payment.l10n_ec_amount)),
-                    ('plazo', payment.l10n_ec_days_payment_term),
+                    ('formaPago', payment.payment_method_id.code),
+                    ('total', '{0:.2f}'.format(payment.amount)),
+                    ('plazo', payment.days_payment_term),
                     ('unidadTiempo','dias')
                 ]
                 self.create_TreeElements(pago, pago_data)
@@ -585,13 +585,13 @@ class AccountEdiDocument(models.Model):
     
     def _l10n_ec_sign_digital_xml(self, access_key, cert_encripted, password_p12, draft_electronic_document_in_xml, path_temp='/tmp/'):
         #To be redefined in module l10n_ec_digital_signature
-        return True
+        raise ValidationError("Please install module l10n_ec_digital_signature to sign electronic documents for Ecuador") 
 
     def _l10n_ec_upload_electronic_document(self):
         # Se realiza la firma del documento
         signed_xml = self._l10n_ec_sign_digital_xml(self.l10n_ec_access_key,
-                                           self.sudo().move_id.company_id.l10n_ec_digital_cert_id.l10n_ec_cert_encripted,
-                                           self.sudo().move_id.company_id.l10n_ec_digital_cert_id.l10n_ec_password_p12,
+                                           self.sudo().move_id.company_id.l10n_ec_digital_cert_id.cert_encripted,
+                                           self.sudo().move_id.company_id.l10n_ec_digital_cert_id.password_p12,
                                            self.l10n_ec_request_xml_file)
         client = self._l10n_ec_open_connection_sri(mode='reception')
         reply = client.service.validarComprobante(signed_xml)
@@ -609,6 +609,8 @@ class AccountEdiDocument(models.Model):
         if response.autorizaciones:
             if response.autorizaciones.autorizacion[0].estado == 'AUTORIZADO':
                 state = 'sent'
+            elif response.autorizaciones.autorizacion[0].estado == 'NO AUTORIZADO':
+                state = 'rejected'
         elif response.numeroComprobantes == '0':
             state = 'non-existent'
         elif int(response.numeroComprobantes) > 0:
@@ -658,14 +660,4 @@ class AccountEdiDocument(models.Model):
         string='Name',
         size=64,
         help='El nombre del archivo XML enviado al proveedor de documentos electronicos, guardado para depuracion',
-        )
-    l10n_ec_response_xml_file = fields.Binary(
-        string='Respuesta XML',
-        attachment = True, #por default los attachment se guardan en el filestore
-        help='El archivo XML retornado por el proveedor de documentos electronicos',
-        )
-    l10n_ec_response_xml_file_name = fields.Char(
-        string='Name', 
-        size=64,
-        help='El nombre del archivo XML retornado por el proveedor de documentos electronicos',
         )

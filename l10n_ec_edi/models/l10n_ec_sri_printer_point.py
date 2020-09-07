@@ -22,15 +22,12 @@ class L10nEcSRIPrinterPoint(models.Model):
 
     _sql_constraints = [('l10n_ec_sri_printer_point_name_unique', 'unique(name, company_id)', 'El punto de emisión debe ser único por compañía.')]
     
-    name = fields.Char(
-        string='Printer Point', size=7,
-        copy=False,
-        help='This number is assigned by the SRI'
-    )
-    sequence = fields.Integer(
-        default=10,
-        help="The first printer is used by default when creating new invoices, unless specified otherwise in user profile",
-        )
+    name = fields.Char(string='Printer Point', size=7, copy=False, help='This number is assigned by the SRI')
+    
+    sequence = fields.Integer(default=10,help="The first printer is used by default when creating new invoices, unless specified otherwise in user profile",)
+    
+    company_id = fields.Many2one('res.company', string='Company', required=True, index=True, default=lambda self: self.env.company)
+    
     prefix = fields.Char(
         compute='_get_prefix',
         string='Printer Prefix',
@@ -43,13 +40,7 @@ class L10nEcSRIPrinterPoint(models.Model):
         default=True,
         help=u'Active esta opción para habilitar la emisión de doc electrónicos'
     )
-    l10n_ec_sequence_ids = fields.One2many('ir.sequence', 'l10n_ec_printer_id', string="Sequences")
-    company_id = fields.Many2one(
-        'res.company',
-        string='Company',
-        default=lambda self: self.env.user.company_id.id,
-        help=''
-    )
+    sequence_ids = fields.One2many('ir.sequence', 'l10n_ec_printer_id', string="Sequences")
     printer_point_address = fields.Char(
         string='Printer Point Address',
         help='This is the address used for invoice reports of this Printer Point'
@@ -67,7 +58,7 @@ class L10nEcSRIPrinterPoint(models.Model):
         if self.company_id.country_id != self.env.ref('base.ec'):
             return True
 
-        sequences = self.l10n_ec_sequence_ids
+        sequences = self.sequence_ids
         sequences.unlink()
 
         # Create Sequences

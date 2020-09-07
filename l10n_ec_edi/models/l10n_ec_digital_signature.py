@@ -29,7 +29,7 @@ class L10NECDigitalSignature(models.Model):
         """
         Controla que se pueda eliminar un registro unicamente en estado borrador
         """
-        if not self.l10n_ec_state == 'draft':
+        if not self.state == 'draft':
             raise UserError(u'Solo se puede eliminar una firma digital si esta en estado Borrador.')
         return super(L10NECDigitalSignature, self).unlink()
 
@@ -107,13 +107,13 @@ class L10NECDigitalSignature(models.Model):
 
     def button_aprove(self):
         #self.get_digital_signature(self.l10n_ec_password_p12)
-        self.l10n_ec_state = 'confirmed'
+        self.state = 'confirmed'
     
     def button_cancel(self):
-        self.l10n_ec_state = 'cancel'
+        self.state = 'cancel'
      
     def button_draft(self):
-        self.l10n_ec_state = 'draft'
+        self.state = 'draft'
     
     name = fields.Char(
         string='Serial Number of Digital Signature',
@@ -157,7 +157,8 @@ class L10NECDigitalSignature(models.Model):
         'res.company', 
         string='Company',
         required=True,
-        default=lambda self: self.env.user.company_id,
+        index=True, 
+        default=lambda self: self.env.company,
         track_visibility='onchange',
         help='Show the company asociated to this document'
         )
