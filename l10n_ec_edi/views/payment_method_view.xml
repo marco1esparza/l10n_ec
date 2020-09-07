@@ -9,9 +9,8 @@
 	    	<form string="Payment Method">
 	    		<sheet>
 	    			<group>
-		  				<field name="l10n_ec_code" required="1"/>
-		  				<field name="l10n_ec_name" required="1"/>
-		  			    <field name="sequence" required="1"/>
+		  				<field name="l10n_ec_code"/>
+		  				<field name="l10n_ec_name"/>
 		  			    <field name="active"/>
 				    </group>
 	    		</sheet>
@@ -29,9 +28,10 @@
 	    <field name="type">tree</field>
 	    <field name="arch" type="xml">
 	        <tree string="Payment Method">
+	        	<field name="sequence" widget="handle"/>
 				<field name="l10n_ec_code"/>
 				<field name="l10n_ec_name"/>
-				<field name="sequence"/>
+				<field name="active" widget="boolean_toggle"/>
 	        </tree>
 		</field>
 	</record>

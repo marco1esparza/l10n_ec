@@ -8,79 +8,79 @@
 		</record>
 		<record id="p02" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">02</field>
-			<field name="l10n_ec_name">Cheque propio</field>
+			<field name="l10n_ec_name">Cheque propio (Deprecado)</field>
 			<field name="sequence">10</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p03" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">03</field>
-			<field name="l10n_ec_name">Cheque certificado</field>
+			<field name="l10n_ec_name">Cheque certificado (Deprecado)</field>
 			<field name="sequence">40</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p04" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">04</field>
-			<field name="l10n_ec_name">Cheque de gerencia</field>
+			<field name="l10n_ec_name">Cheque de gerencia (Deprecado)</field>
 			<field name="sequence">50</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p05" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">05</field>
-			<field name="l10n_ec_name">Cheque del exterior</field>
+			<field name="l10n_ec_name">Cheque del exterior (Deprecado)</field>
 			<field name="sequence">60</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p06" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">06</field>
-			<field name="l10n_ec_name">Débito de cuenta</field>
+			<field name="l10n_ec_name">Débito de cuenta (Deprecado)</field>
 			<field name="sequence">70</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p07" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">07</field>
-			<field name="l10n_ec_name">Transferencia propio banco</field>
+			<field name="l10n_ec_name">Transferencia propio banco (Deprecado)</field>
 			<field name="sequence">20</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p08" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">08</field>
-			<field name="l10n_ec_name">Transferencia otro banco nacional</field>
+			<field name="l10n_ec_name">Transferencia otro banco nacional (Deprecado)</field>
 			<field name="sequence">80</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p09" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">09</field>
-			<field name="l10n_ec_name">Transferencia banco exterior</field>
+			<field name="l10n_ec_name">Transferencia banco exterior (Deprecado)</field>
 			<field name="sequence">90</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p10" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">10</field>
-			<field name="l10n_ec_name">Tarjeta de crédito nacional</field>
+			<field name="l10n_ec_name">Tarjeta de crédito nacional (Deprecado)</field>
 			<field name="sequence">100</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p11" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">11</field>
-			<field name="l10n_ec_name">Tarjeta de crédito internacional</field>
+			<field name="l10n_ec_name">Tarjeta de crédito internacional (Deprecado)</field>
 			<field name="sequence">110</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p12" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">12</field>
-			<field name="l10n_ec_name">Giro</field>
+			<field name="l10n_ec_name">Giro (Deprecado)</field>
 			<field name="sequence">120</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p13" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">13</field>
-			<field name="l10n_ec_name">Depósito en cuenta (Corriente/Ahorros)</field>
+			<field name="l10n_ec_name">Depósito en cuenta (Deprecado)</field>
 			<field name="sequence">130</field>
 			<field name="active" eval="False"/>
 		</record>
 		<record id="p14" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">14</field>
-			<field name="l10n_ec_name">Endoso de inversión</field>
+			<field name="l10n_ec_name">Endoso de inversión (Deprecado)</field>
 			<field name="sequence">140</field>
 			<field name="active" eval="False"/>
 		</record>
@@ -97,7 +97,8 @@
 		<record id="p17" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">17</field>
 			<field name="l10n_ec_name">Dinero electrónico</field>
-			<field name="sequence">170</field>	
+			<field name="sequence">170</field>
+			<field name="active" eval="False"/>
 		</record>
 		<record id="p18" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">18</field>
@@ -117,7 +118,8 @@
 		<record id="p21" model="l10n.ec.payment.method">
 			<field name="l10n_ec_code">21</field>
 			<field name="l10n_ec_name">Endoso de títulos</field>
-			<field name="sequence">210</field>	
+			<field name="sequence">210</field>
+			<field name="active" eval="False"/>
 		</record>
     </data>
 </odoo>

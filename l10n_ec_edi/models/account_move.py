@@ -8,24 +8,7 @@ import odoo.addons.decimal_precision as dp
 
 class AccountMove(models.Model):
     _inherit='account.move'
-
-    @api.onchange('partner_id')
-    def _onchange_partner_id(self):
-        '''
-        Invocamos el método onchange_partner_id para setear la forma de pago
-        '''
-        res = super(AccountMove, self)._onchange_partner_id()
-        if self.l10n_latam_country_code == 'EC':
-            l10n_ec_payment_method_id = False
-            payment_method_ids = self.env['l10n.ec.payment.method'].search([], order='l10n_ec_code asc')
-            if payment_method_ids:
-                if self.type in ['out_invoice', 'in_invoice']:
-                    l10n_ec_payment_method_id = payment_method_ids[0].id
-            self.l10n_ec_payment_method_id = l10n_ec_payment_method_id
-            if not self.l10n_ec_printer_id:
-                self.l10n_ec_printer_id = self._default_l10n_ec_printer_id()
-        return res
-
+    
     @api.onchange('l10n_ec_printer_id', 'l10n_latam_document_type_id')
     def onchange_l10n_ec_printer_id(self):
         '''
@@ -88,7 +71,7 @@ class AccountMove(models.Model):
                     })
                 new_payment_method_lines += candidate
             self.l10n_ec_invoice_payment_method_ids -= existing_payment_method_lines - new_payment_method_lines
-            
+    
     def post(self):
         '''
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
@@ -126,12 +109,22 @@ class AccountMove(models.Model):
         printer_id = False
         if self.l10n_latam_country_code == 'EC':
             printer_id = self.env.user.l10n_ec_printer_id.id
-            if not printer_id:
-                printers = self.env['l10n_ec.sri.printer.point'].search([], limit=1)
-                if printers:
-                    printer_id = printers[0].id
+            if not printer_id: #search first printer point
+                printer_id = self.env['l10n_ec.sri.printer.point'].search([], order="sequence asc", limit=1)
         return printer_id
-    
+
+    @api.model
+    def _default_l10n_ec_payment_method_id(self):
+        '''
+        Este metodo obtiene el punto de emisión configurado en las preferencias del usuario, en caso
+        que no tenga, se obtiene el primer punto de impresion que exista generalmente es el 001-001
+        '''
+        payment_method_id = False
+        if self.l10n_latam_country_code == 'EC':
+            if self.type in ['out_invoice', 'in_invoice']:
+                payment_method_id = self.env['l10n_ec.payment.method'].search([], order="sequence asc", limit=1)
+        return payment_method_id
+        
     @api.depends('l10n_ec_invoice_payment_method_ids')
     def compute_payment_method(self):
         '''
@@ -229,30 +222,31 @@ class AccountMove(models.Model):
         res = super().button_draft()
         return res
     
-    #Columns
     l10n_ec_printer_id = fields.Many2one(
         'l10n_ec.sri.printer.point',
         string='Punto de emisión', readonly = True,
         states = {'draft': [('readonly', False)]},
         default=_default_l10n_ec_printer_id,
-        help='The printer point or cash of my company where receive or send documents'
-        ) #TODO JOSÉ: Poner un ondelete = restrict y validar que si ya esta en una factura no se pueda borrar
+        ondelete='restrict',
+        help='The tax authority authorized printer point from where to send or receive invoices'
+        )
     l10n_ec_authorization = fields.Char(
         string='Autorización', readonly = True,
         states = {'draft': [('readonly', False)]},
-        help='It is for the authorization to issue the document, select a release from the list. '
-             'Only existing authorizations are displayed according to the date of the document.'
+        help='Authorization number for issuing the tributary document, assigned by SRI, can be 10 numbers long, 41, or 49.'
         )
     l10n_ec_payment_method_id = fields.Many2one(
         'l10n.ec.payment.method',
         string='Forma de pago', readonly = True,
         states = {'draft': [('readonly', False)]},
-        help='Forma de pago del SRI'
-        ) #TODO JOSÉ: Poner un ondelete = restrict y validar que si ya esta en una factura no se pueda borrar
+        ondelete='restrict',
+        help='Payment method to report to tax authority, if unknown select the most likely option'
+        )
     l10n_ec_invoice_payment_method_ids = fields.One2many(
         'l10n.ec.invoice.payment.method',
         'l10n_ec_invoice_id',
         string='Payment Methods',
+        copy=True,
         help='Estos valores representan la forma estimada de pago de la factura, son '
              'utilizados con fines informativos en documentos impresos y documentos '
              'electrónicos. No tienen efecto contable.'

@@ -8,6 +8,8 @@ import re
 
 class L10nEcSRIPrinterPoint(models.Model):
     _name = 'l10n_ec.sri.printer.point'
+    _description = "Printer Point"
+    _order = 'sequence, id'
 
     @api.depends('name')
     def _get_prefix(self):
@@ -19,13 +21,16 @@ class L10nEcSRIPrinterPoint(models.Model):
                 printer.prefix = printer.name + '-'
 
     _sql_constraints = [('l10n_ec_sri_printer_point_name_unique', 'unique(name, company_id)', 'El punto de emisión debe ser único por compañía.')]
-
-    #Columns
+    
     name = fields.Char(
         string='Printer Point', size=7,
         copy=False,
         help='This number is assigned by the SRI'
     )
+    sequence = fields.Integer(
+        default=10,
+        help="The first printer is used by default when creating new invoices, unless specified otherwise in user profile",
+        )
     prefix = fields.Char(
         compute='_get_prefix',
         string='Printer Prefix',
@@ -83,4 +88,4 @@ class L10nEcSRIPrinterPoint(models.Model):
     def _check_name(self):
         valid = re.search("([0-9]{3,}-[0-9]{3,})", self.name)
         if not valid:
-            raise ValidationError('El Punto de Emision no es valido. Ejem.: 000-000')
+            raise ValidationError('El numero del Punto de Emision debe ser del formato ###-### (Ej. 001-001)')
