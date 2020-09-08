@@ -84,9 +84,9 @@ class AccountMove(models.Model):
                     if not invoice.company_id.vat:
                         raise ValidationError(u'Please setup your VAT number in the company form')
                     if not invoice.company_id.street:
-                        raise ValidationError(u'Please setup the your company address, in Accounting / Settings / Printer Points')
+                        raise ValidationError(u'Please setup the your company address in the company form')
                     if not invoice.l10n_ec_printer_id.printer_point_address:
-                        raise ValidationError(u'Please setup the printer point address')
+                        raise ValidationError(u'Please setup the printer point address, in Accounting / Settings / Printer Points')
                     #needed to print offline RIDE and populate XML request
                     invoice.edi_document_ids._l10n_ec_set_access_key()
                     self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
