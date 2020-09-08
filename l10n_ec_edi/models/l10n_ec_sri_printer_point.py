@@ -28,23 +28,13 @@ class L10nEcSRIPrinterPoint(models.Model):
     
     company_id = fields.Many2one('res.company', string='Company', required=True, index=True, default=lambda self: self.env.company)
     
-    prefix = fields.Char(
-        compute='_get_prefix',
-        string='Printer Prefix',
-        method=True,
-        store=True, #TODO: No ganamos mucho con que sea store=True.. mejor false
-        help=''
-    )
-    allow_electronic_document = fields.Boolean(
-        string=u'Permitir la emisión de doc electrónicos',
-        default=True,
-        help=u'Active esta opción para habilitar la emisión de doc electrónicos'
-    )
+    prefix = fields.Char(compute='_get_prefix', string='Printer Prefix', method=True)
+    
+    allow_electronic_document = fields.Boolean(string=u'Emitir documentos electrónicos', default=True, help=u'Active esta opción para habilitar la emisión de doc electrónicos')
+    
     sequence_ids = fields.One2many('ir.sequence', 'l10n_ec_printer_id', string="Sequences")
-    printer_point_address = fields.Char(
-        string='Printer Point Address',
-        help='This is the address used for invoice reports of this Printer Point'
-    )
+    
+    printer_point_address = fields.Char(string='Printer Point Address', help='This is the address used for invoice reports of this Printer Point')
 
     @api.model
     def create(self, values):

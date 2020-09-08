@@ -383,7 +383,9 @@ class AccountEdiDocument(models.Model):
                 self.create_TreeElements(pago, pago_data)
         # DETALLES DE LA FACTURA
         detalles = etree.SubElement(factura, 'detalles')
-        for each in self.move_id.invoice_line_ids:
+        #remove sections and comments
+        move_lines = self.move_id.invoice_line_ids.filtered(lambda x:x.display_type not in ['line_section','line_note'])
+        for each in move_lines:
             detalle = self.create_SubElement(detalles, 'detalle')
             detalle_data = []
             if each.product_id.get_product_code():
@@ -661,3 +663,4 @@ class AccountEdiDocument(models.Model):
         size=64,
         help='El nombre del archivo XML enviado al proveedor de documentos electronicos, guardado para depuracion',
         )
+    

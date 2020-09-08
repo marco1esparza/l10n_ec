@@ -22,7 +22,7 @@ EC_STATE_SIGNATURE = [
 
 class L10NECDigitalSignature(models.Model):
     _name = "l10n_ec.digital.signature"
-    _description = 'XaDES Digital Signature'
+    _description = 'XAdES Digital Signature'
     _inherit = ['mail.thread']
 
     def unlink(self):
