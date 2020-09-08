@@ -38,7 +38,7 @@ class AccountMove(models.Model):
         self.ensure_one() #se ha probado el programa para una sola factura a la vez
         if self.type in 'out_invoice' and self.l10n_latam_country_code == 'EC':
             in_draft_mode = self != self._origin
-            existing_move_lines = self.line_ids.filtered(lambda line: line.account_id.user_type_id.type in ('receivable'))
+            existing_move_lines = self.line_ids.filtered(lambda line: line.account_id.user_type_id.type or '' in ('receivable'))
             existing_lines_index = 0
             new_payment_method_lines = self.env['l10n_ec.invoice.payment.method']
             existing_payment_method_lines = self.l10n_ec_invoice_payment_method_ids
@@ -77,20 +77,20 @@ class AccountMove(models.Model):
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
-        for invoice in self:
-            if not invoice.company_id.vat:
-                raise ValidationError(u'Please setup your VAT number in the company form')
-        res = super(AccountMove, self).post() #TODO JOSE: Al llamar a super ya nos comemos las secuencias nativas, deberíamos comernoslas una sola vez
+        res = super(AccountMove, self).post()
         for invoice in self:
             if invoice.l10n_latam_country_code == 'EC':
-                #Facturas de ventas electronicas
-                if invoice.type in ('out_invoice', 'out_refund') and invoice.l10n_ec_printer_id.allow_electronic_document:
-                    for document in invoice.edi_document_ids:
-                        if document.state in ('to_send'):
-                            #needed to print offline RIDE and populate request after validations
-                            document._l10n_ec_set_access_key()
-                            self.l10n_ec_authorization = document.l10n_ec_access_key #for auditing manual changes
-                            document._l10n_ec_generate_request_xml_file()
+                if invoice.edi_document_ids.state in ('to_send'): #if an electronic document is on the way
+                    if not invoice.company_id.vat:
+                        raise ValidationError(u'Please setup your VAT number in the company form')
+                    if not invoice.company_id.street:
+                        raise ValidationError(u'Please setup the your company address, in Accounting / Settings / Printer Points')
+                    if not invoice.l10n_ec_printer_id.printer_point_address:
+                        raise ValidationError(u'Please setup the printer point address')
+                    #needed to print offline RIDE and populate XML request
+                    invoice.edi_document_ids._l10n_ec_set_access_key()
+                    self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
+                    invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
     
     def view_credit_note(self):
@@ -264,6 +264,7 @@ class AccountMove(models.Model):
              'utilizados con fines informativos en documentos impresos y documentos '
              'electrónicos. No tienen efecto contable.'
         )
+    #functional fields
     l10n_ec_effective_method = fields.Float(
         compute='compute_payment_method',
         string='Effective', 
@@ -295,16 +296,14 @@ class AccountMove(models.Model):
     l10n_ec_total_discount = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total Discount',
-        method=True, 
-        store=False,
+        method=True,
         readonly=True,
         help='Total sum of the discount granted'
         )
     l10n_ec_base_doce_iva = fields.Monetary(
         string='VAT 12 Base',
         compute='_compute_total_invoice_ec',
-        method=True,
-        store=False, 
+        method=True, 
         readonly=True, 
         help='Summation of total prices included discount of products that tax VAT 12%'
         )
@@ -312,7 +311,6 @@ class AccountMove(models.Model):
         string='VAT Value 12', 
         compute='_compute_total_invoice_ec', 
         method=True, 
-        store=False,
         readonly=True, 
         help='Generated VAT'
         )
@@ -320,7 +318,6 @@ class AccountMove(models.Model):
         string='VAT 0 Base', 
         compute='_compute_total_invoice_ec', 
         method=True,
-        store=False,
         readonly=True,
         help='Sum of total prices included discount of products that tax VAT 0%'
         )
@@ -328,7 +325,6 @@ class AccountMove(models.Model):
         string='Base Exempt VAT',
         compute='_compute_total_invoice_ec',
         method=True,
-        store=False,
         readonly=True,
         help='Sum of total prices included discount of products exempt from VAT'
         )    
@@ -336,11 +332,9 @@ class AccountMove(models.Model):
         string='Base Not Object VAT',
         compute='_compute_total_invoice_ec',
         method=True,
-        store=False,
         readonly=True, 
         help='Sum of total prices included discount of products not subject to VAT'
         )
-
 
 class AccountMoveLine(models.Model):
     _inherit='account.move.line'
