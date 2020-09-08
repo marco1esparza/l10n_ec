@@ -224,13 +224,13 @@ class AccountMove(models.Model):
         remaining.l10n_latam_sequence_id = False
     
     def button_draft(self):
-        if self.l10n_latam_country_code == 'EC':
-            for move in self:
-                if move.edi_document_ids:
-                    raise UserError(_(
-                        "You can't set to draft the journal entry %s because an electronic document has already been requested. "
-                        "Instead you can cancel this document and then create a new one"
-                    ) % move.display_name)
+#         if self.l10n_latam_country_code == 'EC':
+#             for move in self:
+#                 if move.edi_document_ids:
+#                     raise UserError(_(
+#                         "You can't set to draft the journal entry %s because an electronic document has already been requested. "
+#                         "Instead you can cancel this document and then create a new one"
+#                     ) % move.display_name)
         res = super().button_draft()
         return res
     

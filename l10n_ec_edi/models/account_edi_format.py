@@ -31,7 +31,12 @@ class AccountEdiFormat(models.Model):
         self.ensure_one()
         if invoice.l10n_latam_country_code == 'EC' and self.code == 'l10n_ec_tax_authority':
             is_required_for_invoice = False
+            #Facturas de venta
             if invoice.l10n_latam_document_type_id.code in ['18']:
+                if invoice.l10n_ec_printer_id.allow_electronic_document:
+                    is_required_for_invoice = True
+            #NC en ventas
+            if invoice.type == 'out_refund' and invoice.l10n_latam_document_type_id.code in ['04']:
                 if invoice.l10n_ec_printer_id.allow_electronic_document:
                     is_required_for_invoice = True
             return is_required_for_invoice 
@@ -43,8 +48,7 @@ class AccountEdiFormat(models.Model):
         :return: True if such a web service is available, False otherwise.
         """
         self.ensure_one()
-        return True if self.code == 'l10n_ec_tax_authority' else super()._needs_web_services() 
-
+        return True if self.code == 'l10n_ec_tax_authority' else super()._needs_web_services()
     
     def _is_compatible_with_journal(self, journal):
         """ Indicate if the EDI format should appear on the journal passed as parameter to be selected by the user.
@@ -54,6 +58,9 @@ class AccountEdiFormat(models.Model):
         :returns:       True if this format can be enabled by default on the journal, False otherwise.
         """
         # TODO Implementar, no se requiere en la primera versión
+        #Retenciones en compras
+        if journal.type == 'purchase':
+            return True
         return super()._is_compatible_with_journal(journal)
 
     def _is_embedding_to_invoice_pdf_needed(self):
@@ -213,5 +220,4 @@ class AccountEdiFormat(models.Model):
         response = response.replace("&gt;", ">")
         response = response.replace("&quot;", "'")
         return response
-        
         

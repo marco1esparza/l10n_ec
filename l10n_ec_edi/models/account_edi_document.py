@@ -47,7 +47,7 @@ class AccountEdiDocument(models.Model):
                     code_document_type = '01'
             elif document_type in ('in_invoice',):
                 if code_document_type in ('03', '41'):
-                    # Factura de venta y reembolso se mapea con codigo '01'
+                    # Liquidacion de compra y reembolso se mapea con codigo '03'
                     code_document_type = '03'
             serie = related_document.l10n_latam_document_number
         else:
@@ -149,18 +149,18 @@ class AccountEdiDocument(models.Model):
         '''
         self.ensure_one()
         #generamos y validamos el documento
-        if self.move_id.type in ('out_invoice', 'out_refund'):
+        if self.move_id.type in ('out_invoice', 'out_refund') and self.move_id.l10n_latam_document_type_id.code in ['18', '04']:
             etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
-                if self.move_id.type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18','41']:
+                if self.move_id.type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18']:
                     validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
                 elif self.move_id.type in ('out_refund') and self.move_id.l10n_latam_document_type_id.code in ['04']:
                     validate_xml_vs_xsd(xml_content, XSD_SRI_110_NOTA_CREDITO)
             except ValueError: 
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
-        self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
-        self.l10n_ec_request_xml_file = base64.encodestring(xml_content)
+            self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
+            self.l10n_ec_request_xml_file = base64.encodestring(xml_content)
     
     @api.model
     def _l10n_ec_get_xml_request_for_sale_invoice(self):
