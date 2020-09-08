@@ -38,7 +38,7 @@ class AccountMove(models.Model):
         self.ensure_one() #se ha probado el programa para una sola factura a la vez
         if self.type in 'out_invoice' and self.l10n_latam_country_code == 'EC':
             in_draft_mode = self != self._origin
-            existing_move_lines = self.line_ids.filtered(lambda line: line.account_id.user_type_id.type or '' in ('receivable'))
+            existing_move_lines = self.line_ids.filtered(lambda line: (line.account_id.user_type_id.type or '') in ('receivable'))
             existing_lines_index = 0
             new_payment_method_lines = self.env['l10n_ec.invoice.payment.method']
             existing_payment_method_lines = self.l10n_ec_invoice_payment_method_ids
