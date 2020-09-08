@@ -80,7 +80,7 @@ class AccountMove(models.Model):
         res = super(AccountMove, self).post()
         for invoice in self:
             if invoice.l10n_latam_country_code == 'EC':
-                if invoice.edi_document_ids.state in ('to_send'): #if an electronic document is on the way
+                if invoice.edi_document_ids.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
                     if not invoice.company_id.vat:
                         raise ValidationError(u'Please setup your VAT number in the company form')
                     if not invoice.company_id.street:
