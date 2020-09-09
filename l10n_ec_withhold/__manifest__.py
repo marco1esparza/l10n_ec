@@ -28,6 +28,8 @@
         'l10n_ec_edi'
     ],
     'data': [
+        #Data
+        'data/account_journal_data.xml',
         #Views
         'views/account_move_view.xml',
         #Wizard

@@ -123,7 +123,7 @@ class AccountEdiDocument(models.Model):
             # TODO: corregir el raise, esta deprecado
             raise ValidationError(
                 _(u'El numero de documento %s presenta errores al generar la clave de acceso: %s') % (
-                    serie, detail
+                    serie, cadena
                 )
             )
         '''seven value numeric code '''

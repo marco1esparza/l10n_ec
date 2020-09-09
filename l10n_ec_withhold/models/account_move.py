@@ -45,20 +45,40 @@ class AccountMove(models.Model):
             #l10n_ec_withhold_out_id
             if self.type == 'in_invoice':
                 #Duplicamos solo la cabecera de la factura(va hacer funcion de cabecera de retencion), nada de lineas
-                withhold = self.copy(default={'invoice_line_ids': [], 'line_ids': [], 'l10n_ec_withhold_line_ids': [], 'type':'entry', 'withhold_type': 'supplier'})
-                withhold.l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_11').id
+                l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_11').id
+                journal_id = self.env.ref('l10n_ec_withhold.withhold_purchase').id
+                withhold = self.copy(default={'l10n_latam_document_type_id': l10n_latam_document_type_id,
+                                              'journal_id': journal_id,
+                                              'invoice_line_ids': [], 
+                                              'line_ids': [], 
+                                              'l10n_ec_withhold_line_ids': [], 
+                                              'type':'entry',
+                                              'withhold_type': 'supplier'})
                 withhold_lines = self.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
                 withhold_lines.l10n_ec_withhold_out_id = withhold.id
             #Ventas
             elif self.type == 'out_invoice':
-                withhold = self.copy(default={'invoice_line_ids': [], 'line_ids': [], 'l10n_ec_withhold_line_ids': [], 'type':'entry', 'withhold_type': 'customer'})
-            return self.view_withhold()
+                #Duplicamos solo la cabecera de la factura(va hacer funcion de cabecera de retencion), nada de lineas
+                l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_03').id
+                journal_id = self.env.ref('l10n_ec_withhold.withhold_sale').id
+                withhold = self.copy(default={'l10n_latam_document_type_id': l10n_latam_document_type_id,
+                                              'journal_id': journal_id,
+                                              'invoice_line_ids': [], 
+                                              'line_ids': [], 
+                                              'l10n_ec_withhold_line_ids': [], 
+                                              'type':'entry',
+                                              'withhold_type': 'customer'})
+                withhold.l10n_ec_withhold_ids = [(6, 0, self.ids)]
+            return self.view_withhold(withhold)
   
-    def view_withhold(self):
+    def view_withhold(self, withhold):
         '''
         '''
-        [action] = self.env.ref('account.action_move_in_invoice_type').read()
-        action['domain'] = [('id', 'in', list(set(self.line_ids.mapped('l10n_ec_withhold_out_id').ids)))]
+        [action] = self.env.ref('account.action_move_journal_line').read()
+        if withhold.withhold_type == 'supplier':
+            action['domain'] = [('id', 'in', list(set(self.line_ids.mapped('l10n_ec_withhold_out_id').ids)))]
+        else:
+            action['domain'] = [('id', 'in', [withhold.id])]
         return action
  
     def _withhold_exist(self):
@@ -163,6 +183,13 @@ class AccountMove(models.Model):
         store=False, 
         readonly=True, 
         help='Total base renta of withhold'
+        )
+    l10n_ec_withhold_ids = fields.Many2many(
+        'account.move',
+        'account_move_invoice_withhold_rel',
+        'invoice_id',
+        'withhold_id',
+        string='Withhold'
         )
 
 
