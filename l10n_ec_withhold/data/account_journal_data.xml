@@ -4,14 +4,16 @@
 
 		<record id="withhold_sale" model="account.journal">
 			<field name="name">Retenciones en ventas</field>
+			<field name="l10n_latam_use_documents">True</field>
 			<field name="type">general</field>
-			<field name="code">DRVTA</field>
+			<field name="code">RVNTA</field>
 		</record>
 
 		<record id="withhold_purchase" model="account.journal">
 			<field name="name">Retenciones en compras</field>
+			<field name="l10n_latam_use_documents">True</field>
 			<field name="type">general</field>
-			<field name="code">DRCRA</field>
+			<field name="code">RCMPR</field>
 		</record>
 
 	</data>

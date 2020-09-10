@@ -246,6 +246,7 @@ class AccountMove(models.Model):
     l10n_ec_authorization = fields.Char(
         string='Autorización', readonly = True,
         states = {'draft': [('readonly', False)]},
+        copy = False,
         help='Authorization number for issuing the tributary document, assigned by SRI, can be 10 numbers long, 41, or 49.'
         )
     l10n_ec_payment_method_id = fields.Many2one(
