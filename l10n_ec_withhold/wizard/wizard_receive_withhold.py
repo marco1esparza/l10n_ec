@@ -8,44 +8,39 @@ from odoo.exceptions import UserError, ValidationError
 class WizardReceiveWithhold(models.TransientModel):
     _name = 'wizard.receive.withhold'
 
-    @api.multi
     def action_receive(self):
         '''
         Este metodo se encarga de mandar a generar la retencion
         '''
         active_model = self.env.context.get('active_model')
         active_ids = self.env.context.get('active_ids')
-        if active_model == 'account.invoice' and active_ids:
+        if active_model == 'account.move' and active_ids:
             invoices = self.env[active_model].browse(active_ids)
             for invoice in invoices:
                 if not invoice.type == 'out_invoice':
                     raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
-                if not invoice.state in ['open', 'paid']:
+                if not invoice.state in ['posted']:
                     raise ValidationError(u'Solo se puede registrar retenciones sobre facturas abiertas o pagadas.')
             if len(list(set(invoices.mapped('partner_id').mapped('commercial_partner_id').mapped('id')))) > 1:
                 raise ValidationError(u'Las facturas seleccionadas no pertenecen al mismo cliente.')
-            ctx = {}
-            if self.env.context:
-                ctx = self.env.context.copy()
-            ctx['default_type'] = 'sale_withhold'
-            ctx['active_ids'] = active_ids
-            ctx['active_model'] = active_model
-            withhold = self.env['account.withhold'].with_context(ctx).create({})
-            return self.view_withhold([withhold.id])
-
-    @api.multi
-    def view_withhold(self, withhold_ids):
+            #Duplicamos solo la cabecera de la factura(va hacer funcion de cabecera de retencion), nada de lineas, usamos la primera factura
+            l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_03').id
+            journal_id = self.env.ref('l10n_ec_withhold.withhold_sale').id
+            withhold = invoices[0].copy(default={'l10n_latam_document_type_id': l10n_latam_document_type_id,
+                                          'journal_id': journal_id,
+                                          'invoice_line_ids': [], 
+                                          'line_ids': [], 
+                                          'l10n_ec_withhold_line_ids': [],
+                                          'l10n_ec_invoice_payment_method_ids': [],
+                                          'l10n_ec_authorization': False,
+                                          'type':'entry',
+                                          'withhold_type': 'customer'})
+            withhold.l10n_ec_invoice_ids = [(6, 0, invoices.ids)]
+            return self.view_withhold(withhold)
+  
+    def view_withhold(self, withhold):
         '''
-        Este metodo muestra la reteccion
         '''
-        action = 'ecua_tax_withhold.action_account_withhold_sale'
-        view = 'ecua_tax_withhold.view_account_withhold_form_sale'
-        action = self.env.ref(action)
-        result = action.read()[0]
-        if len(withhold_ids) != 1:
-            result['domain'] = "[('id', 'in', " + str(withhold_ids) + ")]"
-        elif len(withhold_ids) == 1:
-            res = self.env.ref(view)
-            result['views'] = [(res and res.id or False, 'form')]
-            result['res_id'] = withhold_ids[0]
-        return result
+        [action] = self.env.ref('account.action_move_journal_line').read()
+        action['domain'] = [('id', 'in', [withhold.id])]
+        return action

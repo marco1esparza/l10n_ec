@@ -20,13 +20,15 @@
 				<field name="l10n_ec_withhold_exist" invisible="1"/>
 				<field name="withhold_type" invisible="1"/>
 				<button name="view_withhold" string="Retenciones" type="object" icon="fa-list-alt"
-					attrs="{'invisible': [('l10n_ec_withhold_exist','=',False)]}"/>
+					attrs="{'invisible': ['|', ('l10n_ec_withhold_exist','=',False), ('l10n_latam_document_type_code','=','07')]}"/>
             </xpath>
 			<xpath expr="//page[@id='aml_tab']" position="after">
-				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible':[('l10n_ec_withhold_line_ids','=',[])]}">
-					<field name="l10n_ec_withhold_line_ids" nolabel="0" readonly="1">
-						<tree create="false" delete="false" edit="false">
-		                    <field name="tax_line_id"/>
+				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible':[('l10n_latam_document_type_code','!=','07')]}">
+					<field name="l10n_ec_invoice_ids"/>
+					<field name="l10n_ec_withhold_line_ids" nolabel="0" attrs="{'readonly':[('state','!=','draft')]}">
+						<tree editable="bottom">
+							<field name="l10n_ec_withhold_invoice_id"/>
+		                    <field name="tax_line_id" readonly="0"/>
 		                    <field name="account_id"/>
 		                    <field name="tax_base_amount"/>
 		                    <field name="credit" string="Monto retenido"/>
@@ -35,10 +37,10 @@
 				</page>
 			</xpath>
 			<xpath expr="//page[@id='invoice_tab']" position="attributes">
-				<attribute name="attrs">{'invisible': ['|', ('type','=','entry'), ('l10n_ec_withhold_line_ids','!=',[])]}</attribute>
+				<attribute name="attrs">{'invisible': ['|', ('type','=','entry'), ('l10n_latam_document_type_code','=','07')]}</attribute>
 			</xpath>
 			<xpath expr="//page[@id='aml_tab']" position="attributes">
-				<attribute name="attrs">{'invisible': [('l10n_ec_withhold_line_ids','!=',[])]}</attribute>
+				<attribute name="attrs">{'invisible': [('l10n_latam_document_type_code','=','07')]}</attribute>
 			</xpath>
 		</field>
 	</record>

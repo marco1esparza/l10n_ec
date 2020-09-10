@@ -43,6 +43,7 @@ class AccountMove(models.Model):
             #Compras
             #A las lineas de la factura original(relacionadas con retenciones) le seteamos el campo 
             #l10n_ec_withhold_out_id
+            #TODO: ajustar la parte de compras
             if self.type == 'in_invoice':
                 #Duplicamos solo la cabecera de la factura(va hacer funcion de cabecera de retencion), nada de lineas
                 l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_11').id
@@ -65,20 +66,19 @@ class AccountMove(models.Model):
                                               'journal_id': journal_id,
                                               'invoice_line_ids': [], 
                                               'line_ids': [], 
-                                              'l10n_ec_withhold_line_ids': [], 
+                                              'l10n_ec_withhold_line_ids': [],
+                                              'l10n_ec_invoice_payment_method_ids': [],
+                                              'l10n_ec_authorization': False,
                                               'type':'entry',
                                               'withhold_type': 'customer'})
-                withhold.l10n_ec_withhold_ids = [(6, 0, self.ids)]
-            return self.view_withhold(withhold)
+                withhold.l10n_ec_invoice_ids = [(6, 0, self.ids)]
+            return self.view_withhold()
   
-    def view_withhold(self, withhold):
+    def view_withhold(self):
         '''
         '''
         [action] = self.env.ref('account.action_move_journal_line').read()
-        if withhold.withhold_type == 'supplier':
-            action['domain'] = [('id', 'in', list(set(self.line_ids.mapped('l10n_ec_withhold_out_id').ids)))]
-        else:
-            action['domain'] = [('id', 'in', [withhold.id])]
+        action['domain'] = [('id', 'in', self.get_withhold_ids())]            
         return action
  
     def _withhold_exist(self):
@@ -87,9 +87,19 @@ class AccountMove(models.Model):
         '''
         for invoice in self:
             withhold_exist =  False
-            if self.line_ids.filtered(lambda l: l.l10n_ec_withhold_out_id):
+            if len(self.get_withhold_ids()) >= 1:
                 withhold_exist = True
             invoice.l10n_ec_withhold_exist = withhold_exist
+            
+    def get_withhold_ids(self):
+        '''
+        '''
+        withhold_ids = []
+        self.env.cr.execute('''select withhold_id from account_move_invoice_withhold_rel where invoice_id=%s''', (self.id,))
+        records = self.env.cr.dictfetchall()
+        for record in records:
+            withhold_ids.append(record.get('withhold_id'))
+        return withhold_ids
             
     def check_entry_line(self):
         '''
@@ -139,11 +149,9 @@ class AccountMove(models.Model):
         )
     l10n_ec_withhold_line_ids = fields.One2many(
         'account.move.line',
-        'l10n_ec_withhold_out_id',
+        'move_id',
         string='Withhold lines',
-        copy=False,
-        readonly=True,
-        states={'draft': [('readonly', False)]}
+        copy=False
         )
     l10n_ec_withhold_exist = fields.Boolean(
         compute='_withhold_exist',
@@ -184,11 +192,11 @@ class AccountMove(models.Model):
         readonly=True, 
         help='Total base renta of withhold'
         )
-    l10n_ec_withhold_ids = fields.Many2many(
+    l10n_ec_invoice_ids = fields.Many2many(
         'account.move',
         'account_move_invoice_withhold_rel',
-        'invoice_id',
         'withhold_id',
+        'invoice_id',
         string='Withhold'
         )
 
@@ -199,15 +207,9 @@ class AccountMoveLine(models.Model):
     #Columns
     l10n_ec_withhold_out_id = fields.Many2one(
         'account.move',
-        string='Withhold',
-        index=True,
-        readonly=True,
-        auto_join=True
+        string='Withhold'
         )
     l10n_ec_withhold_invoice_id = fields.Many2one(
         'account.move',
-        string='Invoice',
-        index=True,
-        readonly=True,
-        auto_join=True
+        string='Invoice'
         )

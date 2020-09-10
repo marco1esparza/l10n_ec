@@ -392,6 +392,7 @@ class L10NECInvoicePaymentMethod(models.Model):
     move_id = fields.Many2one(
         'account.move',
         required=True,
+        ondelete='cascade',
         string='Invoice', 
         help='This field help to relate to account invoice object'
         )

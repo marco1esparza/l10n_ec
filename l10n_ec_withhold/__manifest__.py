@@ -33,6 +33,7 @@
         #Views
         'views/account_move_view.xml',
         #Wizard
+        'wizard/wizard_receive_withhold_view.xml',
     ],
     'installable': True
 }
