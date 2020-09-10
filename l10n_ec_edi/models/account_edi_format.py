@@ -75,7 +75,18 @@ class AccountEdiFormat(models.Model):
         if self.code != 'l10n_ec_tax_authority':
             return edi_result
         if test_mode:
-                return edi_result
+            # Si estamos en Modo test y tenemos documentos electronicos y tenemos request
+            # asignamos el attachment con dicho documento.
+            for invoice in invoices:
+                if invoice.edi_document_ids.l10n_ec_request_xml_file:
+                    attachment = self.env['ir.attachment'].create({
+                        'name': invoice.edi_document_ids.l10n_ec_request_xml_file_name,
+                        'datas': invoice.edi_document_ids.l10n_ec_request_xml_file,
+                        'mimetype': 'application/xml',
+                        'type': 'binary',
+                    })
+                    edi_result[invoice] = {'attachment': attachment}
+            return edi_result
         for invoice in invoices:
             #First some validations
             msgs = []

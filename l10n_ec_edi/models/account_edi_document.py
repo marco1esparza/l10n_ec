@@ -22,8 +22,39 @@ _IVA_CODES = ('vat12', 'vat14' 'zero_vat', 'not_charged_vat', 'exempt_vat')
 _ICE_CODES = ('ice',) 
 _IRBPNR_CODES = ('irbpnr',)
 
+
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
+
+    def send_email(self, documents):
+        for document in documents.filtered(lambda x: x.state == 'sent'):
+            action_invoice_wizard = document.move_id.action_invoice_sent()
+            ctx = action_invoice_wizard["context"]
+            ctx.update(
+                {
+                    "active_id": document.move_id.id,
+                    "active_ids": document.move_id.ids,
+                    "active_model": "account.move",
+                }
+            )
+            invoice_wizard = (
+                self.env[action_invoice_wizard["res_model"]]
+                    .with_context(ctx)
+                    .create({})
+            )
+            invoice_wizard._compute_composition_mode()
+            invoice_wizard.onchange_template_id()
+            invoice_wizard.send_and_print_action()
+
+    def _process_jobs(self, to_process):
+        # TODO Crear en la Company una Variable DEMO para Type of Environment,
+        # setear edi_test_mode en TRUE si Type of Environment se encuentra en DEMO
+        edi_test_mode = self._context.get('edi_test_mode', False)
+        super(AccountEdiDocument, self.with_context(edi_test_mode=edi_test_mode))._process_jobs(to_process)
+        # Recorremos todos los documentos procesados y aquellos que estan en estado sent se envian por email
+        for key, documents in to_process:
+            self.send_email(documents)
+
     
     def _l10n_ec_set_access_key(self):
         #writes de access key of the document

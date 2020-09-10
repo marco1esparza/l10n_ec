@@ -6,23 +6,29 @@
 		<field name="model">l10n_ec.sri.printer.point</field>
 		<field name="type">form</field>
 		<field name="arch" type="xml">
-            <form string="Printer Point">
-            	<group>
-	                <group name="group_left" string="Printer Point">
-	                	<field name="name" required="1"/>
-	                	<field name="printer_point_address"/>
-						<field name="allow_electronic_document"/>
-						<field name="company_id" groups="base.group_multi_company" required="1"/>
-						<field name="sequence_ids" nolabel="1" colspan="2">
-							<tree create="false" delete="false" editable="top" default_order="id">
-								<field name="name" readonly="True" string="Sequence"/>
-								<field name="prefix" readonly="True"/>
-								<field name="number_next_actual"/>
-								<field name="id" invisible="1"/>
-							</tree>
-						</field>
-	                </group>
-	            </group>
+            <form string="Payment Method" create="0" edit="0">
+	    		<sheet>
+					<group>
+						<group name="group_left" string="Printer Point">
+							<field name="name" required="1"/>
+							<field name="printer_point_address"/>
+							<field name="allow_electronic_document"/>
+							<field name="company_id" groups="base.group_multi_company" required="1"/>
+							<field name="sequence_ids" nolabel="1" colspan="2">
+								<tree create="false" delete="false" editable="top" default_order="id">
+									<field name="name" readonly="True" string="Sequence"/>
+									<field name="prefix" readonly="True"/>
+									<field name="number_next_actual"/>
+									<field name="id" invisible="1"/>
+								</tree>
+							</field>
+						</group>
+					</group>
+				</sheet>
+				<div class="oe_chatter">
+                	<field name="message_follower_ids" widget="mail_followers"/>
+                  	<field name="message_ids" widget="mail_thread"/>
+				</div>
 			</form>
 		</field>
 	</record>
@@ -32,10 +38,11 @@
 		<field name="model">l10n_ec.sri.printer.point</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
-			<tree string="Printer Point">
+			<tree string="Printer Point" decoration-muted="(not active)">
 				<field name="sequence" widget="handle"/>
 			    <field name="name"/>
 			    <field name="prefix"/>
+				<field name="active" widget="boolean_toggle"/>
 			</tree>
 		</field>
 	</record>

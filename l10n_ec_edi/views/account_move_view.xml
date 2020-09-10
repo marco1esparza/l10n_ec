@@ -54,9 +54,6 @@
 						<field name="reversal_move_id" attrs="{'invisible': True}"/>
 	                </page>
 	            </xpath>
-				<field name="l10n_latam_document_number" position="attributes">
-					<attribute name="attrs">{'invisible': [('l10n_latam_use_documents', '=', False)], 'required': [('l10n_latam_sequence_id', '=', False), ('l10n_latam_use_documents', '=', True)], 'readonly': [('state', '!=', 'draft')]}</attribute>
-				</field>
             </field>
         </record>
 

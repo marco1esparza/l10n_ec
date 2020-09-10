@@ -8,7 +8,7 @@ class L10NECPaymentMethod(models.Model):
     
     _name = 'l10n_ec.payment.method'
     _description = "SRI Payment Method"
-    _order = 'sequence, id'
+    _order = 'active DESC, sequence, id'
     _inherit = ['mail.thread']
     
     sequence = fields.Integer(
