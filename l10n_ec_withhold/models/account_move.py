@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
+from odoo.exceptions import UserError, ValidationError
 
 
 class AccountMove(models.Model):
@@ -10,14 +11,11 @@ class AccountMove(models.Model):
     def post(self):
         '''
         '''
-        for invoice in self:
-            if not invoice.company_id.vat:
-                raise ValidationError(u'Please setup your VAT number in the company form')
         res = super(AccountMove, self).post() #TODO JOSE: Al llamar a super ya nos comemos las secuencias nativas, deberíamos comernoslas una sola vez
         for invoice in self:
             if invoice.l10n_latam_country_code == 'EC':
                 #Retenciones en compras
-                if invoice.type in ('entry') and invoice.withhold_type == 'supplier' and invoice.l10n_latam_document_type_id.code in ['07'] and invoice.l10n_ec_printer_id.allow_electronic_document:
+                if invoice.type in ('entry') and invoice.l10n_ec_withhold_type == 'supplier' and invoice.l10n_latam_document_type_id.code in ['07'] and invoice.l10n_ec_printer_id.allow_electronic_document:
                     for document in invoice.edi_document_ids:
                         if document.state in ('to_send'):
                             #needed to print offline RIDE and populate request after validations
@@ -25,81 +23,103 @@ class AccountMove(models.Model):
                             self.l10n_ec_authorization = document.l10n_ec_access_key #for auditing manual changes
                             document._l10n_ec_generate_request_xml_file()
         return res
-    
+
     def get_is_edi_needed(self, edi_format):
         '''
         '''
         res = super(AccountMove, self).get_is_edi_needed(edi_format)
         if self.l10n_latam_country_code == 'EC':
-            if self.type == 'entry' and self.withhold_type == 'supplier' and self.l10n_latam_document_type_id.code in ['07'] and self.l10n_ec_printer_id.allow_electronic_document:
+            if self.type == 'entry' and self.l10n_ec_withhold_type == 'supplier' and self.l10n_latam_document_type_id.code in ['07'] and self.l10n_ec_printer_id.allow_electronic_document:
                 return True
         return res
-  
-    def add_withhold(self): #TODO Andres implementar un add_single_withhold para automatizmos futuros ej. tipti
-        '''
-        Crea una retencion asociada a todas las facturas relacionadas
-        '''
-        if self.type in ['out_invoice', 'in_invoice']:
-            #Compras
-            #A las lineas de la factura original(relacionadas con retenciones) le seteamos el campo 
-            #l10n_ec_withhold_out_id
-            #TODO: ajustar la parte de compras
-            if self.type == 'in_invoice':
-                #Duplicamos solo la cabecera de la factura(va hacer funcion de cabecera de retencion), nada de lineas
-                l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_11').id
-                journal_id = self.env.ref('l10n_ec_withhold.withhold_purchase').id
-                withhold = self.copy(default={'l10n_latam_document_type_id': l10n_latam_document_type_id,
-                                              'journal_id': journal_id,
-                                              'invoice_line_ids': [], 
-                                              'line_ids': [], 
-                                              'l10n_ec_withhold_line_ids': [], 
-                                              'type':'entry',
-                                              'withhold_type': 'supplier'})
-                withhold_lines = self.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
-                withhold_lines.l10n_ec_withhold_out_id = withhold.id
-            #Ventas
-            elif self.type == 'out_invoice':
-                #Duplicamos solo la cabecera de la factura(va hacer funcion de cabecera de retencion), nada de lineas
-                l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_03').id
-                journal_id = self.env.ref('l10n_ec_withhold.withhold_sale').id
-                withhold = self.copy(default={'l10n_latam_document_type_id': l10n_latam_document_type_id,
-                                              'journal_id': journal_id,
-                                              'invoice_line_ids': [], 
-                                              'line_ids': [], 
-                                              'l10n_ec_withhold_line_ids': [],
-                                              'l10n_ec_invoice_payment_method_ids': [],
-                                              'l10n_ec_authorization': False,
-                                              'type':'entry',
-                                              'withhold_type': 'customer'})
-                withhold.l10n_ec_invoice_ids = [(6, 0, self.ids)]
-            return self.view_withhold()
-  
-    def view_withhold(self):
-        '''
-        '''
-        [action] = self.env.ref('account.action_move_journal_line').read()
-        action['domain'] = [('id', 'in', self.get_withhold_ids())]            
-        return action
- 
-    def _withhold_exist(self):
-        '''
-        Este método determina si la factura tiene al menos una retencion asociada
-        '''
+    
+    def add_withhold(self):
+        #Creates a withhold linked to selected invoices
         for invoice in self:
-            withhold_exist =  False
-            if len(self.get_withhold_ids()) >= 1:
-                withhold_exist = True
-            invoice.l10n_ec_withhold_exist = withhold_exist
-            
-    def get_withhold_ids(self):
-        '''
-        '''
-        withhold_ids = []
-        self.env.cr.execute('''select withhold_id from account_move_invoice_withhold_rel where invoice_id=%s''', (self.id,))
-        records = self.env.cr.dictfetchall()
-        for record in records:
-            withhold_ids.append(record.get('withhold_id'))
-        return withhold_ids
+            if not self.l10n_latam_country_code == 'EC':
+                raise ValidationError(u'Withhold documents are only aplicable for Ecuador')
+            if not self.l10n_ec_allow_withhold:
+                raise ValidationError(u'The selected document type does not support withholds')
+            if len(self) > 1 and invoice.type != 'out_invoice':
+                raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
+            if not invoice.state in ['posted']: #TODO JOSE: Moverla al flujo de validación de la retención, esta es mejor allá
+                raise ValidationError(u'Solo se puede registrar retenciones sobre facturas abiertas o pagadas.')
+        if len(list(set(self.mapped('commercial_partner_id')))) > 1:
+            raise ValidationError(u'Las facturas seleccionadas no pertenecen al mismo cliente.')
+        self = self.with_context(include_business_fields=False) #don't copy sale/purchase links
+        
+        default_values = self._prepare_withold_default_values()
+        new_move = self.env['account.move'] #this is the new withhold
+        new_move = self[0].copy(default=default_values)
+        
+        return self.action_view_withholds()
+    
+    def _prepare_withold_default_values(self):
+        #Compras
+        #A las lineas de la factura original(relacionadas con retenciones) le seteamos el campo 
+        #l10n_ec_withhold_out_id
+        #TODO: ajustar la parte de compras
+        if self.type == 'in_invoice':
+            #Duplicamos solo la cabecera de la factura(va hacer funcion de cabecera de retencion), nada de lineas
+            l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
+                [('company_id', '=', company_id.id),
+                 ('code', '=', '07'),
+                 ('l10n_ec_type', '=', 'in_invoice'), #TODO: Evaluar cambiar a in_refund, o crear un tipo diferente!
+                 ], order="sequence asc", limit=1)
+            journal_id = self.env.ref('l10n_ec_withhold.withhold_purchase').id #TODO JOSE, hacerlo en base al códio de diario, RCMPR
+            withhold = self.copy(default={'l10n_latam_document_type_id': l10n_latam_document_type_id,
+                                          'journal_id': journal_id,
+                                          'invoice_line_ids': [], 
+                                          'line_ids': [], 
+                                          'l10n_ec_withhold_line_ids': [], 
+                                          'type':'entry',
+                                          'l10n_ec_withhold_type': 'supplier'})
+            withhold_lines = self.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
+            withhold_lines.l10n_ec_withhold_out_id = withhold.id
+        #Ventas
+        if self[0].type == 'out_invoice':
+            type = 'entry' #'out_refund' #'out_withhold'
+            #TODO ANDRES: Evaluar el metodo de l10n_latam que define el tipo de documento
+            l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
+                [('country_id.code', '=', 'EC'),
+                 ('code', '=', '07'),
+                 ('l10n_ec_type', '=', 'other'), #TODO: crear un tipo diferente
+                 ], order="sequence asc", limit=1)
+            journal_id = self.env.ref('l10n_ec_withhold.withhold_purchase').id #TODO JOSE, hacerlo en base al códio de diario, RVNTA
+            default_values = {
+                    #'ref': '%s, %s' % (move.name, self.reason) if self.reason else move.name,
+                    'invoice_date': False,
+                    'journal_id': journal_id,
+                    'invoice_payment_term_id': None,
+                    'type': type,
+                    'line_ids': [(5, 0, 0)],
+                    'l10n_latam_document_type_id': l10n_latam_document_type_id.id,
+                    'l10n_ec_invoice_payment_method_ids':  [(5, 0, 0)],
+                    'l10n_ec_authorization': False,
+                    'l10n_ec_withhold_origin_ids': [(6, 0, self.ids)],
+                    'l10n_ec_withhold_type': 'customer',
+                }
+        return default_values
+        
+    def action_view_withholds(self):
+        # Create action.
+        action = {
+            'name': _('Withholds'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+        }
+        withhold_entries = self.l10n_ec_withhold_ids
+        if len(withhold_entries) == 1:
+            action.update({
+                'view_mode': 'form',
+                'res_id': withhold_entries.id,
+            })
+        else:
+            action.update({
+                'view_mode': 'tree',
+                'domain': [('id', 'in', withhold_entries.ids)],
+            })
+        return action
             
     def check_entry_line(self):
         '''
@@ -132,20 +152,44 @@ class AccountMove(models.Model):
             invoice.l10n_ec_total_base_renta = l10n_ec_total_base_renta
         return res
     
-    _WITHHOLD_TYPE = [
+    def _l10n_ec_allow_withhold(self):
+        #shows/hide "ADD WITHHOLD" button on invoices
+        for invoice in self:
+            result = False
+            if self.l10n_latam_country_code == 'EC' and self.state == 'posted':
+                if invoice.l10n_latam_document_type_id.code in ['01','03','18']: #TODO añadir codigos, revisar proyecto X
+                    result = True
+            invoice.l10n_ec_allow_withhold = result
+    
+    @api.depends('debit_note_ids')
+    def _compute_l10n_ec_withhold_count(self):
+        for invoice in self:
+            count = len(self.l10n_ec_withhold_ids)
+            invoice.l10n_ec_withhold_count = count
+    
+    _EC_WITHHOLD_TYPE = [
         ('customer', 'Customer'),
         ('supplier', 'Supplier')
     ]
     
+    
+
+
+
     #Columns
-    withhold_type = fields.Selection(
-        _WITHHOLD_TYPE,
+    l10n_ec_withhold_type = fields.Selection(
+        _EC_WITHHOLD_TYPE,
         string='Withhold type'
         )
-    l10n_latam_document_type_code = fields.Char(
-        string='Document Code (LATAM)',
-        related='l10n_latam_document_type_id.code', 
-        help='Technical field used to hide/show fields regarding the localization'
+    l10n_ec_allow_withhold = fields.Boolean(
+        compute='_l10n_ec_allow_withhold',
+        string='Allow Withhold', 
+        method=True,  
+        help='Technical field to show/hide "ADD WITHHOLD" button'
+        )
+    l10n_ec_withhold_count = fields.Integer(
+        compute='_compute_l10n_ec_withhold_count',
+        string='Number of Withhold',
         )
     l10n_ec_withhold_line_ids = fields.One2many(
         'account.move.line',
@@ -153,13 +197,25 @@ class AccountMove(models.Model):
         string='Withhold lines',
         copy=False
         )
-    l10n_ec_withhold_exist = fields.Boolean(
-        compute='_withhold_exist',
-        string='Withhold Exist',
-        method=True, 
-        store=False,
-        help='Show internally if a withhold asociated exist'
+    l10n_ec_withhold_ids = fields.Many2many(
+        'account.move',
+        'account_move_invoice_withhold_rel',
+        'invoice_id',
+        'withhold_id',
+        string='Withholds',
+        copy=False,
+        help = 'Link to withholds related to this invoice'
         )
+    l10n_ec_withhold_origin_ids = fields.Many2many(
+        'account.move',
+        'account_move_invoice_withhold_rel',
+        'withhold_id',
+        'invoice_id',
+        string='Invoices',
+        copy=False,
+        help = 'Link to invoices related to this withhold'
+        )
+    #subtotals
     l10n_ec_total_iva = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total IVA',  
@@ -192,14 +248,6 @@ class AccountMove(models.Model):
         readonly=True, 
         help='Total base renta of withhold'
         )
-    l10n_ec_invoice_ids = fields.Many2many(
-        'account.move',
-        'account_move_invoice_withhold_rel',
-        'withhold_id',
-        'invoice_id',
-        string='Withhold'
-        )
-
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'

@@ -12,6 +12,8 @@ class L10nLatamDocumentType(models.Model):
         ('out_refund', 'Customer Refund'),
         ('in_refund', 'Supplier Refund'),
         ('out_waybill', 'Issued Waybill'),
+        ('out_withhold', 'Customer Withhold'),
+        ('in_withhold', 'Supplier Withhold'),
         ('hr_advance', 'Employee Advance'),
         ('other', 'Others'),
     ]
