@@ -23,6 +23,7 @@ def _load_xsd(file_):
 path = os.path.abspath(os.path.dirname(__file__))
 XSD_SRI_110_FACTURA = _load_xsd(path+'/../resources/sri_110_factura.xsd')
 XSD_SRI_110_NOTA_CREDITO = _load_xsd(path+'/../resources/Nota_Credito_V_1_1_0.xsd')
+XSD_SRI_100_RETENCION = _load_xsd(path+'/../resources/sri_100_retencion.xsd')
 
 
 def get_SRI_normalized_text(text):

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+	<delete id="view_move_withhold_form" model="ir.ui.view"/>
+	<record id="view_move_withhold_form" model="ir.ui.view">
+		<field name="name">view.move.withhold.form</field>
+		<field name="model">account.move</field>
+		<field name="inherit_id" ref="l10n_ec_edi.view_move_invoice_customization_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//button[@name='action_reverse']" position="after">
+				<button name="add_withhold" string="Retención" type="object"
+					attrs="{'invisible':['|', '|', '|', '|', ('l10n_latam_country_code','!=','EC'),
+															 ('type','not in',['out_invoice','in_invoice']),
+														  	 ('l10n_ec_withhold_exist','=',True),
+														  	 ('l10n_latam_document_type_code','=','07'),
+															 ('state','in',['draft','cancel'])]}"/>
+			</xpath>			
+			<xpath expr="//button[@name='view_credit_note']" position="after">
+				<field name="l10n_latam_document_type_code" invisible="1"/>
+				<field name="l10n_ec_withhold_exist" invisible="1"/>
+				<field name="withhold_type" invisible="1"/>
+				<button name="view_withhold" string="Retenciones" type="object" icon="fa-list-alt"
+					attrs="{'invisible': ['|', ('l10n_ec_withhold_exist','=',False), ('l10n_latam_document_type_code','=','07')]}"/>
+            </xpath>
+			<xpath expr="//page[@id='aml_tab']" position="after">
+				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible':[('l10n_latam_document_type_code','!=','07')]}">
+					<field name="l10n_ec_invoice_ids"/>
+					<field name="l10n_ec_withhold_line_ids" nolabel="0" attrs="{'readonly':[('state','!=','draft')]}">
+						<tree editable="bottom">
+							<field name="l10n_ec_withhold_invoice_id"/>
+		                    <field name="tax_line_id" readonly="0"/>
+		                    <field name="account_id"/>
+		                    <field name="tax_base_amount"/>
+		                    <field name="credit" string="Monto retenido"/>
+		                </tree>
+					</field>
+				</page>
+			</xpath>
+			<xpath expr="//page[@id='invoice_tab']" position="attributes">
+				<attribute name="attrs">{'invisible': ['|', ('type','=','entry'), ('l10n_latam_document_type_code','=','07')]}</attribute>
+			</xpath>
+			<xpath expr="//page[@id='aml_tab']" position="attributes">
+				<attribute name="attrs">{'invisible': [('l10n_latam_document_type_code','=','07')]}</attribute>
+			</xpath>
+		</field>
+	</record>
+
+</odoo>
