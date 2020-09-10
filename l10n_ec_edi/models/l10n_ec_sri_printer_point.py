@@ -10,6 +10,7 @@ class L10nEcSRIPrinterPoint(models.Model):
     _name = 'l10n_ec.sri.printer.point'
     _description = "Printer Point"
     _order = 'sequence, id'
+    _inherit = ['mail.thread']
 
     @api.depends('name')
     def _get_prefix(self):
@@ -35,6 +36,11 @@ class L10nEcSRIPrinterPoint(models.Model):
     sequence_ids = fields.One2many('ir.sequence', 'l10n_ec_printer_id', string="Sequences")
     
     printer_point_address = fields.Char(string='Printer Point Address', help='This is the address used for invoice reports of this Printer Point')
+
+    active = fields.Boolean(
+        default=True,
+        help="Set active to false to hide the SRI Printer Point without removing it."
+    )
 
     @api.model
     def create(self, values):

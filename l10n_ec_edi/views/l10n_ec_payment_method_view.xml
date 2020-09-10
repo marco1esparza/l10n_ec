@@ -6,7 +6,7 @@
         <field name="model">l10n_ec.payment.method</field>
 	    <field name="type">form</field>
 	    <field name="arch" type="xml">
-	    	<form string="Payment Method">
+	    	<form string="Payment Method" create="0" edit="0">
 	    		<sheet>
 	    			<group>
 		  				<field name="code"/>
@@ -27,7 +27,7 @@
 	    <field name="model">l10n_ec.payment.method</field>
 	    <field name="type">tree</field>
 	    <field name="arch" type="xml">
-	        <tree string="Payment Method">
+	        <tree string="Payment Method" decoration-muted="(not active)" create="0" edit="0">
 	        	<field name="sequence" widget="handle"/>
 				<field name="code"/>
 				<field name="name"/>
@@ -43,6 +43,9 @@
         	<search string="Search Payment Method">
                 <field name="code"/>
              	<field name="name"/>
+				<separator/>
+                <filter name="active" string="Active" domain="[('active','=',True)]" help="Show active taxes"/>
+				<filter name="inactive" string="Inactive" domain="[('active','=',False)]" help="Show inactive taxes"/>
           	</search>
        	</field>
     </record>
@@ -51,7 +54,8 @@
        <field name="name">Forma de pago</field>
        <field name="res_model">l10n_ec.payment.method</field>
        <field name="view_mode">tree,form</field>
-       <field name="view_id" eval="False"/>
+       <field name="view_id" ref="view_payment_method_tree"/>
+		<field name="domain" eval="False"/> <!-- Force empty -->
        <field name="search_view_id" ref="view_payment_method_filter"/>
     </record>
     
