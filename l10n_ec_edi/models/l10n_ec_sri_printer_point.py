@@ -39,7 +39,8 @@ class L10nEcSRIPrinterPoint(models.Model):
 
     active = fields.Boolean(
         default=True,
-        help="Set active to false to hide the SRI Printer Point without removing it."
+        help="Set active to false to hide the SRI Printer Point without removing it.",
+        track_visibility='onchange',
     )
 
     @api.model
