@@ -29,7 +29,8 @@ class L10NECPaymentMethod(models.Model):
         )
     active = fields.Boolean(
         default=True,
-        help="Set active to false to hide the Payment Method without removing it."
+        help="Set active to false to hide the Payment Method without removing it.",
+        track_visibility = 'onchange',
         )
     
     

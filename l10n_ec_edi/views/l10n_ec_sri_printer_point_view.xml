@@ -6,7 +6,7 @@
 		<field name="model">l10n_ec.sri.printer.point</field>
 		<field name="type">form</field>
 		<field name="arch" type="xml">
-            <form string="Payment Method" create="0" edit="0">
+            <form string="Printer Point">
 	    		<sheet>
 					<group>
 						<group name="group_left" string="Printer Point">
