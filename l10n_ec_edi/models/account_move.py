@@ -169,7 +169,7 @@ class AccountMove(models.Model):
     def _get_name_invoice_report(self, report_xml_id):
         self.ensure_one()
         if self.l10n_latam_use_documents and self.company_id.country_id.code == 'EC' \
-                and self.type in ('out_invoice', 'out_refund'):
+                and self.type in ('out_invoice', 'out_refund') and self.l10n_latam_document_type_id.code in ['04', '18']:
             custom_report = {
                 'account.report_invoice_document_with_payments': 'l10n_ec_edi.report_invoice_document_with_payments',
                 'account.report_invoice_document': 'l10n_ec_edi.report_invoice_document',

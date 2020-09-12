@@ -20,8 +20,9 @@ class Company(models.Model):
                 company.l10n_ec_digital_cert_id = False
 
     _ENVIRONMENT_TYPE = [
+        ('0', 'Demo Environment'),
         ('1', 'Testing Environment'),
-        ('2', 'Production Environmet')
+        ('2', 'Production Environment'),
     ]
 
     #Columns

@@ -23,7 +23,12 @@ class L10nEcSRIPrinterPoint(models.Model):
 
     _sql_constraints = [('l10n_ec_sri_printer_point_name_unique', 'unique(name, company_id)', 'El punto de emisión debe ser único por compañía.')]
     
-    name = fields.Char(string='Printer Point', size=7, copy=False, help='This number is assigned by the SRI')
+    name = fields.Char(
+        string='Printer Point',
+        size=7, copy=False,
+        help='This number is assigned by the SRI',
+        track_visibility='onchange',
+    )
     
     sequence = fields.Integer(default=10,help="The first printer is used by default when creating new invoices, unless specified otherwise in user profile",)
     
@@ -31,7 +36,12 @@ class L10nEcSRIPrinterPoint(models.Model):
     
     prefix = fields.Char(compute='_get_prefix', string='Printer Prefix', method=True)
     
-    allow_electronic_document = fields.Boolean(string=u'Emitir documentos electrónicos', default=True, help=u'Active esta opción para habilitar la emisión de doc electrónicos')
+    allow_electronic_document = fields.Boolean(
+        string=u'Emitir documentos electrónicos',
+        default=True,
+        help=u'Active esta opción para habilitar la emisión de doc electrónicos',
+        track_visibility='onchange',
+    )
     
     sequence_ids = fields.One2many('ir.sequence', 'l10n_ec_printer_id', string="Sequences")
     

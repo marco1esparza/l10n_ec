@@ -17,36 +17,36 @@
 		</xpath>
 
         <xpath expr="//h2" position="before">
-            <table class="table table-borderless w-100">
+            <table class="table table-borderless w-100 m-1" style="font-size:11px;">
                 <tr>
                     <td class="pr-1" style="width: 30%">
-                        <div class="col-md-12 text-center pb-2">
+                        <div class="col-md-12 text-center pb-1">
                             <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" class="float-left pt-3" alt="Logo" style="max-width: 300px;"/>
                         </div>
                         <table class="table table-borderless">
                             <tr>
-                                <td class="text-center p-2">
+                                <td class="text-center p-1">
                                     <strong><span t-field="o.company_id.l10n_ec_legal_name"/></strong>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="p-2" style="font-size:12px;">
+                                <td class="p-1">
                                     <strong>Headquarters Address:</strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/>
                                 </td>
                             </tr>
                             <tr t-if="o.l10n_ec_printer_id.printer_point_address">
-                                <td class="p-2" style="font-size:12px;">
+                                <td class="p-1">
                                     <strong>Branch Office address:</strong> <span t-esc="o.l10n_ec_printer_id.printer_point_address"/>
                                 </td>
                             </tr>
                             <tr t-if="o.company_id.l10n_ec_special_contributor_number">
-                                <td class="p-2" style="font-size:12px;">
+                                <td class="p-1">
                                     <strong>Special Taxpayer Number:</strong>
                                     <span t-field="o.company_id.l10n_ec_special_contributor_number"/>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="p-2" style="font-size:12px;">
+                                <td class="p-1">
                                     <strong>Obliged to keep accounting:</strong>
                                     <t t-if="o.company_id.l10n_ec_forced_accounting">Yes</t>
                                     <t t-else="">No</t>
@@ -54,10 +54,10 @@
                             </tr>
                         </table>
                     </td>
-                    <td class="pr-1" style="width: 70%">
-                        <table class="table table-condensed">
+                    <td class="p-1" style="width: 70%">
+                        <table class="table table-condensed m-1">
                             <tr>
-                                <td lass="border-top-0 p-1" >
+                                <td class="border-top-0 p-1" >
                                     <strong>
                                         <t t-if="o.company_id.country_id.vat_label" t-esc="o.company_id.country_id.vat_label" id="inv_tax_id_label"/>
                                         <t t-else="">Tax ID</t>:
@@ -65,15 +65,10 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="border-top-0 p-1" style="font-size:25px; letter-spacing: 2px;">
+                                <td class="border-top-0 p-2" style="font-size:15px; letter-spacing: 2px;">
                                     <h3>
                                     	<t t-if="o.l10n_latam_document_type_id" t-esc="o.l10n_latam_document_type_id.report_name or o.l10n_latam_document_type_id.name" />
                                     </h3><span t-esc="o.l10n_latam_document_number or o.name"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="border-top-0 p-1">
-                                    
                                 </td>
                             </tr>
                             <tr>
@@ -109,10 +104,21 @@
                 </tr>
             </table>
 
-            <table name="social_reason" class="table table-condensed w-100" style="font-size:13px;">
+            <table name="social_reason" class="table table-condensed w-100" style="font-size:10px;">
                 <tr>
                     <td class="p-1"><strong>Company Name / Name and Surname: </strong><span t-field="o.partner_id"/></td>
                     <td class="p-1"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
+                </tr>
+                <tr t-if="o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.code == '04'">
+                    <td class="p-1"><strong>Document that is modified: </strong><span t-esc="o.reversed_entry_id.l10n_latam_document_number or o.reverse_entry_id.name"/></td>
+                    <td class="p-1"></td>
+                </tr>
+                <tr t-if="o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.code == '04'">
+                    <td class="p-1"><strong>Issue Date (Document to be modified): </strong><span t-field="o.reversed_entry_id.invoice_date"/></td>
+                    <td class="p-1"></td>
+                </tr>
+                <tr t-if="o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.code == '04'">
+                    <td class="p-1"><strong>Reason for Modification: </strong><span t-field="o.ref"/></td>
                     <td class="p-1"></td>
                 </tr>
             </table>
@@ -128,7 +134,7 @@
 
         <xpath expr="//div[@id='total']/div[1]" position="replace">
             <div class="col-6 pr-5 mt-5">
-                <table class="table table-sm" style="page-break-inside: avoid;">
+                <table class="table table-sm" style="page-break-inside: avoid; font-size:11px;" >
                     <tr class="border-black" style="">
                         <td class="text-center"><strong>Payment term (Days)</strong></td>
                         <td class="text-center"><strong>Method of payment</strong></td>
@@ -151,7 +157,7 @@
                 </table>
             </div>
             <div class="col-6 pl-5 mt-5">
-                <table class="table table-sm" style="page-break-inside: avoid;">
+                <table class="table table-sm" style="page-break-inside: avoid; font-size:11px;" >
                     <tr class="border-black o_subtotal" style="">
                         <td><strong>Subtotal</strong></td>
                         <td class="text-right">

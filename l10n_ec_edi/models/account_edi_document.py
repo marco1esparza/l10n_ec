@@ -26,34 +26,41 @@ _IRBPNR_CODES = ('irbpnr',)
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
 
-    def send_email(self, documents):
-        for document in documents.filtered(lambda x: x.state == 'sent'):
-            action_invoice_wizard = document.move_id.action_invoice_sent()
-            ctx = action_invoice_wizard["context"]
-            ctx.update(
-                {
-                    "active_id": document.move_id.id,
-                    "active_ids": document.move_id.ids,
-                    "active_model": "account.move",
-                }
-            )
-            invoice_wizard = (
-                self.env[action_invoice_wizard["res_model"]]
-                    .with_context(ctx)
-                    .create({})
-            )
-            invoice_wizard._compute_composition_mode()
-            invoice_wizard.onchange_template_id()
-            invoice_wizard.send_and_print_action()
+    def send_email_success(self, invoices):
+        for document in invoices.mapped('edi_document_ids'):
+            if document.move_id.partner_id.email and document.state == 'sent':
+                action_invoice_wizard = document.move_id.action_invoice_sent()
+                ctx = action_invoice_wizard["context"]
+                ctx.update(
+                    {
+                        "active_id": document.move_id.id,
+                        "active_ids": document.move_id.ids,
+                        "active_model": "account.move",
+                    }
+                )
+                invoice_wizard = (
+                    self.env[action_invoice_wizard["res_model"]]
+                        .with_context(ctx)
+                        .create({})
+                )
+                invoice_wizard._compute_composition_mode()
+                invoice_wizard.onchange_template_id()
+                invoice_wizard.send_and_print_action()
+            elif not document.move_id.partner_id.email and document.state == 'sent':
+                document.move_id.with_context(no_new_invoice=True).message_post(
+                    body=_(
+                        "The ecuadorian electronic document was successfully created, signed and validated by the tax authority"),
+                    attachment_ids=document.attachment_id.ids,
+                )
 
     def _process_jobs(self, to_process):
-        # TODO Crear en la Company una Variable DEMO para Type of Environment,
-        # setear edi_test_mode en TRUE si Type of Environment se encuentra en DEMO
         edi_test_mode = self._context.get('edi_test_mode', False)
+        if self.move_id.l10n_latam_country_code == 'EC':
+            edi_test_mode = self.env.company.l10n_ec_environment_type == '0' and True or False
         super(AccountEdiDocument, self.with_context(edi_test_mode=edi_test_mode))._process_jobs(to_process)
-        # Recorremos todos los documentos procesados y aquellos que estan en estado sent se envian por email
         for key, documents in to_process:
-            self.send_email(documents)
+            self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.l10n_latam_country_code == 'EC'))
+
 
     
     def _l10n_ec_set_access_key(self):
@@ -211,7 +218,7 @@ class AccountEdiDocument(models.Model):
         # CREACION INFO TRIBUTARIA
         infoTributaria = etree.SubElement(factura, 'infoTributaria')
         infoTribElements = [
-            ('ambiente', self.move_id.company_id.l10n_ec_environment_type),
+            ('ambiente', self.move_id.company_id.l10n_ec_environment_type != '0' and self.move_id.company_id.l10n_ec_environment_type or '1'),
             ('tipoEmision', '1'),
             ('razonSocial', self.move_id.company_id.l10n_ec_legal_name)
         ]
