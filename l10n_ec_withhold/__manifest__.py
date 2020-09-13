@@ -32,6 +32,7 @@
         'data/account_journal_data.xml',
         #Views
         'views/account_move_view.xml',
+        'views/account_journal_view.xml',
     ],
     'installable': True
 }

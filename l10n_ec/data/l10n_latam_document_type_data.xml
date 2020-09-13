@@ -113,7 +113,7 @@
 			<field name="l10n_ec_validate_number">True</field>
 			<field name="sequence">60</field>
 			<field name="internal_type">invoice</field>
-			<field name="l10n_ec_type">in_invoice</field>
+			<field name="l10n_ec_type">in_withhold</field>
 			<field name="l10n_ec_authorization">own</field>
 			<field name="country_id" ref="base.ec"/>
 		</record>
