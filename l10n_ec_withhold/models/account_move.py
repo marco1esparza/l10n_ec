@@ -17,6 +17,12 @@ class AccountMove(models.Model):
             return super(AccountMove, self)._name_search(name, args=[('id', 'in', self.env.context.get('l10n_ec_withhold_origin_ids'))], operator=operator, limit=limit, name_get_uid=name_get_uid)
         return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
 
+    @api.onchange('invoice_line_ids')
+    def _onchange_invoice_line_ids(self):
+        #To avoid unbalanced entry the withhold_line_ids is erased on regular invoices
+        return super(AccountMove, self)._onchange_invoice_line_ids()
+        self.l10n_ec_withhold_line_ids = False
+        
     def post(self):
         '''
         '''
@@ -207,11 +213,15 @@ class AccountMove(models.Model):
         compute='_compute_l10n_ec_withhold_count',
         string='Number of Withhold',
         )
+    # /!\ withhold_line_ids is just a subset of line_ids.
     l10n_ec_withhold_line_ids = fields.One2many(
         'account.move.line',
         'move_id',
         string='Withhold lines',
-        copy=False
+        readonly=True,
+        copy=False,
+
+        states={'draft': [('readonly', False)]}
         )
     l10n_ec_withhold_ids = fields.Many2many(
         'account.move',

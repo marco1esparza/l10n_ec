@@ -52,7 +52,7 @@ class AccountEdiDocument(models.Model):
                         "The ecuadorian electronic document was successfully created, signed and validated by the tax authority"),
                     attachment_ids=document.attachment_id.ids,
                 )
-
+    
     def _process_jobs(self, to_process):
         edi_test_mode = self._context.get('edi_test_mode', False)
         if self.move_id.l10n_latam_country_code == 'EC':
@@ -60,8 +60,6 @@ class AccountEdiDocument(models.Model):
         super(AccountEdiDocument, self.with_context(edi_test_mode=edi_test_mode))._process_jobs(to_process)
         for key, documents in to_process:
             self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.l10n_latam_country_code == 'EC'))
-
-
     
     def _l10n_ec_set_access_key(self):
         #writes de access key of the document
@@ -182,11 +180,8 @@ class AccountEdiDocument(models.Model):
         return cadena
     
     def _l10n_ec_generate_request_xml_file(self):
-        '''
-        Escribe el archivo xml request en el campo designado para ello
-        '''
+        #generates and validates an xml request to later be sent to SRI
         self.ensure_one()
-        #generamos y validamos el documento
         if self.move_id.type in ('out_invoice', 'out_refund') and self.move_id.l10n_latam_document_type_id.code in ['18', '04']:
             etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
             xml_content = clean_xml(etree_content)
@@ -545,13 +540,10 @@ class AccountEdiDocument(models.Model):
         return result
     
     def getCodigoPrincipal(self, detalle_data, each):
-        '''
-        Hook se utilizara para aumentar el codigoAuxiliar
-        en un modulo especifico del cliente.
-        El metodo "get_product_code" retorna al referencia interna o el codigo de barra
-        #TODO: implementar codigoAuxiliar para todos los clientes.
-        '''
-        detalle_data.append(('codigoPrincipal', each.product_id.get_product_code()[:25]))
+        #To be redefined in customers customizations
+        #If set uses the barcode as main code, otherwise the default_code
+        product_code = each.product_id.barcode or each.product_id.default_code or ''
+        detalle_data.append(('codigoPrincipal', product_code[:25]))
         return detalle_data
     
     def _get_code(self, tax_id):
@@ -625,7 +617,7 @@ class AccountEdiDocument(models.Model):
     
     def _l10n_ec_sign_digital_xml(self, access_key, cert_encripted, password_p12, draft_electronic_document_in_xml, path_temp='/tmp/'):
         #To be redefined in module l10n_ec_digital_signature
-        raise ValidationError("Please install module l10n_ec_digital_signature to sign electronic documents for Ecuador") 
+        raise ValidationError("Please install module l10n_ec_digital_signature by Trescloud to sign electronic documents in Ecuador") 
 
     def _l10n_ec_upload_electronic_document(self):
         # Se realiza la firma del documento
@@ -642,8 +634,8 @@ class AccountEdiDocument(models.Model):
         #Consulta el estado del doc electronico al servidor externo y procesa la respuesta
         client = self._l10n_ec_open_connection_sri()
         access_key = self.l10n_ec_access_key
-        #access_key = "3108202001179236683600120010020000019670000000315" #autorizada
-        #access_key = "0806202007179126948900120010110000428902912200518" #void
+        #access_key = "3108202001179236683600120010020000019670000000315" #sample authorized code
+        #access_key = "0806202007179126948900120010110000428902912200518" #sample voided code
         state = 'not_yet_ready'
         response = client.service.autorizacionComprobante(access_key)
         if response.autorizaciones:
@@ -663,9 +655,7 @@ class AccountEdiDocument(models.Model):
         '''
         Nos conectamos al sistema del S.R.I. de documentos electronicos
         Este paso depende de que se requiere hacer ya que el SRI expone 2 servicios
-        uno para enviar los documentos y otro para verificar su estado, ademas de que
-        tiene diferencaicion si es offline o no. 
-        Para esta version se forzara siempre el modo offline
+        uno para enviar los documentos y otro para verificar su estado.
         mode: permite indicar en que modo se realizara la conexion, 
               autorization -> conecta al WS que permite consultar el estado de los documentos
               reception -> conecta al WS que permite enviar documentos    

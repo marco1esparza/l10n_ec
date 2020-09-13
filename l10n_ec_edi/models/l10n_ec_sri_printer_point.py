@@ -11,16 +11,7 @@ class L10nEcSRIPrinterPoint(models.Model):
     _description = "Printer Point"
     _order = 'sequence, id'
     _inherit = ['mail.thread']
-
-    @api.depends('name')
-    def _get_prefix(self):
-        '''
-        Este método genera el prefijo concatenando la tienda y el punto de emisión
-        '''
-        for printer in self:
-            if printer.name:
-                printer.prefix = printer.name + '-'
-
+    
     _sql_constraints = [('l10n_ec_sri_printer_point_name_unique', 'unique(name, company_id)', 'El punto de emisión debe ser único por compañía.')]
     
     name = fields.Char(
@@ -33,9 +24,7 @@ class L10nEcSRIPrinterPoint(models.Model):
     sequence = fields.Integer(default=10,help="The first printer is used by default when creating new invoices, unless specified otherwise in user profile",)
     
     company_id = fields.Many2one('res.company', string='Company', required=True, index=True, default=lambda self: self.env.company)
-    
-    prefix = fields.Char(compute='_get_prefix', string='Printer Prefix', method=True)
-    
+        
     allow_electronic_document = fields.Boolean(
         string=u'Emitir documentos electrónicos',
         default=True,
@@ -76,7 +65,8 @@ class L10nEcSRIPrinterPoint(models.Model):
         for document in documents:
             sequences |= self.env['ir.sequence'].create({
                 'name': '%s - %s' % (document.name, self.name),
-                'padding': 9, 'prefix': self.prefix,
+                'padding': 9,
+                'prefix': self.name + '-',
                 'l10n_latam_document_type_id': document.id,
                 'l10n_ec_printer_id': self.id,
             })

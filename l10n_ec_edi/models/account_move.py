@@ -9,25 +9,23 @@ import odoo.addons.decimal_precision as dp
 class AccountMove(models.Model):
     _inherit='account.move'
     
-    @api.onchange('l10n_ec_printer_id', 'l10n_latam_document_type_id')
+    @api.onchange('l10n_ec_printer_id')
     def onchange_l10n_ec_printer_id(self):
-        '''
-        Este metodo setea el numero del documento en False cada vez que se cambia de Punto de Impresion y Tipo Documento
-        '''
+        #Resets the document number when the printer point is changed
         if self.l10n_latam_country_code == 'EC':
             self.l10n_latam_document_number = False
 
     @api.onchange('l10n_latam_document_number')
     def onchange_l10n_latam_document_number(self):
-        '''
-        Este método agrega relleno del numero de factura en caso que lo requiera
-        '''
-        number = self.l10n_latam_document_number
-        if self.l10n_latam_country_code == 'EC' and self.l10n_latam_document_number and self.l10n_ec_printer_id:
-            number_split = number.split('-')
-            number = number_split[len(number_split)-1]
-            number = self.l10n_ec_printer_id.prefix + number.zfill(9)
-        self.l10n_latam_document_number = number
+        #Autofills printer point prefix when needed
+        if self.l10n_latam_country_code == 'EC':
+            number = self.l10n_latam_document_number
+            if number and len(number) <= 9: #If set but incomplete
+                #Add the prefix, from the printer point when my company issues the document
+                prefix = '999-999'
+                if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own':
+                    prefix = self.l10n_ec_printer_id.name
+                self.l10n_latam_document_number = prefix + '-' + number.zfill(9)
 
     @api.onchange('invoice_date', 'invoice_payment_term_id', 'l10n_ec_payment_method_id', 'invoice_line_ids', 'invoice_date_due')
     def onchange_set_l10n_ec_invoice_payment_method_ids(self):
@@ -112,8 +110,8 @@ class AccountMove(models.Model):
         printer_id = False
         company_id = self.env.company #self.l10n_latam_country_code is still empty
         if company_id.country_id.code == 'EC':
-            type = self._context.get('default_type',False) #self.type is not yet populated
-            if type in ['out_invoice', 'in_invoice', 'out_refund', 'in_refund']:
+            type = self._context.get('default_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
+            if type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
                 #regular account.move doesn't need a printer point
                 printer_id = self.env.user.l10n_ec_printer_id.id
                 if not printer_id: #search first printer point
@@ -149,17 +147,13 @@ class AccountMove(models.Model):
             card_method = 0.0
             other_method = 0.0
             for line in invoice.filtered(lambda x:x.l10n_latam_country_code == 'EC').l10n_ec_invoice_payment_method_ids:
-                #Efectivo
-                if line.payment_method_id.code == '01':
+                if line.payment_method_id.code == '01': #Efectivo
                     effective_method += line.amount
-                #Dinero Electrónico
-                elif line.payment_method_id.code == '17':
+                elif line.payment_method_id.code == '17': #Dinero Electrónico
                     electronic_method += line.amount
-                #Tarjetas Débito/Crédito
-                elif line.payment_method_id.code in ('10','11','16','18','19'):
+                elif line.payment_method_id.code in ('10','11','16','18','19'): #Tarjetas Débito/Crédito
                     card_method += line.amount
-                #Otros
-                else:
+                else: #Otros
                     other_method += line.amount
             invoice.l10n_ec_effective_method = effective_method
             invoice.l10n_ec_electronic_method = electronic_method

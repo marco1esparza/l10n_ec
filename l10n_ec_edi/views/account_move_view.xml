@@ -20,8 +20,12 @@
 						options="{'no_create': True, 'no_open': True}"/>
             	</xpath>
             	<xpath expr="//button[@name='open_reconcile_view']" position="after">
+            	
+            	
 	            	<button name="view_credit_note" string="Notas de crédito" type="object" icon="fa-files-o"
 						attrs="{'invisible': ['|', '|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('out_invoice')), ('reversal_move_id', '=', [])]}"/>
+						
+						
 	            </xpath>
             	<xpath expr="//page[@name='other_info']" position="after">
 	          		<page name="payment_terms" string="Términos de pago" attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('out_invoice'))]}">
