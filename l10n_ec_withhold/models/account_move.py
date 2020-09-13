@@ -7,7 +7,16 @@ from odoo.exceptions import UserError, ValidationError
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
-    
+
+    @api.model
+    def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
+        '''
+        Invocamos el name_search para restringir la seleccion de facturas en las lineas de retenciones
+        '''
+        if self.env.context.get('origin') == 'receive_withhold':
+            return super(AccountMove, self)._name_search(name, args=[('id', 'in', self.env.context.get('l10n_ec_withhold_origin_ids'))], operator=operator, limit=limit, name_get_uid=name_get_uid)
+        return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
+
     def post(self):
         '''
         '''
@@ -83,7 +92,7 @@ class AccountMove(models.Model):
             l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
                 [('country_id.code', '=', 'EC'),
                  ('code', '=', '07'),
-                 ('l10n_ec_type', '=', 'other'), #TODO: crear un tipo diferente
+                 ('l10n_ec_type', '=', 'out_withhold'),
                  ], order="sequence asc", limit=1)
             journal_id = self.env.ref('l10n_ec_withhold.withhold_purchase').id #TODO JOSE, hacerlo en base al códio de diario, RVNTA
             default_values = {
@@ -150,6 +159,7 @@ class AccountMove(models.Model):
             invoice.l10n_ec_total_renta = l10n_ec_total_renta
             invoice.l10n_ec_total_base_iva = l10n_ec_total_base_iva
             invoice.l10n_ec_total_base_renta = l10n_ec_total_base_renta
+            invoice.l10n_ec_total = l10n_ec_total_iva + l10n_ec_total_renta
         return res
     
     def _l10n_ec_allow_withhold(self):
@@ -161,7 +171,7 @@ class AccountMove(models.Model):
                     result = True
             invoice.l10n_ec_allow_withhold = result
     
-    @api.depends('debit_note_ids')
+    @api.depends('l10n_ec_withhold_ids')
     def _compute_l10n_ec_withhold_count(self):
         for invoice in self:
             count = len(self.l10n_ec_withhold_ids)
@@ -171,10 +181,6 @@ class AccountMove(models.Model):
         ('customer', 'Customer'),
         ('supplier', 'Supplier')
     ]
-    
-    
-
-
 
     #Columns
     l10n_ec_withhold_type = fields.Selection(
@@ -204,7 +210,7 @@ class AccountMove(models.Model):
         'withhold_id',
         string='Withholds',
         copy=False,
-        help = 'Link to withholds related to this invoice'
+        help='Link to withholds related to this invoice'
         )
     l10n_ec_withhold_origin_ids = fields.Many2many(
         'account.move',
@@ -213,7 +219,7 @@ class AccountMove(models.Model):
         'invoice_id',
         string='Invoices',
         copy=False,
-        help = 'Link to invoices related to this withhold'
+        help='Link to invoices related to this withhold'
         )
     #subtotals
     l10n_ec_total_iva = fields.Monetary(
@@ -248,6 +254,15 @@ class AccountMove(models.Model):
         readonly=True, 
         help='Total base renta of withhold'
         )
+    l10n_ec_total = fields.Monetary(
+        string='Total Withhold', 
+        compute='_compute_total_invoice_ec', 
+        method=True, 
+        store=False, 
+        readonly=True, 
+        help='Total value of withhold'
+        )
+
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'

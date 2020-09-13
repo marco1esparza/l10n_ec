@@ -19,22 +19,41 @@
                     </div>
                 </button>
             </div>
-            <!-- #JOSE esta sección esta causando que no se pueda hacer facturas de venta por asiento descuadrado
-			<xpath expr="//page[@id='aml_tab']" position="after">
-				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible':[('l10n_latam_document_type_code','!=','07')]}">
-					<field name="l10n_ec_withhold_origin_ids"/>
-					<field name="l10n_ec_withhold_line_ids" nolabel="0" attrs="{'readonly':[('state','!=','draft')]}">
+            <xpath expr="//field[@name='restrict_mode_hash_table']" position="after">
+				<field name="l10n_ec_withhold_type" invisible="1"/>
+			</xpath>
+			<xpath expr="//form/sheet/div/h1" position="inside">
+				<span attrs="{'invisible': ['|', '|', ('l10n_ec_withhold_type', 'not in', ['customer', 'supplier']), ('state', '!=', 'draft'), ('name', '!=', '/')]}">Draft Withhold</span>
+			</xpath>
+			<xpath expr="//field[@name='ref']" position="before">
+				<field name="partner_id" widget="res_partner_many2one"
+					context="{'show_address': 1, 'default_is_company': True, 'show_vat': True}"
+					options='{"always_reload": True, "no_quick_create": True}'
+					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['customer', 'supplier'])]}"/>
+			</xpath>
+			<xpath expr="//field[@name='date']" position="attributes">
+				<attribute name="attrs">{'invisible': ['|', ('type', 'in', ('out_invoice', 'out_refund', 'out_receipt')), ('l10n_ec_withhold_type', 'in', ['customer', 'supplier'])]}</attribute>
+			</xpath>			
+			<xpath expr="//field[@name='invoice_date']" position="after">
+				<field name="invoice_date" string="Withhold Date" options="{'datepicker': {'warn_future': true}}"
+					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['customer', 'supplier'])]}"/>
+			</xpath>
+			<xpath expr="//page[@id='aml_tab']" position="before">
+				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['customer', 'supplier'])]}">
+					<field name="l10n_ec_withhold_origin_ids" invisible="1"/>
+					<field name="l10n_ec_withhold_line_ids" nolabel="0"
+						context="{'l10n_ec_withhold_origin_ids': l10n_ec_withhold_origin_ids}"
+						attrs="{'readonly':[('state','!=','draft')]}">
 						<tree editable="bottom">
-							<field name="l10n_ec_withhold_invoice_id"/>
 		                    <field name="tax_line_id" readonly="0"/>
 		                    <field name="account_id" required="1"/>
+		                    <field name="l10n_ec_withhold_invoice_id" context="{'origin': 'receive_withhold', 'l10n_ec_withhold_origin_ids': context.get('l10n_ec_withhold_origin_ids')}"/>
 		                    <field name="tax_base_amount"/>
 		                    <field name="credit" string="Monto retenido"/>
 		                </tree>
 					</field>
 				</page>
-			</xpath>  -->
-			
+			</xpath>
 			<!--  
 			<xpath expr="//page[@id='invoice_tab']" position="attributes">
 				<attribute name="attrs">{'invisible': ['|', ('type','=','entry'), ('l10n_latam_document_type_code','=','07')]}</attribute>
