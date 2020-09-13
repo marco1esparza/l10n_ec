@@ -60,6 +60,9 @@ class AccountMove(models.Model):
         default_values = self._prepare_withold_default_values()
         new_move = self.env['account.move'] #this is the new withhold
         new_move = self[0].copy(default=default_values)
+        if self.type == 'in_invoice':
+            withhold_lines = self.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
+            withhold_lines.l10n_ec_withhold_out_id = new_move.id
         
         return self.action_view_withholds()
     
@@ -69,22 +72,27 @@ class AccountMove(models.Model):
         #l10n_ec_withhold_out_id
         #TODO: ajustar la parte de compras
         if self.type == 'in_invoice':
-            #Duplicamos solo la cabecera de la factura(va hacer funcion de cabecera de retencion), nada de lineas
+            type = 'entry' #'out_refund' #'out_withhold'
+            #TODO ANDRES: Evaluar el metodo de l10n_latam que define el tipo de documento
             l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
-                [('company_id', '=', company_id.id),
+                [('country_id.code', '=', 'EC'),
                  ('code', '=', '07'),
-                 ('l10n_ec_type', '=', 'in_invoice'), #TODO: Evaluar cambiar a in_refund, o crear un tipo diferente!
+                 ('l10n_ec_type', '=', 'in_withhold'),
                  ], order="sequence asc", limit=1)
-            journal_id = self.env.ref('l10n_ec_withhold.withhold_purchase').id #TODO JOSE, hacerlo en base al códio de diario, RCMPR
-            withhold = self.copy(default={'l10n_latam_document_type_id': l10n_latam_document_type_id,
-                                          'journal_id': journal_id,
-                                          'invoice_line_ids': [], 
-                                          'line_ids': [], 
-                                          'l10n_ec_withhold_line_ids': [], 
-                                          'type':'entry',
-                                          'l10n_ec_withhold_type': 'supplier'})
-            withhold_lines = self.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
-            withhold_lines.l10n_ec_withhold_out_id = withhold.id
+            journal_id = self.env.ref('l10n_ec_withhold.withhold_purchase').id #TODO JOSE, hacerlo en base al códio de diario, RVNTA
+            default_values = {
+                    #'ref': '%s, %s' % (move.name, self.reason) if self.reason else move.name,
+                    'invoice_date': False,
+                    'journal_id': journal_id,
+                    'invoice_payment_term_id': None,
+                    'type': type,
+                    'line_ids': [(5, 0, 0)],
+                    'l10n_latam_document_type_id': l10n_latam_document_type_id.id,
+                    'l10n_ec_invoice_payment_method_ids':  [(5, 0, 0)],
+                    'l10n_ec_authorization': False,
+                    'l10n_ec_withhold_origin_ids': [(6, 0, self.ids)],
+                    'l10n_ec_withhold_type': 'supplier',
+                }
         #Ventas
         if self[0].type == 'out_invoice':
             type = 'entry' #'out_refund' #'out_withhold'
@@ -94,7 +102,7 @@ class AccountMove(models.Model):
                  ('code', '=', '07'),
                  ('l10n_ec_type', '=', 'out_withhold'),
                  ], order="sequence asc", limit=1)
-            journal_id = self.env.ref('l10n_ec_withhold.withhold_purchase').id #TODO JOSE, hacerlo en base al códio de diario, RVNTA
+            journal_id = self.env.ref('l10n_ec_withhold.withhold_sale').id #TODO JOSE, hacerlo en base al códio de diario, RVNTA
             default_values = {
                     #'ref': '%s, %s' % (move.name, self.reason) if self.reason else move.name,
                     'invoice_date': False,
