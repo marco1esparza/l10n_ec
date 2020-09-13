@@ -140,11 +140,6 @@ class AccountEdiFormat(models.Model):
                     'description': _('Ecuadorian electronic document for the %s document.') % invoice.name,
                 })
                 edi_result[invoice] = {'attachment': electronic_document_attachment}
-                #Chatter, no_new_invoice to prevent creation of another new invoice "from the attachment"
-                invoice.with_context(no_new_invoice=True).message_post(
-                    body=_("The ecuadorian electronic document was successfully created, signed and validated by the tax authority"),
-                    attachment_ids=electronic_document_attachment.ids,
-                )
         return edi_result
 
     def _cancel_invoice_edi(self, invoices, test_mode=False):
