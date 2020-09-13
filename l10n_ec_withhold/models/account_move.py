@@ -60,6 +60,8 @@ class AccountMove(models.Model):
         default_values = self._prepare_withold_default_values()
         new_move = self.env['account.move'] #this is the new withhold
         new_move = self[0].copy(default=default_values)
+        #TODO: re-implementar las sig lineas ya no funcionan pues las lineas de retencion estas vinculadas al move_id por el tema de las 
+        #ret de ventas en el campo l10n_ec_withhold_out_id al momento esta dummy
         if self.type == 'in_invoice':
             withhold_lines = self.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
             withhold_lines.l10n_ec_withhold_out_id = new_move.id
