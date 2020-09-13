@@ -23,40 +23,40 @@
 				<field name="l10n_ec_withhold_type" invisible="1"/>
 			</xpath>
 			<xpath expr="//form/sheet/div/h1" position="inside">
-				<span attrs="{'invisible': ['|', '|', ('l10n_ec_withhold_type', 'not in', ['customer', 'supplier']), ('state', '!=', 'draft'), ('name', '!=', '/')]}">Draft Withhold</span>
+				<span attrs="{'invisible': ['|', '|', ('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold']), ('state', '!=', 'draft'), ('name', '!=', '/')]}">Draft Withhold</span>
 			</xpath>
 			<xpath expr="//field[@name='ref']" position="before">
 				<field name="partner_id" widget="res_partner_many2one"
 					context="{'show_address': 1, 'default_is_company': True, 'show_vat': True}"
 					options='{"always_reload": True, "no_quick_create": True}'
-					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['customer', 'supplier'])]}"/>
+					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}"/>
 			</xpath>
 			<xpath expr="//field[@name='date']" position="attributes">
-				<attribute name="attrs">{'invisible': ['|', ('type', 'in', ('out_invoice', 'out_refund', 'out_receipt')), ('l10n_ec_withhold_type', 'in', ['customer', 'supplier'])]}</attribute>
+				<attribute name="attrs">{'invisible': ['|', ('type', 'in', ('out_invoice', 'out_refund', 'out_receipt')), ('l10n_ec_withhold_type', 'in', ['out_withhold', 'in_withhold'])]}</attribute>
 			</xpath>			
 			<xpath expr="//field[@name='invoice_date']" position="after">
 				<field name="invoice_date" string="Withhold Date" options="{'datepicker': {'warn_future': true}}"
-					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['customer', 'supplier'])]}"/>
+					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}"/>
 			</xpath>
 			<xpath expr="//field[@name='l10n_latam_document_type_id']" position="after">
             		<field name="l10n_ec_printer_id"
-						attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['supplier'])], 'required': [('l10n_latam_country_code', '=', 'EC'), ('l10n_ec_withhold_type', 'in', ['supplier'])]}"
+						attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])], 'required': [('l10n_latam_country_code', '=', 'EC'), ('l10n_ec_withhold_type', 'in', ['in_withhold'])]}"
 						options="{'no_create': True, 'no_open': True}"/>
 					<field name="l10n_ec_authorization"
-						attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['supplier'])]}"/>
+						attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
             	</xpath>
 			<xpath expr="//page[@id='aml_tab']" position="before">
-				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['customer', 'supplier'])]}">
+				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
 					<field name="l10n_ec_withhold_origin_ids" invisible="1"/>
 					<field name="l10n_ec_withhold_line_ids" nolabel="0"
 						context="{'l10n_ec_withhold_origin_ids': l10n_ec_withhold_origin_ids}"
 						attrs="{'readonly':[('state','!=','draft')]}">
 						<tree editable="bottom">
-		                    <field name="tax_line_id" readonly="0"/>
+		                    <field name="tax_id" required="1"/>
 		                    <field name="account_id" required="1"/>
-		                    <field name="l10n_ec_withhold_invoice_id" context="{'origin': 'receive_withhold', 'l10n_ec_withhold_origin_ids': context.get('l10n_ec_withhold_origin_ids')}"/>
-		                    <field name="tax_base_amount"/>
-		                    <field name="credit" string="Monto retenido"/>
+		                    <field name="invoice_id" context="{'origin': 'receive_withhold', 'l10n_ec_withhold_origin_ids': context.get('l10n_ec_withhold_origin_ids')}"/>
+		                    <field name="base"/>
+		                    <field name="amount"/>
 		                </tree>
 					</field>
 				</page>
@@ -78,5 +78,16 @@
             </field>
 		</field>
 	</record>
+
+	<record id="action_receive_withhold" model="ir.actions.server">
+		<field name="name">Recibir retención</field>
+		<field name="model_id" ref="account.model_account_move"/>
+		<field name="binding_model_id" ref="account.model_account_move"/>
+		<field name="state">code</field>
+		<field name="code">
+			if records:
+			    action = records.add_withhold()
+        </field>
+    </record>
 
 </odoo>

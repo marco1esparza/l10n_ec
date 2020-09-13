@@ -16,7 +16,6 @@ class AccountTax(models.Model):
         res = super(AccountTax, self)._compute_amount(base_amount, price_unit, quantity, product, partner)
         return res
     
-    
     def compute_all(self, price_unit, currency=None, quantity=1.0, product=None, partner=None, is_refund=False, handle_price_include=True):
         #alter base amount for vat withhold after computation, to store the correct base amount 
         res = super(AccountTax, self).compute_all(price_unit, currency, quantity, product, partner, is_refund, handle_price_include)
