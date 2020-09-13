@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     'name': 'Ecuadorian Accounting by Trescloud',
-    'version': '3.1',
+    'version': '3.2',
     'description': '''
 Functional
 ----------
@@ -45,7 +45,6 @@ Authors:
     'depends': [
         'l10n_latam_invoice_document',
         'l10n_latam_base',
-        'account_tax_python',
     ],   
     'data': [
         #Chart of Accounts
