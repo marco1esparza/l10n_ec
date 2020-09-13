@@ -38,6 +38,13 @@
 				<field name="invoice_date" string="Withhold Date" options="{'datepicker': {'warn_future': true}}"
 					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['customer', 'supplier'])]}"/>
 			</xpath>
+			<xpath expr="//field[@name='l10n_latam_document_type_id']" position="after">
+            		<field name="l10n_ec_printer_id"
+						attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['supplier'])], 'required': [('l10n_latam_country_code', '=', 'EC'), ('l10n_ec_withhold_type', 'in', ['supplier'])]}"
+						options="{'no_create': True, 'no_open': True}"/>
+					<field name="l10n_ec_authorization"
+						attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['supplier'])]}"/>
+            	</xpath>
 			<xpath expr="//page[@id='aml_tab']" position="before">
 				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['customer', 'supplier'])]}">
 					<field name="l10n_ec_withhold_origin_ids" invisible="1"/>
