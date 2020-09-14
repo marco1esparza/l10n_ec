@@ -25,7 +25,7 @@ class AccountMove(models.Model):
             if number and len(number) <= 9: #If set but incomplete
                 #Add the prefix, from the printer point when my company issues the document
                 prefix = '999-999'
-                if self.l10n_latam_document_type_id.l10n_ec_validate_number:
+                if self.l10n_latam_document_type_id.l10n_ec_authorization == 'third':
                     prefix = '001-001'
                 if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own':
                     prefix = self.l10n_ec_printer_id.name
@@ -102,7 +102,7 @@ class AccountMove(models.Model):
         if not re.match(regex, self.l10n_latam_document_number):
             raise ValidationError(u'The document number should be like ###-###-#########')
         prefix_to_validate = False
-        if self.l10n_latam_document_type_id.l10n_ec_validate_number is False:
+        if self.l10n_latam_document_type_id.l10n_ec_authorization == 'none':
             prefix_to_validate = '999-999-' #No tan seguro que sea necesario pero veamos que dicen los usuarios
         if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own': #only when printer point is used
             prefix_to_validate = self.l10n_ec_printer_id.name + '-'

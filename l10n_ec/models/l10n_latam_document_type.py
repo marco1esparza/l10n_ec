@@ -29,11 +29,6 @@ class L10nLatamDocumentType(models.Model):
         string='Type',
         help='Indicates the aplicability of the document',
         )
-    l10n_ec_validate_number = fields.Boolean(
-        string='Validate Number Format', 
-        track_visibility='onchange',
-        help='Validate the document number is of the form ###-###-########## (example 001-001-0001234567)',
-        )
     l10n_ec_require_vat = fields.Boolean(
         string='Require Vat Number', 
         track_visibility='onchange',
