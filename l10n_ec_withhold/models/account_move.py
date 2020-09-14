@@ -24,7 +24,7 @@ class AccountMove(models.Model):
         for invoice in self:
             if invoice.l10n_latam_country_code == 'EC':
                 #Retenciones en compras
-                if invoice.type in ('entry') and invoice.l10n_ec_withhold_type == 'supplier' and invoice.l10n_latam_document_type_id.code in ['07'] and invoice.l10n_ec_printer_id.allow_electronic_document:
+                if invoice.type in ('entry') and invoice.l10n_ec_withhold_type == 'in_withhold' and invoice.l10n_latam_document_type_id.code in ['07'] and invoice.l10n_ec_printer_id.allow_electronic_document:
                     for document in invoice.edi_document_ids:
                         if document.state in ('to_send'):
                             #needed to print offline RIDE and populate request after validations
@@ -38,16 +38,16 @@ class AccountMove(models.Model):
         '''
         res = super(AccountMove, self).get_is_edi_needed(edi_format)
         if self.l10n_latam_country_code == 'EC':
-            if self.type == 'entry' and self.l10n_ec_withhold_type == 'supplier' and self.l10n_latam_document_type_id.code in ['07'] and self.l10n_ec_printer_id.allow_electronic_document:
+            if self.type == 'entry' and self.l10n_ec_withhold_type == 'in_withhold' and self.l10n_latam_document_type_id.code in ['07'] and self.l10n_ec_printer_id.allow_electronic_document:
                 return True
         return res
     
     def add_withhold(self):
         #Creates a withhold linked to selected invoices
         for invoice in self:
-            if not self.l10n_latam_country_code == 'EC':
+            if not invoice.l10n_latam_country_code == 'EC':
                 raise ValidationError(u'Withhold documents are only aplicable for Ecuador')
-            if not self.l10n_ec_allow_withhold:
+            if not invoice.l10n_ec_allow_withhold:
                 raise ValidationError(u'The selected document type does not support withholds')
             if len(self) > 1 and invoice.type != 'out_invoice':
                 raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
@@ -60,20 +60,17 @@ class AccountMove(models.Model):
         default_values = self._prepare_withold_default_values()
         new_move = self.env['account.move'] #this is the new withhold
         new_move = self[0].copy(default=default_values)
-        #TODO: re-implementar las sig lineas ya no funcionan pues las lineas de retencion estas vinculadas al move_id por el tema de las 
-        #ret de ventas en el campo l10n_ec_withhold_out_id al momento esta dummy
-        if self.type == 'in_invoice':
-            withhold_lines = self.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
-            withhold_lines.l10n_ec_withhold_out_id = new_move.id
+        #TODO: re-implementar las sig lineas aunque va existir un account.withhold.line andres quiere
+        #mantener este vinculo para compras
+#         if self.type == 'in_invoice':
+#             withhold_lines = self.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
+#             withhold_lines.l10n_ec_withhold_out_id = new_move.id
         
         return self.action_view_withholds()
     
     def _prepare_withold_default_values(self):
         #Compras
-        #A las lineas de la factura original(relacionadas con retenciones) le seteamos el campo 
-        #l10n_ec_withhold_out_id
-        #TODO: ajustar la parte de compras
-        if self.type == 'in_invoice':
+        if self[0].type == 'in_invoice':
             type = 'entry' #'out_refund' #'out_withhold'
             #TODO ANDRES: Evaluar el metodo de l10n_latam que define el tipo de documento
             l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
@@ -93,7 +90,7 @@ class AccountMove(models.Model):
                     'l10n_ec_invoice_payment_method_ids':  [(5, 0, 0)],
                     'l10n_ec_authorization': False,
                     'l10n_ec_withhold_origin_ids': [(6, 0, self.ids)],
-                    'l10n_ec_withhold_type': 'supplier',
+                    'l10n_ec_withhold_type': 'in_withhold',
                 }
         #Ventas
         if self[0].type == 'out_invoice':
@@ -116,29 +113,26 @@ class AccountMove(models.Model):
                     'l10n_ec_invoice_payment_method_ids':  [(5, 0, 0)],
                     'l10n_ec_authorization': False,
                     'l10n_ec_withhold_origin_ids': [(6, 0, self.ids)],
-                    'l10n_ec_withhold_type': 'customer',
+                    'l10n_ec_withhold_type': 'out_withhold',
                 }
         return default_values
         
     def action_view_withholds(self):
-        # Create action.
-        action = {
-            'name': _('Withholds'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
-        }
-        withhold_entries = self.l10n_ec_withhold_ids
-        if len(withhold_entries) == 1:
-            action.update({
-                'view_mode': 'form',
-                'res_id': withhold_entries.id,
-            })
+        '''
+        '''
+        action = 'account.action_move_journal_line'
+        view = 'l10n_ec_withhold.view_move_form_withhold'
+        action = self.env.ref(action)
+        result = action.read()[0]
+        result['name'] = _('Withholds')
+        l10n_ec_withhold_ids = self.l10n_ec_withhold_ids.ids
+        if len(l10n_ec_withhold_ids) > 1:
+            result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"
         else:
-            action.update({
-                'view_mode': 'tree',
-                'domain': [('id', 'in', withhold_entries.ids)],
-            })
-        return action
+            res = self.env.ref(view)
+            result['views'] = [(res and res.id or False, 'form')]
+            result['res_id'] = l10n_ec_withhold_ids and l10n_ec_withhold_ids[0] or False
+        return result
             
     def check_entry_line(self):
         '''
@@ -176,7 +170,7 @@ class AccountMove(models.Model):
         #shows/hide "ADD WITHHOLD" button on invoices
         for invoice in self:
             result = False
-            if self.l10n_latam_country_code == 'EC' and self.state == 'posted':
+            if invoice.l10n_latam_country_code == 'EC' and invoice.state == 'posted':
                 if invoice.l10n_latam_document_type_id.code in ['01','03','18']: #TODO añadir codigos, revisar proyecto X
                     result = True
             invoice.l10n_ec_allow_withhold = result
@@ -188,14 +182,14 @@ class AccountMove(models.Model):
             invoice.l10n_ec_withhold_count = count
     
     _EC_WITHHOLD_TYPE = [
-        ('customer', 'Customer'),
-        ('supplier', 'Supplier')
+        ('out_withhold', 'Customer Withhold'),
+        ('in_withhold', 'Supplier Withhold')
     ]
 
     #Columns
     l10n_ec_withhold_type = fields.Selection(
         _EC_WITHHOLD_TYPE,
-        string='Withhold type'
+        string='Withhold Type'
         )
     l10n_ec_allow_withhold = fields.Boolean(
         compute='_l10n_ec_allow_withhold',
@@ -208,9 +202,9 @@ class AccountMove(models.Model):
         string='Number of Withhold',
         )
     l10n_ec_withhold_line_ids = fields.One2many(
-        'account.move.line',
+        'l10n_ec.account.withhold.line',
         'move_id',
-        string='Withhold lines',
+        string='Withhold Lines',
         copy=False
         )
     l10n_ec_withhold_ids = fields.Many2many(
@@ -281,8 +275,4 @@ class AccountMoveLine(models.Model):
     l10n_ec_withhold_out_id = fields.Many2one(
         'account.move',
         string='Withhold'
-        )
-    l10n_ec_withhold_invoice_id = fields.Many2one(
-        'account.move',
-        string='Invoice'
         )
