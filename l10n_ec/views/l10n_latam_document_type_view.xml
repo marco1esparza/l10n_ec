@@ -9,7 +9,6 @@
         	<xpath expr="//group" position="after">
 				<group string="Ecuador Configuration" col="2" colspan="2">
 					<field name="l10n_ec_type"/>
-					<field name="l10n_ec_validate_number"/>
 					<field name="l10n_ec_require_vat"/>
 					<field name="l10n_ec_authorization"/>
 			    </group>

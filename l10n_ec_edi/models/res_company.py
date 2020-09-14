@@ -42,7 +42,7 @@ class Company(models.Model):
         'l10n_ec.digital.signature',
         compute='_digital_signature',
         string="Digital Signature",
-        help='Digital signature valid to send electronic documents to SRI'
+        help='For signing SRI electronic documents, configure one in Accounting / Configuration / Digital Signatures'
     )
     l10n_ec_special_contributor_number = fields.Char(
         string='Special Tax Contributor Number',

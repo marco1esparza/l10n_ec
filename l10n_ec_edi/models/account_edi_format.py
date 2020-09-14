@@ -57,11 +57,12 @@ class AccountEdiFormat(models.Model):
         :param journal: The journal.
         :returns:       True if this format can be enabled by default on the journal, False otherwise.
         """
-        # TODO Implementar, no se requiere en la primera versión
-        #Retenciones en compras
-        if journal.type == 'purchase':
-            return True
-        return super()._is_compatible_with_journal(journal)
+        if self.code == 'l10n_ec_tax_authority':
+            if journal.type == 'purchase':
+                return True #useful for "Liquidaciónn de Compra"
+            elif journal.code == 'RCMPR':
+                return True #useful for purchase withholds
+        return super()._is_compatible_with_journal(journal) #includes sales
 
     def _is_embedding_to_invoice_pdf_needed(self):
         self.ensure_one()
@@ -69,7 +70,6 @@ class AccountEdiFormat(models.Model):
 
     def _post_invoice_edi(self, invoices, test_mode=False):
         """ Create the file content representing the invoice (and calls web services if necessary).
-
         :param invoices:    A list of invoices to post.
         :param test_mode:   A flag indicating the EDI should only simulate the EDI without sending data.
         :returns:           A dictionary with the invoice as key and as value, another dictionary:
@@ -151,7 +151,6 @@ class AccountEdiFormat(models.Model):
         * success:          True if the invoice was successfully cancelled.
         * error:            An error if the edi was not successfully cancelled.
         """
-        # TO OVERRIDE
         edi_result = super()._cancel_invoice_edi(invoices, test_mode=test_mode)
         if self.code  != 'l10n_ec_tax_authority':
             return edi_result

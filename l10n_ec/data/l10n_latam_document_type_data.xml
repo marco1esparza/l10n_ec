@@ -5,7 +5,6 @@
 			<field name="code">02</field>
 			<field name="name">Nota o Boleta de Venta</field>
 			<field name="doc_code_prefix">Not.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>
 			<field name="sequence">25</field>
 			<field name="internal_type">invoice</field>
@@ -18,7 +17,6 @@
 			<field name="code">07</field>
 			<field name="name">Comprobante de Retención de Venta</field>
 			<field name="doc_code_prefix">Ret.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>
 			<field name="sequence">65</field>
 			<field name="internal_type"></field>
@@ -32,7 +30,6 @@
 			<field name="name">Factura de Venta</field>
 			<field name="report_name">Factura</field>
 			<field name="doc_code_prefix">Fact.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>
 			<field name="sequence">15</field>
 			<field name="internal_type">invoice</field>
@@ -45,7 +42,6 @@
 			<field name="code">01</field>
 			<field name="name">Factura de Compra</field>
 			<field name="doc_code_prefix">Fact.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>
 			<field name="sequence">10</field>
 			<field name="internal_type">invoice</field>
@@ -61,7 +57,6 @@
 			<field name="sequence">10</field>
 			<field name="internal_type"></field>
 			<field name="l10n_ec_type">out_waybill</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>
 			<field name="l10n_ec_authorization">own</field>
 			<field name="country_id" ref="base.ec"/>
@@ -71,7 +66,6 @@
 			<field name="code">03</field>
 			<field name="name">Liquidación de Compra</field>
 			<field name="doc_code_prefix">LiqCo.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>
 			<field name="sequence">30</field>
 			<field name="internal_type">invoice</field>
@@ -84,7 +78,6 @@
 			<field name="code">04</field>
 			<field name="name">Nota de Crédito en Compras</field>
 			<field name="doc_code_prefix">NotCr.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>
 			<field name="sequence">40</field>
 			<field name="internal_type">credit_note</field>
@@ -97,7 +90,6 @@
 			<field name="code">04</field>
 			<field name="name">Nota de Crédito en Ventas</field>
 			<field name="doc_code_prefix">NotCr.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>
 			<field name="sequence">45</field>
 			<field name="internal_type">credit_note</field>
@@ -110,7 +102,6 @@
 			<field name="code">07</field>
 			<field name="name">Comprobante de Retención de Compra</field>
 			<field name="doc_code_prefix">Ret.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="sequence">60</field>
 			<field name="internal_type">invoice</field>
 			<field name="l10n_ec_type">in_withhold</field>
@@ -352,7 +343,6 @@
 			<field name="sequence">50</field>
 			<field name="internal_type">debit_note</field>
 			<field name="l10n_ec_type">in_invoice</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>
 			<field name="l10n_ec_authorization">third</field>
 			<field name="country_id" ref="base.ec"/>
@@ -365,7 +355,6 @@
 			<field name="sequence">55</field>
 			<field name="internal_type">debit_note</field>
 			<field name="l10n_ec_type">out_invoice</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="l10n_ec_require_vat">True</field>
 			<field name="l10n_ec_authorization">own</field>
 			<field name="country_id" ref="base.ec"/>
@@ -375,7 +364,6 @@
 			<field name="code">41</field>
 			<field name="name">Liquidación de Compras Emitida por Reembolso de Gastos</field>
 			<field name="doc_code_prefix">LiqCo.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="sequence">205</field>
 			<field name="internal_type">invoice</field>
 			<field name="l10n_ec_type">in_invoice</field>
@@ -387,7 +375,6 @@
 			<field name="code">41</field>
 			<field name="name">Factura de compra Emitida por Reembolso de Gastos</field>
 			<field name="doc_code_prefix">Fact.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="sequence">205</field>
 			<field name="internal_type">invoice</field>
 			<field name="l10n_ec_type">in_invoice</field>
@@ -399,7 +386,6 @@
 			<field name="code">41</field>
 			<field name="name">Factura de Venta Emitida por Reembolso de Gastos</field>
 			<field name="doc_code_prefix">Fact.</field>
-			<field name="l10n_ec_validate_number">True</field>
 			<field name="sequence">205</field>
 			<field name="internal_type">invoice</field>
 			<field name="l10n_ec_type">out_invoice</field>
