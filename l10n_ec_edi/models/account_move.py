@@ -80,6 +80,7 @@ class AccountMove(models.Model):
         res = super(AccountMove, self).post()
         for invoice in self:
             if invoice.l10n_latam_country_code == 'EC':
+                invoice._l10n_ec_validate_number()
                 if invoice.edi_document_ids.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
                     if not invoice.company_id.vat:
                         raise ValidationError(u'Please setup your VAT number in the company form')
@@ -87,7 +88,6 @@ class AccountMove(models.Model):
                         raise ValidationError(u'Please setup the your company address in the company form')
                     if not invoice.l10n_ec_printer_id.printer_point_address:
                         raise ValidationError(u'Please setup the printer point address, in Accounting / Settings / Printer Points')
-                    self._l10n_ec_validate_number()
                     #needed to print offline RIDE and populate XML request
                     invoice.edi_document_ids._l10n_ec_set_access_key()
                     self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
@@ -96,15 +96,17 @@ class AccountMove(models.Model):
     
     def _l10n_ec_validate_number(self):
         #Verifies l10n_latam_document_number has the same prefix as the printer point
-        prefix = '999-999'
-        if self.l10n_ec_printer_id: #only when printer is used
-            prefix = self.l10n_ec_printer_id.name
-        if self.l10n_latam_document_number[0:7] != prefix:
-            raise ValidationError("El prefijo del número de documento debería empezar con %s" % prefix)
+        prefix_to_validate = False
+        if self.l10n_latam_document_type_id.l10n_ec_validate_number is False:
+            prefix_to_validate = '999-999-' #No tan seguro que sea necesario pero veamos que dicen los usuarios
+        if self.l10n_latam_document_type_id.l10n_ec_authorization: #only when printer is used
+            prefix_to_validate = self.l10n_ec_printer_id.name + '-'
+        if prefix_to_validate:
+            if self.l10n_latam_document_number[0:8] != prefix_to_validate:
+                raise ValidationError("El prefijo del número de documento debería empezar con %s" % prefix_to_validate)
+        
     
     def view_credit_note(self):
-        '''
-        '''
         [action] = self.env.ref('account.action_move_out_refund_type').read()
         action['domain'] = [('id', 'in', self.reversal_move_id.ids)]
         return action
