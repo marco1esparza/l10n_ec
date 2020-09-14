@@ -10,13 +10,11 @@ class AccountMove(models.Model):
 
     @api.model
     def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
-        '''
-        Invocamos el name_search para restringir la seleccion de facturas en las lineas de retenciones
-        '''
+        #Invocamos el name_search para restringir la seleccion de facturas en las lineas de retenciones
         if self.env.context.get('origin') == 'receive_withhold':
             return super(AccountMove, self)._name_search(name, args=[('id', 'in', self.env.context.get('l10n_ec_withhold_origin_ids'))], operator=operator, limit=limit, name_get_uid=name_get_uid)
         return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
-            
+                
     def post(self):
         '''
         '''
