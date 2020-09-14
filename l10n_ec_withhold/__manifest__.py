@@ -30,6 +30,8 @@
     'data': [
         #Data
         'data/account_journal_data.xml',
+        #Security
+        'security/ir.model.access.csv',
         #Views
         'views/account_move_view.xml',
         'views/account_journal_view.xml',

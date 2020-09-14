@@ -11,6 +11,6 @@ class AccountEdiFormat(models.Model):
         '''
         Invocamos el _is_compatible_with_journal para que el diario de retenciones en compras tenga formato edi y se generen doc elec
         '''
-        if journal.type == 'general':
+        if self.env.company_id.country_id.code == 'EC' and journal.type == 'general':
             return True
         return super(AccountEdiFormat, self)._is_compatible_with_journal(journal)
