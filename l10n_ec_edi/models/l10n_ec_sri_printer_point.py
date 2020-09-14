@@ -58,9 +58,10 @@ class L10nEcSRIPrinterPoint(models.Model):
         sequences.unlink()
 
         # Create Sequences
-        internal_types = ['invoice', 'debit_note', 'credit_note']
-        domain = [('country_id.code', '=', 'EC'), ('internal_type', 'in', internal_types),
-                  ('l10n_ec_authorization', '=', 'own'), ('code', '!=', '41')]
+        domain = [('country_id.code', '=', 'EC'),
+                  ('l10n_ec_authorization', '=', 'own'),
+                  ('code', '!=', '41'),
+                  ]
         documents = self.env['l10n_latam.document.type'].search(domain)
         for document in documents:
             sequences |= self.env['ir.sequence'].create({

@@ -41,7 +41,6 @@
 			<tree string="Printer Point" decoration-muted="(not active)">
 				<field name="sequence" widget="handle"/>
 			    <field name="name"/>
-			    <field name="prefix"/>
 				<field name="active" widget="boolean_toggle"/>
 			</tree>
 		</field>

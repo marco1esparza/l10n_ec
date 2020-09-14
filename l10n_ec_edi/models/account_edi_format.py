@@ -57,7 +57,7 @@ class AccountEdiFormat(models.Model):
         :param journal: The journal.
         :returns:       True if this format can be enabled by default on the journal, False otherwise.
         """
-        if self.l10n_latam_country_code == 'EC':
+        if self.code == 'l10n_ec_tax_authority':
             if journal.type == 'purchase':
                 return True #useful for "Liquidaciónn de Compra"
             elif journal.code == 'RCMPR':

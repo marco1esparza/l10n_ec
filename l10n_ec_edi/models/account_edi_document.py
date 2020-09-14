@@ -54,10 +54,7 @@ class AccountEdiDocument(models.Model):
                 )
     
     def _process_jobs(self, to_process):
-        edi_test_mode = self._context.get('edi_test_mode', False)
-        if self.move_id.l10n_latam_country_code == 'EC':
-            edi_test_mode = self.env.company.l10n_ec_environment_type == '0' and True or False
-        super(AccountEdiDocument, self.with_context(edi_test_mode=edi_test_mode))._process_jobs(to_process)
+        super(AccountEdiDocument, self)._process_jobs(to_process)
         for key, documents in to_process:
             self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.l10n_latam_country_code == 'EC'))
     
@@ -420,12 +417,13 @@ class AccountEdiDocument(models.Model):
         move_lines = self.move_id.invoice_line_ids.filtered(lambda x:x.display_type not in ['line_section','line_note'])
         for each in move_lines:
             detalle = self.create_SubElement(detalles, 'detalle')
-            detalle_data = []
-            if each.product_id.get_product_code():
+            detalle_data = []            
+            code =  self.getXMLProductCode(move_line = each)
+            if code:
                 if type == 'out_invoice':
-                    detalle_data = self.getCodigoPrincipal(detalle_data, each)
+                    detalle_data.append(('codigoPrincipal', code))
                 elif type == 'out_refund':
-                    detalle_data.append(('codigoInterno', each.product_id.get_product_code()[:25]))
+                    detalle_data.append(('codigoInterno', code))
             detalle_data.append(('descripcion', each.name[:300]))
             detalle_data.append(('cantidad', each.quantity))
             #TODO: usar algo similar al price_unit-final que deberia ser este l10n_latam_price_net o algo parecido
@@ -539,12 +537,11 @@ class AccountEdiDocument(models.Model):
         result.text = (text if not text is None and isinstance(text, str) else not text is None and str(text)) or None
         return result
     
-    def getCodigoPrincipal(self, detalle_data, each):
+    def getXMLProductCode(self, move_line):
         #To be redefined in customers customizations
         #If set uses the barcode as main code, otherwise the default_code
-        product_code = each.product_id.barcode or each.product_id.default_code or ''
-        detalle_data.append(('codigoPrincipal', product_code[:25]))
-        return detalle_data
+        product_code = move_line.product_id.barcode or move_line.product_id.default_code or ''
+        return product_code
     
     def _get_code(self, tax_id):
         """

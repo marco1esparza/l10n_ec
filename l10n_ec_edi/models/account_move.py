@@ -23,6 +23,8 @@ class AccountMove(models.Model):
             if number and len(number) <= 9: #If set but incomplete
                 #Add the prefix, from the printer point when my company issues the document
                 prefix = '999-999'
+                if self.l10n_latam_document_type_id.l10n_ec_validate_number:
+                    prefix = '001-001'
                 if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own':
                     prefix = self.l10n_ec_printer_id.name
                 self.l10n_latam_document_number = prefix + '-' + number.zfill(9)
@@ -85,11 +87,20 @@ class AccountMove(models.Model):
                         raise ValidationError(u'Please setup the your company address in the company form')
                     if not invoice.l10n_ec_printer_id.printer_point_address:
                         raise ValidationError(u'Please setup the printer point address, in Accounting / Settings / Printer Points')
+                    self._l10n_ec_validate_number()
                     #needed to print offline RIDE and populate XML request
                     invoice.edi_document_ids._l10n_ec_set_access_key()
                     self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
                     invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
+    
+    def _l10n_ec_validate_number(self):
+        #Verifies l10n_latam_document_number has the same prefix as the printer point
+        prefix = '999-999'
+        if self.l10n_ec_printer_id: #only when printer is used
+            prefix = self.l10n_ec_printer_id.name
+        if self.l10n_latam_document_number[0:7] != prefix:
+            raise ValidationError("El prefijo del número de documento debería empezar con %s" % prefix)
     
     def view_credit_note(self):
         '''
@@ -212,11 +223,8 @@ class AccountMove(models.Model):
 
     @api.depends('l10n_latam_document_type_id', 'l10n_ec_printer_id')
     def _compute_l10n_latam_sequence(self):
-        recs_with_l10n_ec_printer_id = self.filtered('l10n_ec_printer_id')
-        for rec in recs_with_l10n_ec_printer_id:
-            rec.l10n_latam_sequence_id = rec._get_document_type_sequence()
-        remaining = self - recs_with_l10n_ec_printer_id
-        remaining.l10n_latam_sequence_id = False
+        #Recompute sequence when l10n_ec_printer_id changes
+        super()._compute_l10n_latam_sequence()
     
     def button_draft(self):
         if self.l10n_latam_country_code == 'EC':
