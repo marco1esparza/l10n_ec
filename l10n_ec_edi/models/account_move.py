@@ -5,6 +5,8 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 import odoo.addons.decimal_precision as dp
 
+import re
+
 
 class AccountMove(models.Model):
     _inherit='account.move'
@@ -95,15 +97,18 @@ class AccountMove(models.Model):
         return res
     
     def _l10n_ec_validate_number(self):
-        #Verifies l10n_latam_document_number has the same prefix as the printer point
+        #Check invoice number is like ###-###-#########, and prefix corresponds to printer point
+        regex = '(\d{3})+\-(\d{3})+\-(\d{9})'
+        if not re.match(regex, self.l10n_latam_document_number):
+            raise ValidationError(u'The document number should be like ###-###-#########')
         prefix_to_validate = False
         if self.l10n_latam_document_type_id.l10n_ec_validate_number is False:
             prefix_to_validate = '999-999-' #No tan seguro que sea necesario pero veamos que dicen los usuarios
-        if self.l10n_latam_document_type_id.l10n_ec_authorization: #only when printer is used
+        if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own': #only when printer point is used
             prefix_to_validate = self.l10n_ec_printer_id.name + '-'
         if prefix_to_validate:
             if self.l10n_latam_document_number[0:8] != prefix_to_validate:
-                raise ValidationError("El prefijo del número de documento debería empezar con %s" % prefix_to_validate)
+                raise ValidationError("Acorde a la configuraicòn del tipo de documento, el prefijo del número de documento debería empezar con %s" % prefix_to_validate)
         
     
     def view_credit_note(self):
