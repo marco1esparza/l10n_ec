@@ -6,27 +6,7 @@ from odoo import api, fields, models, _
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
-        
-#     def update_withhold_agent_type(self):
-#         '''
-#         Este método se encarga de lanzar el wizard para actualizar el tipo de agente de retención
-#         '''
-#         res = self.env.ref('ecua_fiscal_positions_core.withhold_agent_wizard_form')
-#         return {
-#             'name': _(u'Actualizar tipo de agente de retención'),
-#             'view_type': 'form',
-#             'view_mode': 'form',
-#             'view_id': res.id if res else False,
-#             'res_model': 'withhold.agent.wizard',
-#             'type': 'ir.actions.act_window',
-#             'nodestroy': True,
-#             'target': 'new'
-#         }
-#
-#    withhold_agent_type_id = fields.Many2one('withhold.agent', string='Withhold Agent Type',
-#                                             track_visibility='onchange',
-#                                             help='Este campo define el tipo de agente de retención.')
-
+    
     l10n_ec_fallback_profit_withhold_goods = fields.Many2one(
         'account.tax',
         string='Withhold consumibles',

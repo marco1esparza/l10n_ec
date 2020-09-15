@@ -12,6 +12,6 @@ class ResPartner(models.Model):
         company_dependent=True,
         string='Force profit withhold',
         domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'),('type_tax_use', '=', 'purchase')],
-        help='If set forces the vat withhold tax on applicable purchases (also a witthold is required on document type). '
+        help='If set forces the vat withhold tax on applicable purchases (also a withhold is required on document type). '
         'The profit withhold prevalence order is payment method (credit cards retains 0%), then partner, then product'
         )

@@ -20,7 +20,12 @@ class AccountMove(models.Model):
         if self.env.context.get('origin') == 'receive_withhold':
             return super(AccountMove, self)._name_search(name, args=[('id', 'in', self.env.context.get('l10n_ec_withhold_origin_ids'))], operator=operator, limit=limit, name_get_uid=name_get_uid)
         return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
-                
+    
+    def unlink(self):
+        #From l10n_latam, allows to erase withholds
+        self.filtered(lambda x: x.l10n_ec_withhold_type in ('out_withhold') and x.state in ('draft') and x.l10n_latam_use_documents).write({'name': '/'})
+        return super().unlink()
+    
     def post(self):
         '''
         '''
@@ -283,7 +288,7 @@ class AccountMove(models.Model):
         help='Link to invoices related to this withhold'
         )
     #subtotals
-    l10n_ec_total_iva = fields.Monetary(
+    l10n_ec_total_iva = fields.Monetary( #TODO JOSE, cambiarle a l10n_ec_vat_withhold
         compute='_compute_total_invoice_ec',
         string='Total IVA',  
         method=True, 
@@ -291,7 +296,7 @@ class AccountMove(models.Model):
         readonly=True, 
         help='Total IVA value of withhold'
         )
-    l10n_ec_total_renta = fields.Monetary(
+    l10n_ec_total_renta = fields.Monetary( #TODO JOSE, cambiarle a l10n_ec_profit_withhold
         compute='_compute_total_invoice_ec',
         string='Total RENTA', 
         method=True, 
@@ -348,8 +353,7 @@ class AccountMove(models.Model):
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
-
-    #Columns
+    
     l10n_ec_withhold_out_id = fields.Many2one(
         'account.move',
         string='Withhold'
