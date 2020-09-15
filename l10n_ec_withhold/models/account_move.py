@@ -26,7 +26,7 @@ class AccountMove(models.Model):
         '''
         account_move_line_obj =  self.env['account.move.line']
         res = super(AccountMove, self).post() #TODO JOSE: Al llamar a super ya nos comemos las secuencias nativas, deberíamos comernoslas una sola vez
-        for invoice in self:                           
+        for invoice in self:
             if invoice.l10n_latam_country_code == 'EC':
                 #Retenciones en ventas
                 if invoice.type in ('entry') and invoice.l10n_ec_withhold_type == 'out_withhold' and invoice.l10n_latam_document_type_id.code in ['07']:
