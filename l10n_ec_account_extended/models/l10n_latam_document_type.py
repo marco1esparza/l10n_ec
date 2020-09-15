@@ -17,6 +17,12 @@ class L10nLatamDocumentType(models.Model):
             if document.l10n_ec_type == 'in_invoice':
                 if document.code in ['01', # factura compra
                                      '03', # liquidacion compra
+                                     '08', # Entradas a espectaculos
+                                     '09', # Tiquetes
+                                     '11', # Pasajes
+                                     '12', # Inst FInancieras
+                                     '20', # Estado
+                                     '21', # Carta porte aereo
                                      ]:
                     result = True
             document.l10n_ec_apply_withhold = result

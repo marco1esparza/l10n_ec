@@ -22,15 +22,4 @@ class AccountFiscalPosition(models.Model):
         oldname='withhold_tax_for_services',
         help='This field defines the VAT withholding tax for services'
         )
-    l10n_ec_transaction_type = fields.Selection(
-        [('national', 'National'),
-         ('foreign_person_local_sale', 'Foreign person local sale'),
-         ('foreign_company_local_sale', 'Foreign company local sale'),
-         ('foreign_person_export', 'Foreign person export'),
-         ('foreign_company_export', 'Foreign company export')],
-        'Transaction type',
-        oldname='transaction_type',
-        help=u'Campo técnico utilizado para determinar el '
-             u'tipo de transacción y tipo de contribuyente '
-             u'en documentos electróńicos y en el reporte ATS'
-    )
+    

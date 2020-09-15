@@ -19,18 +19,41 @@ class AccountMove(models.Model):
 
     @api.onchange('l10n_latam_document_number')
     def onchange_l10n_latam_document_number(self):
-        #Autofills printer point prefix when needed
-        if self.l10n_latam_country_code == 'EC':
+        #Autofills document number when needed
+        if self.l10n_latam_country_code == 'EC' and self.l10n_latam_document_number:
+            regex = '(\d{3})+\-(\d{3})+\-(\d{9})'
+            if re.match(regex, self.l10n_latam_document_number):
+                return #if matches ###-###-######### do nothing
+            prefix = False
             number = self.l10n_latam_document_number
-            if number and len(number) <= 9: #If set but incomplete
+            prefix_regex = '(\d{3})+\-(\d{3})+\-'
+            if re.match(prefix_regex, number[0:8]):
+                prefix = number[0:8]
+                number = number[8:]
+            number = number.zfill(9)
+            if not prefix:
                 #Add the prefix, from the printer point when my company issues the document
-                prefix = '999-999'
+                prefix = '999-999-'
                 if self.l10n_latam_document_type_id.l10n_ec_authorization == 'third':
-                    prefix = '001-001'
+                    prefix = '001-001-'
                 if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own':
-                    prefix = self.l10n_ec_printer_id.name
-                self.l10n_latam_document_number = prefix + '-' + number.zfill(9)
-
+                    prefix = self.l10n_ec_printer_id.name + '-'
+            self.l10n_latam_document_number = prefix + number
+    
+    def _l10n_ec_validate_number(self):
+        #Check invoice number is like ###-###-#########, and prefix corresponds to printer point
+        regex = '(\d{3})+\-(\d{3})+\-(\d{9})'
+        if not re.match(regex, self.l10n_latam_document_number):
+            raise ValidationError(u'The document number should be like ###-###-#########')
+        prefix_to_validate = False
+        if self.l10n_latam_document_type_id.l10n_ec_authorization == 'none':
+            prefix_to_validate = '999-999-' #No tan seguro que sea necesario pero veamos que dicen los usuarios
+        if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own': #only when printer point is used
+            prefix_to_validate = self.l10n_ec_printer_id.name + '-'
+        if prefix_to_validate:
+            if self.l10n_latam_document_number[0:8] != prefix_to_validate:
+                raise ValidationError("Acorde a la configuraicòn del tipo de documento, el prefijo del número de documento debería empezar con %s" % prefix_to_validate)
+    
     @api.onchange('invoice_date', 'invoice_payment_term_id', 'l10n_ec_payment_method_id', 'invoice_line_ids', 'invoice_date_due')
     def onchange_set_l10n_ec_invoice_payment_method_ids(self):
         '''
@@ -95,21 +118,6 @@ class AccountMove(models.Model):
                     self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
                     invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
-    
-    def _l10n_ec_validate_number(self):
-        #Check invoice number is like ###-###-#########, and prefix corresponds to printer point
-        regex = '(\d{3})+\-(\d{3})+\-(\d{9})'
-        if not re.match(regex, self.l10n_latam_document_number):
-            raise ValidationError(u'The document number should be like ###-###-#########')
-        prefix_to_validate = False
-        if self.l10n_latam_document_type_id.l10n_ec_authorization == 'none':
-            prefix_to_validate = '999-999-' #No tan seguro que sea necesario pero veamos que dicen los usuarios
-        if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own': #only when printer point is used
-            prefix_to_validate = self.l10n_ec_printer_id.name + '-'
-        if prefix_to_validate:
-            if self.l10n_latam_document_number[0:8] != prefix_to_validate:
-                raise ValidationError("Acorde a la configuraicòn del tipo de documento, el prefijo del número de documento debería empezar con %s" % prefix_to_validate)
-        
     
     def view_credit_note(self):
         [action] = self.env.ref('account.action_move_out_refund_type').read()
