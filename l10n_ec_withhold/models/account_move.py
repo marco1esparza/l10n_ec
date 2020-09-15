@@ -4,6 +4,12 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 
+MAP_INVOICE_TYPE_PAYMENT_SIGN = {
+    'out_invoice': 1,
+    'in_refund': 1,
+    'in_invoice': -1,
+    'out_refund': -1,
+}
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -18,9 +24,39 @@ class AccountMove(models.Model):
     def post(self):
         '''
         '''
+        account_move_line_obj =  self.env['account.move.line']
         res = super(AccountMove, self).post() #TODO JOSE: Al llamar a super ya nos comemos las secuencias nativas, deberíamos comernoslas una sola vez
-        for invoice in self:
+        for invoice in self:                           
             if invoice.l10n_latam_country_code == 'EC':
+                #Retenciones en ventas
+                if invoice.type in ('entry') and invoice.l10n_ec_withhold_type == 'out_withhold' and invoice.l10n_latam_document_type_id.code in ['07']:
+                    if invoice.l10n_ec_withhold_line_ids:
+                        #Credit
+                        vals = {
+                            'partner_id': invoice.partner_id.id,
+                            'account_id': invoice.partner_id.property_account_receivable_id.id,
+                            'quantity': 1.0,
+                            'price_unit': invoice.l10n_ec_total,
+                            'debit': 0.0,
+                            'credit': invoice.l10n_ec_total,
+                            'move_id': invoice.id
+                        }
+                        account_move_line_obj.with_context(check_move_validity=False).create(vals)
+                        for line in invoice.l10n_ec_withhold_line_ids:
+                            #TODO: terminar de implementar el asiento contable
+                            #Debit
+                            vals = {
+                                'partner_id': invoice.partner_id.id,
+                                'account_id': line.account_id.id,
+                                'quantity': 1.0,
+                                'price_unit': line.amount,
+                                'debit': line.amount,
+                                'credit': 0.0,
+                                'tax_line_id': line.tax_id.id,
+                                'tax_base_amount': line.base,
+                                'move_id': invoice.id
+                            }
+                            account_move_line_obj.with_context(check_move_validity=False).create(vals)
                 #Retenciones en compras
                 if invoice.type in ('entry') and invoice.l10n_ec_withhold_type == 'in_withhold' and invoice.l10n_latam_document_type_id.code in ['07'] and invoice.l10n_ec_printer_id.allow_electronic_document:
                     for document in invoice.edi_document_ids:
@@ -113,6 +149,16 @@ class AccountMove(models.Model):
                     'l10n_ec_withhold_origin_ids': [(6, 0, self.ids)],
                     'l10n_ec_withhold_type': 'out_withhold',
                 }
+            origins = []
+            for invoice in self:
+                origin = invoice.name #Usamos name en lugar del l10n_latam_document_number para aprovechar el prefijo del tipo de doc
+                if invoice.invoice_origin:
+                    origin += ';' + invoice.invoice_origin
+                origins.append(origin)
+            origin = ','.join(origins)
+            default_values.update({
+                'l10n_ec_origin': origin
+            })
         return default_values
         
     def action_view_withholds(self):
@@ -149,14 +195,14 @@ class AccountMove(models.Model):
             l10n_ec_total_renta = 0.0
             l10n_ec_total_base_iva = 0.0
             l10n_ec_total_base_renta = 0.0
-            for move_line in invoice.line_ids:
-                if move_line.tax_group_id:
-                    if move_line.tax_group_id.l10n_ec_type in ['withhold_vat']:
-                        l10n_ec_total_iva += move_line.credit
-                        l10n_ec_total_base_iva += move_line.tax_base_amount
-                    if move_line.tax_group_id.l10n_ec_type in ['withhold_income_tax']:
-                        l10n_ec_total_renta += move_line.credit
-                        l10n_ec_total_base_renta += move_line.tax_base_amount
+            for line in invoice.l10n_ec_withhold_line_ids:
+                if line.tax_id.tax_group_id:
+                    if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_vat']:
+                        l10n_ec_total_iva += line.amount
+                        l10n_ec_total_base_iva += line.base
+                    if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_tax']:
+                        l10n_ec_total_renta += line.amount
+                        l10n_ec_total_base_renta += line.base
             invoice.l10n_ec_total_iva = l10n_ec_total_iva
             invoice.l10n_ec_total_renta = l10n_ec_total_renta
             invoice.l10n_ec_total_base_iva = l10n_ec_total_base_iva
@@ -178,6 +224,19 @@ class AccountMove(models.Model):
         for invoice in self:
             count = len(self.l10n_ec_withhold_ids)
             invoice.l10n_ec_withhold_count = count
+    
+    @api.depends('l10n_ec_withhold_origin_ids.l10n_ec_base_doce_iva', 'l10n_ec_withhold_origin_ids.amount_untaxed')
+    def _compute_total_invoices(self):
+        '''
+        Computa subtotales que dependen de la factura, estos subtotales son 
+        utilizados para sugerir valores al momento de crear la retención
+        '''
+        for invoice in self:
+            #valor de arranque
+            l10n_ec_invoice_vat_doce_subtotal = l10n_ec_invoice_amount_untaxed = 0.0
+            #computamos
+            invoice.l10n_ec_invoice_vat_doce_subtotal = sum(inv.l10n_ec_vat_doce_subtotal * MAP_INVOICE_TYPE_PAYMENT_SIGN[inv.type] for inv in invoice.l10n_ec_withhold_origin_ids)
+            invoice.l10n_ec_invoice_amount_untaxed = sum(inv.amount_untaxed * MAP_INVOICE_TYPE_PAYMENT_SIGN[inv.type] for inv in invoice.l10n_ec_withhold_origin_ids)
     
     _EC_WITHHOLD_TYPE = [
         ('out_withhold', 'Customer Withhold'),
@@ -263,6 +322,27 @@ class AccountMove(models.Model):
         store=False, 
         readonly=True, 
         help='Total value of withhold'
+        )
+    l10n_ec_origin = fields.Char(
+        string='Source Document',
+        readonly=True,
+        help='Reference of the document that produced this withhold.'
+        )
+    l10n_ec_invoice_amount_untaxed = fields.Monetary(
+        string='Base Sugerida Ret. Renta',
+        compute='_compute_total_invoices',
+        method=True, 
+        store=False, 
+        readonly=True, 
+        help='Base imponible sugerida (no obligatoria) para retención del Impuesto a la Renta'
+        )
+    l10n_ec_invoice_vat_doce_subtotal = fields.Monetary(
+        string='Base Sugerida Ret. IVA', 
+        compute='_compute_total_invoices',
+        method=True, 
+        store=False, 
+        readonly=True, 
+        help='Base imponible sugerida (no obligatoria) para retención del IVA'
         )
 
 
