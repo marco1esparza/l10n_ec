@@ -20,7 +20,7 @@ class AccountMove(models.Model):
     @api.onchange('l10n_latam_document_number')
     def onchange_l10n_latam_document_number(self):
         #Autofills document number when needed
-        if self.l10n_latam_country_code == 'EC':
+        if self.l10n_latam_country_code == 'EC' and self.l10n_latam_document_number:
             regex = '(\d{3})+\-(\d{3})+\-(\d{9})'
             if re.match(regex, self.l10n_latam_document_number):
                 return #if matches ###-###-######### do nothing
