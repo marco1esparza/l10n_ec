@@ -30,15 +30,7 @@ class AccountMove(models.Model):
 
     def post(self):
         '''
-        '''
-        account_move_line_obj =  self.env['account.move.line']
-        #Se eliminan las lineas existentes antes de crear las nuevas(re-aprobacion) de retenciones, codigo parcialmente duplicado pero necesita en esta
-        #ubicacion para evitar raise de estado
-        for withhold in self:
-            if withhold.l10n_latam_country_code == 'EC':
-                if withhold.type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold', 'out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
-                    withhold.line_ids.unlink()
-        res = super(AccountMove, self).post() #TODO JOSE: Al llamar a super ya nos comemos las secuencias nativas, deberíamos comernoslas una sola vez
+        '''        
         for withhold in self:
             if withhold.l10n_latam_country_code == 'EC':
                 if withhold.type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold', 'out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
@@ -50,9 +42,6 @@ class AccountMove(models.Model):
                     if not withhold.l10n_ec_withhold_line_ids:
                         raise ValidationError(u'Debe ingresar al menos un impuesto para aprobar la retención.')
                     if withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_ec_total == 0.0:
-                        raise ValidationError(u'La cantidad de la retención debe ser mayor a cero.')
-                    if withhold.l10n_ec_withhold_type in ['in_withhold'] and withhold.total == 0.0 and not electronic:
-                        #la retencion debe ser mayor a cero, excepto en retenciones electronicas
                         raise ValidationError(u'La cantidad de la retención debe ser mayor a cero.')
                     withhold.l10n_ec_validate_accounting_parameters() #validaciones generales
                     withhold.l10n_ec_validate_related_invoices(withhold.l10n_ec_withhold_origin_ids) # Checks on invoice records
@@ -75,31 +64,46 @@ class AccountMove(models.Model):
                             diff_base_renta = float_compare(total_base_renta, invoice.amount_untaxed, precision_digits=precision)
                             if diff_base_renta > 0:
                                 raise ValidationError(u'La base imponible de la retención de renta es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)                            
+                        #delete account.move.lines for re-posting scenario in sale withholds
+                        withhold.line_ids.unlink() #TODO JOSE: Copiarlo también en button_draft
                         if withhold.l10n_ec_withhold_line_ids:
+                            #create the account.move.lines
+                            account_move_line_obj =  self.env['account.move.line']
+                            partner = withhold.partner_id.commercial_partner_id
                             #Credit
                             vals = {
-                                'partner_id': withhold.partner_id.id,
-                                'account_id': withhold.partner_id.property_account_receivable_id.id,
+                                'name': withhold.name,
+                                'move_id': withhold.id,
+                                'partner_id': partner.id,
+                                'account_id': partner.property_account_receivable_id.id,
+                                'date_maturity': False,
                                 'quantity': 1.0,
+                                'amount_currency': 0.0, #Withholds are always in company currency
                                 'price_unit': withhold.l10n_ec_total,
                                 'debit': 0.0,
                                 'credit': withhold.l10n_ec_total,
-                                'move_id': withhold.id
+                                'tax_base_amount': 0.0,
+                                'is_rounding_line': False,
                             }
                             account_move_line_obj.with_context(check_move_validity=False).create(vals)
                             for line in withhold.l10n_ec_withhold_line_ids:
-                                #TODO: terminar de implementar el asiento contable
                                 #Debit
+                                tax_line = line.tax_id.invoice_repartition_line_ids.filtered(lambda x:x.repartition_type == 'tax')
                                 vals = {
-                                    'partner_id': withhold.partner_id.id,
+                                    'name': line.tax_id.name + ' ' + line.invoice_id.name,
+                                    'move_id': withhold.id,
+                                    'partner_id': partner.id,
                                     'account_id': line.account_id.id,
+                                    'date_maturity': False,
                                     'quantity': 1.0,
-                                    'price_unit': line.amount,
+                                    'amount_currency': 0.0, #Withholds are always in company currency
+                                    'price_unit': (-1) * line.amount,
                                     'debit': line.amount,
                                     'credit': 0.0,
-                                    'tax_line_id': line.tax_id.id,
                                     'tax_base_amount': line.base,
-                                    'move_id': withhold.id
+                                    'tax_line_id': line.tax_id.id, #originator tax
+                                    'tax_repartition_line_id': tax_line.id,
+                                    'tag_ids': [(6, 0, tax_line.tag_ids.ids)],                                    
                                 }
                                 account_move_line_obj.with_context(check_move_validity=False).create(vals)
                     #Retenciones en compras
@@ -107,13 +111,15 @@ class AccountMove(models.Model):
                         if withhold.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted'):
                             raise ValidationError(u'Solamente se puede tener una retención aprobada por' 
                                                   u' factura de proveedor.')
-                        if invoice.l10n_ec_printer_id.allow_electronic_document:
-                            for document in invoice.edi_document_ids:
-                                if document.state in ('to_send'):
-                                    #needed to print offline RIDE and populate request after validations
-                                    document._l10n_ec_set_access_key()
-                                    self.l10n_ec_authorization = document.l10n_ec_access_key #for auditing manual changes
-                                    document._l10n_ec_generate_request_xml_file()
+#TODO JOSE, creo que esta parte no es necesaria cuando se llama a post al final, verificar y borrar
+#                         if invoice.l10n_ec_printer_id.allow_electronic_document:
+#                             for document in invoice.edi_document_ids:
+#                                 if document.state in ('to_send'):
+#                                     #needed to print offline RIDE and populate request after validations
+#                                     document._l10n_ec_set_access_key()
+#                                     self.l10n_ec_authorization = document.l10n_ec_access_key #for auditing manual changes
+#                                     document._l10n_ec_generate_request_xml_file()
+            res = super(AccountMove, self).post()
         return res
 
     def l10n_ec_validate_accounting_parameters(self):

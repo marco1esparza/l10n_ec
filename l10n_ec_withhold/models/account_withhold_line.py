@@ -33,7 +33,7 @@ class L10nEcAccountWithholdLine(models.Model):
             'amount': amount,
             })
     
-    tax_id = fields.Many2one('account.tax', string='Tax',
+    tax_id = fields.Many2one('account.tax', string='Taxes',
         index=True, ondelete="restrict",
         required=True,
         )
