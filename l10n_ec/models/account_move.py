@@ -8,12 +8,9 @@ import odoo.addons.decimal_precision as dp
 
 class AccountMove(models.Model):
     _inherit='account.move'
-
-
+    
     def _get_l10n_latam_documents_domain(self):
-        '''
-        Invocamos el metodo _get_l10n_latam_documents_domain para filtrar los tipos de documentos
-        '''
+        #Filter document types according to ecuadorian type
         domain = super(AccountMove, self)._get_l10n_latam_documents_domain()
         if self.l10n_latam_country_code == 'EC':
             if self.type in ['out_invoice']:
@@ -25,4 +22,3 @@ class AccountMove(models.Model):
             if self.type in ['in_refund']:
                 domain.extend([('l10n_ec_type', '=', 'in_refund')])
         return domain
-    

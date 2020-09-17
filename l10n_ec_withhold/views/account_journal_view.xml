@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_account_journal_use_document_form" model="ir.ui.view">
+            <field name="name">view.account.journal.use.document.form</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="l10n_latam_invoice_document.view_account_journal_form"/>
+            <field name="arch" type="xml">
+            	<xpath expr="//field[@name='l10n_latam_use_documents']" position="attributes">
+					<attribute name="attrs">{'invisible': ['|', ('l10n_latam_company_use_documents','=',False), ('type','not in',['purchase','sale','general'])]}</attribute>
+				</xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

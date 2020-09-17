@@ -3,7 +3,7 @@
 
 {
     'name': 'Facturas ecuatorianas',
-    'version': '1.0',
+    'version': '1.1',
     'category': 'Ecuadorian Regulations',
     'description': '''
         Característica: 
@@ -27,19 +27,27 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
-        'l10n_ec_electronic_document'
+        'l10n_ec',
+        'account_edi'
     ],    
     'data': [
         #Data
-        'data/printer_point_data.xml',
-        'data/payment_method_data.xml',
+        'data/l10n_ec_sri_printer_point_data.xml',
+        'data/l10n_ec_payment_method_data.xml',
+        'data/account_edi_format_data.xml',
         #Security
        'security/ir.model.access.csv',
+       'security/l10n_ec_multicompany_security.xml',
         #Views
-        'views/printer_point_view.xml',
+        'views/l10n_ec_sri_printer_point_view.xml',
+        'views/l10n_ec_digital_signature_view.xml',
+        'views/l10n_ec_payment_method_view.xml',
+        'views/res_company_view.xml',
         'views/res_users_view.xml',
-        'views/payment_method_view.xml',
-        'views/account_move_view.xml'
+        'views/res_partner_view.xml',
+        'views/account_move_view.xml',
+        'views/account_report.xml',
+        'views/report_invoice.xml',
     ],
     'installable': True
 }

@@ -1,0 +1,507 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* ecua_tax_withhold
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 10.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-16 21:18+0000\n"
+"PO-Revision-Date: 2017-08-16 21:18+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_state
+msgid " * The 'Draft' status is used when a user is encoding a new and unconfirmed withhold.\n"
+" * The 'Approved' status is used when user issues the document.\n"
+" * The 'Cancelled' status is used for void documents."
+msgstr " * El estado 'Borrador' se utiliza cuando un usuario está codificando una retención nueva y no confirmada.\n"
+" * El estado 'Aprobado' se utiliza cuando el usuario emite el documento.\n"
+" * El estado 'Cancelado' se utiliza para documentos anulados."
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_account_id
+msgid "Account"
+msgstr "Cuenta"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_comment
+msgid "Additional Information"
+msgstr "Información adicional"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Additional notes..."
+msgstr "Notas adicionales..."
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_alarmed_document
+msgid "Alarmed Document"
+msgstr "Documento alarmado"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_filter
+msgid "Alarmeds Documents"
+msgstr "Documentos alarmados"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_filter
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Approved"
+msgstr "Aprobar"
+
+#. module: ecua_tax_withhold
+#: selection:account.withhold,state:0
+msgid "Approved"
+msgstr "Aprobado"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Cancel"
+msgstr "Anular"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_filter
+msgid "Cancel"
+msgstr "Anuladas"
+
+#. module: ecua_tax_withhold
+#: selection:account.withhold,state:0
+msgid "Canceled"
+msgstr "Anulado"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_withhold_category_dummy
+msgid "Category"
+msgstr "Categoría"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_commercial_partner_id
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_number
+msgid "Commercial Entity"
+msgstr "Entidad comercial"
+
+#. module: ecua_tax_withhold
+#: model:ir.model,name:ecua_tax_withhold.model_res_company
+msgid "Companies"
+msgstr "Compañías"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_create_uid
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_create_date
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_currency_id
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_config_settings_withhold_income_tax_sale
+msgid "Default Company Tax Withhold"
+msgstr "Impuesto por defecto para retenciones"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_display_name
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_display_name
+msgid "Display Name"
+msgstr "Nombre a mostrar"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_date_withhold
+msgid "Document Issue Date"
+msgstr "Fecha de emisión del documento"
+
+#. module: ecua_tax_withhold
+#: selection:account.withhold,state:0
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_filter
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_res_company_restriction_five_days
+msgid "Five Days Withhold Restriction"
+msgstr "Restricción de 5 días para retenciones"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_res_company_restriction_five_days
+msgid "For restrict the reception of withhold documents after 5 days from the emission of the invoice"
+msgstr "Para restringir la recepción de retenciones después de 5 días de emitida la factura"
+
+#. module: ecua_tax_withhold
+#: model:ir.model,name:ecua_tax_withhold.model_account_invoice
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_invoice_numbers_as_text
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Invoices"
+msgstr "Facturas"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_move_id
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: ecua_tax_withhold
+#: model:ir.model,name:ecua_tax_withhold.model_account_move_line
+msgid "Journal Item"
+msgstr "Apunte contable"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold___last_update
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line___last_update
+msgid "Last Modified on"
+msgstr "Última modificación en"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_write_uid
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_write_date
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_move_id
+msgid "Link to the automatically generated Journal Items in Sale Withhold."
+msgstr "Vincula automaticamente el asiento contable con la retención de venta"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_internal_number
+msgid "Number"
+msgstr "Número"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_payment_withhold_id
+msgid "Number of related withhold"
+msgstr "Número de retención relacionada"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_internal_number
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_number
+msgid "Number of withhold"
+msgstr "Número de retención"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Other Info"
+msgstr "Otra información"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_partner_id
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_filter
+msgid "Partner"
+msgstr "Empresa"
+
+#. module: ecua_tax_withhold
+#: model:ir.model,name:ecua_tax_withhold.model_account_payment
+msgid "Payments"
+msgstr "Pagos"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Print Withhold"
+msgstr "Imprimir retención"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_printable
+msgid "Printable"
+msgstr "Imprimible"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_printer_id
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_filter
+msgid "Printer Point"
+msgstr "Punto de emisión"
+
+#. module: ecua_tax_withhold
+#: selection:account.withhold,type:0
+#: selection:account.withhold.line,type:0
+msgid "Purchase Withhold"
+msgstr "Retención en compras"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_origin
+msgid "Reference of the document that produced this withhold."
+msgstr "Referencia del documento que produjo esta retención."
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_move_line_withhold_id
+msgid "Relation with the withholding"
+msgstr "Relación con retenciones"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_res_company_withhold_journal_sale
+msgid "Sale Withhold Journal"
+msgstr "Diario de retención para ventas"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_res_company_withhold_income_tax_sale
+msgid "Sale Withhold Tax"
+msgstr "Impuesto de retención para ventas"
+
+#. module: ecua_tax_withhold
+#: selection:account.withhold,type:0
+#: selection:account.withhold.line,type:0
+msgid "Sales Withhold"
+msgstr "Retención en ventas"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_filter
+msgid "Search Withhold"
+msgstr "Buscar retenciones"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Send to Draft"
+msgstr "Enviar a borrador"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_invoice_withhold_exist
+msgid "Show internally if a withhold asociated exist"
+msgstr "Muestra internamente si existe una retención asociada"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_origin
+msgid "Source Document"
+msgstr "Documento origen"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_state
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_filter
+msgid "Status"
+msgstr "Estado"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_tax_id
+msgid "Tax"
+msgstr "Impuesto"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_line_tax_id
+msgid "Tax for withhold"
+msgstr "Impuesto para retenciones"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_comment
+msgid "Text can be use to comment the withhold, if its necesary"
+msgstr "Puede agregar comentarios a la retención de ser necesario"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_commercial_partner_id
+msgid "The commercial entity that will be used on Journal Entries for this invoice"
+msgstr "La entidad comercial que se utilizará en los asientos contables para esta factura"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_printer_id
+msgid "The printer point or cash of my company where receive or send documents"
+msgstr "El punto de emisión o caja de mi empresa donde recibo o emito documentos"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_warning_msgs
+msgid "There are pending action in this transaction"
+msgstr "Hay acción pendiente en esta transacción"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_alarmed_document
+msgid "This field determines if the document is alarmed, it will be used in the filters"
+msgstr "Este campo determina si el documento esta alarmado, va se usado en los filtros"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_iva
+msgid "Total IVA value of withhold"
+msgstr "Valor total de IVA retenido"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_total_renta
+msgid "Total RENTA"
+msgstr "Total RENTA"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_total
+msgid "Total Withhold"
+msgstr "Total retención"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_base_iva
+msgid "Total base IVA of withhold"
+msgstr "Base total retención de IVA"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_base_renta
+msgid "Total base renta of withhold"
+msgstr "Base total retención de RENTA"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_renta
+msgid "Total renta value of withhold"
+msgstr "Valor total de retención de RENTA"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total
+msgid "Total value of withhold"
+msgstr "Valor total de la retención"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_line_type
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_type
+msgid "Transaction Type"
+msgstr "Tipo de transacción"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.account_invoice_purchase_withhold_form_view
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.account_invoice_sale_withhold_form_view
+msgid "View Withhold"
+msgstr "Ver retención"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_warning_msgs
+msgid "Warnings"
+msgstr "Adventencia"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_move_line_withhold_id
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_payment_withhold_id
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.account_invoice_purchase_withhold_form_view
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.account_invoice_sale_withhold_form_view
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_config
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_tree
+msgid "Withhold"
+msgstr "Retención"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_date_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_filter
+msgid "Withhold Date"
+msgstr "Fecha de retención"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_invoice_withhold_exist
+msgid "Withhold Exist"
+msgstr "Existe retención"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_withhold_line_ids
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Withhold Lines"
+msgstr "Líneas de retención"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.account_invoice_purchase_withhold_form_view
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.account_invoice_sale_withhold_form_view
+msgid "Withhold Number"
+msgstr "Número de retención"
+
+#. module: ecua_tax_withhold
+#: model:ir.actions.act_window,name:ecua_tax_withhold.action_account_withhold_purchase
+#: model:ir.ui.menu,name:ecua_tax_withhold.withhold_purchases
+msgid "Withhold of Purchases"
+msgstr "Retenciones en compras"
+
+#. module: ecua_tax_withhold
+#: model:ir.actions.act_window,name:ecua_tax_withhold.action_account_withhold_sale
+#: model:ir.ui.menu,name:ecua_tax_withhold.withhold_sales
+msgid "Withhold of Sales"
+msgstr "Retenciones en ventas"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.account_invoice_purchase_withhold_form_view
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.account_invoice_sale_withhold_form_view
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_company_form_add_withhold
+msgid "Withholds"
+msgstr "Retenciones"
+
+#. module: ecua_tax_withhold
+#: model:ir.model,name:ecua_tax_withhold.model_account_config_settings
+msgid "account.config.settings"
+msgstr "account.config.settings"
+
+#. module: ecua_tax_withhold
+#: model:ir.model,name:ecua_tax_withhold.model_account_withhold
+msgid "account.withhold"
+msgstr "account.withhold"
+
+#. module: ecua_tax_withhold
+#: model:ir.model,name:ecua_tax_withhold.model_account_withhold_line
+msgid "account.withhold.line"
+msgstr "account.withhold.line"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Customer Reference"
+msgstr "Referencia de cliente"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+msgid "Supplier"
+msgstr "Proveedor"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_purchase
+msgid "Supplier Reference"
+msgstr "Referencia de proveedor"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_tax_withhold_account_for_sale
+msgid "Withhold Account for Sale"
+msgstr "Cuenta para retenciones en ventas"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_tax_withhold_account_for_sale
+msgid "Select the account that you want to use for the sales withhold accounting entries"
+msgstr "Seleccione la cuenta que desea usar en los asientos contables de retenciones en ventas"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_difference_account_id
+msgid "Difference Account"
+msgstr "Cuenta de desajuste"
+
+#. module: ecua_tax_withhold
+#: model:ir.ui.view,arch_db:ecua_tax_withhold.view_account_withhold_form_sale
+msgid "Force Difference Account"
+msgstr "Forzar cuenta de desajuste"
+
+#. module: ecua_tax_withhold
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_difference_account_id
+msgid "It is recommended to leave empty, when the retained value exceeds the balance of                                                  the invoices a seat is generated in the clients unpaid account. You can \"force\"                                                  the accounting account by selecting it here (for example you can select the other                                                  income account"
+msgstr "Se recomienda dejar vacía, cuando el valor retenido supera el saldo de las facturas se genera un asiento en la cuenta por pagar del cliente. Usted puede 'forzar' la cuenta contable seleccionandola aquí (por ejemplo puede seleccionar la cuenta de otros ingresos)"
+

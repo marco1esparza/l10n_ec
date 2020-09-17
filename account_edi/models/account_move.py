@@ -101,8 +101,7 @@ class AccountMove(models.Model):
         edi_document_vals_list = []
         for move in self:
             for edi_format in move.journal_id.edi_format_ids:
-                is_edi_needed = move.is_invoice(include_receipts=False) and edi_format._is_required_for_invoice(move)
-
+                is_edi_needed = self.get_is_edi_needed(edi_format)
                 if is_edi_needed:
                     existing_edi_document = move.edi_document_ids.filtered(lambda x: x.edi_format_id == edi_format)
                     if existing_edi_document:
@@ -120,6 +119,12 @@ class AccountMove(models.Model):
         self.env['account.edi.document'].create(edi_document_vals_list)
         self.edi_document_ids._process_documents_no_web_services()
         return res
+    
+    def get_is_edi_needed(self, edi_format):
+        '''
+        Hook for withhold
+        '''
+        return self.is_invoice(include_receipts=False) and edi_format._is_required_for_invoice(self)
 
     def button_cancel(self):
         # OVERRIDE

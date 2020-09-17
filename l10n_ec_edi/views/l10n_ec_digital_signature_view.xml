@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="view_digital_signature_form" model="ir.ui.view">
+		<field name="name">view_digital_signature_form</field>
+		<field name="model">l10n_ec.digital.signature</field>
+		<field name="type">form</field>
+		<field name="arch" type="xml">
+			<form string="Digital Signature">
+				<header>
+					<button name="button_aprove" attrs="{'invisible': [('state', '!=', 'draft')]}" string="Confirm" type="object"/>
+					<button name="button_cancel" attrs="{'invisible': [('state', '!=', 'confirmed')]}" string="Cancel" type="object"/>
+					<button name="button_draft" attrs="{'invisible': [('state', '!=', 'cancel')]}" string="Send to Draft" type="object"/>
+					<field name="state" widget="statusbar" statusbar_visible="draft,confirmed,cancel"/>
+				</header>
+				<sheet string="Digital Signature">
+					<div>
+						<label for="name" attrs="{'invisible': [('state','=','draft')]}"/>
+						<h1 class="mt0">
+							<field name="name" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+						</h1>
+					</div>
+					<group col="2">
+						<group>
+							<field name="company_id" attrs="{'readonly': [('state','!=','draft')]}"/>
+							<field name="cert_encripted" attrs="{'readonly': [('state','!=','draft')]}"/>
+							<field name="password_p12" password="True" attrs="{'readonly': [('state','!=','draft')]}"/>
+						</group>
+						<group>
+							<field name="not_valid_after" attrs="{'invisible': [('state','=','draft')]}"/>
+							<field name="not_valid_before" attrs="{'invisible': [('state','=','draft')]}"/>
+						</group>
+					</group>
+				</sheet>
+				<div class="oe_chatter">
+					<field name="message_follower_ids" widget="mail_followers"/>
+					<field name="message_ids" widget="mail_thread"/>
+				</div>
+			</form>
+		</field>
+	</record>
+
+	<record id="view_digital_signature_tree" model="ir.ui.view">
+		<field name="name">view.digital.signature.tree</field>
+		<field name="model">l10n_ec.digital.signature</field>
+		<field name="type">tree</field>
+		<field name="arch" type="xml">
+			<tree string="Digital Signature">
+				<field name="name"/>
+				<field name="company_id"/>
+				<field name="not_valid_after"/>
+				<field name="not_valid_before"/>
+				<field name="state"/>
+			</tree>
+		</field>
+	</record>
+
+	<record id="view_digital_signature_filter" model="ir.ui.view">
+		<field name="name">view.digital.signature.filter</field>
+		<field name="model">l10n_ec.digital.signature</field>
+		<field name="arch" type="xml">
+			<search string="Search Digital Signature">
+				<field name="name" filter_domain="[('name','ilike',self)]"/>
+				<field name="company_id" filter_domain="[('company_id','ilike',self)]"/>
+				<field name="not_valid_after" filter_domain="[('not_valid_after','ilike',self)]"/>
+				<field name="not_valid_before" filter_domain="[('not_valid_before','ilike',self)]"/>
+				<filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+				<filter string="Confirmed" name="confirmed" domain="[('state','=','confirmed')]"/>
+				<filter string="Cancel" name="cancel" domain="[('state','=','cancel')]"/>
+				<filter string="Expired" name="expired" domain="[('state','=','expired')]"/>
+				<group expand="0" string="Group By">
+					<filter string="Company" name="company_id" context="{'group_by':'company_id'}"/>
+					<filter string="Status" name="state" context="{'group_by':'state'}"/>
+				</group>
+			</search>
+		</field>
+	</record>
+
+	<record id="action_digital_signature" model="ir.actions.act_window"> 
+		<field name="name">Digital Signatures</field>
+		<field name="res_model">l10n_ec.digital.signature</field>
+		<field name="view_mode">tree,form,kanban</field>
+		<field name="view_id" ref="view_digital_signature_tree"/>
+		<field name="search_view_id" ref="view_digital_signature_filter"/>
+	</record>
+
+	<menuitem id="menu_digital_signature" action="action_digital_signature" parent="action_sri_menu" sequence="20"/>
+
+</odoo>

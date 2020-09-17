@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="view_move_form_withhold" model="ir.ui.view">
+		<field name="name">account.move.form.withhold</field>
+		<field name="model">account.move</field>
+		<field name="inherit_id" ref="l10n_ec_edi.view_move_invoice_customization_form"/>
+		<field name="arch" type="xml">
+			<button name="action_reverse" position="after">
+				<button name="l10n_ec_add_withhold" string="Add Withhold" type="object"
+					groups="account.group_account_invoice"
+					attrs="{'invisible':[('l10n_ec_allow_withhold','!=',True)]}"/>
+			</button>
+            <div class="oe_button_box" position="inside">
+                <button type="object" class="oe_stat_button" name="l10n_ec_action_view_withholds" icon="fa-list-alt" 
+                	attrs="{'invisible': [('l10n_ec_withhold_count', '=', 0)]}">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value"><field name="l10n_ec_withhold_count"/></span>
+                        <span class="o_stat_text">Withholds</span>
+                    </div>
+                </button>
+            </div>
+            <xpath expr="//field[@name='restrict_mode_hash_table']" position="after">
+				<field name="l10n_ec_withhold_type" invisible="1"/>
+			</xpath>
+			<xpath expr="//form/sheet/div/h1" position="inside">
+				<span attrs="{'invisible': ['|', '|', ('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold']), ('state', '!=', 'draft'), ('name', '!=', '/')]}">Draft Withhold</span>
+			</xpath>
+			<xpath expr="//field[@name='ref']" position="before">
+				<field name="partner_id" widget="res_partner_many2one"
+					context="{'show_address': 1, 'default_is_company': True, 'show_vat': True}"
+					options='{"always_reload": True, "no_quick_create": True}'
+					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}"/>
+			</xpath>
+			<xpath expr="//field[@name='date']" position="attributes">
+				<attribute name="attrs">{'invisible': ['|', ('type', 'in', ('out_invoice', 'out_refund', 'out_receipt')), ('l10n_ec_withhold_type', 'in', ['out_withhold', 'in_withhold'])]}</attribute>
+			</xpath>			
+			<xpath expr="//field[@name='invoice_date']" position="after">
+				<field name="invoice_date" string="Withhold Date" options="{'datepicker': {'warn_future': true}}"
+					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}"/>
+			</xpath>
+			<xpath expr="//field[@name='l10n_latam_document_type_id']" position="after">
+            		<field name="l10n_ec_printer_id"
+						attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])], 'required': [('l10n_latam_country_code', '=', 'EC'), ('l10n_ec_withhold_type', 'in', ['in_withhold'])]}"
+						options="{'no_create': True, 'no_open': True}"/>
+					<field name="l10n_ec_authorization"
+						attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
+            	</xpath>
+			<xpath expr="//page[@id='aml_tab']" position="before">
+				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
+					<field name="l10n_ec_withhold_origin_ids" invisible="1"/>
+					<field name="l10n_ec_withhold_line_ids" nolabel="0"
+						context="{'l10n_ec_withhold_origin_ids': l10n_ec_withhold_origin_ids}"
+						attrs="{'readonly':[('state','!=','draft')]}">
+						<tree editable="bottom">
+		                    <field name="company_id" invisible="1"/>
+							<field name="tax_id"
+								   domain="[('type_tax_use', '=', 'none'),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat','withhold_income_tax'])]"
+								   options="{'no_create': True,'no_open': True}"/>
+		                    <field name="invoice_id" context="{'origin': 'receive_withhold', 'l10n_ec_withhold_origin_ids': context.get('l10n_ec_withhold_origin_ids')}"/>
+		                    <field name="account_id" readonly="1" groups="account.group_account_user"/>
+		                    <field name="account_id" readonly="0" invisible="1"/> <!-- editable version to be able to write from onchange -->
+		                    <field name="base"/>
+		                    <field name="amount"/>
+		                </tree>
+					</field>
+				</page>				
+				<page id="invoice_tab" string="Invoices" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
+					<group>
+						<field name="invoice_origin"/>
+					</group>
+					<p class="oe_grey" nolabel="1" colspan="2">Listado de facturas afectadas por esta retención</p>
+					<field name="l10n_ec_withhold_origin_ids" readonly="1" nolabel="1">
+						<tree editable="bottom">
+							<field name="partner_id" string="Customer"/>
+							<field name="invoice_date" string="Invoice Date"/>
+							<!-- Se usa name en lugar de l10n_latam_document_number pues da problemas de persistencia y no deja guardar la retencion cuando campos campos como partner, fecha, # de doc -->
+							<field name="name"/>
+							<field name="l10n_ec_base_cero_iva"/>
+							<field name="l10n_ec_base_doce_iva"/>
+							<field name="l10n_ec_vat_doce_subtotal"/>
+							<field name="amount_total"/>
+							<field name="state"/>
+		                </tree>
+					</field>
+					<group class="oe_subtotal_footer oe_right">
+						<field name="l10n_ec_invoice_vat_doce_subtotal"/>
+						<field name="l10n_ec_invoice_amount_untaxed"/>
+					</group>
+				</page>
+			</xpath>
+			<!--  
+			<xpath expr="//page[@id='invoice_tab']" position="attributes">
+				<attribute name="attrs">{'invisible': ['|', ('type','=','entry'), ('l10n_latam_document_type_code','=','07')]}</attribute>
+			</xpath>
+			-->
+			<!-- #TODO JOSE, la pestaña de asiento contable se oculta solo en compras 
+			<xpath expr="//page[@id='aml_tab']" position="attributes">
+				<attribute name="attrs">{'invisible': [('l10n_latam_document_type_code','=','07')]}</attribute>
+			</xpath>
+			-->
+            <field name="invoice_origin" position="after">
+				<field name="l10n_ec_withhold_count" readonly="1" groups="base.group_no_one"/>
+				<field name="l10n_ec_withhold_type" readonly="1" groups="base.group_no_one"/>
+				<field name="l10n_ec_allow_withhold" readonly="1" groups="base.group_no_one"/>
+            </field>
+		</field>
+	</record>
+
+	<record id="action_receive_withhold" model="ir.actions.server">
+		<field name="name">Recibir retención</field>
+		<field name="model_id" ref="account.model_account_move"/>
+		<field name="binding_model_id" ref="account.model_account_move"/>
+		<field name="state">code</field>
+		<field name="code">
+			if records:
+			    action = records.l10n_ec_add_withhold()
+        </field>
+    </record>
+
+</odoo>

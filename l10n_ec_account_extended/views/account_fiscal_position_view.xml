@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+   	<record id="view_account_position_form_add_withhold" model="ir.ui.view">
+	    <field name="name">view.account.position.form.add.withhold</field>
+	    <field name="model">account.fiscal.position</field>
+	    <field name="inherit_id" ref="account.view_account_position_form"/>
+	    <field name="arch" type="xml">
+			<field name="company_id" position="after">
+  				<field name="l10n_ec_vat_withhold_goods"/>
+  				<field name="l10n_ec_vat_withhold_services"/>
+			</field>
+	    </field>
+	</record>
+
+</odoo>
