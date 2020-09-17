@@ -8,13 +8,17 @@
     </template>
 
     <template id="report_invoice_document" inherit_id="account.report_invoice_document" primary="True">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+            <attribute name="t-call">web.basic_layout</attribute>
+        </xpath>
+
         <xpath expr="//h2" position="attributes">
             <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
         </xpath>
-        
-		<xpath expr="//t[@t-set='address']" position="attributes">
-			<attribute name="invisible">1</attribute>
-		</xpath>
+
+        <xpath expr="//t[@t-set='address']" position="attributes">
+            <attribute name="invisible">1</attribute>
+        </xpath>
 
         <xpath expr="//h2" position="before">
             <table class="table table-borderless w-100 m-1" style="font-size:11px;">
@@ -67,14 +71,13 @@
                             <tr>
                                 <td class="border-top-0 p-2" style="font-size:15px; letter-spacing: 2px;">
                                     <h3>
-                                    	<t t-if="o.l10n_latam_document_type_id" t-esc="o.l10n_latam_document_type_id.report_name or o.l10n_latam_document_type_id.name" />
-                                    </h3><span t-esc="o.l10n_latam_document_number or o.name"/>
+                                        <t t-if="o.l10n_latam_document_type_id" t-esc="o.l10n_latam_document_type_id.report_name or o.l10n_latam_document_type_id.name" /> <span t-esc="o.l10n_latam_document_number or o.name"/>
+                                    </h3>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="border-top-0 p-1">
-                                    <strong>Authorization No.:</strong><br/>
-                                    <span class="text-center" t-field="o.l10n_ec_authorization"/>
+                                    <strong>Authorization No.: <span t-field="o.l10n_ec_authorization"/></strong>
                                 </td>
                             </tr>
                             <!-- Los RIDE que se descarguen del portal web del SRI contendrán hora y fecha de autorización, dicha información no es
@@ -86,16 +89,13 @@
                             </tr>-->
                             <tr>
                                 <td class="border-top-0 p-1">
-                                    <div>
-                                        <strong>Access Key:</strong>
-                                    </div>
                                     <div class="text-justify">
-                                        <img style="width:100%; height:15.5mm;" 
-                                        	 t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.l10n_ec_authorization, 370, 113)"
-                                        	 />
+                                        <img style="width:100%; height:15.5mm;"
+                                             t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.l10n_ec_authorization, 370, 113)"
+                                        />
                                     </div>
                                     <div class="text-center">
-                                        <strong><span t-field="o.l10n_ec_authorization"/></strong>
+                                        <strong>Access Key: <span t-field="o.l10n_ec_authorization"/></strong>
                                     </div>
                                 </td>
                             </tr>
@@ -106,8 +106,8 @@
 
             <table name="social_reason" class="table table-condensed w-100" style="font-size:10px;">
                 <tr>
-                    <td class="p-1"><strong>Company Name / Name and Surname: </strong><span t-field="o.partner_id"/></td>
-                    <td class="p-1"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
+                    <td class="p-1 text-center w-50"><strong>Company Name / Name and Surname: </strong><span t-field="o.partner_id"/></td>
+                    <td class="p-1 text-center w-50"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
                 </tr>
                 <tr t-if="o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.code == '04'">
                     <td class="p-1"><strong>Document that is modified: </strong><span t-esc="o.reversed_entry_id.l10n_latam_document_number or o.reverse_entry_id.name"/></td>
@@ -124,6 +124,10 @@
             </table>
         </xpath>
 
+        <xpath expr="//div[@id='informations']" position="attributes">
+            <attribute name="class">row mt32 mb32 float-right</attribute>
+        </xpath>
+
         <xpath expr="//div[hasclass('clearfix')]" position="attributes">
             <attribute name="invisible">1</attribute>
         </xpath>
@@ -135,25 +139,33 @@
         <xpath expr="//div[@id='total']/div[1]" position="replace">
             <div class="col-6 pr-5 mt-5">
                 <table class="table table-sm" style="page-break-inside: avoid; font-size:11px;" >
-                    <tr class="border-black" style="">
-                        <td class="text-center"><strong>Payment term (Days)</strong></td>
-                        <td class="text-center"><strong>Method of payment</strong></td>
-                        <td class="text-center"><strong>Total amount</strong></td>
+                    <tr class="border-black">
+                        <td class="text-center" colspan="2"><strong>Method of payment</strong></td>
                     </tr>
-                    <t t-foreach="o.l10n_ec_invoice_payment_method_ids" t-as="payment_method">
-                        <tr style="">
-                            <td class="text-center">
-                                <span t-field="payment_method.days_payment_term"/>
-                            </td>
-                            <td class="text-center">
-                                <span t-field="payment_method.payment_method_id"/>
-                            </td>
-                            <td class="text-center">
-                                <span t-field="payment_method.amount"/>
-                            </td>
-
-                        </tr>
-                    </t>
+                    <tr t-if="o.l10n_ec_effective_method != 0.0">
+                        <td class="text-center">Effective</td>
+                        <td class="text-center">
+                            <span t-field="o.l10n_ec_effective_method"/>
+                        </td>
+                    </tr>
+                    <tr t-if="o.l10n_ec_card_method != 0.0">
+                        <td class="text-center">Card Credit / Debit</td>
+                        <td class="text-center">
+                            <span t-field="o.l10n_ec_card_method"/>
+                        </td>
+                    </tr>
+                    <tr t-if="o.l10n_ec_electronic_method != 0.0">
+                        <td class="text-center">Electronic Money</td>
+                        <td class="text-center">
+                            <span t-field="o.l10n_ec_electronic_method"/>
+                        </td>
+                    </tr>
+                    <tr t-if="o.l10n_ec_other_method != 0.0">
+                        <td class="text-center">Others</td>
+                        <td class="text-center">
+                            <span t-field="o.l10n_ec_other_method"/>
+                        </td>
+                    </tr>
                 </table>
             </div>
             <div class="col-6 pl-5 mt-5">
