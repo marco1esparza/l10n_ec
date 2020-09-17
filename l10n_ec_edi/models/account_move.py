@@ -240,6 +240,12 @@ class AccountMove(models.Model):
     def _compute_l10n_latam_sequence(self):
         #Recompute sequence when l10n_ec_printer_id changes
         super()._compute_l10n_latam_sequence()
+
+    @api.depends('reversal_move_id')
+    def _get_refund_count(self):
+        # Return the refund count
+        for invoice in self:
+            invoice.refund_count = len(invoice.reversal_move_id)
     
     def button_draft(self):
         if self.l10n_latam_country_code == 'EC':
@@ -354,6 +360,8 @@ class AccountMove(models.Model):
         readonly=True, 
         help='Sum of total prices included discount of products not subject to VAT'
         )
+    l10n_ec_authorization_type = fields.Selection(related='l10n_latam_document_type_id.l10n_ec_authorization')
+    refund_count = fields.Integer(string='Refund Count', compute='_get_refund_count', readonly=True)
 
 class AccountMoveLine(models.Model):
     _inherit='account.move.line'

@@ -8,8 +8,9 @@
             <field name="inherit_id" ref="l10n_latam_invoice_document.view_move_form"/>
             <field name="arch" type="xml">
             	<xpath expr="//field[@name='l10n_latam_document_type_id']" position="after">
+					<field name="l10n_ec_authorization_type" invisible="1"/>
             		<field name="l10n_ec_printer_id"
-						attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('out_invoice', 'out_refund'))], 'required': [('l10n_latam_country_code', '=', 'EC'), ('type', 'in', ('out_invoice', 'out_refund'))]}"
+						attrs="{'invisible': ['|', '|',  ('l10n_latam_country_code', '!=', 'EC'), ('l10n_ec_authorization_type', '!=', 'own'), ('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice'))], 'required': [('l10n_latam_country_code', '=', 'EC'), ('type', 'in', ('out_invoice', 'out_refund', 'in_invoice')), ('l10n_ec_authorization_type', '=', 'own')]}"
 						options="{'no_create': True, 'no_open': True}"/>
 					<field name="l10n_ec_authorization"
 						attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('in_invoice', 'in_refund'))]}"/>
@@ -22,8 +23,12 @@
             	<xpath expr="//button[@name='open_reconcile_view']" position="after">
             	
             	
-	            	<button name="view_credit_note" string="Notas de crédito" type="object" icon="fa-files-o"
-						attrs="{'invisible': ['|', '|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('out_invoice')), ('reversal_move_id', '=', [])]}"/>
+	            	<button name="view_credit_note" type="object" icon="fa-files-o"
+						attrs="{'invisible': ['|', '|', ('l10n_latam_country_code', '!=', 'EC'),
+						('type', 'not in', ('out_invoice')),
+						('refund_count', '=', 0)]}">
+						<field name="refund_count" widget="statinfo" string="Refund invoice"/>
+					</button>
 						
 						
 	            </xpath>
