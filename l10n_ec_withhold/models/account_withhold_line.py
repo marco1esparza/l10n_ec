@@ -33,12 +33,17 @@ class L10nEcAccountWithholdLine(models.Model):
             'amount': amount,
             })
     
-    tax_id = fields.Many2one('account.tax', string='Taxes',
-        index=True, ondelete="restrict",
-        required=True,
+    tax_id = fields.Many2one(
+        'account.tax',
+        string='Taxes',
+        index=True,
+        ondelete='restrict'
         )
-    account_id = fields.Many2one('account.account', string='Account',
-        index=True, ondelete="restrict",
+    account_id = fields.Many2one(
+        'account.account', 
+        string='Account',
+        index=True,
+        ondelete='restrict',
         )
     invoice_id = fields.Many2one(
         'account.move',
@@ -52,10 +57,18 @@ class L10nEcAccountWithholdLine(models.Model):
         string='Amount',
         currency_field='company_currency_id',
         )
-    company_id = fields.Many2one(related='move_id.company_id', store=True, readonly=True)
-    company_currency_id = fields.Many2one(related='company_id.currency_id', string='Company Currency',
-        readonly=True, store=True,
-        help='Utility field to express amount currency')
+    company_id = fields.Many2one(
+        related='move_id.company_id',
+        store=True,
+        readonly=True
+        )
+    company_currency_id = fields.Many2one(
+        related='company_id.currency_id',
+        string='Company Currency',
+        readonly=True,
+        store=True,
+        help='Utility field to express amount currency'
+        )
     move_id = fields.Many2one(
         'account.move',
         string='Journal Entry',
