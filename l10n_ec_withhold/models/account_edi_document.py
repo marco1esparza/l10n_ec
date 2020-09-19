@@ -13,17 +13,18 @@ from odoo.addons.l10n_ec_edi.models.common_methods import clean_xml, validate_xm
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
     
+    #TODO jm: revisar el xml de la retencion electronica se cambio un poco el diseno
     def _l10n_ec_generate_request_xml_file(self):
         '''
         Escribe el archivo xml request en el campo designado para ello
         '''
         res = super(AccountEdiDocument, self)._l10n_ec_generate_request_xml_file()
         #generamos y validamos el documento
-        if self.move_id.type in ('entry') and self.move_id.withhold_type == 'supplier' and self.move_id.l10n_latam_document_type_id.code in ['07']:
+        if self.move_id.type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']:
             etree_content = self._l10n_ec_get_xml_request_for_withhold()
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
-                if self.move_id.type in ('entry') and self.move_id.withhold_type == 'supplier' and self.move_id.l10n_latam_document_type_id.code in ['07']: #Retenciones en compras
+                if self.move_id.type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']: #Retenciones en compras
                     validate_xml_vs_xsd(xml_content, XSD_SRI_100_RETENCION)
             except ValueError: 
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
@@ -66,7 +67,7 @@ class AccountEdiDocument(models.Model):
                 elif abs(percentage) == 100.0:
                     code = 3
             if not code:
-                raise ValidationError('El impuesto "%s" no tiene definido ningun codigo.' % line.tax_line_id.name)
+                raise ValidationError('El impuesto "%s" no tiene definido ningun codigo.' % line.tax_id.name)
             return code
 
         # INICIO CREACION DE LA RETENCION
@@ -112,15 +113,15 @@ class AccountEdiDocument(models.Model):
         detalles = etree.SubElement(withhold, 'impuestos')        
         for line in self.move_id.l10n_ec_withhold_line_ids:
             detalle_data = []
-            porc_ret = abs(line.tax_line_id.amount)
-            type_ec = line.tax_line_id.tax_group_id.l10n_ec_type
-            tax_code = line.tax_line_id.l10n_ec_code_base or line.tax_line_id.l10n_ec_code_applied or line.tax_line_id.l10n_ec_code_ats
+            porc_ret = abs(line.tax_id.amount)
+            type_ec = line.tax_id.tax_group_id.l10n_ec_type
+            tax_code = line.tax_id.l10n_ec_code_ats
             impuesto = self.create_SubElement(detalles, 'impuesto')
             detalle_data.append(('codigo', get_electronic_tax_type_code(type_ec)))
             detalle_data.append(('codigoRetencion', get_electronic_tax_code(type_ec, porc_ret, tax_code)))
-            detalle_data.append(('baseImponible', line.tax_base_amount))
+            detalle_data.append(('baseImponible', line.base))
             detalle_data.append(('porcentajeRetener', '{0:.2f}'.format(porc_ret)))
-            detalle_data.append(('valorRetenido', round(line.credit, 2)))
+            detalle_data.append(('valorRetenido', round(line.amount, 2)))
             detalle_data.append(('codDocSustento', line.move_id.l10n_latam_document_type_id.code))
             detalle_data.append(('numDocSustento', line.move_id.l10n_latam_document_number.replace('-','')))
             detalle_data.append(('fechaEmisionDocSustento', datetime.strftime(line.move_id.invoice_date,'%d/%m/%Y')))            

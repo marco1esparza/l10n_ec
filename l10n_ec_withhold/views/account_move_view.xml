@@ -36,7 +36,7 @@
 			</xpath>			
 			<xpath expr="//field[@name='invoice_date']" position="after">
 				<field name="invoice_date" string="Withhold Date" options="{'datepicker': {'warn_future': true}}"
-					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}"/>
+					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])], 'required': [('l10n_ec_withhold_type', 'in', ['out_withhold', 'in_withhold'])]}"/>
 			</xpath>
 			<xpath expr="//field[@name='l10n_latam_document_type_id']" position="after">
             		<field name="l10n_ec_printer_id"
@@ -63,6 +63,13 @@
 		                    <field name="amount"/>
 		                </tree>
 					</field>
+					<group class="oe_subtotal_footer oe_right">
+						<field name="l10n_ec_total_base_iva"/>
+						<field name="l10n_ec_total_iva"/>
+						<field name="l10n_ec_total_base_renta"/>
+						<field name="l10n_ec_total_renta"/>						
+						<field name="l10n_ec_total" class="oe_subtotal_footer_separator"/>
+					</group>
 				</page>				
 				<page id="invoice_tab" string="Invoices" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
 					<group>
