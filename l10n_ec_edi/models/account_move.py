@@ -103,20 +103,19 @@ class AccountMove(models.Model):
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
         res = super(AccountMove, self).post()
-        for invoice in self:
-            if invoice.l10n_latam_country_code == 'EC':
-                invoice._l10n_ec_validate_number()
-                if invoice.edi_document_ids.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
-                    if not invoice.company_id.vat:
-                        raise ValidationError(u'Please setup your VAT number in the company form')
-                    if not invoice.company_id.street:
-                        raise ValidationError(u'Please setup the your company address in the company form')
-                    if not invoice.l10n_ec_printer_id.printer_point_address:
-                        raise ValidationError(u'Please setup the printer point address, in Accounting / Settings / Printer Points')
-                    #needed to print offline RIDE and populate XML request
-                    invoice.edi_document_ids._l10n_ec_set_access_key()
-                    self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
-                    invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
+        for invoice in self.filtered(lambda x: x.l10n_latam_country_code == 'EC' and x.l10n_latam_use_documents):
+            invoice._l10n_ec_validate_number()
+            if invoice.edi_document_ids.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
+                if not invoice.company_id.vat:
+                    raise ValidationError(u'Please setup your VAT number in the company form')
+                if not invoice.company_id.street:
+                    raise ValidationError(u'Please setup the your company address in the company form')
+                if not invoice.l10n_ec_printer_id.printer_point_address:
+                    raise ValidationError(u'Please setup the printer point address, in Accounting / Settings / Printer Points')
+                #needed to print offline RIDE and populate XML request
+                invoice.edi_document_ids._l10n_ec_set_access_key()
+                self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
+                invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
     
     def view_credit_note(self):
