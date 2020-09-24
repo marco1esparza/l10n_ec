@@ -646,7 +646,6 @@ class AccountEdiDocument(models.Model):
             #Cuando el documento ya existe en el SRI, aunque con errores
             raise ValidationError(str(response.autorizaciones.autorizacion[0].mensajes))
         return state, response
-
     
     def _l10n_ec_open_connection_sri(self, mode='autorization'):
         '''
