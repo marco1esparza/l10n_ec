@@ -51,7 +51,7 @@
 					<field name="l10n_ec_withhold_origin_ids" invisible="1"/>
 					<field name="l10n_ec_withhold_line_ids" nolabel="0"
 						context="{'l10n_ec_withhold_origin_ids': l10n_ec_withhold_origin_ids}"
-						attrs="{'readonly':[('state','!=','draft')]}">
+						attrs="{'readonly':['|', ('state','!=','draft'), ('l10n_ec_withhold_type', 'in', ['in_withhold'])]}">
 						<tree editable="bottom">
 		                    <field name="company_id" invisible="1"/>
 							<field name="tax_id"
