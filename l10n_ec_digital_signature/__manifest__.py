@@ -4,6 +4,7 @@
 {
     'name': 'SRI XAdES Digital Signature',
     'version': '1.0',
+    'summary': 'Trescloud\'s Digital Signature with Python 3',
     'category': 'Localization',
     'description': '''            
         Característica: 
