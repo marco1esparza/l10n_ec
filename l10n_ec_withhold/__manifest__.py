@@ -36,5 +36,6 @@
         'views/account_move_view.xml',
         'views/account_journal_view.xml',
     ],
-    'installable': True
+    'installable': True,
+    'auto_install': True,
 }
