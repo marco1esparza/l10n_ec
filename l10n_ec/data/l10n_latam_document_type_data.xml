@@ -16,7 +16,7 @@
 
 		<record id="ec_03" model="l10n_latam.document.type">
 			<field name="code">07</field>
-			<field name="name">Comprobante de Retención de Venta</field>
+			<field name="name">Retención de Venta</field>
 			<field name="report_name">Comprobante de Retención</field>
 			<field name="doc_code_prefix">Ret.</field>
 			<field name="l10n_ec_require_vat">True</field>
@@ -107,7 +107,7 @@
 
 		<record id="ec_11" model="l10n_latam.document.type">
 			<field name="code">07</field>
-			<field name="name">Comprobante de Retención de Compra</field>
+			<field name="name">Retención de Compra</field>
 			<field name="report_name">Comprobante de Retención</field>
 			<field name="doc_code_prefix">Ret.</field>
 			<field name="sequence">60</field>
