@@ -29,14 +29,14 @@ class AccountEdiFormat(models.Model):
         :returns:       True if the EDI must be generated, False otherwise.
         """
         self.ensure_one()
-        if invoice.l10n_latam_country_code == 'EC' and self.code == 'l10n_ec_tax_authority':
+        if invoice.country_code == 'EC' and self.code == 'l10n_ec_tax_authority':
             is_required_for_invoice = False
             #Facturas de venta
             if invoice.l10n_latam_document_type_id.code in ['18']:
                 if invoice.l10n_ec_printer_id.allow_electronic_document:
                     is_required_for_invoice = True
             #NC en ventas
-            if invoice.type == 'out_refund' and invoice.l10n_latam_document_type_id.code in ['04']:
+            if invoice.move_type == 'out_refund' and invoice.l10n_latam_document_type_id.code in ['04']:
                 if invoice.l10n_ec_printer_id.allow_electronic_document:
                     is_required_for_invoice = True
             return is_required_for_invoice 
@@ -66,7 +66,7 @@ class AccountEdiFormat(models.Model):
 
     def _is_embedding_to_invoice_pdf_needed(self):
         self.ensure_one()
-        return False if self.l10n_latam_country_code == 'EC' else super()._is_embedding_to_invoice_pdf_needed()
+        return False if self.code == 'l10n_ec_tax_authority' else super()._is_embedding_to_invoice_pdf_needed()
 
     def _post_invoice_edi(self, invoices, test_mode=False):
         """ Create the file content representing the invoice (and calls web services if necessary).

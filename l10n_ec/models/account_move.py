@@ -10,15 +10,15 @@ class AccountMove(models.Model):
     _inherit='account.move'
     
     def _get_l10n_latam_documents_domain(self):
-        #Filter document types according to ecuadorian type
+        #Filter document types according to ecuadorian move_type
         domain = super(AccountMove, self)._get_l10n_latam_documents_domain()
-        if self.l10n_latam_country_code == 'EC':
-            if self.type in ['out_invoice']:
+        if self.country_code == 'EC':
+            if self.move_type in ['out_invoice']:
                 domain.extend([('l10n_ec_type', '=', 'out_invoice')])
-            if self.type in ['out_refund']:
+            if self.move_type in ['out_refund']:
                 domain.extend([('l10n_ec_type', '=', 'out_refund')])
-            if self.type in ['in_invoice']:
+            if self.move_type in ['in_invoice']:
                 domain.extend([('l10n_ec_type', '=', 'in_invoice')])
-            if self.type in ['in_refund']:
+            if self.move_type in ['in_refund']:
                 domain.extend([('l10n_ec_type', '=', 'in_refund')])
         return domain

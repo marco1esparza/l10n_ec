@@ -25,7 +25,7 @@ class AccountMoveLine(models.Model):
                 
         vat_withhold_tax = False
         profit_withhold_tax = False
-        if self.move_id.l10n_latam_country_code == 'EC':
+        if self.move_id.country_code == 'EC':
             if self.move_id.is_purchase_document(include_receipts=True):
                 if not self.exclude_from_invoice_tab: #just regular invoice lines
                     if self.move_id.l10n_latam_document_type_id.l10n_ec_apply_withhold: #compute withholds
