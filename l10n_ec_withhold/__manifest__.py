@@ -5,6 +5,7 @@
     'name': 'Retenciones ecuatorianas',
     'version': '1.0',
     'category': 'Localization',
+    'summary': 'SRI electronic withholds, sales withholds, etc',
     'description': '''
         Característica:
             Agrega las características básicas para la emisión de Retenciones en ventas y compras.
@@ -13,11 +14,6 @@
             Registro de retenciones en facturas de clientes emitidas por los clientes. Generación de
             retenciones para facturas de proveedores, impresión, eliminación y anulación de retenciones.
         
-        Autores:
-            Ing. Andres Calle
-            Ing. Patricio Rangles
-            Ing. José Miguel Rivero
-            Ing. Santiago Orozco
     ''',
     'author': 'TRESCLOUD',
     'maintainer': 'TRESCLOUD CIA. LTDA.',

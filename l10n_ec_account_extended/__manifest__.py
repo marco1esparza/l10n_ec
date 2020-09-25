@@ -4,6 +4,7 @@
 {
     'name': 'Extras Contables para Ecuador',
     'version': '1.5',
+    'summary': 'Even easier Accounting by Trescloud',
     'category': 'Localization',
     'description': '''         
         - Validaciones extras, para que su auxiliar contable no cometa errores
@@ -17,7 +18,6 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
-        #'object_merger',
         'l10n_ec_edi'
     ],   
     'data': [
@@ -29,4 +29,5 @@
         'views/res_partner_view.xml',
     ],
     'installable': True,
+    'application': True,
 }

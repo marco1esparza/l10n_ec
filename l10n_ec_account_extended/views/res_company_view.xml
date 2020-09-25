@@ -10,7 +10,6 @@
 				<field name="l10n_ec_fallback_profit_withhold_goods"/>
 				<field name="l10n_ec_fallback_profit_withhold_services"/>
 				<field name="l10n_ec_profit_withhold_tax_credit_card"/>
-				<field name="l10n_ec_profit_withhold_tax_debit_card"/>
 	   		</xpath>
 		</field>
 	</record>

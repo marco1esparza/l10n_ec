@@ -5,6 +5,36 @@ from odoo.exceptions import ValidationError
 from odoo.tools import float_is_zero, float_compare
 
 
+class AccountMove(models.Model):
+    _inherit='account.move'
+
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        # OVERRIDE to recompute taxes
+        res = super(AccountMove, self)._onchange_partner_id()
+        self._l10n_ec_onchange_tax_dependecies()
+        return res
+    
+    @api.onchange("fiscal_position_id","l10n_latam_document_type_id",
+                  "l10n_ec_fiscal","l10n_ec_payment_method_id")
+    def _l10n_ec_onchange_tax_dependecies(self):
+        #triger recompute of profit withhold for purchase invoice
+        #TODO: Recompute separately profit withhold and vat withhold
+        self.ensure_one()
+        res = {}
+        if not self.l10n_latam_country_code == 'EC':
+            return res
+        if not self.state == 'draft':
+            return res
+        if not self.type == 'in_invoice':
+            return res
+        for line in self.invoice_line_ids:
+            taxes = line._get_computed_taxes()
+            #line.tax_ids = [(6, 0, taxes.ids)]
+            line.tax_ids = taxes
+        return res
+
 class AccountMoveLine(models.Model):
     _inherit='account.move.line'
 
@@ -29,30 +59,26 @@ class AccountMoveLine(models.Model):
             if self.move_id.is_purchase_document(include_receipts=True):
                 if not self.exclude_from_invoice_tab: #just regular invoice lines
                     if self.move_id.l10n_latam_document_type_id.l10n_ec_apply_withhold: #compute withholds
-
                         company_id = self.move_id.company_id
                         fiscal_postition_id = self.move_id.fiscal_position_id
                         tax_groups = super_tax_ids.mapped('tax_group_id').mapped('l10n_ec_type')
 
                         #compute vat withhold
                         if 'vat12' in tax_groups or 'vat14' in tax_groups:
-                            if self.product_id.type or 'no-product' in ['consu']:
+                            if not self.product_id or self.product_id.type in ['consu']:
                                 vat_withhold_tax = fiscal_postition_id.l10n_ec_vat_withhold_goods
-                            else: #no product
+                            else: #services
                                 vat_withhold_tax = fiscal_postition_id.l10n_ec_vat_withhold_services
                         #compute profit withhold
-                        if self.move_id.l10n_ec_payment_method_id.code in ['18','19']:
-                            #payment with credit card or gift card retains 0%
+                        if self.move_id.l10n_ec_payment_method_id.code in ['16','18','19']:
+                            #payment with debit card, credit card or gift card retains 0%
                             profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
-                        elif self.move_id.l10n_ec_payment_method_id.code in ['16']:
-                            #payment with debit card retains 0%
-                            profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_debit_card
                         elif self.partner_id.property_l10n_ec_profit_withhold_tax_id:
                             profit_withhold_tax = self.partner_id.property_l10n_ec_profit_withhold_tax_id
                         elif 'withhold_income_tax' in tax_groups:
                             pass #keep the taxes coming from product.product... for now
                         else: #if not any withhold tax then fallback
-                            if self.product_id.type == 'service':
+                            if self.product_id and self.product_id.type == 'service':
                                 profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_services
                             else:
                                 profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_goods
@@ -66,3 +92,7 @@ class AccountMoveLine(models.Model):
                 super_tax_ids += profit_withhold_tax
         return super_tax_ids
     
+
+    #TODO validar un impuesto por grupo de impuesto por linea
+    #TODO validar que tenga retencion en la renta para docs previstos
+    #TODO 
