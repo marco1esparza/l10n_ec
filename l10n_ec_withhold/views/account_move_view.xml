@@ -96,16 +96,6 @@
 					</group>
 				</page>
 			</xpath>
-			<!--  
-			<xpath expr="//page[@id='invoice_tab']" position="attributes">
-				<attribute name="attrs">{'invisible': ['|', ('type','=','entry'), ('l10n_latam_document_type_code','=','07')]}</attribute>
-			</xpath>
-			-->
-			<!-- #TODO JOSE, la pestaña de asiento contable se oculta solo en compras 
-			<xpath expr="//page[@id='aml_tab']" position="attributes">
-				<attribute name="attrs">{'invisible': [('l10n_latam_document_type_code','=','07')]}</attribute>
-			</xpath>
-			-->
             <field name="invoice_origin" position="after">
 				<field name="l10n_ec_withhold_count" readonly="1" groups="base.group_no_one"/>
 				<field name="l10n_ec_withhold_type" readonly="1" groups="base.group_no_one"/>
