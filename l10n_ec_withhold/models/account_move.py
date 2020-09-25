@@ -232,11 +232,6 @@ class AccountMove(models.Model):
         default_values = self._l10n_ec_prepare_withold_default_values()
         new_move = self.env['account.move'] #this is the new withhold
         new_move = self[0].copy(default=default_values)
-        #TODO: re-implementar las sig lineas aunque va existir un account.withhold.line andres quiere
-        #mantener este vinculo para compras
-#         if self.type == 'in_invoice':
-#             withhold_lines = self.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
-#             withhold_lines.l10n_ec_withhold_out_id = new_move.id
         
         return self.l10n_ec_action_view_withholds()
     
@@ -264,6 +259,20 @@ class AccountMove(models.Model):
                     'l10n_ec_withhold_origin_ids': [(6, 0, self.ids)],
                     'l10n_ec_withhold_type': 'in_withhold',
                 }
+            l10n_ec_withhold_line_ids = []
+            for invoice in self:
+                lines = invoice.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
+                for line in lines:
+                    l10n_ec_withhold_line_ids.append((0, 0, {
+                        'tax_id': line.tax_line_id.id,
+                        'account_id': line.account_id.id,
+                        'invoice_id': invoice.id,
+                        'base': line.tax_base_amount,
+                        'amount': line.credit
+                    }))
+            default_values.update({
+                'l10n_ec_withhold_line_ids': l10n_ec_withhold_line_ids
+            })
         #Ventas
         if self[0].type == 'out_invoice':
             type = 'entry' #'out_refund' #'out_withhold'
@@ -472,13 +481,4 @@ class AccountMove(models.Model):
         store=False, 
         readonly=True, 
         help='Base imponible sugerida (no obligatoria) para retención del IVA'
-        )
-
-
-class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
-    
-    l10n_ec_withhold_out_id = fields.Many2one(
-        'account.move',
-        string='Withhold'
         )
