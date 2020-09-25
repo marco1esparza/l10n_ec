@@ -4,7 +4,7 @@
 {
     'name': 'Facturas ecuatorianas',
     'version': '1.1',
-    'category': 'Ecuadorian Regulations',
+    'category': 'Localization',
     'description': '''
         Característica: 
             Aplica reglas específicas de la facturación en Ecuador.
@@ -21,7 +21,7 @@
             Ing. José Miguel Rivero
             Ing. Santiago Orozco        
     ''',
-    'author': 'TRESCLOUD CIA LTDA',
+    'author': 'TRESCLOUD',
     'maintainer': 'TRESCLOUD CIA. LTDA.',
     'website': 'http://www.trescloud.com',
     'license': 'OEEL-1',

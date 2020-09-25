@@ -372,15 +372,15 @@ class AccountMoveLine(models.Model):
             total_discount = 0.0
             if line.discount:
                 if line.tax_ids:
-                    taxes_res = line.tax_ids._origin.compute_all(self.l10n_latam_price_unit,
-                        quantity=self.quantity, currency=self.currency_id, product=self.product_id, partner=self.partner_id, is_refund=self.move_id.type in ('out_refund', 'in_refund'))
-                    total_discount = taxes_res['total_excluded'] - self.l10n_latam_price_subtotal    
+                    taxes_res = line.tax_ids._origin.compute_all(line.l10n_latam_price_unit,
+                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.type in ('out_refund', 'in_refund'))
+                    total_discount = taxes_res['total_excluded'] - line.l10n_latam_price_subtotal    
                 else:
-                    total_discount = (self.quantity * self.l10n_latam_price_unit) - self.l10n_latam_price_subtotal
+                    total_discount = (line.quantity * line.l10n_latam_price_unit) - line.l10n_latam_price_subtotal
                 #In case of multi currency, round before it's use for computing debit credit
-                if self.currency_id:
-                    total_discount = self.currency_id.round(total_discount)
-            self.l10n_ec_total_discount = total_discount 
+                if line.currency_id:
+                    total_discount = line.currency_id.round(total_discount)
+            line.l10n_ec_total_discount = total_discount 
 
     #Columns
     l10n_ec_total_discount = fields.Monetary(

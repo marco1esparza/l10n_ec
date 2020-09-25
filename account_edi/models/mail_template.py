@@ -6,7 +6,7 @@ from odoo import api, models
 class MailTemplate(models.Model):
     _inherit = "mail.template"
 
-    def generate_email(self, res_ids, fields):
+    def generate_email(self, res_ids, fields = None):
         res = super().generate_email(res_ids, fields)
 
         multi_mode = True

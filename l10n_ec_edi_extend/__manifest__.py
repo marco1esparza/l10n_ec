@@ -4,7 +4,7 @@
 {
     'name': 'Facturas ecuatorianas extend',
     'version': '1.0',
-    'category': 'Ecuadorian Regulations',
+    'category': 'Localization',
     'description': '''        
         Autores:
             Ing. Andres Calle
