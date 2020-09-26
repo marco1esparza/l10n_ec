@@ -96,6 +96,10 @@
 					</group>
 				</page>
 			</xpath>
+			<xpath expr="//field[@name='to_check']" position="after">
+                <field name="edi_document_ids" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
+                <field name="edi_state" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
+            </xpath>
             <field name="invoice_origin" position="after">
 				<field name="l10n_ec_withhold_count" readonly="1" groups="base.group_no_one"/>
 				<field name="l10n_ec_withhold_type" readonly="1" groups="base.group_no_one"/>
