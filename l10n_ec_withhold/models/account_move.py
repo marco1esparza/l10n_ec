@@ -69,6 +69,8 @@ class AccountMove(models.Model):
                         raise ValidationError(u'Debe ingresar al menos un impuesto para aprobar la retención.')
                     if withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_ec_total == 0.0:
                         raise ValidationError(u'La cantidad de la retención debe ser mayor a cero.')
+                    if any(invoice.state not in ['posted'] for invoice in withhold.l10n_ec_withhold_origin_ids):
+                        raise ValidationError(u'Solo se puede registrar retenciones sobre facturas abiertas o pagadas.')
                     withhold.l10n_ec_validate_accounting_parameters() #validaciones generales
                     withhold.l10n_ec_validate_related_invoices(withhold.l10n_ec_withhold_origin_ids) # Checks on invoice records
                     #delete account.move.lines for re-posting scenario in sale withholds and purchase withholds
@@ -78,20 +80,20 @@ class AccountMove(models.Model):
                     if withhold.l10n_ec_withhold_type == 'out_withhold':
                         #Se verifica que el monto total de iva o renta por factura no sobrepase la base gravable
                         for invoice in withhold.l10n_ec_withhold_origin_ids:
-                            total_base_iva = 0.0
-                            iva_lines = self.env['l10n_ec.account.withhold.line'].search([('move_id','=',withhold.id), ('invoice_id','=',invoice.id), ('tax_id.tax_group_id.l10n_ec_type','=','withhold_vat')])
-                            for iva_line in iva_lines:
-                                total_base_iva += iva_line.base
+                            total_base_vat = 0.0
+                            vat_lines = self.env['l10n_ec.account.withhold.line'].search([('move_id','=',withhold.id), ('invoice_id','=',invoice.id), ('tax_id.tax_group_id.l10n_ec_type','=','withhold_vat')])
+                            for vat_line in vat_lines:
+                                total_base_vat += vat_line.base
                             precision = self.env.user.company_id.currency_id.decimal_places
-                            diff_base_iva = float_compare(total_base_iva, invoice.l10n_ec_vat_doce_subtotal, precision_digits=precision)
-                            if diff_base_iva > 0:
+                            diff_base_vat = float_compare(total_base_vat, invoice.l10n_ec_vat_doce_subtotal, precision_digits=precision)
+                            if diff_base_vat > 0:
                                 raise ValidationError(u'La base imponible de la retención de iva es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
-                            total_base_renta = 0.0
-                            renta_lines = self.env['l10n_ec.account.withhold.line'].search([('move_id','=',withhold.id), ('invoice_id','=',invoice.id), ('tax_id.tax_group_id.l10n_ec_type','=','withhold_income_tax')])
-                            for renta_line in renta_lines:
-                                total_base_renta += renta_line.base
-                            diff_base_renta = float_compare(total_base_renta, invoice.amount_untaxed, precision_digits=precision)
-                            if diff_base_renta > 0:
+                            total_base_profit = 0.0
+                            profit_lines = self.env['l10n_ec.account.withhold.line'].search([('move_id','=',withhold.id), ('invoice_id','=',invoice.id), ('tax_id.tax_group_id.l10n_ec_type','=','withhold_income_tax')])
+                            for profit_line in profit_lines:
+                                total_base_profit += profit_line.base
+                            diff_base_profit = float_compare(total_base_profit, invoice.amount_untaxed, precision_digits=precision)
+                            if diff_base_profit > 0:
                                 raise ValidationError(u'La base imponible de la retención de renta es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)                            
                         if withhold.l10n_ec_withhold_line_ids:
                             #create the account.move.lines
@@ -214,6 +216,12 @@ class AccountMove(models.Model):
             if self.type == 'entry' and self.l10n_ec_withhold_type == 'in_withhold' and self.l10n_latam_document_type_id.code in ['07'] and self.l10n_ec_printer_id.allow_electronic_document:
                 return True
         return res
+
+    def generate_zero_entry(self, taxes_map_entry):
+        '''
+        It allows generating zero entries when the tax amount is zero
+        '''
+        return taxes_map_entry
     
     def l10n_ec_add_withhold(self):
         #Creates a withhold linked to selected invoices
@@ -224,8 +232,6 @@ class AccountMove(models.Model):
                 raise ValidationError(u'The selected document type does not support withholds')
             if len(self) > 1 and invoice.type != 'out_invoice':
                 raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
-            if not invoice.state in ['posted']: #TODO JOSE: Moverla al flujo de validación de la retención, esta es mejor allá
-                raise ValidationError(u'Solo se puede registrar retenciones sobre facturas abiertas o pagadas.')
         if len(list(set(self.mapped('commercial_partner_id')))) > 1:
             raise ValidationError(u'Las facturas seleccionadas no pertenecen al mismo cliente.')
         self = self.with_context(include_business_fields=False) #don't copy sale/purchase links
@@ -246,7 +252,10 @@ class AccountMove(models.Model):
                  ('code', '=', '07'),
                  ('l10n_ec_type', '=', 'in_withhold'),
                  ], order="sequence asc", limit=1)
-            journal_id = self.env.ref('l10n_ec_withhold.withhold_purchase').id #TODO JOSE, hacerlo en base al códio de diario, RVNTA
+            journal_id = False
+            journals = self.env['account.journal'].search([('code', '=', 'RCMPR')])
+            if journals:
+                journal_id = journals[0].id
             default_values = {
                     #'ref': '%s, %s' % (move.name, self.reason) if self.reason else move.name,
                     'invoice_date': False,
@@ -262,7 +271,7 @@ class AccountMove(models.Model):
                 }
             l10n_ec_withhold_line_ids = []
             for invoice in self:
-                lines = invoice.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax'])
+                lines = invoice.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax']).sorted(key=lambda l: l.tax_line_id.sequence)                
                 for line in lines:
                     l10n_ec_withhold_line_ids.append((0, 0, {
                         'tax_id': line.tax_line_id.id,
@@ -283,7 +292,10 @@ class AccountMove(models.Model):
                  ('code', '=', '07'),
                  ('l10n_ec_type', '=', 'out_withhold'),
                  ], order="sequence asc", limit=1)
-            journal_id = self.env.ref('l10n_ec_withhold.withhold_sale').id #TODO JOSE, hacerlo en base al códio de diario, RVNTA
+            journal_id = False
+            journals = self.env['account.journal'].search([('code', '=', 'RVNTA')])
+            if journals:
+                journal_id = journals[0].id
             default_values = {
                     #'ref': '%s, %s' % (move.name, self.reason) if self.reason else move.name,
                     'invoice_date': False,
@@ -335,23 +347,23 @@ class AccountMove(models.Model):
         '''
         res = super(AccountMove, self)._compute_total_invoice_ec()
         for invoice in self:
-            l10n_ec_total_iva = 0.0
-            l10n_ec_total_renta = 0.0
-            l10n_ec_total_base_iva = 0.0
-            l10n_ec_total_base_renta = 0.0
+            l10n_ec_vat_withhold = 0.0
+            l10n_ec_profit_withhold = 0.0
+            l10n_ec_total_base_vat = 0.0
+            l10n_ec_total_base_profit = 0.0
             for line in invoice.l10n_ec_withhold_line_ids:
                 if line.tax_id.tax_group_id:
                     if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_vat']:
-                        l10n_ec_total_iva += line.amount
-                        l10n_ec_total_base_iva += line.base
+                        l10n_ec_vat_withhold += line.amount
+                        l10n_ec_total_base_vat += line.base
                     if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_tax']:
-                        l10n_ec_total_renta += line.amount
-                        l10n_ec_total_base_renta += line.base
-            invoice.l10n_ec_total_iva = l10n_ec_total_iva
-            invoice.l10n_ec_total_renta = l10n_ec_total_renta
-            invoice.l10n_ec_total_base_iva = l10n_ec_total_base_iva
-            invoice.l10n_ec_total_base_renta = l10n_ec_total_base_renta
-            invoice.l10n_ec_total = l10n_ec_total_iva + l10n_ec_total_renta
+                        l10n_ec_profit_withhold += line.amount
+                        l10n_ec_total_base_profit += line.base
+            invoice.l10n_ec_vat_withhold = l10n_ec_vat_withhold
+            invoice.l10n_ec_profit_withhold = l10n_ec_profit_withhold
+            invoice.l10n_ec_total_base_vat = l10n_ec_total_base_vat
+            invoice.l10n_ec_total_base_profit = l10n_ec_total_base_profit
+            invoice.l10n_ec_total = l10n_ec_vat_withhold + l10n_ec_profit_withhold
         return res
     
     def _l10n_ec_allow_withhold(self):
@@ -427,7 +439,7 @@ class AccountMove(models.Model):
         help='Link to invoices related to this withhold'
         )
     #subtotals
-    l10n_ec_total_iva = fields.Monetary( #TODO JOSE, cambiarle a l10n_ec_vat_withhold
+    l10n_ec_vat_withhold = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total IVA',  
         method=True, 
@@ -435,7 +447,7 @@ class AccountMove(models.Model):
         readonly=True, 
         help='Total IVA value of withhold'
         )
-    l10n_ec_total_renta = fields.Monetary( #TODO JOSE, cambiarle a l10n_ec_profit_withhold
+    l10n_ec_profit_withhold = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total RENTA', 
         method=True, 
@@ -443,7 +455,7 @@ class AccountMove(models.Model):
         readonly=True, 
         help='Total renta value of withhold'
         )    
-    l10n_ec_total_base_iva = fields.Monetary(
+    l10n_ec_total_base_vat = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total Base IVA',  
         method=True, 
@@ -451,7 +463,7 @@ class AccountMove(models.Model):
         readonly=True, 
         help='Total base IVA of withhold'
         )
-    l10n_ec_total_base_renta = fields.Monetary(
+    l10n_ec_total_base_profit = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total Base RENTA', 
         method=True, 
