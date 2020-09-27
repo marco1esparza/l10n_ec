@@ -48,7 +48,7 @@ class AccountMove(models.Model):
         for withhold in self:
             if withhold.l10n_latam_country_code == 'EC':
                 if withhold.type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold', 'out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
-                    #delete account.move.lines for re-posting scenario in sale withholds
+                    #delete account.move.lines for re-posting scenario in sale withholds and purchase withholds
                     withhold.line_ids.unlink()
         return res
     
@@ -71,7 +71,7 @@ class AccountMove(models.Model):
                         raise ValidationError(u'La cantidad de la retención debe ser mayor a cero.')
                     withhold.l10n_ec_validate_accounting_parameters() #validaciones generales
                     withhold.l10n_ec_validate_related_invoices(withhold.l10n_ec_withhold_origin_ids) # Checks on invoice records
-                    #delete account.move.lines for re-posting scenario in sale withholds
+                    #delete account.move.lines for re-posting scenario in sale withholds and purchase withholds
                     withhold.line_ids.unlink()
                     #Retenciones en ventas
                     partner = withhold.partner_id.commercial_partner_id
@@ -135,21 +135,22 @@ class AccountMove(models.Model):
                     if withhold.l10n_ec_withhold_type == 'in_withhold':
                         if withhold.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted'):
                             raise ValidationError(u'Solamente se puede tener una retención aprobada por factura de proveedor.')
-                        vals = {
-                            'name': withhold.name,
-                            'move_id': withhold.id,
-                            'partner_id': partner.id,
-                            'account_id': partner.property_account_payable_id.id,
-                            'date_maturity': False,
-                            'quantity': 0.0,
-                            'amount_currency': 0.0, #Withholds are always in company currency
-                            'price_unit': 0.0,
-                            'debit': 0.0,
-                            'credit': 0.0,
-                            'tax_base_amount': 0.0,
-                            'is_rounding_line': False
-                        }
-                        account_move_line_obj.with_context(check_move_validity=False).create(vals)
+                        for line in withhold.l10n_ec_withhold_line_ids:
+                            vals = {
+                                'name': withhold.name,
+                                'move_id': withhold.id,
+                                'partner_id': partner.id,
+                                'account_id': line.account_id.id,
+                                'date_maturity': False,
+                                'quantity': 0.0,
+                                'amount_currency': 0.0, #Withholds are always in company currency
+                                'price_unit': 0.0,
+                                'debit': 0.0,
+                                'credit': 0.0,
+                                'tax_base_amount': 0.0,
+                                'is_rounding_line': False
+                            }
+                            account_move_line_obj.with_context(check_move_validity=False).create(vals)
 
     def l10n_ec_validate_accounting_parameters(self):
         '''
