@@ -339,12 +339,12 @@ msgid "This field determines if the document is alarmed, it will be used in the 
 msgstr "Este campo determina si el documento esta alarmado, va se usado en los filtros"
 
 #. module: ecua_tax_withhold
-#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_iva
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_vat
 msgid "Total IVA value of withhold"
 msgstr "Valor total de IVA retenido"
 
 #. module: ecua_tax_withhold
-#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_total_renta
+#: model:ir.model.fields,field_description:ecua_tax_withhold.field_account_withhold_total_profit
 msgid "Total RENTA"
 msgstr "Total RENTA"
 
@@ -354,17 +354,17 @@ msgid "Total Withhold"
 msgstr "Total retención"
 
 #. module: ecua_tax_withhold
-#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_base_iva
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_base_vat
 msgid "Total base IVA of withhold"
 msgstr "Base total retención de IVA"
 
 #. module: ecua_tax_withhold
-#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_base_renta
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_base_profit
 msgid "Total base renta of withhold"
 msgstr "Base total retención de RENTA"
 
 #. module: ecua_tax_withhold
-#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_renta
+#: model:ir.model.fields,help:ecua_tax_withhold.field_account_withhold_total_profit
 msgid "Total renta value of withhold"
 msgstr "Valor total de retención de RENTA"
 
