@@ -4,7 +4,8 @@
 {
     'name': 'Facturas ecuatorianas',
     'version': '1.1',
-    'category': 'Ecuadorian Regulations',
+    'summary': 'SRI electronic documents, invoices, credit notes, debit notes, RIDEs, tributary documents, printer points, etc',
+    'category': 'Localization',
     'description': '''
         Característica: 
             Aplica reglas específicas de la facturación en Ecuador.
@@ -21,7 +22,7 @@
             Ing. José Miguel Rivero
             Ing. Santiago Orozco        
     ''',
-    'author': 'TRESCLOUD CIA LTDA',
+    'author': 'TRESCLOUD',
     'maintainer': 'TRESCLOUD CIA. LTDA.',
     'website': 'http://www.trescloud.com',
     'license': 'OEEL-1',
@@ -49,5 +50,6 @@
         'views/account_report.xml',
         'views/report_invoice.xml',
     ],
-    'installable': True
+    'installable': True,
+    'auto_install': True,
 }

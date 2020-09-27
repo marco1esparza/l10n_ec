@@ -28,8 +28,6 @@ class Company(models.Model):
     #Columns
     l10n_ec_legal_name = fields.Char(
         string=u'Nombre legal',
-        track_visibility=u'onchange',
-        required=True,
         help=u'El nombre de la compañía a ser enviado al SRI en documentos electrónicos, 103, 104, ATS, etc. Utilizado también para enviarlo al IESS en archivos CSV.'
         )
     l10n_ec_environment_type = fields.Selection(
@@ -46,12 +44,10 @@ class Company(models.Model):
     )
     l10n_ec_special_contributor_number = fields.Char(
         string='Special Tax Contributor Number',
-        track_visibility='onchange',
         help='If set, your company is considered a Special Tax Contributor, this number will be printed in electronic invoices and reports'
         )
     l10n_ec_forced_accounting = fields.Boolean(
         string='Forced to Keep Accounting Books',
-        track_visibility='onchange',
         default=True,
         help='If set you are obligated to keep accounting, it will be used for printing electronic invoices and reports'
         )
