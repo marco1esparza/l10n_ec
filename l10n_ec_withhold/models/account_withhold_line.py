@@ -7,9 +7,6 @@ from odoo.exceptions import UserError, ValidationError
 
 class L10nEcAccountWithholdLine(models.Model):
     _name = 'l10n_ec.account.withhold.line'
-
-
-    #TODO JOSE, implementar un default_get o algo así que alimente el invoice_id cuando solo hay una factura en la cabecera
     
     @api.onchange('invoice_id','tax_id')
     def onchange_invoice_id(self):
@@ -33,6 +30,7 @@ class L10nEcAccountWithholdLine(models.Model):
             'amount': amount,
             })
     
+    #Columns
     tax_id = fields.Many2one(
         'account.tax',
         string='Taxes',

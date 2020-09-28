@@ -11,7 +11,7 @@ class AccountTax(models.Model):
     def _compute_amount(self, base_amount, price_unit, quantity=1.0, product=None, partner=None):
         #alter base amount for computing withholds over vat, jsut before computation
         if self.tax_group_id.l10n_ec_type == 'withhold_vat':
-            vat_percentage = 0.12 #TODO Agregar soporte para IVA 14%
+            vat_percentage = 0.12 #TODO v15 Agregar soporte para IVA 14%
             base_amount = base_amount * vat_percentage
         res = super(AccountTax, self)._compute_amount(base_amount, price_unit, quantity, product, partner)
         return res
@@ -23,7 +23,7 @@ class AccountTax(models.Model):
         if withhold_vat:
             for tax in res['taxes']:
                 if tax['id'] == withhold_vat.id:
-                    vat_percentage = 0.12 #TODO Agregar soporte para IVA 14%
+                    vat_percentage = 0.12 #TODO v15 Agregar soporte para IVA 14%
                     if withhold_vat.company_id.tax_calculation_rounding_method == 'round_globally':
                         tax['base'] = tax['base'] * vat_percentage
                     else: #redondeo por línea

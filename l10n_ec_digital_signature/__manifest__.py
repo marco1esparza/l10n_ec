@@ -4,7 +4,8 @@
 {
     'name': 'SRI XAdES Digital Signature',
     'version': '1.0',
-    'category': 'Ecuadorian Regulations',
+    'summary': 'Trescloud\'s Digital Signature with Python 3',
+    'category': 'Localization',
     'description': '''            
         Característica: 
             Este modulo agrega la logica necesaria de la firma electronica requerida por el SRI. 
@@ -12,7 +13,7 @@
         Funcionalidad:
             Permite integrar la firma digital requerida por el SRI basada en el estandar XAdES
     ''',
-    'author': 'TRESCLOUD CIA LTDA',
+    'author': 'TRESCLOUD',
     'maintainer': 'TRESCLOUD CIA. LTDA.',
     'website': 'http://www.trescloud.com',
     'license': 'OEEL-1',
@@ -22,5 +23,6 @@
     ],    
     'data': [
     ],
-    'installable': True
+    'installable': True,
+    'auto_install': True,
 }
