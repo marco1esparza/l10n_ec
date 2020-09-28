@@ -12,8 +12,7 @@ from odoo.addons.l10n_ec_edi.models.common_methods import clean_xml, validate_xm
 
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
-    
-    #TODO jm: revisar el xml de la retencion electronica se cambio un poco el diseno
+
     def _l10n_ec_generate_request_xml_file(self):
         '''
         Escribe el archivo xml request en el campo designado para ello
@@ -122,9 +121,9 @@ class AccountEdiDocument(models.Model):
             detalle_data.append(('baseImponible', line.base))
             detalle_data.append(('porcentajeRetener', '{0:.2f}'.format(porc_ret)))
             detalle_data.append(('valorRetenido', round(line.amount, 2)))
-            detalle_data.append(('codDocSustento', line.move_id.l10n_latam_document_type_id.code))
-            detalle_data.append(('numDocSustento', line.move_id.l10n_latam_document_number.replace('-','')))
-            detalle_data.append(('fechaEmisionDocSustento', datetime.strftime(line.move_id.invoice_date,'%d/%m/%Y')))            
+            detalle_data.append(('codDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_type_id.code))
+            detalle_data.append(('numDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_number.replace('-','')))
+            detalle_data.append(('fechaEmisionDocSustento', datetime.strftime(line.move_id.l10n_ec_withhold_origin_ids[0].invoice_date,'%d/%m/%Y')))
             self.create_TreeElements(impuesto, detalle_data)
         infoAdicional = self.create_SubElement(withhold, 'infoAdicional')
         if get_invoice_partner_data['invoice_email']:
