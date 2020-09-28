@@ -1,70 +1,70 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data>
+	<data>
 
-    	<record id="view_move_invoice_customization_form" model="ir.ui.view">
-            <field name="name">view.move.invoice.customization.form</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="l10n_latam_invoice_document.view_move_form"/>
-            <field name="arch" type="xml">
-            	<xpath expr="//field[@name='l10n_latam_document_type_id']" position="after">
+		<record id="view_move_invoice_customization_form" model="ir.ui.view">
+			<field name="name">view.move.invoice.customization.form</field>
+			<field name="model">account.move</field>
+			<field name="inherit_id" ref="l10n_latam_invoice_document.view_move_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='l10n_latam_document_type_id']" position="after">
 					<field name="l10n_ec_authorization_type" invisible="1"/>
-            		<field name="l10n_ec_printer_id"
-						attrs="{'invisible': ['|', '|',  ('l10n_latam_country_code', '!=', 'EC'), ('l10n_ec_authorization_type', '!=', 'own'), ('type', 'not in', ('out_invoice', 'out_refund', 'in_invoice'))], 'required': [('l10n_latam_country_code', '=', 'EC'), ('type', 'in', ('out_invoice', 'out_refund', 'in_invoice')), ('l10n_ec_authorization_type', '=', 'own')]}"
-						options="{'no_create': True, 'no_open': True}"/>
+					<field name="l10n_ec_printer_id"
+						   attrs="{'invisible': ['|', '|',  ('country_code', '!=', 'EC'), ('l10n_ec_authorization_type', '!=', 'own'), ('move_type', 'not in', ('out_invoice', 'out_refund', 'in_invoice'))], 'required': [('country_code', '=', 'EC'), ('move_type', 'in', ('out_invoice', 'out_refund', 'in_invoice')), ('l10n_ec_authorization_type', '=', 'own')]}"
+						   options="{'no_create': True, 'no_open': True}"/>
 					<field name="l10n_ec_authorization"
-						attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('in_invoice', 'in_refund'))]}"/>
-            	</xpath>
-            	<xpath expr="//field[@name='l10n_latam_document_number']" position="after">
+						   attrs="{'invisible': ['|', ('country_code', '!=', 'EC'), ('move_type', 'not in', ('in_invoice', 'in_refund'))]}"/>
+				</xpath>
+				<xpath expr="//field[@name='l10n_latam_document_number']" position="after">
 					<field name="l10n_ec_payment_method_id"
-						attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('out_invoice','in_invoice'))]}"
-						options="{'no_create': True, 'no_open': True}"/>
-            	</xpath>
-            	<xpath expr="//button[@name='open_reconcile_view']" position="after">
-            	
-            	
-	            	<button name="view_credit_note" type="object" icon="fa-files-o"
-						attrs="{'invisible': ['|', '|', ('l10n_latam_country_code', '!=', 'EC'),
-						('type', 'not in', ('out_invoice')),
+						   attrs="{'invisible': ['|', ('country_code', '!=', 'EC'), ('move_type', 'not in', ('out_invoice','in_invoice'))]}"
+						   options="{'no_create': True, 'no_open': True}"/>
+				</xpath>
+				<xpath expr="//button[@name='open_reconcile_view']" position="after">
+
+
+					<button name="view_credit_note" type="object" icon="fa-files-o"
+							attrs="{'invisible': ['|', '|', ('country_code', '!=', 'EC'),
+						('move_type', 'not in', ('out_invoice')),
 						('refund_count', '=', 0)]}">
 						<field name="refund_count" widget="statinfo" string="Refund invoice"/>
 					</button>
-						
-						
-	            </xpath>
-            	<xpath expr="//page[@name='other_info']" position="after">
-	          		<page name="payment_terms" string="Términos de pago" attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'EC'), ('type', 'not in', ('out_invoice'))]}">
+
+
+				</xpath>
+				<xpath expr="//page[@name='other_info']" position="after">
+					<page name="payment_terms" string="Términos de pago" attrs="{'invisible': ['|', ('country_code', '!=', 'EC'), ('move_type', 'not in', ('out_invoice'))]}">
 						<group col="4" colspan="4" string="Detalle Forma de Pago SRI">
-						<p class="oe_grey" nolabel="1">
-							Resolución SRI "NAC-DGERCGC16-00000247", el medio y la forma de pago prevista 
-							deben ser registradas en la factura. Esta sección tiene fines "informativos" en 
-							documentos impresos y documentos electrónicos. No tienen efecto contable.</p>
-							</group>
+							<p class="oe_grey" nolabel="1">
+								Resolución SRI "NAC-DGERCGC16-00000247", el medio y la forma de pago prevista
+								deben ser registradas en la factura. Esta sección tiene fines "informativos" en
+								documentos impresos y documentos electrónicos. No tienen efecto contable.</p>
+						</group>
 						<group col="4" colspan="4">
-			 				<field name="l10n_ec_invoice_payment_method_ids" force_save="1" readonly="1" nolabel="1">
-			                	<tree string="Payment Method">
-			                        <field name="payment_method_id"/>
-			                        <field name="days_payment_term"/>
-			                        <field name="percentage" sum="Total Percentage"/>
-			                        <field name="amount" sum="Total amount"/>
-			                   	</tree>
-			 				</field>
-			 			</group>
-		 				<group col="4" colspan="4">
+							<field name="l10n_ec_invoice_payment_method_ids" force_save="1" readonly="1" nolabel="1">
+								<tree string="Payment Method">
+									<field name="payment_method_id"/>
+									<field name="days_payment_term"/>
+									<field name="percentage" sum="Total Percentage"/>
+									<field name="amount" sum="Total amount"/>
+								</tree>
+							</field>
+						</group>
+						<group col="4" colspan="4">
 							<group col="2" colspan="2">
-		                  		<field name="l10n_ec_effective_method"/>
-		                  		<field name="l10n_ec_electronic_method"/>
-		                  	</group>
-		                  	<group col="2" colspan="2">
-		                  		<field name="l10n_ec_card_method"/>
-		                  		<field name="l10n_ec_other_method"/>
-		                  	</group>
+								<field name="l10n_ec_effective_method"/>
+								<field name="l10n_ec_electronic_method"/>
+							</group>
+							<group col="2" colspan="2">
+								<field name="l10n_ec_card_method"/>
+								<field name="l10n_ec_other_method"/>
+							</group>
 						</group>
 						<field name="reversal_move_id" attrs="{'invisible': True}"/>
-	                </page>
-	            </xpath>
-            </field>
-        </record>
+					</page>
+				</xpath>
+			</field>
+		</record>
 
-    </data>
+	</data>
 </odoo>

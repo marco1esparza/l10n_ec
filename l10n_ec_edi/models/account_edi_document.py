@@ -56,7 +56,7 @@ class AccountEdiDocument(models.Model):
     def _process_jobs(self, to_process):
         super(AccountEdiDocument, self)._process_jobs(to_process)
         for key, documents in to_process:
-            self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.l10n_latam_country_code == 'EC'))
+            self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.country_code == 'EC'))
     
     def _l10n_ec_set_access_key(self):
         #writes de access key of the document
@@ -179,13 +179,13 @@ class AccountEdiDocument(models.Model):
     def _l10n_ec_generate_request_xml_file(self):
         #generates and validates an xml request to later be sent to SRI
         self.ensure_one()
-        if self.move_id.type in ('out_invoice', 'out_refund') and self.move_id.l10n_latam_document_type_id.code in ['18', '04']:
+        if self.move_id.move_type in ('out_invoice', 'out_refund') and self.move_id.l10n_latam_document_type_id.code in ['18', '04']:
             etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
-                if self.move_id.type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18']:
+                if self.move_id.move_type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18']:
                     validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
-                elif self.move_id.type in ('out_refund') and self.move_id.l10n_latam_document_type_id.code in ['04']:
+                elif self.move_id.move_type in ('out_refund') and self.move_id.l10n_latam_document_type_id.code in ['04']:
                     validate_xml_vs_xsd(xml_content, XSD_SRI_110_NOTA_CREDITO)
             except ValueError: 
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
@@ -195,14 +195,14 @@ class AccountEdiDocument(models.Model):
     @api.model
     def _l10n_ec_get_xml_request_for_sale_invoice(self):
         # INICIO CREACION DE FACTURA
-        type = self.move_id.type
+        move_type = self.move_id.move_type
         document_type = self.move_id.l10n_latam_document_type_id
-        if type == 'out_invoice':
+        if move_type == 'out_invoice':
             if document_type.code in ('18', '41'):
                 factura = etree.Element('factura', {'id': 'comprobante', 'version': '1.1.0'})
 #             elif document_type.code == '05':
 #                 return self._getNotaDebito()
-        elif type == 'out_refund':
+        elif move_type == 'out_refund':
             factura = etree.Element('notaCredito', {'id': 'comprobante', 'version': '1.1.0'})
 #         elif type == 'in_invoice':
 #             if document_type.code in ('03','41'):
@@ -220,11 +220,11 @@ class AccountEdiDocument(models.Model):
             ('ruc', self.move_id.company_id.partner_id.vat),
             ('claveAcceso', self.l10n_ec_access_key)
         ])
-        if type == 'out_invoice':
+        if move_type == 'out_invoice':
             infoTribElements.append(('codDoc', '01'))
-        elif type == 'out_refund':
+        elif move_type == 'out_refund':
             infoTribElements.append(('codDoc',document_type.code))
-#         elif type == 'in_invoice':
+#         elif move_type == 'in_invoice':
 #             if document_type.code in ('03','41'):
 #                 infoTribElements.append(('codDoc', '03'))
         infoTribElements.extend([
@@ -656,7 +656,7 @@ class AccountEdiDocument(models.Model):
               autorization -> conecta al WS que permite consultar el estado de los documentos
               reception -> conecta al WS que permite enviar documentos    
         '''
-        environment_type = self.move_id.company_id.l10n_ec_environment_type
+        environment_type = self.move_id.company_id.l10n_ec_environment_type != '0' or '1'
         if environment_type == '1': #SRI Test Environment
             if mode == 'autorization':
                 WSDL_URL = ELECTRONIC_SRI_WSDL_AUTORIZATION_TEST_OFFLINE

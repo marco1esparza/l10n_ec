@@ -48,7 +48,7 @@ class AccountMove(models.Model):
         for withhold in self:
             if withhold.l10n_latam_country_code == 'EC':
                 if withhold.type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold', 'out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
-                    #delete account.move.lines for re-posting scenario in sale withholds and purchase withholds
+                    #delete account.move.lines for re-posting scenario in sale withholds
                     withhold.line_ids.unlink()
         return res
     
@@ -58,7 +58,7 @@ class AccountMove(models.Model):
         '''
         account_move_line_obj =  self.env['account.move.line'] 
         for withhold in self:
-            if withhold.l10n_latam_country_code == 'EC':
+            if withhold.country_code == 'EC':
                 if withhold.type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold', 'out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
                     electronic = False
                     if withhold.l10n_ec_printer_id and withhold.l10n_ec_printer_id.allow_electronic_document:
@@ -212,7 +212,7 @@ class AccountMove(models.Model):
         '''
         '''
         res = super(AccountMove, self).get_is_edi_needed(edi_format)
-        if self.l10n_latam_country_code == 'EC':
+        if self.country_code == 'EC':
             if self.type == 'entry' and self.l10n_ec_withhold_type == 'in_withhold' and self.l10n_latam_document_type_id.code in ['07'] and self.l10n_ec_printer_id.allow_electronic_document:
                 return True
         return res
@@ -222,11 +222,11 @@ class AccountMove(models.Model):
         It allows generating zero entries when the tax amount is zero
         '''
         return taxes_map_entry
-    
+
     def l10n_ec_add_withhold(self):
         #Creates a withhold linked to selected invoices
         for invoice in self:
-            if not invoice.l10n_latam_country_code == 'EC':
+            if not invoice.country_code == 'EC':
                 raise ValidationError(u'Withhold documents are only aplicable for Ecuador')
             if not invoice.l10n_ec_allow_withhold:
                 raise ValidationError(u'The selected document type does not support withholds')
@@ -271,7 +271,7 @@ class AccountMove(models.Model):
                 }
             l10n_ec_withhold_line_ids = []
             for invoice in self:
-                lines = invoice.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax']).sorted(key=lambda l: l.tax_line_id.sequence)                
+                lines = invoice.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax']).sorted(key=lambda l: l.tax_line_id.sequence)
                 for line in lines:
                     l10n_ec_withhold_line_ids.append((0, 0, {
                         'tax_id': line.tax_line_id.id,
@@ -370,8 +370,8 @@ class AccountMove(models.Model):
         #shows/hide "ADD WITHHOLD" button on invoices
         for invoice in self:
             result = False
-            if invoice.l10n_latam_country_code == 'EC' and invoice.state == 'posted':
-                if invoice.l10n_latam_document_type_id.code in ['01','03','18']: #TODO ANDRES añadir codigos, revisar proyecto X
+            if invoice.country_code == 'EC' and invoice.state == 'posted':
+                if invoice.l10n_latam_document_type_id.code in ['01','03','18']: #TODO añadir codigos, revisar proyecto X
                     result = True
             invoice.l10n_ec_allow_withhold = result
     

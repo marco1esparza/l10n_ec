@@ -14,13 +14,13 @@ class AccountMove(models.Model):
     @api.onchange('l10n_ec_printer_id')
     def onchange_l10n_ec_printer_id(self):
         #Resets the document number when the printer point is changed
-        if self.l10n_latam_country_code == 'EC':
+        if self.country_code == 'EC':
             self.l10n_latam_document_number = False
 
     @api.onchange('l10n_latam_document_number')
     def onchange_l10n_latam_document_number(self):
         #Autofills document number when needed
-        if self.l10n_latam_country_code == 'EC' and self.l10n_latam_document_number:
+        if self.country_code == 'EC' and self.l10n_latam_document_number:
             regex = '(\d{3})+\-(\d{3})+\-(\d{9})'
             if re.match(regex, self.l10n_latam_document_number):
                 return #if matches ###-###-######### do nothing
@@ -61,7 +61,7 @@ class AccountMove(models.Model):
         Computamos las formas de pago en base a los plazos de pago
         '''
         self.ensure_one() #se ha probado el programa para una sola factura a la vez
-        if self.type in 'out_invoice' and self.l10n_latam_country_code == 'EC':
+        if self.move_type in 'out_invoice' and self.country_code == 'EC':
             in_draft_mode = self != self._origin
             existing_move_lines = self.line_ids.filtered(lambda line: (line.account_id.user_type_id.type or '') in ('receivable'))
             existing_lines_index = 0
@@ -103,7 +103,7 @@ class AccountMove(models.Model):
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
         res = super(AccountMove, self).post()
-        for invoice in self.filtered(lambda x: x.l10n_latam_country_code == 'EC' and x.l10n_latam_use_documents):
+        for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
             invoice._l10n_ec_validate_number()
             if invoice.edi_document_ids.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
                 if not invoice.company_id.vat:
@@ -133,10 +133,10 @@ class AccountMove(models.Model):
             printer_id = self.env['l10n_ec.printer.id'].browse(self._context['default_l10n_ec_printer_id'])
             return printer_id
         printer_id = False
-        company_id = self.env.company #self.l10n_latam_country_code is still empty
-        if company_id.country_id.code == 'EC':
-            type = self._context.get('default_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
-            if type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
+        company_id = self.env.company
+        if company_id.country_code == 'EC':
+            move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
+            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
                 #regular account.move doesn't need a printer point
                 printer_id = self.env.user.l10n_ec_printer_id.id
                 if not printer_id: #search first printer point
@@ -154,10 +154,10 @@ class AccountMove(models.Model):
             payment_method_id = self.env['l10n_ec.payment.method'].browse(self._context['default_l10n_ec_payment_method_id'])
             return payment_method_id
         payment_method_id = False
-        company_id = self.env.company #self.l10n_latam_country_code is still empty
-        if company_id.country_id.code == 'EC':
-            type = self._context.get('default_type',False) #self.type is not yet populated
-            if type in ['out_invoice', 'in_invoice']:
+        company_id = self.env.company
+        if company_id.country_code == 'EC':
+            move_type = self._context.get('default_move_type',False) #self.type is not yet populated
+            if move_type in ['out_invoice', 'in_invoice']:
                 payment_method_id = self.env['l10n_ec.payment.method'].search([], order="sequence asc", limit=1)
         return payment_method_id
         
@@ -171,7 +171,7 @@ class AccountMove(models.Model):
             electronic_method = 0.0
             card_method = 0.0
             other_method = 0.0
-            for line in invoice.filtered(lambda x:x.l10n_latam_country_code == 'EC').l10n_ec_invoice_payment_method_ids:
+            for line in invoice.filtered(lambda x:x.country_code == 'EC').l10n_ec_invoice_payment_method_ids:
                 if line.payment_method_id.code == '01': #Efectivo
                     effective_method += line.amount
                 elif line.payment_method_id.code == '17': #Dinero Electrónico
@@ -185,16 +185,12 @@ class AccountMove(models.Model):
             invoice.l10n_ec_card_method = card_method
             invoice.l10n_ec_other_method = other_method
 
-    def _get_name_invoice_report(self, report_xml_id):
+    def _get_name_invoice_report(self):
         self.ensure_one()
-        if self.l10n_latam_use_documents and self.company_id.country_id.code == 'EC' \
-                and self.type in ('out_invoice', 'out_refund') and self.l10n_latam_document_type_id.code in ['04', '18']:
-            custom_report = {
-                'account.report_invoice_document_with_payments': 'l10n_ec_edi.report_invoice_document_with_payments',
-                'account.report_invoice_document': 'l10n_ec_edi.report_invoice_document',
-            }
-            return custom_report.get(report_xml_id) or report_xml_id
-        return super()._get_name_invoice_report(report_xml_id)
+        if self.l10n_latam_use_documents and self.country_code == 'EC' \
+                and self.move_type in ('out_invoice', 'out_refund') and self.l10n_latam_document_type_id.code in ['04', '18']:
+            return 'l10n_ec_edi.report_invoice_document'
+        return super(AccountMove, self)._get_name_invoice_report()
     
     def _compute_total_invoice_ec(self):
         '''
@@ -229,7 +225,7 @@ class AccountMove(models.Model):
     def _get_document_type_sequence(self):
         """ Return the match sequences for the given journal and invoice """
         self.ensure_one()
-        if self.l10n_latam_country_code == 'EC':
+        if self.country_code == 'EC':
             res = self.l10n_ec_printer_id.sequence_ids.filtered(
                 lambda x: x.l10n_latam_document_type_id == self.l10n_latam_document_type_id)
             return res
@@ -247,7 +243,7 @@ class AccountMove(models.Model):
             invoice.refund_count = len(invoice.reversal_move_id)
     
     def button_draft(self):
-        if self.l10n_latam_country_code == 'EC':
+        if self.country_code == 'EC':
             for move in self:
                 if move.edi_document_ids:
                     raise UserError(_(
