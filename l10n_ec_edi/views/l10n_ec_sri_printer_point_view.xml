@@ -14,14 +14,6 @@
 							<field name="printer_point_address"/>
 							<field name="allow_electronic_document"/>
 							<field name="company_id" groups="base.group_multi_company" required="1"/>
-							<field name="sequence_ids" nolabel="1" colspan="2">
-								<tree create="false" delete="false" editable="top" default_order="id">
-									<field name="name" readonly="True" string="Sequence"/>
-									<field name="prefix" readonly="True"/>
-									<field name="number_next_actual"/>
-									<field name="id" invisible="1"/>
-								</tree>
-							</field>
 						</group>
 					</group>
 				</sheet>
