@@ -224,19 +224,28 @@ class AccountMove(models.Model):
             invoice.l10n_ec_base_tax_free = l10n_ec_base_tax_free
             invoice.l10n_ec_base_not_subject_to_vat = l10n_ec_base_not_subject_to_vat
 
-    def _get_document_type_sequence(self):
-        """ Return the match sequences for the given journal and invoice """
-        self.ensure_one()
-        if self.country_code == 'EC':
-            res = self.l10n_ec_printer_id.sequence_ids.filtered(
-                lambda x: x.l10n_latam_document_type_id == self.l10n_latam_document_type_id)
-            return res
-        return super()._get_document_type_sequence()
+    def _get_formatted_sequence(self, number=0):
+        return "%s-%09d" % (self.l10n_ec_printer_id.name, number)
 
-    @api.depends('l10n_latam_document_type_id', 'l10n_ec_printer_id')
-    def _compute_l10n_latam_sequence(self):
-        #Recompute sequence when l10n_ec_printer_id changes
-        super()._compute_l10n_latam_sequence()
+    def _get_starting_sequence(self):
+        """ If use documents then will create a new starting sequence using the document type code prefix and the
+        journal document number with a 8 padding number """
+        if self.journal_id.l10n_latam_use_documents and self.env.company.country_id == self.env.ref('base.ec'):
+            if self.l10n_ec_printer_id:
+                return self._get_formatted_sequence()
+        return super()._get_starting_sequence()
+
+    def _get_last_sequence_domain(self, relaxed=False):
+        if self.company_id.country_id == self.env.ref('base.ec') and self.l10n_latam_use_documents:
+            if self.l10n_latam_document_type_id and self.l10n_ec_printer_id:
+                where_string = "WHERE l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND l10n_ec_printer_id = %(l10n_ec_printer_id)s"
+                param = {'l10n_latam_document_type_id': self.l10n_latam_document_type_id.id or 0,
+                         'l10n_ec_printer_id': self.l10n_ec_printer_id.id or 0}
+            else:
+                where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
+        else:
+            where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
+        return where_string, param
 
     @api.depends('reversal_move_id')
     def _get_refund_count(self):
