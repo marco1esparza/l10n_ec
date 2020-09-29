@@ -97,15 +97,17 @@ class AccountMove(models.Model):
                 new_payment_method_lines += candidate
             self.l10n_ec_invoice_payment_method_ids -= existing_payment_method_lines - new_payment_method_lines
     
-    def post(self):
+    def _post(self, soft=True):
         '''
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
-        res = super(AccountMove, self).post()
+        posted = super()._post(soft)
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
             invoice._l10n_ec_validate_number()
-            if invoice.edi_document_ids.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
+            #in v14 we also have edi document "factur-x" for interchanging docs among differente odoo instances
+            ec_edi_document = invoice.edi_document_ids.filtered(lambda r: r.edi_format_id.code == 'l10n_ec_tax_authority')
+            if ec_edi_document.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
                 if not invoice.company_id.vat:
                     raise ValidationError(u'Please setup your VAT number in the company form')
                 if not invoice.company_id.street:
@@ -114,9 +116,9 @@ class AccountMove(models.Model):
                     raise ValidationError(u'Please setup the printer point address, in Accounting / Settings / Printer Points')
                 #needed to print offline RIDE and populate XML request
                 invoice.edi_document_ids._l10n_ec_set_access_key()
-                self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
+                self.l10n_ec_authorization = ec_edi_document.l10n_ec_access_key #for auditing manual changes
                 invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
-        return res
+        return posted
     
     def view_credit_note(self):
         [action] = self.env.ref('account.action_move_out_refund_type').read()
