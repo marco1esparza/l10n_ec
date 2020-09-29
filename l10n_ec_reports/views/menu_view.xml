@@ -2,25 +2,23 @@
 <odoo>
     <data>
 
-         <record id="TODO_action_implementar_para_cada_menu" model="ir.actions.act_window">
+		<record id="TODO_action_implementar_para_cada_menu" model="ir.actions.act_window">
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.print.journal</field>
             <field name="view_mode">form</field>
         </record>
 
-        <menuitem id="menu_form_103" name="Formulario 103" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="50"/>
-        
-        <menuitem id="menu_form_104" name="Formulario 104" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="51"/>
-        
-        <menuitem id="menu_form_107" name="Formulario 107 (RDEP)" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="52"/>
-        
-        <menuitem id="menu_form_ats" name="ATS (XML)" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="53"/>
-        
-        <menuitem id="menu_form_a1_sale" name="A1 - Detalle Ventas" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="54"/>
-        
-        <menuitem id="menu_form_a2_withhold" name="A2 - Retenciones Renta por Código" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="55"/>
-        
-        <menuitem id="menu_form_a3_canceled" name="A3 - Documentos Anulados" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="56"/>
+		<menuitem id="menu_form_103" name="Formulario 103" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="50"/>
+		
+		<menuitem id="menu_form_104" name="Formulario 104" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="51"/>
+		
+		<menuitem id="menu_form_107" name="Formulario 107 (RDEP)" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="52"/>
+		
+		<menuitem id="menu_a1_sale" name="A1 - Detalle Ventas" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="54"/>
+		
+		<menuitem id="menu_a2_withhold" name="A2 - Retenciones Renta por Código" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="55"/>
+		
+		<menuitem id="menu_a3_canceled" name="A3 - Documentos Anulados" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="56"/>
 
     </data>
 </odoo>

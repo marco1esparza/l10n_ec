@@ -163,8 +163,8 @@ msgid "Code"
 msgstr ""
 
 #. module: l10n_ec_edi
-#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_partner__l10n_commercial_name
-#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_users__l10n_commercial_name
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_partner__l10n_ec_commercial_name
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_res_users__l10n_ec_commercial_name
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_partner_commercial_name_form
 msgid "Commercial Name"
 msgstr ""
