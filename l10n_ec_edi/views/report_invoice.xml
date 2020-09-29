@@ -103,14 +103,10 @@
             <table name="social_reason" class="table table-condensed w-100" style="font-size:10px;">
                 <tr>
                     <td class="p-1 text-center w-50"><strong>Company Name / Name and Surname: </strong><span t-field="o.partner_id"/></td>
-                    <td class="p-1 text-center w-50"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
-                </tr>
-                <tr>
-                    <td class="p-1"></td>
                     <td class="p-1 text-center w-50"><strong>Invoice Date: </strong><span t-field="o.invoice_date"/></td>
                 </tr>
                 <tr>
-                    <td class="p-1"></td>
+                    <td class="p-1 text-center w-50"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
                     <td class="p-1 text-center w-50"><strong>Due Date: </strong><span t-field="o.invoice_date_due"/></td>
                 </tr>
                 <tr t-if="o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.code == '04'">
@@ -173,7 +169,7 @@
                 </table>
             </div>
             <div class="col-6 pl-5 mt-5">
-                <table class="table table-sm" style="page-break-inside: avoid; font-size:11px;" >
+                <table class="table table-sm" style="page-break-inside: avoid" >
                     <tr class="border-black o_subtotal" style="">
                         <td><strong>Subtotal</strong></td>
                         <td class="text-right">
