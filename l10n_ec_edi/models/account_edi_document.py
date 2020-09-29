@@ -26,37 +26,40 @@ _IRBPNR_CODES = ('irbpnr',)
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
 
-    def send_email_success(self, invoices):
-        for document in invoices.mapped('edi_document_ids'):
-            if document.move_id.partner_id.email and document.state == 'sent':
-                action_invoice_wizard = document.move_id.action_invoice_sent()
-                ctx = action_invoice_wizard["context"]
-                ctx.update(
-                    {
-                        "active_id": document.move_id.id,
-                        "active_ids": document.move_id.ids,
-                        "active_model": "account.move",
-                    }
-                )
-                invoice_wizard = (
-                    self.env[action_invoice_wizard["res_model"]]
-                        .with_context(ctx)
-                        .create({})
-                )
-                invoice_wizard._compute_composition_mode()
-                invoice_wizard.onchange_template_id()
-                invoice_wizard.send_and_print_action()
-            elif not document.move_id.partner_id.email and document.state == 'sent':
-                document.move_id.with_context(no_new_invoice=True).message_post(
-                    body=_(
-                        "The ecuadorian electronic document was successfully created, signed and validated by the tax authority"),
-                    attachment_ids=document.attachment_id.ids,
-                )
+    def send_email_success(self):
+        #Para ecuador enviamos por email el RIDE y el XML
+        self.ensure_one()
+        if self.move_id.partner_id.email and self.state == 'sent':
+            action_invoice_wizard = self.move_id.action_invoice_sent()
+            ctx = action_invoice_wizard["context"]
+            ctx.update(
+                {
+                    "active_id": self.move_id.id,
+                    "active_ids": self.move_id.ids,
+                    "active_model": "account.move",
+                }
+            )
+            invoice_wizard = (
+                self.env[action_invoice_wizard["res_model"]]
+                    .with_context(ctx)
+                    .create({})
+            )
+            invoice_wizard._compute_composition_mode()
+            invoice_wizard.onchange_template_id()
+            invoice_wizard.send_and_print_action()
+        elif not self.move_id.partner_id.email and self.state == 'sent':
+            self.move_id.with_context(no_new_invoice=True).message_post(
+                body=_(
+                    "The ecuadorian electronic document was successfully created, signed and validated by the tax authority"),
+                attachment_ids=self.attachment_id.ids,
+            )
     
     def _process_jobs(self, to_process):
         super(AccountEdiDocument, self)._process_jobs(to_process)
         for key, documents in to_process:
-            self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.country_code == 'EC'))
+            for document in documents:
+                if document.edi_format_id.code == 'l10n_ec_tax_authority':
+                    document.send_email_success()
     
     def _l10n_ec_set_access_key(self):
         #writes de access key of the document
