@@ -33,5 +33,5 @@
         'views/account_journal_view.xml',
     ],
     'installable': True,
-    'auto_install': True,
+    'auto_install': False,
 }

@@ -70,7 +70,7 @@ class AccountEdiDocument(models.Model):
         # Dato para el portal web
         if data_model == 'account.move':
             date = related_document.invoice_date
-            document_type = related_document.type
+            document_type = related_document.move_type
             code_document_type = str(
                 related_document.l10n_latam_document_type_id.code
             )
@@ -82,6 +82,10 @@ class AccountEdiDocument(models.Model):
                 if code_document_type in ('03', '41'):
                     # Liquidacion de compra y reembolso se mapea con codigo '03'
                     code_document_type = '03'
+            else:
+                raise ValidationError(
+                    u'No se ha implementado documentos electronicos para '
+                    u'este tipo de movimiento')
             serie = related_document.l10n_latam_document_number
         else:
             raise ValidationError(
@@ -195,14 +199,14 @@ class AccountEdiDocument(models.Model):
     @api.model
     def _l10n_ec_get_xml_request_for_sale_invoice(self):
         # INICIO CREACION DE FACTURA
-        move_type = self.move_id.move_type
+        type = self.move_id.move_type
         document_type = self.move_id.l10n_latam_document_type_id
-        if move_type == 'out_invoice':
+        if type == 'out_invoice':
             if document_type.code in ('18', '41'):
                 factura = etree.Element('factura', {'id': 'comprobante', 'version': '1.1.0'})
 #             elif document_type.code == '05':
 #                 return self._getNotaDebito()
-        elif move_type == 'out_refund':
+        elif type == 'out_refund':
             factura = etree.Element('notaCredito', {'id': 'comprobante', 'version': '1.1.0'})
 #         elif type == 'in_invoice':
 #             if document_type.code in ('03','41'):
@@ -220,11 +224,11 @@ class AccountEdiDocument(models.Model):
             ('ruc', self.move_id.company_id.partner_id.vat),
             ('claveAcceso', self.l10n_ec_access_key)
         ])
-        if move_type == 'out_invoice':
+        if type == 'out_invoice':
             infoTribElements.append(('codDoc', '01'))
-        elif move_type == 'out_refund':
+        elif type == 'out_refund':
             infoTribElements.append(('codDoc',document_type.code))
-#         elif move_type == 'in_invoice':
+#         elif type == 'in_invoice':
 #             if document_type.code in ('03','41'):
 #                 infoTribElements.append(('codDoc', '03'))
         infoTribElements.extend([
@@ -618,9 +622,13 @@ class AccountEdiDocument(models.Model):
 
     def _l10n_ec_upload_electronic_document(self):
         # Se realiza la firma del documento
+        cert_encripted = self.sudo().move_id.company_id.l10n_ec_digital_cert_id.cert_encripted
+        password_p12 = self.sudo().move_id.company_id.l10n_ec_digital_cert_id.password_p12
+        if not cert_encripted or not password_p12:
+            raise UserError(_("No digital signature found, please upload one at Accounting / Settings / Digital Signatures"))
         signed_xml = self._l10n_ec_sign_digital_xml(self.l10n_ec_access_key,
-                                           self.sudo().move_id.company_id.l10n_ec_digital_cert_id.cert_encripted,
-                                           self.sudo().move_id.company_id.l10n_ec_digital_cert_id.password_p12,
+                                           cert_encripted,
+                                           password_p12,
                                            self.l10n_ec_request_xml_file)
         client = self._l10n_ec_open_connection_sri(mode='reception')
         reply = client.service.validarComprobante(signed_xml)
@@ -656,7 +664,8 @@ class AccountEdiDocument(models.Model):
               autorization -> conecta al WS que permite consultar el estado de los documentos
               reception -> conecta al WS que permite enviar documentos    
         '''
-        environment_type = self.move_id.company_id.l10n_ec_environment_type != '0' or '1'
+        environment_type = self.move_id.company_id.l10n_ec_environment_type
+        #TODO: Implementar environment_type == 0: #Demo
         if environment_type == '1': #SRI Test Environment
             if mode == 'autorization':
                 WSDL_URL = ELECTRONIC_SRI_WSDL_AUTORIZATION_TEST_OFFLINE

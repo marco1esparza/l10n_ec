@@ -115,9 +115,9 @@ class AccountMove(models.Model):
                 if not invoice.l10n_ec_printer_id.printer_point_address:
                     raise ValidationError(u'Please setup the printer point address, in Accounting / Settings / Printer Points')
                 #needed to print offline RIDE and populate XML request
-                invoice.edi_document_ids._l10n_ec_set_access_key()
+                ec_edi_document._l10n_ec_set_access_key()
                 self.l10n_ec_authorization = ec_edi_document.l10n_ec_access_key #for auditing manual changes
-                invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
+                ec_edi_document._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return posted
     
     def view_credit_note(self):
