@@ -19,7 +19,7 @@ _logger = logging.getLogger(__name__)
 from odoo.addons.l10n_ec_reports.models.auxiliar_functions import get_name_only_characters
  
 ATS_FILENAME = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'ats_29_08_2016.xsd')
-#TODO: descomentar la sig linea
+#TODO jm: descomentar la sig linea y hacer que funcione
 #ATS_CONTENT = open(ATS_FILENAME, 'r').read().strip()
  
 #Documentos a reportar al SRI
@@ -134,8 +134,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
  
         razonSocial = doc.createElement('razonSocial')
         main.appendChild(razonSocial)
-        #TODO: borrar la sig linea y descomentar la otra cuando se solvente la falla que tiene el metodo en la line
-        # de codigo return pattern.sub(lambda m: replacements[m.group(0)], text)
+        #TODO jm: borrar la sig linea y descomentar la otra cuando se solvente la falla que tiene el metodo en la linea
+        #de codigo return pattern.sub(lambda m: replacements[m.group(0)], text) del metodo get_name_only_characters
         razonSocial.appendChild(doc.createTextNode(company.l10n_ec_legal_name))
         #razonSocial.appendChild(doc.createTextNode(get_name_only_characters(company.l10n_ec_legal_name)))
  
@@ -147,7 +147,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         main.appendChild(atsmes)
         atsmes.appendChild(doc.createTextNode(mes))
         
-        #TODO: implementar la sig 4 lineas de codigo 
+        #TODO jm: implementar la sig 4 lineas de codigo, se busca la tienda general de la comprania
+        #ahora ese dato lo tenemos a nivel de punto de impresion
 #         suc = self.env['sale.shop'].sudo().search([('company_id','=',self.env.user.company_id.id)])
 #         numEstabRuc = doc.createElement('numEstabRuc')
 #         main.appendChild(numEstabRuc)
@@ -193,12 +194,12 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             ('invoice_date','>=', self.date_start),
             ('invoice_date','<=', self.date_finish)
         ])
-        #TODO evaluar crear otro tipo de documento para las compras al extranjero de servicios
+        #TODO evaluar crear otro tipo de documento para las compras de servicios al extranjero
         foreign_purchase_invoice_ids = account_move_obj.search([
             ('type', 'in', ('in_invoice', 'in_refund')),
             ('state', '=', 'posted'),
             ('l10n_latam_document_type_id.code', 'in', _FOREIGN_PURCHASE_DOCUMENT_CODES),
-            #TODO: implementar la siguiente linea
+            #TODO jm: implementar la siguiente linea, el sri_tax_support_id ya no existe
             #('sri_tax_support_id.code', 'not in', ['06','07']), #no se reportan importaciones de inventario
             ('invoice_date','>=', self.date_start),
             ('invoice_date','<=', self.date_finish)
@@ -212,7 +213,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             compras = doc.createElement('compras')
             main.appendChild(compras)
             for in_inv in purchase_invoice_ids:
-                #TODO: implementar o remover
+                #TODO jm: implementar o remover
 #                 if in_inv.alarmed_document:
 #                     #si la factura tiene novedades agregamos al msg de error
 #                     #ayuda a identificar facturas sin retencion entre otros problemas
@@ -223,7 +224,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
      
                 codSustento = doc.createElement('codSustento')
                 detallecompras.appendChild(codSustento)
-                #TODO: borrar la sig line cuando se descomente e implemente la sig
+                #TODO jm: borrar la sig line cuando se descomente e implemente la sig relacionada con sri_tax_support_id
                 vcodSustento = ''
                 #vcodSustento = in_inv.sri_tax_support_id.code or ''
                 codSustento.appendChild(doc.createTextNode(vcodSustento))
@@ -232,19 +233,20 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
      
                 tpIdProv = doc.createElement('tpIdProv')
                 detallecompras.appendChild(tpIdProv)
-                #TODO: implementar la sig linea
+                #TODO jm: implementar la sig linea, no tenemos transaction_type
                 #tpIdProv.appendChild(doc.createTextNode(in_inv.transaction_type))
      
                 idProv = doc.createElement('idProv')
                 detallecompras.appendChild(idProv)
-                #TODO: implementar la sig linea
+                #TODO jm: implementar la sig linea, todavia no esta implementado el invoice_vat
                 #idProv.appendChild(doc.createTextNode(get_identification(in_inv.invoice_vat)))
                  
                 tipoComprobante = doc.createElement('tipoComprobante')
                 detallecompras.appendChild(tipoComprobante)
                 tipoComprobante.appendChild(doc.createTextNode(in_inv.l10n_latam_document_type_id.code))
      
-                #TODO: implementar la siguiente seccion, tenemos que implementar el transaction_type
+                #TODO jm: implementar la siguiente seccion, tenemos que implementar el transaction_type y related_part
+                #de ser el caso
 #                 natural_sociedad = '02' if in_inv.commercial_partner_id.is_company else '01' #se guarda el valor para usarlo DRY
 #                 #TODO 2: es necesario limpiar los caracteres extraños? se deja para una segunda revision
 #                 transaction_type = get_name_only_characters(in_inv.transaction_type)
@@ -314,9 +316,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 montoIce.appendChild(doc.createTextNode('0.00'))
      
                 montoIva = doc.createElement('montoIva')
-                detallecompras.appendChild(montoIva) 
-                #TODO: implementar el sig campos
-                montoIva.appendChild( doc.createTextNode('{0:.2f}'.format(in_inv.total_iva or 0.00)))
+                detallecompras.appendChild(montoIva)
+                montoIva.appendChild( doc.createTextNode('{0:.2f}'.format(in_inv.l10n_ec_vat_doce_subtotal or 0.00)))
                  
                 # Porcentage de retencion
                 # TODO los codigos de retencion cambiaron, hay que hacer versiones con if por fechas
@@ -363,7 +364,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                     pago_local_extranjero = '02' #no residente
      
                 # Codigo original, tenia un TODO de eliminacion, se lo mantiene por que da error en el codigo
-                # de pago de pais al verificralo con el XSD, ademas asi ha venido trabajando hasta le momento 
+                # de pago de pais al verificarlo con el XSD, ademas asi ha venido trabajando hasta le momento 
                 pago_local_extranjero = '01' # residente!
      
                 pagoLocExt = doc.createElement('pagoLocExt')
@@ -1026,22 +1027,22 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         #TODO v11: Unificar con el metodo get_tax_summary usando un select case y alterando tax_code
         '''
         tax_value = 0.00
-        for tax in invoice.tax_line_ids:
-            if code_tax == tax.tax_id.code_applied: 
-                tax_value += abs(tax.amount)
+        for line in invoice.line_ids:
+            if code_tax == line.tax_line_id.l10n_ec_code_applied: 
+                tax_value += abs(line.credit)
         return tax_value
-# 
-#     @api.model
-#     def _get_total_refund(self, invoice):
-#         '''
-#         Dado un id de factura calcula el valor de reembolso en caso de tenerlo, basado en los documentos ingresados
-#         '''
-#         total_refund = 0.00
-#         if invoice:
-#             for ats_line in invoice.account_refund_client_ids:
-#                 total_refund += ats_line.base_vat_0 + ats_line.base_vat_no0 + ats_line.base_tax_free + ats_line.no_vat_amount
-#         return total_refund
-#     
+ 
+    @api.model
+    def _get_total_refund(self, invoice):
+        '''
+        Dado un id de factura calcula el valor de reembolso en caso de tenerlo, basado en los documentos ingresados
+        '''
+        total_refund = 0.00
+        if invoice:
+            for ats_line in invoice.account_refund_client_ids:
+                total_refund += ats_line.base_vat_0 + ats_line.base_vat_no0 + ats_line.base_tax_free + ats_line.no_vat_amount
+        return total_refund
+     
 #     @api.model
 #     def get_tax_summary(self, invoice):
 #         '''
@@ -1185,7 +1186,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
 #                 subtotal = subtotal * (1 if invoice.type == 'out_invoice' else -1)
 #                 _precalculated['by_shop'][shop_id]['total'] += subtotal
 #                 total += float('{0:.2f}'.format(subtotal))
-#                 #TODO :  compensacion por ley de solidaridad
+#                 #TODO: compensacion por ley de solidaridad
 #                 #Seccion compensacion por ley de solidaridad
 #                 #Debe sumarse las compensaciones en facturas de venta
 #                 #if 'solidarity_compensation' in obj_invoice._columns and invoice.solidarity_compensation != 0.0:
