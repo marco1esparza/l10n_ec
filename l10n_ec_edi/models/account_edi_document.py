@@ -29,6 +29,7 @@ class AccountEdiDocument(models.Model):
     def send_email_success(self):
         #Para ecuador enviamos por email el RIDE y el XML
         self.ensure_one()
+        odoobot = self.env.ref('base.partner_root')
         if self.move_id.partner_id.email and self.state == 'sent':
             action_invoice_wizard = self.move_id.action_invoice_sent()
             ctx = action_invoice_wizard["context"]
@@ -52,6 +53,7 @@ class AccountEdiDocument(models.Model):
                 body=_(
                     "The ecuadorian electronic document was successfully created, signed and validated by the tax authority"),
                 attachment_ids=self.attachment_id.ids,
+                author_id=odoobot.id,
             )
     
     def _process_jobs(self, to_process):
@@ -695,4 +697,5 @@ class AccountEdiDocument(models.Model):
         size=64,
         help='El nombre del archivo XML enviado al proveedor de documentos electronicos, guardado para depuracion',
         )
+    
     
