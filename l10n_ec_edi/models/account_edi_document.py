@@ -26,37 +26,42 @@ _IRBPNR_CODES = ('irbpnr',)
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
 
-    def send_email_success(self, invoices):
-        for document in invoices.mapped('edi_document_ids'):
-            if document.move_id.partner_id.email and document.state == 'sent':
-                action_invoice_wizard = document.move_id.action_invoice_sent()
-                ctx = action_invoice_wizard["context"]
-                ctx.update(
-                    {
-                        "active_id": document.move_id.id,
-                        "active_ids": document.move_id.ids,
-                        "active_model": "account.move",
-                    }
-                )
-                invoice_wizard = (
-                    self.env[action_invoice_wizard["res_model"]]
-                        .with_context(ctx)
-                        .create({})
-                )
-                invoice_wizard._compute_composition_mode()
-                invoice_wizard.onchange_template_id()
-                invoice_wizard.send_and_print_action()
-            elif not document.move_id.partner_id.email and document.state == 'sent':
-                document.move_id.with_context(no_new_invoice=True).message_post(
-                    body=_(
-                        "The ecuadorian electronic document was successfully created, signed and validated by the tax authority"),
-                    attachment_ids=document.attachment_id.ids,
-                )
+    def send_email_success(self):
+        #Para ecuador enviamos por email el RIDE y el XML
+        self.ensure_one()
+        odoobot = self.env.ref('base.partner_root')
+        if self.move_id.partner_id.email and self.state == 'sent':
+            action_invoice_wizard = self.move_id.action_invoice_sent()
+            ctx = action_invoice_wizard["context"]
+            ctx.update(
+                {
+                    "active_id": self.move_id.id,
+                    "active_ids": self.move_id.ids,
+                    "active_model": "account.move",
+                }
+            )
+            invoice_wizard = (
+                self.env[action_invoice_wizard["res_model"]]
+                    .with_context(ctx)
+                    .create({})
+            )
+            invoice_wizard._compute_composition_mode()
+            invoice_wizard.onchange_template_id()
+            invoice_wizard.send_and_print_action()
+        elif not self.move_id.partner_id.email and self.state == 'sent':
+            self.move_id.with_context(no_new_invoice=True).message_post(
+                body=_(
+                    "The ecuadorian electronic document was successfully created, signed and validated by the tax authority"),
+                attachment_ids=self.attachment_id.ids,
+                author_id=odoobot.id,
+            )
     
     def _process_jobs(self, to_process):
         super(AccountEdiDocument, self)._process_jobs(to_process)
         for key, documents in to_process:
-            self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.country_code == 'EC'))
+            for document in documents:
+                if document.edi_format_id.code == 'l10n_ec_tax_authority':
+                    document.send_email_success()
     
     def _l10n_ec_set_access_key(self):
         #writes de access key of the document
@@ -70,7 +75,7 @@ class AccountEdiDocument(models.Model):
         # Dato para el portal web
         if data_model == 'account.move':
             date = related_document.invoice_date
-            document_type = related_document.type
+            document_type = related_document.move_type
             code_document_type = str(
                 related_document.l10n_latam_document_type_id.code
             )
@@ -195,14 +200,14 @@ class AccountEdiDocument(models.Model):
     @api.model
     def _l10n_ec_get_xml_request_for_sale_invoice(self):
         # INICIO CREACION DE FACTURA
-        move_type = self.move_id.move_type
+        type = self.move_id.move_type
         document_type = self.move_id.l10n_latam_document_type_id
-        if move_type == 'out_invoice':
+        if type == 'out_invoice':
             if document_type.code in ('18', '41'):
                 factura = etree.Element('factura', {'id': 'comprobante', 'version': '1.1.0'})
 #             elif document_type.code == '05':
 #                 return self._getNotaDebito()
-        elif move_type == 'out_refund':
+        elif type == 'out_refund':
             factura = etree.Element('notaCredito', {'id': 'comprobante', 'version': '1.1.0'})
 #         elif type == 'in_invoice':
 #             if document_type.code in ('03','41'):
@@ -220,11 +225,11 @@ class AccountEdiDocument(models.Model):
             ('ruc', self.move_id.company_id.partner_id.vat),
             ('claveAcceso', self.l10n_ec_access_key)
         ])
-        if move_type == 'out_invoice':
+        if type == 'out_invoice':
             infoTribElements.append(('codDoc', '01'))
-        elif move_type == 'out_refund':
+        elif type == 'out_refund':
             infoTribElements.append(('codDoc',document_type.code))
-#         elif move_type == 'in_invoice':
+#         elif type == 'in_invoice':
 #             if document_type.code in ('03','41'):
 #                 infoTribElements.append(('codDoc', '03'))
         infoTribElements.extend([
@@ -618,9 +623,13 @@ class AccountEdiDocument(models.Model):
 
     def _l10n_ec_upload_electronic_document(self):
         # Se realiza la firma del documento
+        cert_encripted = self.sudo().move_id.company_id.l10n_ec_digital_cert_id.cert_encripted
+        password_p12 = self.sudo().move_id.company_id.l10n_ec_digital_cert_id.password_p12
+        if not cert_encripted or not password_p12:
+            raise UserError(_("No digital signature found, please upload one at Accounting / Settings / Digital Signatures"))
         signed_xml = self._l10n_ec_sign_digital_xml(self.l10n_ec_access_key,
-                                           self.sudo().move_id.company_id.l10n_ec_digital_cert_id.cert_encripted,
-                                           self.sudo().move_id.company_id.l10n_ec_digital_cert_id.password_p12,
+                                           cert_encripted,
+                                           password_p12,
                                            self.l10n_ec_request_xml_file)
         client = self._l10n_ec_open_connection_sri(mode='reception')
         reply = client.service.validarComprobante(signed_xml)
@@ -656,7 +665,8 @@ class AccountEdiDocument(models.Model):
               autorization -> conecta al WS que permite consultar el estado de los documentos
               reception -> conecta al WS que permite enviar documentos    
         '''
-        environment_type = self.move_id.company_id.l10n_ec_environment_type != '0' or '1'
+        environment_type = self.move_id.company_id.l10n_ec_environment_type
+        #TODO: Implementar environment_type == 0: #Demo
         if environment_type == '1': #SRI Test Environment
             if mode == 'autorization':
                 WSDL_URL = ELECTRONIC_SRI_WSDL_AUTORIZATION_TEST_OFFLINE
@@ -687,4 +697,5 @@ class AccountEdiDocument(models.Model):
         size=64,
         help='El nombre del archivo XML enviado al proveedor de documentos electronicos, guardado para depuracion',
         )
+    
     

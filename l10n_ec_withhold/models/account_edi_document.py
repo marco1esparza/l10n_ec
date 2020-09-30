@@ -19,11 +19,11 @@ class AccountEdiDocument(models.Model):
         '''
         res = super(AccountEdiDocument, self)._l10n_ec_generate_request_xml_file()
         #generamos y validamos el documento
-        if self.move_id.type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']:
+        if self.move_id.move_type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']:
             etree_content = self._l10n_ec_get_xml_request_for_withhold()
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
-                if self.move_id.type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']: #Retenciones en compras
+                if self.move_id.move_type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']: #Retenciones en compras
                     validate_xml_vs_xsd(xml_content, XSD_SRI_100_RETENCION)
             except ValueError: 
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        

@@ -97,15 +97,17 @@ class AccountMove(models.Model):
                 new_payment_method_lines += candidate
             self.l10n_ec_invoice_payment_method_ids -= existing_payment_method_lines - new_payment_method_lines
     
-    def post(self):
+    def _post(self, soft=True):
         '''
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
-        res = super(AccountMove, self).post()
+        posted = super()._post(soft)
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
             invoice._l10n_ec_validate_number()
-            if invoice.edi_document_ids.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
+            #in v14 we also have edi document "factur-x" for interchanging docs among differente odoo instances
+            ec_edi_document = invoice.edi_document_ids.filtered(lambda r: r.edi_format_id.code == 'l10n_ec_tax_authority')
+            if ec_edi_document.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
                 if not invoice.company_id.vat:
                     raise ValidationError(u'Please setup your VAT number in the company form')
                 if not invoice.company_id.street:
@@ -113,10 +115,10 @@ class AccountMove(models.Model):
                 if not invoice.l10n_ec_printer_id.printer_point_address:
                     raise ValidationError(u'Please setup the printer point address, in Accounting / Settings / Printer Points')
                 #needed to print offline RIDE and populate XML request
-                invoice.edi_document_ids._l10n_ec_set_access_key()
-                self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
-                invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
-        return res
+                ec_edi_document._l10n_ec_set_access_key()
+                self.l10n_ec_authorization = ec_edi_document.l10n_ec_access_key #for auditing manual changes
+                ec_edi_document._l10n_ec_generate_request_xml_file() #useful for troubleshooting
+        return posted
     
     def view_credit_note(self):
         [action] = self.env.ref('account.action_move_out_refund_type').read()
@@ -222,19 +224,28 @@ class AccountMove(models.Model):
             invoice.l10n_ec_base_tax_free = l10n_ec_base_tax_free
             invoice.l10n_ec_base_not_subject_to_vat = l10n_ec_base_not_subject_to_vat
 
-    def _get_document_type_sequence(self):
-        """ Return the match sequences for the given journal and invoice """
-        self.ensure_one()
-        if self.country_code == 'EC':
-            res = self.l10n_ec_printer_id.sequence_ids.filtered(
-                lambda x: x.l10n_latam_document_type_id == self.l10n_latam_document_type_id)
-            return res
-        return super()._get_document_type_sequence()
+    def _get_formatted_sequence(self, number=0):
+        return "%s-%09d" % (self.l10n_ec_printer_id.name, number)
 
-    @api.depends('l10n_latam_document_type_id', 'l10n_ec_printer_id')
-    def _compute_l10n_latam_sequence(self):
-        #Recompute sequence when l10n_ec_printer_id changes
-        super()._compute_l10n_latam_sequence()
+    def _get_starting_sequence(self):
+        """ If use documents then will create a new starting sequence using the document type code prefix and the
+        journal document number with a 8 padding number """
+        if self.journal_id.l10n_latam_use_documents and self.env.company.country_id == self.env.ref('base.ec'):
+            if self.l10n_ec_printer_id:
+                return self._get_formatted_sequence()
+        return super()._get_starting_sequence()
+
+    def _get_last_sequence_domain(self, relaxed=False):
+        if self.company_id.country_id == self.env.ref('base.ec') and self.l10n_latam_use_documents:
+            if self.l10n_latam_document_type_id and self.l10n_ec_printer_id:
+                where_string = "WHERE l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND l10n_ec_printer_id = %(l10n_ec_printer_id)s"
+                param = {'l10n_latam_document_type_id': self.l10n_latam_document_type_id.id or 0,
+                         'l10n_ec_printer_id': self.l10n_ec_printer_id.id or 0}
+            else:
+                where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
+        else:
+            where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
+        return where_string, param
 
     @api.depends('reversal_move_id')
     def _get_refund_count(self):

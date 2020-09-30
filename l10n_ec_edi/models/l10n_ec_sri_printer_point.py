@@ -20,7 +20,7 @@ class L10nEcSRIPrinterPoint(models.Model):
         help='This number is assigned by the SRI',
         track_visibility='onchange',
     )
-    
+
     sequence = fields.Integer(default=10,help="The first printer is used by default when creating new invoices, unless specified otherwise in user profile",)
     
     company_id = fields.Many2one('res.company', string='Company', required=True, index=True, default=lambda self: self.env.company)
@@ -32,8 +32,6 @@ class L10nEcSRIPrinterPoint(models.Model):
         track_visibility='onchange',
     )
     
-    sequence_ids = fields.One2many('ir.sequence', 'l10n_ec_printer_id', string="Sequences")
-    
     printer_point_address = fields.Char(string='Printer Point Address', help='This is the address used for invoice reports of this Printer Point')
 
     active = fields.Boolean(
@@ -41,38 +39,6 @@ class L10nEcSRIPrinterPoint(models.Model):
         help="Set active to false to hide the SRI Printer Point without removing it.",
         track_visibility='onchange',
     )
-
-    @api.model
-    def create(self, values):
-        """ Create Document sequences after create the journal """
-        res = super().create(values)
-        res._create_document_sequences()
-        return res
-
-    def _create_document_sequences(self):
-        self.ensure_one()
-        if self.company_id.country_id != self.env.ref('base.ec'):
-            return True
-
-        sequences = self.sequence_ids
-        sequences.unlink()
-
-        # Create Sequences
-        domain = [('country_id.code', '=', 'EC'),
-                  ('l10n_ec_authorization', '=', 'own'),
-                  ('code', '!=', '41'),
-                  ]
-        documents = self.env['l10n_latam.document.type'].search(domain)
-        for document in documents:
-            sequences |= self.env['ir.sequence'].create({
-                'name': '%s - %s' % (document.name, self.name),
-                'implementation': 'no_gap', #to not skip numbers when an error occurs
-                'padding': 9,
-                'prefix': self.name + '-',
-                'l10n_latam_document_type_id': document.id,
-                'l10n_ec_printer_id': self.id,
-            })
-        return sequences
 
     @api.constrains('name')
     def _check_name(self):

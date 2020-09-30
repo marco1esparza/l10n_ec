@@ -104,9 +104,9 @@ class AccountEdiFormat(models.Model):
                                       "En su lugar debe crear un nuevo documento electrónico" % str(self.name)) 
             if invoice.edi_state not in ('to_send'):
                 raise ValidationError("Error, solo se puede enviar al SRI documentos en estado A ENVIAR: Documento" %s % str(self.name))
-            if len(invoice.edi_document_ids) != 1: #Primera versión, como en v10, relación 1 a 1
-                raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar" %s % str(invoice.name))
-            document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_send")
+            if len(invoice.edi_document_ids) > 2: #Un doc de factur-x y uno del SRI, total 2
+                raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar %s" % str(invoice.name))
+            document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_send" and r.edi_format_id.code == 'l10n_ec_tax_authority')
             #Firts try to download reply, if not available try sending again
             response_state, response = document._l10n_ec_download_electronic_document_reply()
             if response_state == 'non-existent':

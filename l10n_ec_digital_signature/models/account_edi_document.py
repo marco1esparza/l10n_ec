@@ -99,7 +99,13 @@ class AccountEdiDocument(models.Model):
             file_sign_xml
         ]
         try:
-            subprocess.check_output(command)
+            reply = subprocess.check_output(command)
+            reply = reply.decode("utf-8")
+            reply = reply.split("\n")
+            for reply_line in reply:
+                if reply_line.startswith('Error:'):
+                    error = reply_line.split('Error:')[-1]
+                    raise UserError('%s' % error)
         except FileNotFoundError as err:
             raise UserError('Error, perhaps Java is not installed, contact technical support: %s' % str(err))
         except subprocess.CalledProcessError as e:
@@ -108,6 +114,8 @@ class AccountEdiDocument(models.Model):
             _logger.error('Llamada a proceso JAVA codigo: %s' % returncode)
             _logger.error('Error: %s' % output)
             raise UserError('Error: %s' % output)
+        except:
+            raise
         p = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
