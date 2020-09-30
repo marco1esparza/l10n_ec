@@ -28,16 +28,38 @@ class AccountMove(models.Model):
         self.filtered(lambda x: x.l10n_ec_withhold_type in ('out_withhold') and x.state in ('draft') and x.l10n_latam_use_documents).write({'name': '/'})
         return super().unlink()
 
-    def post(self):
+    def _post(self, soft=True):
         '''
         Invocamos el metodo post para generar los asientos de retenciones de forma manual y conciliar
         los asientos de retenciones en ventas con la factura
         '''
         self.l10n_ec_make_withhold_entry()
-        res = super(AccountMove, self).post()
         for withhold in self:
-            if withhold.l10n_latam_country_code == 'EC':
-                if withhold.type in ('entry') and withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
+            if withhold.country_code == 'EC':
+                #Withhold Purchase
+                if withhold.move_type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
+                    edi_document_vals_list = []
+                    for edi_format in withhold.journal_id.edi_format_ids:
+                        is_edi_needed = withhold.l10n_ec_printer_id and withhold.l10n_ec_printer_id.allow_electronic_document
+                        if is_edi_needed:
+                            existing_edi_document = withhold.edi_document_ids.filtered(lambda x: x.edi_format_id == edi_format)
+                            if existing_edi_document:
+                                existing_edi_document.write({
+                                    'state': 'to_send',
+                                    'attachment_id': False,
+                                })
+                            else:
+                                edi_document_vals_list.append({
+                                    'edi_format_id': edi_format.id,
+                                    'move_id': withhold.id,
+                                    'state': 'to_send',
+                                })
+                    self.env['account.edi.document'].create(edi_document_vals_list)
+        res = super(AccountMove, self)._post(soft=soft)
+        for withhold in self:
+            if withhold.country_code == 'EC':
+                #Withhold Sales
+                if withhold.move_type in ('entry') and withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
                     (withhold + withhold.l10n_ec_withhold_origin_ids).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_receivable_id).reconcile()
         return res
 
@@ -46,8 +68,8 @@ class AccountMove(models.Model):
         '''
         res = super(AccountMove, self).button_draft()
         for withhold in self:
-            if withhold.l10n_latam_country_code == 'EC':
-                if withhold.type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold', 'out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
+            if withhold.country_code == 'EC':
+                if withhold.move_type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold', 'out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
                     #delete account.move.lines for re-posting scenario in sale withholds
                     withhold.line_ids.unlink()
         return res
@@ -59,7 +81,7 @@ class AccountMove(models.Model):
         account_move_line_obj =  self.env['account.move.line'] 
         for withhold in self:
             if withhold.country_code == 'EC':
-                if withhold.type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold', 'out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
+                if withhold.move_type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold', 'out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
                     electronic = False
                     if withhold.l10n_ec_printer_id and withhold.l10n_ec_printer_id.allow_electronic_document:
                         electronic = True
@@ -130,7 +152,7 @@ class AccountMove(models.Model):
                                     'tax_base_amount': line.base,
                                     'tax_line_id': line.tax_id.id, #originator tax
                                     'tax_repartition_line_id': tax_line.id,
-                                    'tag_ids': [(6, 0, tax_line.tag_ids.ids)],                                    
+                                    'tax_tag_ids': [(6, 0, tax_line.tag_ids.ids)],                                    
                                 }
                                 account_move_line_obj.with_context(check_move_validity=False).create(vals)
                     #Retenciones en compras
@@ -186,11 +208,11 @@ class AccountMove(models.Model):
             raise ValidationError(u'A fin de emitir retenciones sobre múltiples facturas, aquellas deben pertenecer a la misma empresa.')
         if invoices and partner_id.commercial_partner_id != invoices[0].commercial_partner_id:
             raise ValidationError(u'La empresa indicada en la retención no corresponde a la de las facturas.')
-        if invoices and any(MAP_INVOICE_TYPE_PARTNER_TYPE[inv.type] != MAP_INVOICE_TYPE_PARTNER_TYPE[invoices[0].type] for inv in invoices):
+        if invoices and any(MAP_INVOICE_TYPE_PARTNER_TYPE[inv.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[invoices[0].move_type] for inv in invoices):
             raise ValidationError(u'No puede mezclar facturas de clientes y de proveedores en la misma retención.')
         if invoices and any(inv.currency_id != invoices[0].currency_id for inv in invoices):
             raise ValidationError(u'A fin de emitir retenciones sobre múltiples facturas, aquellas deben tener la misma moneda.')
-        if self.type == 'in_invoice' and invoices and any(inv.l10n_ec_total_to_withhold == 0.0 for inv in invoices):
+        if self.move_type == 'in_invoice' and invoices and any(inv.l10n_ec_total_to_withhold == 0.0 for inv in invoices):
             raise ValidationError(u'El valor a retener en la factura de compra asociada debe ser mayor a cero.')
         #Validamos que para cada factura exista maximo una retención de IVA y una de renta
         #en todas las lineas de retención de todas las retenciónes asociadas a todas las facturas
@@ -213,7 +235,7 @@ class AccountMove(models.Model):
         '''
         res = super(AccountMove, self).get_is_edi_needed(edi_format)
         if self.country_code == 'EC':
-            if self.type == 'entry' and self.l10n_ec_withhold_type == 'in_withhold' and self.l10n_latam_document_type_id.code in ['07'] and self.l10n_ec_printer_id.allow_electronic_document:
+            if self.move_type == 'entry' and self.l10n_ec_withhold_type == 'in_withhold' and self.l10n_latam_document_type_id.code in ['07'] and self.l10n_ec_printer_id.allow_electronic_document:
                 return True
         return res
 
@@ -230,7 +252,7 @@ class AccountMove(models.Model):
                 raise ValidationError(u'Withhold documents are only aplicable for Ecuador')
             if not invoice.l10n_ec_allow_withhold:
                 raise ValidationError(u'The selected document type does not support withholds')
-            if len(self) > 1 and invoice.type != 'out_invoice':
+            if len(self) > 1 and invoice.move_type != 'out_invoice':
                 raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
         if len(list(set(self.mapped('commercial_partner_id')))) > 1:
             raise ValidationError(u'Las facturas seleccionadas no pertenecen al mismo cliente.')
@@ -244,8 +266,8 @@ class AccountMove(models.Model):
     
     def _l10n_ec_prepare_withold_default_values(self):
         #Compras
-        if self[0].type == 'in_invoice':
-            type = 'entry' #'out_refund' #'out_withhold'
+        if self[0].move_type == 'in_invoice':
+            move_type = 'entry' #'out_refund' #'out_withhold'
             #TODO ANDRES: Evaluar el metodo de l10n_latam que define el tipo de documento
             l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
                 [('country_id.code', '=', 'EC'),
@@ -261,7 +283,7 @@ class AccountMove(models.Model):
                     'invoice_date': False,
                     'journal_id': journal_id,
                     'invoice_payment_term_id': None,
-                    'type': type,
+                    'move_type': move_type,
                     'line_ids': [(5, 0, 0)],
                     'l10n_latam_document_type_id': l10n_latam_document_type_id.id,
                     'l10n_ec_invoice_payment_method_ids':  [(5, 0, 0)],
@@ -284,8 +306,8 @@ class AccountMove(models.Model):
                 'l10n_ec_withhold_line_ids': l10n_ec_withhold_line_ids
             })
         #Ventas
-        if self[0].type == 'out_invoice':
-            type = 'entry' #'out_refund' #'out_withhold'
+        if self[0].move_type == 'out_invoice':
+            move_type = 'entry' #'out_refund' #'out_withhold'
             #TODO ANDRES: Evaluar el metodo de l10n_latam que define el tipo de documento
             l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
                 [('country_id.code', '=', 'EC'),
@@ -301,7 +323,7 @@ class AccountMove(models.Model):
                     'invoice_date': False,
                     'journal_id': journal_id,
                     'invoice_payment_term_id': None,
-                    'type': type,
+                    'move_type': move_type,
                     'line_ids': [(5, 0, 0)],
                     'l10n_latam_document_type_id': l10n_latam_document_type_id.id,
                     'l10n_ec_invoice_payment_method_ids':  [(5, 0, 0)],

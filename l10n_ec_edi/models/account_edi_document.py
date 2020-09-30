@@ -85,10 +85,6 @@ class AccountEdiDocument(models.Model):
                 if code_document_type in ('03', '41'):
                     # Liquidacion de compra y reembolso se mapea con codigo '03'
                     code_document_type = '03'
-            else:
-                raise ValidationError(
-                    u'No se ha implementado documentos electronicos para '
-                    u'este tipo de movimiento')
             serie = related_document.l10n_latam_document_number
         else:
             raise ValidationError(
