@@ -34,6 +34,11 @@ class AccountMove(models.Model):
         los asientos de retenciones en ventas con la factura
         '''
         self.l10n_ec_make_withhold_entry()
+        #La siguiente seccion de codigo antes del super es para lograr generar las retenciones electronicas en
+        #compras, funcionamiento similar existe en el _post del account_move(account_edi) pero solo esta para 
+        #facturas y no cubre el caso de retenciones, la ubicacion de este code antes de super es relevante
+        #para que engrane con el funcionamiento existe en el modulo account_edi y no tengamos que llamar n
+        #metodos por separado lo que aumentaria las probabilidades de fallo.
         for withhold in self:
             if withhold.country_code == 'EC':
                 #Withhold Purchase
