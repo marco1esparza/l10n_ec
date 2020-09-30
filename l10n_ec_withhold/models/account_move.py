@@ -244,6 +244,12 @@ class AccountMove(models.Model):
                 return True
         return res
 
+    def is_invoice(self, include_receipts=False):
+        #when "sending" the edi behaves like an invoice to re-use account_edi module
+        if self._context.get('l10n_ec_withhold_invoice',False):
+            return True
+        return super(AccountMove, self).is_invoice(include_receipts)
+    
     def generate_zero_entry(self, taxes_map_entry):
         '''
         It allows generating zero entries when the tax amount is zero

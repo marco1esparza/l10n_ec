@@ -33,6 +33,8 @@ class AccountEdiDocument(models.Model):
         if self.move_id.partner_id.email and self.state == 'sent':
             action_invoice_wizard = self.move_id.action_invoice_sent()
             ctx = action_invoice_wizard["context"]
+            if self._context.get('l10n_ec_withhold_invoice',False):
+                ctx.update({'l10n_ec_withhold_invoice':True}) #bypass para envio de email en retenciones
             ctx.update(
                 {
                     "active_id": self.move_id.id,
