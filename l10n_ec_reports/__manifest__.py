@@ -22,8 +22,13 @@
         'l10n_ec_edi'
     ],
     'data': [
+        #Security
+        'security/ir.model.access.csv',
         #Views
         'views/menu_view.xml',
+        'views/res_company_view.xml',
+        #Wizard
+        'wizard/wizard_generate_ats_view.xml',
     ],
     'installable': True,
 }

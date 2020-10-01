@@ -21,7 +21,7 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
-        'l10n_ec_edi'
+        'l10n_ec_edi',
     ],
     'data': [
         #Data
@@ -31,6 +31,7 @@
         #Views
         'views/account_move_view.xml',
         'views/account_journal_view.xml',
+        'views/report_invoice.xml',
     ],
     'installable': True,
     'auto_install': True,
