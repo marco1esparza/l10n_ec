@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_readonly_simplified_transactional_annex,access_account_readonly_simplified_transactional_annex,model_l10n_ec_simplified_transactional_annex,account.group_account_readonly,1,0,0,0
