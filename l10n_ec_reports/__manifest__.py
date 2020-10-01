@@ -24,6 +24,9 @@
     'data': [
         #Views
         'views/menu_view.xml',
+        'views/res_company_view.xml',
+        #Wizard
+        'wizard/wizard_generate_ats_view.xml',
     ],
     'installable': True,
 }

@@ -217,12 +217,12 @@ class AccountMove(models.Model):
                 return True
         return res
 
-    def generate_zero_entry(self, taxes_map_entry):
+    def _recompute_tax_lines(self, recompute_tax_base_amount=False):
         '''
         It allows generating zero entries when the tax amount is zero
         '''
-        return taxes_map_entry
-    
+        return super(AccountMove, self.with_context(generate_zero_entry=True))._recompute_tax_lines(recompute_tax_base_amount)
+
     def l10n_ec_add_withhold(self):
         #Creates a withhold linked to selected invoices
         for invoice in self:
