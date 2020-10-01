@@ -293,8 +293,8 @@ class AccountEdiDocument(models.Model):
                 ('codDocModificado', '01'),
                 ('numDocModificado', self.move_id.reversed_entry_id.l10n_latam_document_number),
                 ('fechaEmisionDocSustento', datetime.strftime(self.move_id.reversed_entry_id.invoice_date,'%d/%m/%Y')),
-                ('totalSinImpuestos', self.move_id.amount_untaxed),
-                ('valorModificacion', self.move_id.amount_total),
+                ('totalSinImpuestos', '{0:.2f}'.format(self.move_id.amount_untaxed)),
+                ('valorModificacion', '{0:.2f}'.format(self.move_id.amount_total)),
                 ('moneda', 'DOLAR')
             ])
 #         elif type == 'in_invoice':
