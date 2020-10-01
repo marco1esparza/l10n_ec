@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="view_wizard_ats_form" model="ir.ui.view">
+		<field name="name">view.wizard.ats.form</field>
+		<field name="model">l10n_ec.simplified.transactional.annex</field>
+		<field name="arch" type="xml">
+			<form string="ATS - XML File Generator">
+				<group col="9">
+					<notebook colspan="4">
+						<page string="Description">
+							<group colspan="4">
+								<div>
+									<p style="text-align:justify">
+										Asistente que genera automáticamente la información
+										del ANEXO TRANSACCIONAL SIMPLIFICADO - ATS.
+									</p>
+									<p style="text-align:justify">
+										Este documento lo deberá generar los Contribuyentes
+										Especiales,
+										las Entidades del Sector Público, los
+										Contribuyentes que poseen
+										autorización de impresión de comprobantes de venta y quienes de acuerdo a
+										la
+										Ley de Régimen Tributario Interno, tienen derecho y
+										solicitan la
+										devolución de Impuesto al Valor Agregado.
+									</p>
+									<p style="text-align:justify">
+										Esta información podrá enviarse a través de Internet
+										hasta el
+										último día del mes subsiguiente al que corresponde
+										la
+										misma (28, 29, 30 ó 31).
+									</p>
+									<p style="text-align:justify">
+										Los siguientes casos especiales aún no se encuentran implementados, se solicita contactarse con TRESCLOUD para su habilitación:
+										- Pagos desde el Extranjero, si bien el sistema los detecta para el reporte ATS los reescribe como nacionales.
+										- Retenciones de Dividendos
+										- Retenciones por Banano
+										<br></br>
+										En todos estos casos el usuario podrá editar los datos faltantes en el programa DIMM Formularios.
+									</p>
+								</div>
+							</group>
+						</page>
+						<page string="Help">
+							<p style="text-align:justify">
+								Si desea más información haga clic en el siguiente
+								link:
+							</p>
+							<a
+								href="http://ayuda.facturadeuna.com/hc/es/articles/210510817-Descarga-del-ATS-Version-2015">http://ayuda.facturadeuna.com/hc/es/articles/210510817-Descarga-del-ATS-Version-2015
+							</a>
+						</page>
+					</notebook>
+					<separator orientation="vertical" rowspan="12"/>
+					<group colspan="5" string="ATS Generation">
+						<group colspan="2">
+							<field name="date_start"/>
+							<field name="date_finish"/>
+							<field name="include_electronic_document_in_ats" nolabel="1" class="oe_inline"/>
+							<label for="include_electronic_document_in_ats" class="oe_inline"/>
+							<field name="wizard2" invisible="1"/>
+							<field name="report_errors" readonly="1" nolabel="1"
+								style="text-align:justify; color:red" attrs="{'invisible':[('report_errors','=',False)]}"/>
+							<group colspan="4">
+								<field name="errors_filename" invisible="1"/>
+								<field name="errors_file" readonly="1"
+										attrs="{'invisible':[('report_errors','=',False)]}" filename="errors_filename"/>
+								<field name="ats_filename" invisible="1"/>
+								<field name="ats_file" string="Reporte ATS" filename="ats_filename"
+										readonly="1" attrs="{'invisible': [('ats_file', '=', False)]}"/>
+								<field name="summary_filename" invisible="1"/>
+								<field name="summary_file" string="Sumario ATS" filename="summary_filename"
+										readonly="1" attrs="{'invisible': [('summary_file', '=', False)]}"/>
+							</group>
+						</group>
+					</group>
+				</group>
+				<footer>
+					<button name="act_generate_ats" string="Generate ATS" type="object" class="btn-primary"/>
+					<button special="cancel" string="Cancel" class="btn-default"/>
+				</footer>
+			</form>
+		</field>
+	</record>
+
+	<record id="action_ats_xml" model="ir.actions.act_window">
+		<field name="name">ATS (XML)</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">l10n_ec.simplified.transactional.annex</field>
+		<field name="view_mode">form</field>
+		<field name="target">new</field>
+	</record>
+
+	<menuitem id="menu_ats_xml" action="action_ats_xml" parent="account_reports.account_reports_audit_reports_menu" sequence="53"/>
+
+</odoo>

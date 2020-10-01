@@ -244,11 +244,11 @@ class AccountMove(models.Model):
                 return True
         return res
 
-    def generate_zero_entry(self, taxes_map_entry):
+    def _recompute_tax_lines(self, recompute_tax_base_amount=False):
         '''
         It allows generating zero entries when the tax amount is zero
         '''
-        return taxes_map_entry
+        return super(AccountMove, self.with_context(generate_zero_entry=True))._recompute_tax_lines(recompute_tax_base_amount)
 
     def l10n_ec_add_withhold(self):
         #Creates a withhold linked to selected invoices
@@ -420,6 +420,25 @@ class AccountMove(models.Model):
             #computamos
             invoice.l10n_ec_invoice_vat_doce_subtotal = sum(inv.l10n_ec_vat_doce_subtotal for inv in invoice.l10n_ec_withhold_origin_ids)
             invoice.l10n_ec_invoice_amount_untaxed = sum(inv.amount_untaxed for inv in invoice.l10n_ec_withhold_origin_ids)
+
+    def _get_name_invoice_report(self, report_xml_id):
+        self.ensure_one()
+        if self.l10n_latam_use_documents and self.company_id.country_id.code == 'EC' \
+                and self.type in ('entry') and self.l10n_latam_document_type_id.code in ['07']:
+            custom_report = {
+                'account.report_invoice_document_with_payments': 'l10n_ec_withhold.report_invoice_document_with_payments',
+                'account.report_invoice_document': 'l10n_ec_withhold.report_invoice_document',
+            }
+            return custom_report.get(report_xml_id) or report_xml_id
+        return super()._get_name_invoice_report(report_xml_id)
+
+    def _get_report_base_filename(self):
+        if any(not move.is_invoice() and (not move.l10n_latam_document_type_id) for move in self):
+            raise UserError(_("Only invoices could be printed."))
+        elif any(not move.is_invoice() and move.l10n_latam_document_type_id.code not in ['07']
+                 and move.l10n_latam_country_code == 'EC' for move in self):
+            raise UserError(_("Only invoices could be printed."))
+        return self._get_move_display_name()
     
     _EC_WITHHOLD_TYPE = [
         ('out_withhold', 'Customer Withhold'),

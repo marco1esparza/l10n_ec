@@ -219,8 +219,8 @@ class AccountEdiDocument(models.Model):
             ('tipoEmision', '1'),
             ('razonSocial', self.move_id.company_id.l10n_ec_legal_name)
         ]
-        if self.move_id.company_id.partner_id.l10n_commercial_name:
-            infoTribElements.append(('nombreComercial', self.move_id.company_id.partner_id.l10n_commercial_name))
+        if self.move_id.company_id.partner_id.l10n_ec_commercial_name:
+            infoTribElements.append(('nombreComercial', self.move_id.company_id.partner_id.l10n_ec_commercial_name))
         infoTribElements.extend([
             ('ruc', self.move_id.company_id.partner_id.vat),
             ('claveAcceso', self.l10n_ec_access_key)
