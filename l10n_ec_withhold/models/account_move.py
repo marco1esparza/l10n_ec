@@ -428,17 +428,14 @@ class AccountMove(models.Model):
             invoice.l10n_ec_invoice_vat_doce_subtotal = sum(inv.l10n_ec_vat_doce_subtotal for inv in invoice.l10n_ec_withhold_origin_ids)
             invoice.l10n_ec_invoice_amount_untaxed = sum(inv.amount_untaxed for inv in invoice.l10n_ec_withhold_origin_ids)
 
-    def _get_name_invoice_report(self, report_xml_id):
+    def _get_name_invoice_report(self):
         self.ensure_one()
         if self.l10n_latam_use_documents and self.company_id.country_id.code == 'EC' \
-                and self.type in ('entry') and self.l10n_latam_document_type_id.code in ['07']:
-            custom_report = {
-                'account.report_invoice_document_with_payments': 'l10n_ec_withhold.report_invoice_document_with_payments',
-                'account.report_invoice_document': 'l10n_ec_withhold.report_invoice_document',
-            }
-            return custom_report.get(report_xml_id) or report_xml_id
-        return super()._get_name_invoice_report(report_xml_id)
-
+                and self.move_type in ('entry') and self.l10n_latam_document_type_id.code in ['07']:
+            return 'l10n_ec_withhold.report_invoice_document'
+        return super()._get_name_invoice_report()
+    
+    
     def _get_report_base_filename(self):
         if any(not move.is_invoice() and (not move.l10n_latam_document_type_id) for move in self):
             raise UserError(_("Only invoices could be printed."))

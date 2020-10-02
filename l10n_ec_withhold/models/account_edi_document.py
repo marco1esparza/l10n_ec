@@ -17,7 +17,7 @@ class AccountEdiDocument(models.Model):
     def _process_documents_web_services(self, job_count=None):
         #bypass for withholds
         ctx = self._context.copy()
-        if self.move_id.move_type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']:
+        if self.move_id and self.move_id.move_type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']:
             #simulates an invoice to re-use account_edi module
             ctx.update({'l10n_ec_withhold_invoice': True})
         return super(AccountEdiDocument, self.with_context(ctx))._process_documents_web_services(job_count)
