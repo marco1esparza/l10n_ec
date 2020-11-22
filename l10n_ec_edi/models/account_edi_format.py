@@ -39,7 +39,11 @@ class AccountEdiFormat(models.Model):
             if invoice.move_type == 'out_refund' and invoice.l10n_latam_document_type_id.code in ['04']:
                 if invoice.l10n_ec_printer_id.allow_electronic_document:
                     is_required_for_invoice = True
-            return is_required_for_invoice 
+            # Liquidacion de Compra
+            if invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code in ['03']:
+                if invoice.l10n_ec_printer_id.allow_electronic_document:
+                    is_required_for_invoice = True
+            return is_required_for_invoice
         return super()._is_required_for_invoice(invoice)
 
     def _needs_web_services(self):
@@ -81,22 +85,25 @@ class AccountEdiFormat(models.Model):
         edi_result = super()._post_invoice_edi(invoices, test_mode=test_mode)
         if self.code != 'l10n_ec_tax_authority':
             return edi_result
-        if test_mode:
-            # Si estamos en Modo test y tenemos documentos electronicos y tenemos request
-            # asignamos el attachment con dicho documento.
-            for invoice in invoices:
-                if invoice.edi_document_ids.l10n_ec_request_xml_file:
-                    attachment = self.env['ir.attachment'].create({
-                        'name': invoice.edi_document_ids.l10n_ec_request_xml_file_name,
-                        'datas': invoice.edi_document_ids.l10n_ec_request_xml_file,
-                        'mimetype': 'application/xml',
-                        'type': 'binary',
-                    })
-                    edi_result[invoice] = {'attachment': attachment}
-            return edi_result
         for invoice in invoices:
             #First some validations
             msgs = []
+            if not test_mode:
+                # Si no tenemos Modo test por context, entonces evaluamos que la company_id este en modo Demo
+                enviroment_type = invoice.company_id.l10n_ec_environment_type
+                if enviroment_type and enviroment_type == '0':
+                    test_mode = True
+            # Si estamos en Modo test y tenemos documentos electronicos y tenemos request
+            # asignamos el attachment con dicho documento.
+            if test_mode and invoice.edi_document_ids.l10n_ec_request_xml_file and not invoice.edi_document_ids.attachment_id:
+                attachment = self.env['ir.attachment'].create({
+                    'name': invoice.edi_document_ids.l10n_ec_request_xml_file_name,
+                    'datas': invoice.edi_document_ids.l10n_ec_request_xml_file,
+                    'mimetype': 'application/xml',
+                    'type': 'binary',
+                })
+                edi_result[invoice] = {'attachment': attachment}
+                return edi_result
             if invoice.edi_state in ('sent'):
                 raise ValidationError("No se puede enviar al SRI documentos previamente enviados: Documento %s" % str(self.name))
             if invoice.edi_state in ('canceled'):
@@ -104,9 +111,9 @@ class AccountEdiFormat(models.Model):
                                       "En su lugar debe crear un nuevo documento electrónico" % str(self.name)) 
             if invoice.edi_state not in ('to_send'):
                 raise ValidationError("Error, solo se puede enviar al SRI documentos en estado A ENVIAR: Documento" %s % str(self.name))
-            if len(invoice.edi_document_ids) > 2: #Un doc de factur-x y uno del SRI, total 2
-                raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar %s" % str(invoice.name))
-            document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_send" and r.edi_format_id.code == 'l10n_ec_tax_authority')
+            if len(invoice.edi_document_ids) != 1: #Primera versión, como en v10, relación 1 a 1
+                raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar" %s % str(invoice.name))
+            document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_send")
             #Firts try to download reply, if not available try sending again
             response_state, response = document._l10n_ec_download_electronic_document_reply()
             if response_state == 'non-existent':
@@ -116,8 +123,11 @@ class AccountEdiFormat(models.Model):
                     msgs.append(err.name)
                 except: #all other errors drop to standard output (screen and log)
                     raise
-                sleep(2) # Esperamos 2 segundos para que el SRI procese el documento
-                response_state, response = document._l10n_ec_download_electronic_document_reply()
+                else:
+                    sleep(2) # Esperamos 2 segundos para que el SRI procese el documento
+                    response_state, response = document._l10n_ec_download_electronic_document_reply()
+                finally:
+                    pass #nothing to do until now
             elif response_state == 'rejected':
                 msgs.append(str(response.autorizaciones.autorizacion[0].mensajes))
                 msgs.append('Corrija el problema reportado por el SRI, anule el documento en Odoo, y reintente nuevamente')

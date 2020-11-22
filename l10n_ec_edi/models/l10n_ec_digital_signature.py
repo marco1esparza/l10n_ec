@@ -151,6 +151,7 @@ class L10NECDigitalSignature(models.Model):
         )
     password_p12 = fields.Char(
         string='Password file .p12',
+        required=True,
         help='Password to desencrypt .p12 file'
         )
     company_id = fields.Many2one(

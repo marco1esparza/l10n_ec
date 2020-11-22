@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="base_file_report_form_view">
+			<field name="name">base.file.report.form</field>
+			<field name="model">base.file.report</field>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<form string="Archivo generado">
+					<group colspan="4" col="2">
+						<field name="file" filename="filename" />
+                        <field name="filename" invisible="True"/>
+					</group>
+					<footer>
+						<button special="cancel" string="Cerrar" class="oe_highlight"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+    </data>
+</odoo>

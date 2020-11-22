@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+    
+        <record model="ir.ui.view" id="account_tax_report_wizard_form">
+            <field name="name">account.taxt.report.wizard.form</field>
+            <field name="model">l10n_ec.account.tax.report.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Account Tax Report">
+                    <h1>Reporte de impuestos</h1>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="date_from"/>
+                        </group>
+                        <group>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="show_report_account_tax" string="Show Report" class="oe_highlight" type="object"/>
+                        <button special="cancel" string="Cancel" class="oe_link"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_account_tax_report_wizard_103" model="ir.actions.act_window">
+            <field name="name">Reporte de impuesto 103</field>
+            <field name="res_model">l10n_ec.account.tax.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'origin': 'form_103'}</field>
+        </record>
+        
+        <record id="action_account_tax_report_wizard_104" model="ir.actions.act_window">
+            <field name="name">Reporte de impuesto 104</field>
+            <field name="res_model">l10n_ec.account.tax.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'origin': 'form_104'}</field>
+        </record>
+
+        <menuitem action="action_account_tax_report_wizard_103"
+                  id="menu_action_form_account_tax_103"
+                  parent="account_reports.account_reports_audit_reports_menu"
+                  sequence="50"/>
+                  
+        <menuitem action="action_account_tax_report_wizard_104"
+                  id="menu_action_form_account_tax_104"
+                  parent="account_reports.account_reports_audit_reports_menu"
+                  sequence="51"/>
+    </data>
+</odoo>

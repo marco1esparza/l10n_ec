@@ -72,7 +72,7 @@ class AccountEdiDocument(models.Model):
                 '-version',
                 ]))
         except FileNotFoundError:
-            print("File does not exist")
+            print("XaDeS Digital Signer not found, please install it")
         except:
             raise
         else:

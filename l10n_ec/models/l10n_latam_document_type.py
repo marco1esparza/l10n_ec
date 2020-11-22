@@ -31,7 +31,6 @@ class L10nLatamDocumentType(models.Model):
         )
     l10n_ec_require_vat = fields.Boolean(
         string='Require Vat Number', 
-        track_visibility='onchange',
         help='Force the registration of customer vat number on invoice validation',
         )
     l10n_ec_authorization = fields.Selection(
