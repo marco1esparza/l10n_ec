@@ -102,8 +102,8 @@ class AccountMove(models.Model):
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
-        res = super(AccountMove, self).post(soft)
-        for invoice in self.filtered(lambda x: x.l10n_latam_country_code == 'EC' and x.l10n_latam_use_documents):
+        res = super(AccountMove, self)._post(soft)
+        for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
             if invoice.l10n_latam_document_type_id.l10n_ec_require_vat:
                 if not invoice.partner_id.l10n_latam_identification_type_id:
                     raise ValidationError(u'Indique un tipo de identificación para el proveedor "%s".' % invoice.partner_id.name)
@@ -115,7 +115,7 @@ class AccountMove(models.Model):
             # Para las notas de credito exterior se setea amount_total_refunds con el valor de la NC
             # ya que no cuenta con un invoice_rectification_id para obtener el total de la factura.
             # Caso especial NC exterior
-            if invoice.type in ['in_refund', 'out_refund']:
+            if invoice.move_type in ['in_refund', 'out_refund']:
                 if invoice.l10n_latam_document_type_id.code == '0500':
                     amount_total_refunds = 0.00
                 else:
@@ -158,8 +158,8 @@ class AccountMove(models.Model):
         Liquidaciones electronicas en compras
         '''
         res = super(AccountMove, self).get_is_edi_needed(edi_format)
-        if self.l10n_latam_country_code == 'EC':
-            if self.type == 'in_invoice' and self.l10n_latam_document_type_id.code in ['03'] and self.l10n_ec_printer_id.allow_electronic_document:
+        if self.country_code == 'EC':
+            if self.move_type == 'in_invoice' and self.l10n_latam_document_type_id.code in ['03'] and self.l10n_ec_printer_id.allow_electronic_document:
                 return True
         return res
     

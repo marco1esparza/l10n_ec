@@ -109,7 +109,7 @@ class AccountMove(models.Model):
         '''
         self.ensure_one()
         invoice_ids = []
-        if self.type == 'in_invoice':
+        if self.move_type == 'in_invoice':
             #lo logico es retornar las facturas de venta por reembolso de gastos
             #para encontrarlas nos basamos en el proveedor, tipo de documento y nro de factura
             #(esto nos da un identificador univoco, sin necesidad de crear un campo de relacion)
@@ -119,7 +119,7 @@ class AccountMove(models.Model):
                 ('number','=', self.l10n_latam_document_number),
                 ])
             invoice_ids = refund_lines.mapped('move_id').ids
-        if self.type == 'out_invoice':
+        if self.move_type == 'out_invoice':
             #lo logico es retornar las facturas de compra por reembolso de gastos
             #para encontrarlas nos basamos en el proveedor, tipo de documento y nro de factura
             #(esto nos da un identificador univoco, sin necesidad de crear un campo de relacion)
@@ -134,13 +134,13 @@ class AccountMove(models.Model):
                 purchases = self.env.cr.fetchall()
                 for purchase in purchases:
                     invoice_ids.append(purchase[0])
-        if self.type == 'out_invoice' and not invoice_ids:
+        if self.move_type == 'out_invoice' and not invoice_ids:
             #lanzamos una notificacion al usuario indicandole que no se encontraron las facturas buscadas
             raise UserError(u'En el módulo contable no se encontraron las facturas de compra para el reembolso, posiblemente no las digitó en el sistema')
-        if self.type == 'in_invoice' and not invoice_ids:
+        if self.move_type == 'in_invoice' and not invoice_ids:
             #lanzamos una notificacion al usuario indicandole que no se encontraron las facturas buscadas
             raise UserError(u'No se encontró una factura de venta por reembolso como intermediario, puede generar una con el boton "Generar Venta"') 
-        if self.type == 'in_invoice':
+        if self.move_type == 'in_invoice':
             action = self.env.ref('account.action_move_out_invoice_type').read()[0]
         else: #out_invoice
             action = self.env.ref('account.action_move_in_invoice_type').read()[0]
@@ -238,7 +238,7 @@ class AccountMove(models.Model):
 #             action = {'type': 'ir.actions.act_window_close'}
 #         return action
 
-    def post(self):
+    def _post(self, soft=True):
         '''
         Invocamos el metodo post para garantizar que el total de la facturas coindida con el total del reembolso
         '''
@@ -279,12 +279,12 @@ class AccountMove(models.Model):
             if not invoice.show_reimbursements_detail and invoice.refund_ids:
                 #si no se debio llenar los detalles de reembolso
                 raise ValidationError(u'Es extraño, la tabla de detalles de reembolso no debería seguir llena, por favor contacte a soporte o repita la transacción desde el inicio.')
-            if invoice.type == 'in_invoice' and invoice.l10n_latam_document_type_id.code == '41':
+            if invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code == '41':
                 #no se emite retencion sobre facturas de compra por reembolso como cliente final (en este caso el codigo es 41)
                 if invoice.l10n_ec_total_to_withhold != 0.0: #aplica para compras
                     raise UserError(_(u'La factura de reembolsos de gastos como cliente final no puede tener impuestos de retención, por favor elimínelos para poder validarla.'))
             #validamos los impuestos para EMISION de REEMBOLSOS COMO INTERMEDIARIO
-            if invoice.type == 'out_invoice' and invoice.l10n_latam_document_type_id.code == '41':
+            if invoice.move_type == 'out_invoice' and invoice.l10n_latam_document_type_id.code == '41':
                 #solo permitimos con la base 444 *equivale al codigo aplicado 454
                 base_codes = invoice.line_ids.mapped('tax_ids').mapped('l10n_ec_code_base')
                 base_codes = list(dict.fromkeys(base_codes)) #remueve duplicados
@@ -296,7 +296,7 @@ class AccountMove(models.Model):
                 if base_codes:
                     raise UserError(_(u'La emisión de reembolsos de gastos como intermediario debe realizarse con el impuesto 454, erroneamente esta utilizando los códigos: %s' %", ".join(base_codes)))
             #validamos los impuestos para RECEPCION de compras para REEMBOLSOS COMO INTERMEDIARIO
-            if invoice.type == 'in_invoice' and invoice.l10n_ec_sri_tax_support_id.code == '08':
+            if invoice.move_type == 'in_invoice' and invoice.l10n_ec_sri_tax_support_id.code == '08':
                 #solo permitimos con la base 545 *equivale al codigo aplicado 555
                 vat_taxes = invoice.line_ids.mapped('tax_ids').filtered(lambda r: r.tax_group_id.l10n_ec_type in ['vat12', 'vat14','zero_vat','not_charged_vat','exempt_vat'])
                 base_codes = vat_taxes.mapped('code_base')
@@ -308,7 +308,7 @@ class AccountMove(models.Model):
                     pass
                 if base_codes:
                     raise UserError(_(u'La recepción de egresos para reembolso de gastos como intermediario debe realizarse con el impuesto 555, erroneamente esta utilizando los códigos: %s' %", ".join(base_codes)))
-        return super(AccountMove, self).post()
+        return super(AccountMove, self)._post(soft)
 
     @api.depends('l10n_latam_document_type_id', 'type', 'l10n_ec_sri_tax_support_id')
     def _show_reimbursements(self):
@@ -320,18 +320,18 @@ class AccountMove(models.Model):
         activa el campo para que se muestre el detalle de los reembolsos
         '''
         for move in self:
-            if move.l10n_latam_country_code == 'EC':
+            if move.country_code == 'EC':
                 show_reimbursements_related = False
                 show_reimbursements_detail = False
-                if move.type in ['out_invoice'] and move.l10n_latam_document_type_id.code == '41':
+                if move.move_type in ['out_invoice'] and move.l10n_latam_document_type_id.code == '41':
                     #es una factura de venta por reembolso de gastos como INTERMEDIARIO
                     show_reimbursements_related = True
                     show_reimbursements_detail = True
-                elif move.type in ['in_invoice'] and move.l10n_latam_document_type_id.code == '41':
+                elif move.move_type in ['in_invoice'] and move.l10n_latam_document_type_id.code == '41':
                     #es una factura de compra por reembolso de gastos como CLIENTE FINAL
                     show_reimbursements_related = False
                     show_reimbursements_detail = True
-                elif move.type in ['in_invoice'] and move.l10n_ec_sri_tax_support_id.code == '08':
+                elif move.move_type in ['in_invoice'] and move.l10n_ec_sri_tax_support_id.code == '08':
                     #es una factura de compra por reembolso de gastos como INTERMEDIARIO
                     show_reimbursements_related = True
                     show_reimbursements_detail = False

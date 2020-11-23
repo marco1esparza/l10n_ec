@@ -19,8 +19,8 @@ class AccountRefundClient(models.Model):
         '''
         To create a line check if the number complies with certain characteristics
         '''
-        l10n_latam_country_code = self.env['account.move'].browse(vals.get('move_id')).l10n_latam_country_code
-        if l10n_latam_country_code == 'EC':
+        country_code = self.env['account.move'].browse(vals.get('move_id')).country_code
+        if country_code == 'EC':
             number = vals.get('number') or False
             if number:
                 cadena = '(\d{3})+\-(\d{3})+\-(\d{9})'
@@ -32,7 +32,7 @@ class AccountRefundClient(models.Model):
         '''
         To write a line check if the number complies with certain characteristics
         '''
-        if self.move_id.l10n_latam_country_code == 'EC':
+        if self.move_id.country_code == 'EC':
             number = vals.get('number') or False
             if not number:
                 number = self.number
@@ -48,7 +48,7 @@ class AccountRefundClient(models.Model):
         When the partner changed need recalculate the transaction type.
         '''
         res = {'value': {},'warning': {},'domain': {}}
-        if self.move_id.l10n_latam_country_code == 'EC':
+        if self.move_id.country_code == 'EC':
             res['value']['l10n_latam_document_type_id'] = False
             res['value']['authorization'] = False
             if not self.partner_id:
@@ -83,7 +83,7 @@ class AccountRefundClient(models.Model):
         When the partner changed need recalculate the transaction type.
         '''
         res = {'value': {},'warning': {},'domain': {}}
-        if self.move_id.l10n_latam_country_code == 'EC':
+        if self.move_id.country_code == 'EC':
             if self.move_id.type == 'out_invoice':
                 #rellenamos los datos de la factura de compra
                 vals = self._fill_purchase_invoice()
@@ -96,7 +96,7 @@ class AccountRefundClient(models.Model):
         Use the format internal number in case the user change this number
         '''
         res = {'value': {}, 'warning': {}, 'domain': {}}
-        if self.move_id.l10n_latam_country_code == 'EC':
+        if self.move_id.country_code == 'EC':
             if self.number:
                 number_split = self.number.split('-')
                 if len(number_split) == 3 and number_split[2] != '':

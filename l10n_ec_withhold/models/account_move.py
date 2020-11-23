@@ -43,10 +43,10 @@ class AccountMove(models.Model):
         los asientos de retenciones en ventas con la factura
         '''
         self.l10n_ec_make_withhold_entry()
-        res = super(AccountMove, self).post(soft)
+        res = super(AccountMove, self)._post(soft)
         for withhold in self:
-            if withhold.l10n_latam_country_code == 'EC':
-                if withhold.type in ('entry') and withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
+            if withhold.country_code == 'EC':
+                if withhold.move_type in ('entry') and withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
                     (withhold + withhold.l10n_ec_withhold_origin_ids).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_receivable_id).reconcile()
         return res
 
@@ -286,7 +286,7 @@ class AccountMove(models.Model):
         
         return self.l10n_ec_action_view_withholds()
 
-    @api.depends('type')
+    @api.depends('move_type')
     def _compute_invoice_filter_type_domain(self):
         '''
         Metodo para obtener solo diarios generales en Retenciones.
@@ -467,7 +467,7 @@ class AccountMove(models.Model):
         if any(not move.is_invoice() and (not move.l10n_latam_document_type_id) for move in self):
             raise UserError(_("Only invoices could be printed."))
         elif any(not move.is_invoice() and move.l10n_latam_document_type_id.code not in ['07']
-                 and move.l10n_latam_country_code == 'EC' for move in self):
+                 and move.country_code == 'EC' for move in self):
             raise UserError(_("Only invoices could be printed."))
         return self._get_move_display_name()
 
@@ -481,7 +481,7 @@ class AccountMove(models.Model):
 
     def is_withholding(self):
         is_withholding = False
-        if self.l10n_latam_country_code == 'EC' and self.type in ('entry') and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold') and self.l10n_latam_document_type_id.code in ['07']:
+        if self.country_code == 'EC' and self.move_type in ('entry') and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold') and self.l10n_latam_document_type_id.code in ['07']:
             is_withholding = True
         return is_withholding
 

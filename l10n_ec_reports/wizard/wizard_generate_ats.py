@@ -187,7 +187,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         anio, mes, dia = str(self.date_start).split('-')
         account_move_obj = self.env['account.move'].sudo()
         local_purchase_invoice_ids = account_move_obj.search([
-            ('type', 'in', ('in_invoice', 'in_refund')),
+            ('move_type', 'in', ('in_invoice', 'in_refund')),
             ('state', '=', 'posted'),
             ('l10n_latam_document_type_id.code', 'in', _LOCAL_PURCHASE_DOCUMENT_CODES),
             ('invoice_date','>=', self.date_start),
@@ -195,7 +195,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         ])
         #TODO: evaluar crear otro tipo de documento para las compras de servicios al extranjero
         foreign_purchase_invoice_ids = account_move_obj.search([
-            ('type', 'in', ('in_invoice', 'in_refund')),
+            ('move_type', 'in', ('in_invoice', 'in_refund')),
             ('state', '=', 'posted'),
             ('l10n_latam_document_type_id.code', 'in', _FOREIGN_PURCHASE_DOCUMENT_CODES),
             ('l10n_ec_sri_tax_support_id.code', 'not in', ['06','07']), #no se reportan importaciones de inventario
@@ -678,7 +678,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         # y de pre-procesarlas asi
         # Se excluyen aquellas que son exportaciones
         out_invoices = self._get_sales_info(account_move_obj.search([
-            ('type', 'in', ['out_invoice','out_refund']),
+            ('move_type', 'in', ['out_invoice','out_refund']),
             ('state', '=', 'posted'),
             ('l10n_latam_document_type_id.code', 'in', _SALE_DOCUMENT_CODES),
             ('invoice_date','>=', self.date_start),
@@ -844,14 +844,14 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         '''
         init_time = tm()
         void_invoices = self.env['account.move'].sudo().search([
-            ('type', 'in', ['out_invoice','out_refund']),
+            ('move_type', 'in', ['out_invoice','out_refund']),
             ('state', '=', 'cancel'),
             ('l10n_latam_document_type_id.code', 'in', _SALE_DOCUMENT_CODES),
             ('invoice_date','>=', self.date_start),
             ('invoice_date','<=', self.date_finish)
         ])
         void_withholds = self.env['account.move'].sudo().search([
-            ('type', 'in', ['entry']),
+            ('move_type', 'in', ['entry']),
             ('state', '=', 'cancel'),
             ('l10n_latam_document_type_id.code', 'in', _WITHHOLD_CODES),
             ('l10n_ec_withhold_type', 'in', ['in_withhold']),
@@ -1109,7 +1109,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             'by_shop': {}
         }
         invoices = self.env['account.move'].search([
-            ('type', 'in', ['out_invoice','out_refund']),
+            ('move_type', 'in', ['out_invoice','out_refund']),
             ('state', '=', 'posted'),
             ('l10n_latam_document_type_id.code', 'in', _SALE_DOCUMENT_CODES),
             ('invoice_date','>=', self.date_start),
@@ -1124,7 +1124,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 shop = invoice.l10n_ec_printer_id.name[:3]
                 _precalculated['by_shop'].setdefault(shop, {'total': 0.0, 'ivaComp': 0.0})
                 subtotal = float('{0:.2f}'.format(invoice.l10n_ec_base_doce_iva)) + float('{0:.2f}'.format(invoice.l10n_ec_base_cero_iva))
-                subtotal = subtotal * (1 if invoice.type == 'out_invoice' else -1)
+                subtotal = subtotal * (1 if invoice.move_type == 'out_invoice' else -1)
                 _precalculated['by_shop'][shop]['total'] += subtotal
                 total += float('{0:.2f}'.format(subtotal))
         _precalculated['total'] = total

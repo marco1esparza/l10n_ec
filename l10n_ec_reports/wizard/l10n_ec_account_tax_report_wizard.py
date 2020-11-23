@@ -46,7 +46,7 @@ class AccountTaxReportWizard(models.TransientModel):
         Obtener informacion de impuestos.
         '''
         params = []
-        sql = """select ai.id as invoice_id, ai.type, t.id as tax_id, t.tax_group_id, t.name as taxname, 
+        sql = """select ai.id as invoice_id, ai.move_type, t.id as tax_id, t.tax_group_id, t.name as taxname, 
             abs(ait.tax_base_amount) as base,
             abs(ait.balance) as amount, 
             ait.account_id, abs(t.amount) as perc 

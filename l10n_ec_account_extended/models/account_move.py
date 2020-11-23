@@ -23,11 +23,11 @@ class AccountMove(models.Model):
         #TODO v15: Recompute separately profit withhold and vat withhold
         self.ensure_one()
         res = {}
-        if not self.l10n_latam_country_code == 'EC':
+        if not self.country_code == 'EC':
             return res
         if not self.state == 'draft':
             return res
-        if not self.type == 'in_invoice':
+        if not self.move_type == 'in_invoice':
             return res
         for line in self.invoice_line_ids:
             taxes = line._get_computed_taxes()
@@ -38,7 +38,7 @@ class AccountMove(models.Model):
     def button_draft(self):
         #Execute ecuadorian validations with bypass option
         for document in self:
-            if self.l10n_latam_country_code == 'EC':
+            if self.country_code == 'EC':
                 bypass = document.l10n_ec_bypass_validations
                 if not bypass:
                     document._l10n_ec_validations_to_draft()
@@ -77,16 +77,16 @@ class AccountMove(models.Model):
                 "Instead you can cancel this document (Request EDI Cancellation button) and then create a new one"
             ) % self.display_name)
     
-    def post(self):
+    def _post(self, soft=True):
         #Execute ecuadorian validations with bypass option
         for document in self:
-            if self.l10n_latam_country_code == 'EC':
+            if self.country_code == 'EC':
                 bypass = document.l10n_ec_bypass_validations
                 if not bypass:
                     document._l10n_ec_validations_to_posted()
         #hack: send the context to later bypass account_edi restrictions
         # Se modifica la ejecucion del post al final porque res se debe devolver con la ejecucion de todos los documentos
-        res = super(AccountMove, self).post()
+        res = super(AccountMove, self)._post(soft)
         self.l10n_ec_bypass_validations = False #Reset bypass to default value
         return res
     
@@ -125,12 +125,12 @@ class AccountMove(models.Model):
     @api.depends('l10n_latam_document_type_id')
     def _l10n_ec_compute_require_vat_tax(self):
         #Indicates if the invoice requires a vat tax or not
-        if self.l10n_latam_country_code != 'EC':
+        if self.country_code != 'EC':
             return False
         for move in self:
             result = False
             #TODO agregar regiment especial en un AND al siguiente if
-            if move.type in ['in_invoice','in_refund','out_invoice','out_refund'] and self.company_id.l10n_ec_issue_withholds:
+            if move.move_type in ['in_invoice','in_refund','out_invoice','out_refund'] and self.company_id.l10n_ec_issue_withholds:
                 if self.l10n_latam_document_type_id.code in [
                                     '01', # factura compra
                                     '02', # nota de venta
@@ -154,12 +154,12 @@ class AccountMove(models.Model):
     @api.depends('l10n_latam_document_type_id')
     def _l10n_ec_compute_require_withhold_tax(self):
         #Indicates if the invoice requires a withhold or not
-        if self.l10n_latam_country_code != 'EC':
+        if self.country_code != 'EC':
             return False
         for move in self:
             result = False
             #TODO agregar regiment especial en un AND al siguiente if
-            if move.type == 'in_invoice' and self.company_id.l10n_ec_issue_withholds:
+            if move.move_type == 'in_invoice' and self.company_id.l10n_ec_issue_withholds:
                 if self.l10n_latam_document_type_id.code in [
                                     '01', # factura compra
                                     '03', # liquidacion compra

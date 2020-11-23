@@ -12,9 +12,9 @@ class AccountMove(models.Model):
     def _onchange_l10n_ec_available_sri_tax_support_ids(self):
         '''
         '''
-        if self.l10n_latam_country_code == 'EC':
+        if self.country_code == 'EC':
             #Solamente las compras tienen sustento tributario...
-            if self.type in ['in_invoice', 'in_refund']:
+            if self.move_type in ['in_invoice', 'in_refund']:
                 l10n_ec_sri_tax_support_id = False
                 if self.l10n_latam_document_type_id:
                     if self.l10n_ec_available_sri_tax_support_ids:
@@ -47,11 +47,11 @@ class AccountMove(models.Model):
 #                 invoice.invoice_vat,
 #                 invoice.fiscal_position_id.transaction_type,
 #             )
-            invoice_type = invoice.type
+            invoice_type = invoice.move_type
             code = invoice.partner_id._l10n_ec_get_code_by_vat()
             # Determinamos el pais, para segun el código del país
             # hacer uno o otro procedimiento
-            if not invoice.l10n_latam_country_code:
+            if not invoice.country_code:
                 invoice.l10n_ec_transaction_type = 'Debe definir el país de la factura.'
                 invoice.l10n_ec_transaction_type += ' Documento ' + str(invoice.l10n_latam_document_number or '')
                 invoice.l10n_ec_transaction_type += ' Empresa ' + (invoice.partner_id.name or '')
