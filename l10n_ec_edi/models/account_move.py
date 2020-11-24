@@ -96,7 +96,7 @@ class AccountMove(models.Model):
                     })
                 new_payment_method_lines += candidate
             self.l10n_ec_invoice_payment_method_ids -= existing_payment_method_lines - new_payment_method_lines
-    
+
     def _post(self, soft=True):
         '''
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
@@ -106,9 +106,11 @@ class AccountMove(models.Model):
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
             if invoice.l10n_latam_document_type_id.l10n_ec_require_vat:
                 if not invoice.partner_id.l10n_latam_identification_type_id:
-                    raise ValidationError(u'Indique un tipo de identificación para el proveedor "%s".' % invoice.partner_id.name)
+                    raise ValidationError(
+                        u'Indique un tipo de identificación para el proveedor "%s".' % invoice.partner_id.name)
                 if not invoice.partner_id.vat:
-                    raise ValidationError(u'Indique un número de identificación para el proveedor "%s".' % invoice.partner_id.name)
+                    raise ValidationError(
+                        u'Indique un número de identificación para el proveedor "%s".' % invoice.partner_id.name)
             # Se inicializa el amount_total_refunds con el monto de la nota de credito actual, pues al estar en estado borrador queda excluida
             # en la verificacion que se realiza mas adelanta y evitamos que se aprueben nc con montos superiores a la factura cuando no existe
             # ninguna aprobada previamente
@@ -120,37 +122,40 @@ class AccountMove(models.Model):
                     amount_total_refunds = 0.00
                 else:
                     amount_total_refunds = invoice.amount_total
-                for refund in invoice.reversed_entry_id.reversal_move_id.filtered(lambda m:m.id != invoice.id
-                                                                                           and m.move_type in ['in_refund', 'out_refund']
-                                                                                           and m.state in ['open', 'paid']):
+                for refund in invoice.reversed_entry_id.reversal_move_id.filtered(lambda m: m.id != invoice.id and m.move_type in ['in_refund', 'out_refund'] and m.state in ['posted']):
                     amount_total_refunds += refund.amount_total
                 refund_value_control = invoice.company_id.l10n_ec_refund_value_control
                 if float_compare(amount_total_refunds, invoice.reversed_entry_id.amount_total, precision_digits=2) == 1 \
-                    and refund_value_control == 'local_refund':
-                    raise UserError(_(u'La nota de crédito %s no se puede aprobar debido a que el valor de las notas de crédito emitidas '
-                                      u'más la actual suman USD %s, sobrepasando el valor de USD %s de la factura %s.')
-                                      %(invoice.name, amount_total_refunds,
-                                        invoice.reversed_entry_id.amount_total, invoice.reversed_entry_id.name))
+                        and refund_value_control == 'local_refund':
+                    raise UserError(_(
+                        u'La nota de crédito %s no se puede aprobar debido a que el valor de las notas de crédito emitidas '
+                        u'más la actual suman USD %s, sobrepasando el valor de USD %s de la factura %s.')
+                                    % (invoice.name, amount_total_refunds,
+                                       invoice.reversed_entry_id.amount_total, invoice.reversed_entry_id.name))
                 # Validacion de notas de credito no se las realice a consumidor final
                 if invoice.company_id.l10n_ec_refund_value_control == 'local_refund' and invoice.partner_id.vat == '9999999999999':
                     raise UserError(_(
                         u'La nota de crédito %s no se puede aprobar debido a que en REGLAMENTO DE COMPROBANTES DE VENTA, RETENCIÓN Y DOCUMENTOS COMPLEMENTARIOS en su ART 15 y ART 25 impiden la emision de Notas de crédito a "Consumidor Final".')
-                                        % (invoice.name,))
+                                    % (invoice.name,))
             invoice._l10n_ec_validate_number()
             if not invoice.l10n_ec_invoice_payment_method_ids:
-                #autofill, usefull as onchange is not called when invoicing from other modules (ie subscriptions) 
+                # autofill, usefull as onchange is not called when invoicing from other modules (ie subscriptions)
                 invoice.onchange_set_l10n_ec_invoice_payment_method_ids()
-            if invoice.edi_document_ids.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
+                # in v14 we also have edi document "factur-x" for interchanging docs among differente odoo instances
+            ec_edi_document = invoice.edi_document_ids.filtered(
+                lambda r: r.edi_format_id.code == 'l10n_ec_tax_authority')
+            if ec_edi_document.state or 'no_edi' in ('to_send'):  # if an electronic document is on the way
                 if not invoice.company_id.vat:
                     raise ValidationError(u'Please setup your VAT number in the company form')
                 if not invoice.company_id.street:
                     raise ValidationError(u'Please setup the your company address in the company form')
                 if not invoice.l10n_ec_printer_id.printer_point_address:
-                    raise ValidationError(u'Please setup the printer point address, in Accounting / Settings / Printer Points')
-                #needed to print offline RIDE and populate XML request
-                invoice.edi_document_ids._l10n_ec_set_access_key()
-                self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
-                invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
+                    raise ValidationError(
+                        u'Please setup the printer point address, in Accounting / Settings / Printer Points')
+                # needed to print offline RIDE and populate XML request
+                ec_edi_document._l10n_ec_set_access_key()
+                self.l10n_ec_authorization = ec_edi_document.l10n_ec_access_key  # for auditing manual changes
+                ec_edi_document._l10n_ec_generate_request_xml_file()  # useful for troubleshooting
         return res
 
     def _is_manual_document_number(self, journal):
@@ -305,12 +310,11 @@ class AccountMove(models.Model):
 
     def _get_last_sequence_domain(self, relaxed=False):
         if self.company_id.country_id == self.env.ref('base.ec') and self.l10n_latam_use_documents:
+            where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
             if self.l10n_latam_document_type_id and self.l10n_ec_printer_id:
-                where_string = "WHERE l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND l10n_ec_printer_id = %(l10n_ec_printer_id)s"
-                param = {'l10n_latam_document_type_id': self.l10n_latam_document_type_id.id or 0,
-                         'l10n_ec_printer_id': self.l10n_ec_printer_id.id or 0}
-            else:
-                where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
+                where_string += "AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND l10n_ec_printer_id = %(l10n_ec_printer_id)s"
+                param.update({'l10n_latam_document_type_id': self.l10n_latam_document_type_id.id or 0,
+                              'l10n_ec_printer_id': self.l10n_ec_printer_id.id or 0})
         else:
             where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
         return where_string, param
