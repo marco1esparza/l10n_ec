@@ -54,7 +54,7 @@ class AccountRefundClient(models.Model):
             if not self.partner_id:
                 return res
             commercial_partner = self.partner_id.commercial_partner_id
-            refund_type = self.move_id.type
+            refund_type = self.move_id.move_type
             code = commercial_partner._l10n_ec_get_code_by_vat()
             if refund_type in ['in_invoice', 'in_refund']: #COMPRAS
                 if code == 'R': #RUC
@@ -71,7 +71,7 @@ class AccountRefundClient(models.Model):
                     res['value']['transaction_type'] += ' Proveedor ' + commercial_partner.name
             else: #VENTAS
                 res['value']['transaction_type'] = 'No Aplica Para Ventas'
-            if self.move_id.type == 'out_invoice':
+            if self.move_id.move_type == 'out_invoice':
                 #rellenamos los datos de la factura de compra
                 vals = self._fill_purchase_invoice()
                 res['value'].update(vals)
@@ -84,7 +84,7 @@ class AccountRefundClient(models.Model):
         '''
         res = {'value': {},'warning': {},'domain': {}}
         if self.move_id.country_code == 'EC':
-            if self.move_id.type == 'out_invoice':
+            if self.move_id.move_type == 'out_invoice':
                 #rellenamos los datos de la factura de compra
                 vals = self._fill_purchase_invoice()
                 res['value'].update(vals)
@@ -110,7 +110,7 @@ class AccountRefundClient(models.Model):
                             pos = pos + 1
                         number_split[2] = number_split[2][:pos] + '0' * fill + number_split[2][pos:]
                         self.number = number_split[0] + '-' + number_split[1] + '-' + number_split[2]
-            if self.move_id.type == 'out_invoice':
+            if self.move_id.move_type == 'out_invoice':
                 #rellenamos los datos de la factura de compra
                 vals = self._fill_purchase_invoice()
                 res['value'].update(vals)
@@ -122,7 +122,7 @@ class AccountRefundClient(models.Model):
         When the authorization change, show the number for the document
         '''
         #caso facturas de venta por reembolso
-        if self.move_id.type == 'out_invoice':
+        if self.move_id.move_type == 'out_invoice':
             #para ventas por reembolso de gastos, en primera instancia no se implementa, pues
             #en el formulario se ha colocado primero el nro de factura y despues el nro de 
             #autorizacion, y se llena de izq a derecha
@@ -208,7 +208,7 @@ class AccountRefundClient(models.Model):
         '''
         for refund in self:
             commercial_partner = refund.partner_id.commercial_partner_id
-            refund_type = refund.move_id.type
+            refund_type = refund.move_id.move_type
             code = commercial_partner._l10n_ec_get_code_by_vat()
             if refund_type in ['in_invoice', 'in_refund']: #COMPRAS
                 if code == 'R': #RUC

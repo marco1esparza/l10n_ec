@@ -121,7 +121,7 @@ class AccountMove(models.Model):
                 else:
                     amount_total_refunds = invoice.amount_total
                 for refund in invoice.reversed_entry_id.reversal_move_id.filtered(lambda m:m.id != invoice.id
-                                                                                           and m.type in ['in_refund', 'out_refund']
+                                                                                           and m.move_type in ['in_refund', 'out_refund']
                                                                                            and m.state in ['open', 'paid']):
                     amount_total_refunds += refund.amount_total
                 refund_value_control = invoice.company_id.l10n_ec_refund_value_control
@@ -152,6 +152,16 @@ class AccountMove(models.Model):
                 self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
                 invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
+
+    def _is_manual_document_number(self, journal):
+        if self.country_code == 'EC':
+            doc_code = self.l10n_latam_document_type_id and self.l10n_latam_document_type_id.code or ''
+            if journal.type == 'purchase' and doc_code not in ['03']:
+                return True
+            else:
+                return False
+        else:
+            super()._is_manual_document_number(journal)
     
     def get_is_edi_needed(self, edi_format):
         '''
@@ -471,7 +481,7 @@ class AccountMoveLine(models.Model):
             if line.discount:
                 if line.tax_ids:
                     taxes_res = line.tax_ids._origin.compute_all(line.l10n_latam_price_unit,
-                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.type in ('out_refund', 'in_refund'))
+                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
                     total_discount = taxes_res['total_excluded'] - line.l10n_latam_price_subtotal    
                 else:
                     total_discount = (line.quantity * line.l10n_latam_price_unit) - line.l10n_latam_price_subtotal

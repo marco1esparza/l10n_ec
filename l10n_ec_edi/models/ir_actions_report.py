@@ -10,6 +10,6 @@ class IrActionsReport(models.Model):
     @api.model
     def get_paperformat(self):
         paperformat_id = super(IrActionsReport, self).get_paperformat()
-        if self.env.company.country_code == 'EC' and self.report_name in ('account.report_invoice_with_payments', 'account.report_invoice') and not self.paperformat_id:
+        if self.env.company.country_code == 'EC' and self.report_name in ('account.report_invoice') and not self.paperformat_id:
             paperformat_id = self.env.ref('l10n_ec_edi.paperformat_euro_no_margin')
         return paperformat_id

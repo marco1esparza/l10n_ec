@@ -49,8 +49,8 @@ class AccountEdiDocument(models.Model):
     
     def _process_jobs(self, to_process):
         super(AccountEdiDocument, self)._process_jobs(to_process)
-        #for key, documents in to_process:
-        #    self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.country_code == 'EC'))
+        for key, documents in to_process:
+            self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.country_code == 'EC'))
 
     def _prepare_jobs(self):
         #For Ecuador do not attempt again a document after 5 days (for not being blacklisted by SRI)
@@ -189,7 +189,7 @@ class AccountEdiDocument(models.Model):
         #generates and validates an xml request to later be sent to SRI
         self.ensure_one()
         if (self.move_id.move_type in ('out_invoice', 'out_refund') and self.move_id.l10n_latam_document_type_id.code in ['18', '04']) or \
-            (self.move_id.type in ('in_invoice') and self.move_id.l10n_latam_document_type_id.code in ['03']):
+            (self.move_id.move_type in ('in_invoice') and self.move_id.l10n_latam_document_type_id.code in ['03']):
             etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
@@ -585,7 +585,7 @@ class AccountEdiDocument(models.Model):
             additional_info.append('Telefono: %s' % get_invoice_partner_data['invoice_phone'])
         if self.move_id.invoice_payment_term_id.name:
             additional_info.append('Forma de Pago: %s' % self.move_id.invoice_payment_term_id.name)
-        if self.move_id.type != 'in_invoice':
+        if self.move_id.move_type != 'in_invoice':
             additional_info.append('Monto Letras: %s' % amount_to_words_es(self.move_id.amount_total))
         else:
             if self.move_id.l10n_latam_document_type_id.code in ('03','41'):

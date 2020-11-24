@@ -16,7 +16,6 @@ class AccountMove(models.Model):
     '''    
     _inherit = 'account.move'
 
-    #TODO: terminar de implementar este metodo, no migrar
     def compute_sale_lines_from_refunds(self):
         '''
         Genera los rubros de la factura de venta por reembolso como intermediario a partir
@@ -147,96 +146,82 @@ class AccountMove(models.Model):
         action['domain'] = [('id', 'in', invoice_ids)]
         return action
 
-    #TODO: implementar este metodo, no migrar
-#     def generate_sale_refund(self):
-#         """
-#         A partir de facturas de compra por reembolso como intermediario genera
-#         una factura de venta por reembolso como intermediario, en un solo paso.
-#         """
-#         #ponemos unas validaciones
-#         if any(x.type not in ('in_invoice') for x in self):
-#             raise UserError(_(u'La generación de facturas de venta por reembolso de gastos solo aplica para facturas de compra por reembolso de gastos.'))
-#         if any(x.state not in ('open','paid') for x in self):
-#             raise UserError(_(u'Las facturas seleccionadas deben estar aprobadas.'))
-#         l10n_latam_document_type_id = self.env['account.invoice.document.type'].search([
-#             ('code','=','41'),
-#             ('parent_id','!=',False),
-#             ('parent_id.code','=','18'), #el 18 es solo para venta
-#             ], limit=1)
-#         if not l10n_latam_document_type_id:
-#             raise UserError(_(u'No se encontro un tipo de documento de reembolso para venta, por favor verifique la configuracion del documento de venta con codigo 41.'))
-#         #computo del campo origin
-#         origin = []
-#         for purchase in self:
-#             text = []
-#             if purchase.origin:
-#                 text.append(purchase.origin)
-#             text.append(purchase.internal_number)
-#             text = ",".join(text)
-#             origin.append(text)
-#         origin = ";".join(origin)
-#         #computo de las lineas de reembolso
-#         refund_lines_vals = []
-#         for purchase in self:
-#             refund_lines_vals.append(
-#                 (0, 0, 
-#                  {'creation_date': purchase.date_invoice,
-#                   'refund_invoice_id': purchase.id,
-#                   'partner_id': purchase.partner_id.id,
-#                   'transaction_type': False,
-#                   'l10n_latam_document_type_id': purchase.l10n_latam_document_type_id.id,
-#                   'authorizations_id': purchase.authorizations_id.id,
-#                   'number': purchase.internal_number,
-#                   'base_tax_free': purchase.base_tax_free,
-#                   'no_vat_amount': purchase.base_not_subject_to_vat,
-#                   'base_vat_0': purchase.base_cero_iva,
-#                   'base_vat_no0': purchase.base_doce_iva,
-#                   'vat_amount_no0': purchase.vat_doce_subtotal,
-#                   'ice_amount': 0.0,
-#                   'total': purchase.total_with_tax,
-#                   'state': purchase.state, #TODO: revisar para que sirve el estado
-#                   }
-#                  )
-#                 )
-#         #creamos la factura 
-#         invoice_header = {
-#             'partner_id': self[0].company_id.partner_id.id, #temporalmente se deja con esta empresa hasta que el usuario selecciona una manualmente
-#             'type': 'out_invoice', # se indica aqui el tipo de factura para el resto de la creacion
-#             #'date_invoice': fields.Date.context_today(self),
-#             'origin': origin,
-#             'l10n_latam_document_type_id': l10n_latam_document_type_id.id,
-#             }
-#         inv_id = self.env['account.invoice'].new(invoice_header)
-#         res_partner = inv_id._onchange_partner_id()['value']
-#         #volvemos a crear el inv_id pero con la data del onchange del partner incorporada
-#         #esto incluye el printer_id que estaba faltando
-#         inv_id_dict = inv_id._convert_to_write(
-#             {name: inv_id[name] for name in inv_id._cache})
-#         inv_id_dict.update(res_partner)
-#         inv_id = self.env['account.invoice'].new(inv_id_dict)
-#         #los otros dos onchanges no requieren redefinicion del inv_id
-#         res_document = inv_id.onchange_l10n_latam_document_type_id()['value']
-#         res_printer = inv_id.onchange_printer_id()['value']
-#         inv_id_dict = inv_id._convert_to_write(
-#             {name: inv_id[name] for name in inv_id._cache})
-#         inv_id_dict.update(res_partner)
-#         inv_id_dict.update(res_document)
-#         inv_id_dict.update(res_printer)
-#         inv_id_dict.update(invoice_header) #para mantener nuestros datos maestros
-#         inv_id_dict.update({'refund_ids': refund_lines_vals}) #agregamos las lineas
-#         sale_invoice_id = self.env['account.invoice'].create(inv_id_dict)
-#         #computamos los rubros a facturar
-#         sale_invoice_id.compute_sale_lines_from_refunds()
-#         #retornamos la factura de venta por reembolso de gastos
-#         action = self.env.ref('account.action_invoice_tree1').read()[0]
-#         if len(sale_invoice_id) > 1:
-#             action['domain'] = [('id', 'in', sale_invoice_id.ids)]
-#         elif len(sale_invoice_id) == 1:
-#             action['views'] = [(self.env.ref('account.invoice_form').id, 'form')]
-#             action['res_id'] = sale_invoice_id.ids[0]
-#         else:
-#             action = {'type': 'ir.actions.act_window_close'}
-#         return action
+    def generate_sale_refund(self):
+        """
+        A partir de facturas de compra por reembolso como intermediario genera
+        una factura de venta por reembolso como intermediario, en un solo paso.
+        """
+        account_move_obj = self.env['account.move']
+        # ponemos unas validaciones
+        if any(x.move_type not in ('in_invoice') for x in self):
+            raise UserError(_(
+                u'La generación de facturas de venta por reembolso de gastos solo aplica para facturas de compra por reembolso de gastos.'))
+        if any(x.state not in ('posted') for x in self):
+            raise UserError(_(u'Las facturas seleccionadas deben estar aprobadas.'))
+        l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_59')
+        if not l10n_latam_document_type_id:
+            raise UserError(_(
+                u'No se encontro un tipo de documento de reembolso para venta, por favor verifique la configuración del documento de venta con código 41.'))
+        # computo del campo origin
+        origin = []
+        for purchase in self:
+            text = []
+            if purchase.invoice_origin:
+                text.append(purchase.invoice_origin)
+            text.append(purchase.l10n_latam_document_number)
+            text = ",".join(text)
+            origin.append(text)
+        origin = ";".join(origin)
+        # creamos la factura
+        invoice_header = {
+            'partner_id': self[0].company_id.partner_id.id,
+            # temporalmente se deja con esta empresa hasta que el usuario selecciona una manualmente
+            'move_type': 'out_invoice',  # se indica aqui el tipo de factura para el resto de la creacion
+            # 'date_invoice': fields.Date.context_today(self),
+            'invoice_origin': origin,
+            'l10n_latam_document_type_id': l10n_latam_document_type_id.id
+        }
+        inv_id = account_move_obj.new(invoice_header)
+        res_partner = inv_id._onchange_partner_id()
+        # volvemos a crear el inv_id pero con la data del onchange del partner incorporada
+        # esto incluye el printer_id que estaba faltando
+        inv_id_dict = inv_id._convert_to_write({name: inv_id[name] for name in inv_id._cache})
+        inv_id = account_move_obj.new(inv_id_dict)
+        # los otros dos onchanges no requieren redefinicion del inv_id
+        res_document = inv_id._inverse_l10n_latam_document_number()
+        res_printer = inv_id.onchange_l10n_ec_printer_id()
+        inv_id_dict = inv_id._convert_to_write({name: inv_id[name] for name in inv_id._cache})
+        inv_id_dict.update(invoice_header)  # para mantener nuestros datos maestros
+        # computo de las lineas de reembolso
+        refund_lines_vals = []
+        for purchase in self:
+            refund_lines_vals.append(
+                (0, 0,
+                 {'creation_date': purchase.invoice_date,
+                  'move_id': purchase.id,
+                  'partner_id': purchase.partner_id.id,
+                  'transaction_type': False,
+                  'l10n_latam_document_type_id': purchase.l10n_latam_document_type_id.id,
+                  'authorization': purchase.l10n_ec_authorization,
+                  'number': purchase.l10n_latam_document_number,
+                  'base_tax_free': purchase.l10n_ec_base_tax_free,
+                  'no_vat_amount': purchase.l10n_ec_base_not_subject_to_vat,
+                  'base_vat_0': purchase.l10n_ec_base_cero_iva,
+                  'base_vat_no0': purchase.l10n_ec_base_doce_iva,
+                  'vat_amount_no0': purchase.l10n_ec_vat_doce_subtotal,
+                  'ice_amount': 0.0,
+                  'total': purchase.l10n_ec_total_with_tax
+                  }
+                 )
+            )
+        inv_id_dict.update({'refund_ids': refund_lines_vals})  # agregamos las lineas
+        sale_invoice_id = account_move_obj.create(inv_id_dict)
+        # computamos los rubros a facturar
+        sale_invoice_id.compute_sale_lines_from_refunds()
+        # retornamos la factura de venta por reembolso de gastos
+        action = self.env.ref('account.action_move_in_invoice_type').read()[0]
+        action['domain'] = [('id', 'in', sale_invoice_id.ids)]
+        return action
 
     def _post(self, soft=True):
         '''
@@ -299,7 +284,7 @@ class AccountMove(models.Model):
             if invoice.move_type == 'in_invoice' and invoice.l10n_ec_sri_tax_support_id.code == '08':
                 #solo permitimos con la base 545 *equivale al codigo aplicado 555
                 vat_taxes = invoice.line_ids.mapped('tax_ids').filtered(lambda r: r.tax_group_id.l10n_ec_type in ['vat12', 'vat14','zero_vat','not_charged_vat','exempt_vat'])
-                base_codes = vat_taxes.mapped('code_base')
+                base_codes = vat_taxes.mapped('l10n_ec_code_base')
                 base_codes = list(dict.fromkeys(base_codes)) #remueve duplicados
                 try:
                     base_codes.remove('545') #removemos el unico codigo permitido

@@ -15,7 +15,7 @@ class L10nEcSRITaxSupport(models.Model):
         '''
         result = []
         for support in self:
-            new_name = (support.code and '[' + support.code + '] ' or '') + support.name
+            new_name = (support.code and '[' + support.code + '] ' or '') + support.name or ''
             result.append((support.id, new_name))
         return result
 

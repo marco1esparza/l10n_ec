@@ -3,7 +3,7 @@
 
 {
     'name': 'Reports',
-    'version': '1.0',
+    'version': '1.1',
     'category': 'Localization',
     'description': '''
         Autores:

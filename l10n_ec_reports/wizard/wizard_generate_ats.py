@@ -244,7 +244,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 if transaction_type == '03': #cuando es compra con pasaporte
                     tipoProv_ = doc.createElement('tipoProv')
                     detallecompras.appendChild(tipoProv_)
-                    tipoProv_.appendChild(doc.createTextNode(natural_sociedad)) #el tipo de identifica
+                    tipoProv_.appendChild(doc.createTextNode(natural_sociedad)) #el tipo de identificacion
                       
                     denoProv = doc.createElement('denoProv')
                     detallecompras.appendChild(denoProv)
@@ -438,7 +438,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                  
                 #TODO jm: implementar reembolsos y descomentar la sig linea
                 #2.2.3 DATA REEMBOLSO
-                #self.write_purchase_refund_section(doc, main, in_inv, detallecompras, report_status)
+                self.write_purchase_refund_section(doc, main, in_inv, detallecompras, report_status)
  
         last_time = tm()
         ejecution_time = last_time - init_time
@@ -565,105 +565,105 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             Modificadoauth = doc.createTextNode(in_inv.reversed_entry_id.l10n_ec_authorization or '')
             autModificado.appendChild(Modificadoauth)
 
-#     @api.model    
-#     def write_purchase_refund_section(self, doc, main, in_inv, detallecompras, report_status):
-#         '''
-#         Escribe la seccion de reembolsos en compras en el ats
-#         '''
-#         #TODO: Validar la implementacion para los tipos de documento 47 y 48
-#         if in_inv.l10n_latam_document_type_id.code in ['41','47','48'] and in_inv.account_refund_client_ids:
-#             reembolsos = doc.createElement('reembolsos')
-#             detallecompras.appendChild(reembolsos)
-#             for refund_id in in_inv.account_refund_client_ids:
-#                 reembolso = doc.createElement('reembolso')
-#                 reembolsos.appendChild(reembolso)
-#                 tipoComprobanteReemb = doc.createElement('tipoComprobanteReemb')
-#                 reembolso.appendChild(tipoComprobanteReemb)
-#                 tipoComprobanteReemb.appendChild(doc.createTextNode(refund_id.l10n_latam_document_type_id.code))
-# 
-#                 idProvReemb = doc.createElement('tpIdProvReemb')
-#                 reembolso.appendChild(idProvReemb)
-#                 vidProvReemb = refund_id.transaction_type
-#                 idProvReemb.appendChild(doc.createTextNode(vidProvReemb))
-#                 
-#                 if len(vidProvReemb) > 2:
-#                     #si no es un codigo sino un texto, agregamos el texto del error
-#                     report_status.append(vidProvReemb)
-#                 
-#                 idProvReemb = doc.createElement('idProvReemb')
-#                 reembolso.appendChild(idProvReemb)
-#                 idProvReemb.appendChild(doc.createTextNode(refund_id.partner_id.vat))
-#                 
-#                 establecimientoReemb = doc.createElement('establecimientoReemb')
-#                 reembolso.appendChild(establecimientoReemb)
-#                 establecimientoReemb.appendChild(doc.createTextNode(refund_id.number[0:3]))
-#                 
-#                 puntoEmisionReemb = doc.createElement('puntoEmisionReemb')
-#                 reembolso.appendChild(puntoEmisionReemb)
-#                 puntoEmisionReemb.appendChild(doc.createTextNode(refund_id.number[4:7]))
-#                 
-#                 secuencialReemb = doc.createElement('secuencialReemb')
-#                 reembolso.appendChild(secuencialReemb)
-#                 vsecuencialReemb = refund_id.number[8:]
-#                 secuencialReemb.appendChild(doc.createTextNode(vsecuencialReemb or ''))
-#                 if not vsecuencialReemb:
-#                     #si no es un codigo sino un texto, agregamos el texto del error
-#                     report_status.append(u'Dentro del reembolso ' + str(refund_id.refund_invoice_id.number) + \
-#                                          u', la factura ' + refund_id.number + \
-#                                          u' no tiene secuencial de reembolso')
-#                 else:
-#                     pass #do nothing
-#                 
-#                 fechaEmisionReemb = doc.createElement('fechaEmisionReemb')
-#                 reembolso.appendChild(fechaEmisionReemb)
-#                 fechaEmisionReemb.appendChild(doc.createTextNode(self._getFormatDates(refund_id.creation_date)))
-#                 
-#                 autorizacionReemb = doc.createElement('autorizacionReemb')
-#                 reembolso.appendChild(autorizacionReemb)
-#                 vautorizacionReemb = refund_id.l10n_ec_authorization
-#                 autorizacionReemb.appendChild(doc.createTextNode(vautorizacionReemb or ''))
-#                 if not vautorizacionReemb:
-#                     #si no es un codigo sino un texto, agregamos el texto del error
-#                     report_status.append(u'Dentro del reembolso ' + str(refund_id.refund_invoice_id.number) + \
-#                                          u', la factura ' + refund_id.number + \
-#                                          u' no tiene autorizacion')
-# 
-#                 elif len(vautorizacionReemb) not in [10, 37, 49]:
-#                     report_status.append(u'Dentro del reembolso ' + str(refund_id.refund_invoice_id.number) + \
-#                                          u', la factura ' + refund_id.number + \
-#                                          u' tiene una autorizacion incompleta')
-# 
-#                 else:
-#                     pass #do nothing
-#                 baseImponibleReemb = doc.createElement('baseImponibleReemb')
-#                 reembolso.appendChild(baseImponibleReemb)
-#                 aux = doc.createTextNode('%.2f' %  abs(float(refund_id.base_vat_0)))
-#                 baseImponibleReemb.appendChild(aux)
-#                 
-#                 baseImpGravReemb = doc.createElement('baseImpGravReemb')
-#                 reembolso.appendChild(baseImpGravReemb)
-#                 aux = doc.createTextNode('%.2f' % abs(float(refund_id.base_vat_no0)))
-#                 baseImpGravReemb.appendChild(aux)
-#                 
-#                 baseNoGraIvaReemb = doc.createElement('baseNoGraIvaReemb')
-#                 reembolso.appendChild(baseNoGraIvaReemb)
-#                 aux = doc.createTextNode('%.2f' % abs(float(refund_id.no_vat_amount)))
-#                 baseNoGraIvaReemb.appendChild(aux)
-# 
-#                 baseImpExeReemb = doc.createElement('baseImpExeReemb')
-#                 reembolso.appendChild(baseImpExeReemb)
-#                 aux = doc.createTextNode('%.2f' % abs(float(refund_id.base_tax_free)))
-#                 baseImpExeReemb.appendChild(aux)
-#                 
-#                 montoIceRemb = doc.createElement('montoIceRemb')
-#                 reembolso.appendChild(montoIceRemb)
-#                 aux = doc.createTextNode('%.2f' % abs(float(refund_id.ice_amount)))
-#                 montoIceRemb.appendChild(aux)
-# 
-#                 montoIvaRemb = doc.createElement('montoIvaRemb')
-#                 reembolso.appendChild(montoIvaRemb)
-#                 aux = doc.createTextNode('%.2f' % abs(float(refund_id.vat_amount_no0)))
-#                 montoIvaRemb.appendChild(aux)
+    @api.model
+    def write_purchase_refund_section(self, doc, main, in_inv, detallecompras, report_status):
+        '''
+        Escribe la seccion de reembolsos en compras en el ats
+        '''
+        # TODO: Validar la implementacion para los tipos de documento 47 y 48
+        if in_inv.l10n_latam_document_type_id.code in ['41', '47', '48'] and in_inv.refund_ids:
+            reembolsos = doc.createElement('reembolsos')
+            detallecompras.appendChild(reembolsos)
+            for refund_id in in_inv.refund_ids:
+                reembolso = doc.createElement('reembolso')
+                reembolsos.appendChild(reembolso)
+                tipoComprobanteReemb = doc.createElement('tipoComprobanteReemb')
+                reembolso.appendChild(tipoComprobanteReemb)
+                tipoComprobanteReemb.appendChild(doc.createTextNode(refund_id.l10n_latam_document_type_id.code))
+
+                idProvReemb = doc.createElement('tpIdProvReemb')
+                reembolso.appendChild(idProvReemb)
+                vidProvReemb = refund_id.transaction_type
+                idProvReemb.appendChild(doc.createTextNode(vidProvReemb))
+
+                if len(vidProvReemb) > 2:
+                    # si no es un codigo sino un texto, agregamos el texto del error
+                    report_status.append(vidProvReemb)
+
+                idProvReemb = doc.createElement('idProvReemb')
+                reembolso.appendChild(idProvReemb)
+                idProvReemb.appendChild(doc.createTextNode(refund_id.partner_id.vat))
+
+                establecimientoReemb = doc.createElement('establecimientoReemb')
+                reembolso.appendChild(establecimientoReemb)
+                establecimientoReemb.appendChild(doc.createTextNode(refund_id.number[0:3]))
+
+                puntoEmisionReemb = doc.createElement('puntoEmisionReemb')
+                reembolso.appendChild(puntoEmisionReemb)
+                puntoEmisionReemb.appendChild(doc.createTextNode(refund_id.number[4:7]))
+
+                secuencialReemb = doc.createElement('secuencialReemb')
+                reembolso.appendChild(secuencialReemb)
+                vsecuencialReemb = refund_id.number[8:]
+                secuencialReemb.appendChild(doc.createTextNode(vsecuencialReemb or ''))
+                if not vsecuencialReemb:
+                    # si no es un codigo sino un texto, agregamos el texto del error
+                    report_status.append(u'Dentro del reembolso ' + str(refund_id.move_id.l10n_latam_document_number) + \
+                                         u', la factura ' + refund_id.number + \
+                                         u' no tiene secuencial de reembolso')
+                else:
+                    pass  # do nothing
+
+                fechaEmisionReemb = doc.createElement('fechaEmisionReemb')
+                reembolso.appendChild(fechaEmisionReemb)
+                fechaEmisionReemb.appendChild(doc.createTextNode(self._getFormatDates(refund_id.creation_date)))
+
+                autorizacionReemb = doc.createElement('autorizacionReemb')
+                reembolso.appendChild(autorizacionReemb)
+                vautorizacionReemb = refund_id.authorization
+                autorizacionReemb.appendChild(doc.createTextNode(vautorizacionReemb or ''))
+                if not vautorizacionReemb:
+                    # si no es un codigo sino un texto, agregamos el texto del error
+                    report_status.append(u'Dentro del reembolso ' + str(refund_id.move_id.l10n_latam_document_number) + \
+                                         u', la factura ' + refund_id.number + \
+                                         u' no tiene autorizacion')
+
+                elif len(vautorizacionReemb) not in [10, 37, 49]:
+                    report_status.append(u'Dentro del reembolso ' + str(refund_id.move_id.l10n_latam_document_number) + \
+                                         u', la factura ' + refund_id.number + \
+                                         u' tiene una autorizacion incompleta')
+
+                else:
+                    pass  # do nothing
+                baseImponibleReemb = doc.createElement('baseImponibleReemb')
+                reembolso.appendChild(baseImponibleReemb)
+                aux = doc.createTextNode('%.2f' % abs(float(refund_id.base_vat_0)))
+                baseImponibleReemb.appendChild(aux)
+
+                baseImpGravReemb = doc.createElement('baseImpGravReemb')
+                reembolso.appendChild(baseImpGravReemb)
+                aux = doc.createTextNode('%.2f' % abs(float(refund_id.base_vat_no0)))
+                baseImpGravReemb.appendChild(aux)
+
+                baseNoGraIvaReemb = doc.createElement('baseNoGraIvaReemb')
+                reembolso.appendChild(baseNoGraIvaReemb)
+                aux = doc.createTextNode('%.2f' % abs(float(refund_id.no_vat_amount)))
+                baseNoGraIvaReemb.appendChild(aux)
+
+                baseImpExeReemb = doc.createElement('baseImpExeReemb')
+                reembolso.appendChild(baseImpExeReemb)
+                aux = doc.createTextNode('%.2f' % abs(float(refund_id.base_tax_free)))
+                baseImpExeReemb.appendChild(aux)
+
+                montoIceRemb = doc.createElement('montoIceRemb')
+                reembolso.appendChild(montoIceRemb)
+                aux = doc.createTextNode('%.2f' % abs(float(refund_id.ice_amount)))
+                montoIceRemb.appendChild(aux)
+
+                montoIvaRemb = doc.createElement('montoIvaRemb')
+                reembolso.appendChild(montoIvaRemb)
+                aux = doc.createTextNode('%.2f' % abs(float(refund_id.vat_amount_no0)))
+                montoIvaRemb.appendChild(aux)
 
     @api.model
     def write_sale_section(self, doc, main, report_status):
@@ -683,7 +683,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             ('l10n_latam_document_type_id.code', 'in', _SALE_DOCUMENT_CODES),
             ('invoice_date','>=', self.date_start),
             ('invoice_date','<=', self.date_finish),
-            '|',('fiscal_position_id', 'not in', [self.env.ref('l10n_ec.1_fp_foreing_company_exports').id, self.env.ref('l10n_ec.1_fp_foreing_person_exports').id]),
+            '|',('fiscal_position_id', 'not in', [self.env.ref('l10n_ec.fp_foreing_company_exports').id, self.env.ref('l10n_ec.fp_foreing_person_exports').id]),
             ('fiscal_position_id', '=', False)
         ], order='partner_id, l10n_latam_document_type_id, invoice_date'))        
         last_time = tm()
@@ -1012,10 +1012,9 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         Dado un id de factura calcula el valor de reembolso en caso de tenerlo, basado en los documentos ingresados
         '''
         total_refund = 0.00
-        #TODO jm: implementar correctamente esta seccion de reembolsos, descomentando el sig code
-#         if invoice:
-#             for ats_line in invoice.account_refund_client_ids:
-#                 total_refund += ats_line.base_vat_0 + ats_line.base_vat_no0 + ats_line.base_tax_free + ats_line.no_vat_amount
+        if invoice:
+            for ats_line in invoice.refund_ids:
+                total_refund += ats_line.base_vat_0 + ats_line.base_vat_no0 + ats_line.base_tax_free + ats_line.no_vat_amount
         return total_refund
      
     @api.model

@@ -494,6 +494,36 @@ class AccountMove(models.Model):
             res['context']['default_template_id'] = template.id
         return res
 
+    @api.constrains('name', 'journal_id', 'state')
+    def _check_unique_sequence_number(self):
+        '''
+        Invocamos el _check_unique_sequence_number para hacer by pass a restriccion del core relacionada con duplicidad
+        en retenciones recibidas en ventas.
+        '''
+        moves = self.filtered(lambda move: move.state == 'posted')
+        if not moves:
+            return
+        self.flush()
+        # Si son retenciones en ventas analizamos el partner
+        out_withhold = self.filtered(lambda move: move.l10n_ec_withhold_type == 'out_withhold')
+        if out_withhold:
+            # /!\ Computed stored fields are not yet inside the database.
+            self._cr.execute('''
+                    SELECT move2.id
+                    FROM account_move move
+                    INNER JOIN account_move move2 ON
+                        move2.name = move.name
+                        AND move2.journal_id = move.journal_id
+                        AND move2.move_type = move.move_type
+                        AND move2.id != move.id
+                    WHERE move.id IN %s AND move2.partner_id IN %s AND move2.state = 'posted'
+                ''', [tuple(moves.ids), tuple(moves.mapped('partner_id').ids)])
+            res = self._cr.fetchone()
+            if res:
+                raise ValidationError(_('Posted journal entry must have an unique sequence number per company.'))
+            return
+        return super(AccountMove, self)._check_unique_sequence_number()
+
     _EC_WITHHOLD_TYPE = [
         ('out_withhold', 'Customer Withhold'),
         ('in_withhold', 'Supplier Withhold')
