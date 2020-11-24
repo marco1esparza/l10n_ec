@@ -122,12 +122,7 @@ class AccountMove(models.Model):
                     amount_total_refunds = 0.00
                 else:
                     amount_total_refunds = invoice.amount_total
-                for refund in invoice.reversed_entry_id.reversal_move_id.filtered(lambda m: m.id != invoice.id
-                                                                                            and m.move_type in [
-                                                                                                'in_refund',
-                                                                                                'out_refund']
-                                                                                            and m.state in ['open',
-                                                                                                            'paid']):
+                for refund in invoice.reversed_entry_id.reversal_move_id.filtered(lambda m: m.id != invoice.id and m.move_type in ['in_refund', 'out_refund'] and m.state in ['posted']):
                     amount_total_refunds += refund.amount_total
                 refund_value_control = invoice.company_id.l10n_ec_refund_value_control
                 if float_compare(amount_total_refunds, invoice.reversed_entry_id.amount_total, precision_digits=2) == 1 \
