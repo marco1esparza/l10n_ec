@@ -24,6 +24,7 @@ path = os.path.abspath(os.path.dirname(__file__))
 XSD_SRI_110_FACTURA = _load_xsd(path+'/../resources/sri_110_factura.xsd')
 XSD_SRI_110_NOTA_CREDITO = _load_xsd(path+'/../resources/Nota_Credito_V_1_1_0.xsd')
 XSD_SRI_100_RETENCION = _load_xsd(path+'/../resources/sri_100_retencion.xsd')
+XSD_SRI_110_LIQ_COMPRA = _load_xsd(path+'/../resources/Liquidacion_Compra_V_1_1_0.xsd')
 
 
 def get_SRI_normalized_text(text):
@@ -36,10 +37,9 @@ def get_SRI_normalized_text(text):
     [^\n]* utilizado en los campos de tipo texto del xsd.
     '''
     ascii_text = unicodedata.normalize('NFKD', text).encode('ascii','ignore')
-    #TODO: implementar la linea comentada y borrar la siguiente
-    #text_SRI_compliant = re.sub('\n', '', ascii_text)
-    text_SRI_compliant = ascii_text
-    text_SRI_compliant = text_SRI_compliant.strip()
+    ascii_text = ascii_text.decode("utf-8") #otherwise python 3 makes it a bytestring
+    text_SRI_compliant = re.sub('\n', ' ', ascii_text)
+    text_SRI_compliant = text_SRI_compliant.strip() 
     return text_SRI_compliant
 
 def clean_xml(etree_content, context={}):

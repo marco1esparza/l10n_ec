@@ -23,12 +23,8 @@
 					<group col="2">
 						<group>
 							<field name="company_id" attrs="{'readonly': [('state','!=','draft')]}"/>
-							<field name="cert_encripted" attrs="{'readonly': [('state','!=','draft')]}"/>
 							<field name="password_p12" password="True" attrs="{'readonly': [('state','!=','draft')]}"/>
-						</group>
-						<group>
-							<field name="not_valid_after" attrs="{'invisible': [('state','=','draft')]}"/>
-							<field name="not_valid_before" attrs="{'invisible': [('state','=','draft')]}"/>
+							<field name="cert_encripted" attrs="{'readonly': [('state','!=','draft')]}"/>
 						</group>
 					</group>
 				</sheet>

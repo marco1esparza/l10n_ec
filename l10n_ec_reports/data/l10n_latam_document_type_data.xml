@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data noupdate="0">
+
+    	<record id="l10n_ec.ec_02" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('COSTO_GASTO'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_COSTGAST'),ref('VALPAG_REEMB'),ref('REEM_SINIESTROS'),ref('CAS_ESP')])]"/>
+		</record>
+        
+		<record id="l10n_ec.ec_06" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('ACTF_CREDTRIB'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_CREDTRIB'),ref('INV_COSTGAST'),ref('VALPAG_REEMB'),ref('REEM_SINIESTROS'),ref('CAS_ESP')])]"/>
+		</record>
+		
+	    <record id="l10n_ec.ec_08" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('ACTF_CREDTRIB'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_CREDTRIB'),ref('INV_COSTGAST'),ref('VALPAG_REEMB')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_09" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('ACTF_CREDTRIB'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_CREDTRIB'),ref('INV_COSTGAST'),ref('VALPAG_REEMB'),ref('REEM_SINIESTROS'),ref('CAS_ESP')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_14" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('LIQ_GASTDVIAJ')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_15" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('LIQ_GASTDVIAJ')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_16" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('COSTO_GASTO'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_COSTGAST')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_19" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('COSTO_GASTO'),ref('DIST_DBU')])]"/>	
+		</record>
+		
+		<record id="l10n_ec.ec_20" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('COSTO_GASTO')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_21" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('VALPAG_REEMB')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_42" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CAS_ESP')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_43" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('INV_CREDTRIB'),ref('INV_COSTGAST')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_45" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('REEM_SINIESTROS')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_47" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('ACTF_CREDTRIB'),ref('ACTF_COSTGAST'),ref('INV_CREDTRIB'),ref('INV_COSTGAST')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_48" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('ACTF_CREDTRIB'),ref('ACTF_COSTGAST'),ref('INV_CREDTRIB'),ref('INV_COSTGAST')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_53" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('ACTF_CREDTRIB'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_CREDTRIB'),ref('INV_COSTGAST'),ref('VALPAG_REEMB'),ref('REEM_SINIESTROS'),ref('CAS_ESP')])]"/>
+		</record>
+		
+		<record id="l10n_ec.ec_57" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('ACTF_CREDTRIB'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_CREDTRIB'),ref('INV_COSTGAST')])]"/>
+		</record>	
+		
+		<record id="l10n_ec.ec_58" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('ACTF_CREDTRIB'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_CREDTRIB'),ref('INV_COSTGAST')])]"/>
+		</record>	
+		
+		<record id="l10n_ec.ec_59" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('ACTF_CREDTRIB'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_CREDTRIB'),ref('INV_COSTGAST')])]"/>
+		</record>
+
+	</data>	
+</odoo>

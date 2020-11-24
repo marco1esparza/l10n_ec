@@ -8,13 +8,15 @@
             <field name="view_mode">form</field>
         </record>
 
-		<menuitem id="menu_inventory_valuation" name="Valoración de Inventario" parent="account.menu_finance_reports" sequence="3"/>
+	<menuitem id="menu_inventory_valuation" name="Valoración de Inventario" parent="account.menu_finance_reports" sequence="3"/>
 
         <menuitem id="menu_karded_valued" name="Kardex Valorado" action="TODO_action_implementar_para_cada_menu2" parent="menu_inventory_valuation" sequence="1"/>
         
         <menuitem id="menu_stock_valuation" name="Valoración Existencias" action="TODO_action_implementar_para_cada_menu2" parent="menu_inventory_valuation" sequence="2"/>
         
         <menuitem id="menu_valuation_stock_warehouse" name="Valoración de Existencias por Bodega" action="TODO_action_implementar_para_cada_menu2" parent="menu_inventory_valuation" sequence="3"/>
+
+        <menuitem id="menu_account_type" name="Account Types" parent="account.account_account_menu" action="account.action_account_type_form" sequence="3"/>
 
     </data>
 </odoo>

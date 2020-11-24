@@ -7,6 +7,7 @@ from odoo.exceptions import UserError, ValidationError
 
 class L10nEcAccountWithholdLine(models.Model):
     _name = 'l10n_ec.account.withhold.line'
+    _description = "Withhold Line Detail"
     
     @api.onchange('invoice_id','tax_id')
     def onchange_invoice_id(self):

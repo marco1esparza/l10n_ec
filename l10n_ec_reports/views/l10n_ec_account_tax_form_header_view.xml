@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_account_tax_form_header_form">
+            <field name="name">view.account.tax.form.header.form</field>
+            <field name="model">l10n_ec.account.tax.form.header</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Account Tax Form" create="0" edit="0" delete="0">
+                    <header>
+                        <button type="object" name="print_xls" string="Print XLS" icon="fa-print"/>
+                    </header>
+                    <sheet string="Account Tax Form">
+                        <h1><field name="name"/></h1>
+                        <group>
+                            <group>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                                <field name="date_from"/>
+                            </group>
+                            <group>
+                                <field name="date_to"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Account Tax Group">
+                                <field name="tax_group_ids"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_account_tax_form_group_tree">
+            <field name="name">view.account.tax.form.group.tree</field>
+            <field name="model">l10n_ec.account.tax.form.group</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Account Tax Group">
+                    <field name="tax_code_base"/>
+                    <field name="tax_code"/>
+                    <field name="tax_code_ats"/>
+                    <field name="tax_name"/>
+                    <button type="object" name="action_view_tax_form_lines"
+                            string="View tax form lines" icon="fa-search-plus"/>
+                    <field name="tax_group_id"/>
+                    <field name="base" sum="Base"/>
+                    <field name="amount" sum="Amout"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_account_tax_form_line_tree">
+            <field name="name">view.account.tax.form.line.tree</field>
+            <field name="model">l10n_ec.account.tax.form.line</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Account Tax Line">
+                    <field name="tax_code_base"/>
+                    <field name="tax_code"/>
+                    <field name="tax_code_ats"/>
+                    <field name="tax_name"/>
+                    <field name="internal_number"/>
+                    <field name="invoice_date"/>
+                    <field name="partner_id"/>
+                    <field name="vat"/>
+                    <button type="object" name="action_view_invoice_tax_form"
+                            string="View invoice" icon="fa-search-plus"/>
+                    <field name="base"/>
+                    <field name="amount"/>
+                </tree>
+            </field>
+        </record>
+    </data>
+</odoo>

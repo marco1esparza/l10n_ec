@@ -25,8 +25,17 @@ class AccountMove(models.Model):
     
     def unlink(self):
         #From l10n_latam, allows to erase withholds
-        self.filtered(lambda x: x.l10n_ec_withhold_type in ('out_withhold') and x.state in ('draft') and x.l10n_latam_use_documents).write({'name': '/'})
+        withholds = self.filtered(lambda x: x.l10n_ec_withhold_type and x.l10n_ec_withhold_type in ('out_withhold') and x.state in ('draft') and x.l10n_latam_use_documents)
+        if withholds:
+            withholds.write({'name': '/'})
         return super().unlink()
+    
+    def copy_data(self, default=None):
+        #avoid duplicating withholds, it has not been tested
+        res = super(AccountMove, self).copy_data(default=default)
+        if self.is_withholding():
+            raise ValidationError(u'No se permite duplicar las retenciones, si necesita crear una debe hacerlo desde la factura correspondiente.')
+        return res
 
     def _post(self, soft=True):
         '''
@@ -34,39 +43,46 @@ class AccountMove(models.Model):
         los asientos de retenciones en ventas con la factura
         '''
         self.l10n_ec_make_withhold_entry()
-        #La siguiente seccion de codigo antes del super es para lograr generar las retenciones electronicas en
-        #compras, funcionamiento similar existe en el _post del account_move(account_edi) pero solo esta para 
-        #facturas y no cubre el caso de retenciones, la ubicacion de este code antes de super es relevante
-        #para que engrane con el funcionamiento existe en el modulo account_edi y no tengamos que llamar n
-        #metodos por separado lo que aumentaria las probabilidades de fallo.
+        res = super(AccountMove, self)._post(soft)
         for withhold in self:
             if withhold.country_code == 'EC':
-                #Withhold Purchase
-                if withhold.move_type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
-                    edi_document_vals_list = []
-                    for edi_format in withhold.journal_id.edi_format_ids:
-                        is_edi_needed = withhold.l10n_ec_printer_id and withhold.l10n_ec_printer_id.allow_electronic_document
-                        if is_edi_needed:
-                            existing_edi_document = withhold.edi_document_ids.filtered(lambda x: x.edi_format_id == edi_format)
-                            if existing_edi_document:
-                                existing_edi_document.write({
-                                    'state': 'to_send',
-                                    'attachment_id': False,
-                                })
-                            else:
-                                edi_document_vals_list.append({
-                                    'edi_format_id': edi_format.id,
-                                    'move_id': withhold.id,
-                                    'state': 'to_send',
-                                })
-                    self.env['account.edi.document'].create(edi_document_vals_list)
-        res = super(AccountMove, self)._post(soft=soft)
-        for withhold in self:
-            if withhold.country_code == 'EC':
-                #Withhold Sales
                 if withhold.move_type in ('entry') and withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
                     (withhold + withhold.l10n_ec_withhold_origin_ids).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_receivable_id).reconcile()
         return res
+
+    def button_cancel_posted_moves(self):
+        # Verificamos si es una retencion y se puede ejecutar REQUEST EDI CANCELLATION
+        res = super().button_cancel_posted_moves()
+        to_cancel_documents = self.env['account.edi.document']
+        for move in self:
+            is_move_marked = False
+            for doc in move.edi_document_ids:
+                if doc.edi_format_id._needs_web_services() \
+                        and doc.attachment_id \
+                        and doc.state == 'sent' \
+                        and move.is_withholding():
+                    to_cancel_documents |= doc
+                    is_move_marked = True
+            if is_move_marked:
+                move.message_post(body=_("A cancellation of the EDI has been requested."))
+
+        to_cancel_documents.write({'state': 'to_cancel', 'error': False})
+        return res
+
+    @api.depends(
+        'state',
+        'edi_document_ids.state',
+        'edi_document_ids.attachment_id')
+    def _compute_edi_show_cancel_button(self):
+        # Validacion de mostrar el REQUEST EDI CANCELATION a las retenciones
+        for move in self:
+            super(AccountMove, move)._compute_edi_show_cancel_button()
+            if move.is_withholding():
+                move.edi_show_cancel_button = any([doc.edi_format_id._needs_web_services()
+                                                   and doc.attachment_id
+                                                   and doc.state == 'sent'
+                                                   and move.is_withholding()
+                                                   for doc in move.edi_document_ids])
 
     def button_draft(self):
         '''
@@ -237,6 +253,7 @@ class AccountMove(models.Model):
 
     def get_is_edi_needed(self, edi_format):
         '''
+        Retenciones electronicas en compras
         '''
         res = super(AccountMove, self).get_is_edi_needed(edi_format)
         if self.country_code == 'EC':
@@ -244,14 +261,7 @@ class AccountMove(models.Model):
                 return True
         return res
 
-    def is_invoice(self, include_receipts=False):
-        #when "sending" the edi behaves like an invoice to re-use account_edi module
-        if self._context.get('l10n_ec_withhold_invoice',False):
-            return True
-        return super(AccountMove, self).is_invoice(include_receipts)
-    
     def _recompute_tax_lines(self, recompute_tax_base_amount=False):
-
         '''
         It allows generating zero entries when the tax amount is zero
         '''
@@ -275,6 +285,23 @@ class AccountMove(models.Model):
         new_move = self[0].copy(default=default_values)
         
         return self.l10n_ec_action_view_withholds()
+
+    @api.depends('move_type')
+    def _compute_invoice_filter_type_domain(self):
+        '''
+        Metodo para obtener solo diarios generales en Retenciones.
+        '''
+        for move in self:
+            super(AccountMove, move)._compute_invoice_filter_type_domain()
+            if move.l10n_ec_withhold_type and move.l10n_ec_withhold_type in ('in_withhold'):
+                move.invoice_filter_type_domain = 'general'
+
+    def _get_l10n_latam_documents_domain(self):
+        #Filter document types according to ecuadorian type
+        domain = super(AccountMove, self)._get_l10n_latam_documents_domain()
+        if self.l10n_ec_withhold_type:
+            domain.extend([('l10n_ec_type', '=', self.l10n_ec_withhold_type)])
+        return domain
     
     def _l10n_ec_prepare_withold_default_values(self):
         #Compras
@@ -440,10 +467,63 @@ class AccountMove(models.Model):
         if any(not move.is_invoice() and (not move.l10n_latam_document_type_id) for move in self):
             raise UserError(_("Only invoices could be printed."))
         elif any(not move.is_invoice() and move.l10n_latam_document_type_id.code not in ['07']
-                 and move.l10n_latam_country_code == 'EC' for move in self):
+                 and move.country_code == 'EC' for move in self):
             raise UserError(_("Only invoices could be printed."))
         return self._get_move_display_name()
-    
+
+    def is_invoice(self, include_receipts=False):
+        #Hack, permite enviar por mail documentos distintos de facturas
+        is_invoice = super(AccountMove, self).is_invoice(include_receipts)
+        if self._context.get('l10n_ec_send_email_others_docs', False):
+            if self.is_withholding():
+                is_invoice = True
+        return is_invoice
+
+    def is_withholding(self):
+        is_withholding = False
+        if self.country_code == 'EC' and self.move_type in ('entry') and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold') and self.l10n_latam_document_type_id.code in ['07']:
+            is_withholding = True
+        return is_withholding
+
+    def action_invoice_sent(self):
+        # OVERRIDE
+        res = super(AccountMove, self).action_invoice_sent()
+
+        if self.is_withholding():
+            template = self.env.ref('l10n_ec_withhold.l10n_ec_email_template_edi_document')
+            res['context']['default_template_id'] = template.id
+        return res
+
+    @api.constrains('name', 'journal_id', 'state')
+    def _check_unique_sequence_number(self):
+        '''
+        Invocamos el _check_unique_sequence_number para hacer by pass a restriccion del core relacionada con duplicidad
+        en retenciones recibidas en ventas.
+        '''
+        moves = self.filtered(lambda move: move.state == 'posted')
+        if not moves:
+            return
+        self.flush()
+        # Si son retenciones en ventas analizamos el partner
+        out_withhold = self.filtered(lambda move: move.l10n_ec_withhold_type == 'out_withhold')
+        if out_withhold:
+            # /!\ Computed stored fields are not yet inside the database.
+            self._cr.execute('''
+                    SELECT move2.id
+                    FROM account_move move
+                    INNER JOIN account_move move2 ON
+                        move2.name = move.name
+                        AND move2.journal_id = move.journal_id
+                        AND move2.move_type = move.move_type
+                        AND move2.id != move.id
+                    WHERE move.id IN %s AND move2.partner_id IN %s AND move2.state = 'posted'
+                ''', [tuple(moves.ids), tuple(moves.mapped('partner_id').ids)])
+            res = self._cr.fetchone()
+            if res:
+                raise ValidationError(_('Posted journal entry must have an unique sequence number per company.'))
+            return
+        return super(AccountMove, self)._check_unique_sequence_number()
+
     _EC_WITHHOLD_TYPE = [
         ('out_withhold', 'Customer Withhold'),
         ('in_withhold', 'Supplier Withhold')

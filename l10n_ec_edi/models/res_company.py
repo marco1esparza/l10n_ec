@@ -19,10 +19,25 @@ class Company(models.Model):
             else:
                 company.l10n_ec_digital_cert_id = False
 
+    def _get_l10n_ec_environment_type(self):
+        """
+        Se obtiene el tipo de entorno, requerido para entornos Demo.
+        """
+        self.ensure_one()
+        if self.l10n_ec_environment_type and self.l10n_ec_environment_type == '0':
+            return '1'
+        else:
+            return self.l10n_ec_environment_type
+
     _ENVIRONMENT_TYPE = [
         ('0', 'Demo Environment'),
         ('1', 'Testing Environment'),
         ('2', 'Production Environment'),
+    ]
+
+    _REFUND_VS_INVOICE_CONTROL = [
+        ('local_refund', 'Notas de crédito locales'),
+        ('without_control', 'Sin control')
     ]
 
     #Columns
@@ -51,3 +66,32 @@ class Company(models.Model):
         default=True,
         help='If set you are obligated to keep accounting, it will be used for printing electronic invoices and reports'
         )
+    l10n_ec_regime = fields.Selection(
+        [('regular', 'Regimen Regular (sin msgs adicionales en el RIDE)'),
+         ('micro', 'Régimen Impositivo para  Microempresas')],
+        string=u"Regimen",
+        default='regular',
+        required=True,
+        help=u"Mostrará el mensaje adicional en el RIDE 'Regimen Contribuyente Regimen Microempresas', utilicelo si su empresa esta en los catastros del SRI.\n"
+        u"No tiene efecto en el computo de retenciones del sistema, si desea desactivar las retenciones utilice el campo emitir retenciones\n"
+    )
+    l10n_ec_withhold_agent = fields.Selection(
+        [('not_designated', 'Sin designación (sin msgs adicionales en el RIDE)'),
+         ('designated_withhold_agent', 'Agente de Retención Designado')],
+        string=u"Agente de Retención",
+        default='not_designated',
+        required=True,
+        help=u"Mostrará el mensaje adicional en el RIDE 'Agente de Retención No Resolución 12345' conforme la Resolución Nro. NAC-DGERCGC20-00000057\n"
+        u"No tiene efecto en el computo de retenciones del sistema, si desea desactivar las retenciones utilice el campo emitir retenciones\n"
+    )
+    l10n_ec_wihhold_agent_number = fields.Char(
+        string=u"Agente Ret. No.",
+        help=u"Ultimos digitos del número de resolución del SRI donde se declara que se es agente de retención.\n"
+        u"Si el número de Resolución es NAC-DNCRASC20-00001234 entonces ell No. Resolución sería: 1234",
+    )
+    l10n_ec_refund_value_control = fields.Selection(
+        _REFUND_VS_INVOICE_CONTROL,
+        string='Control del valor de las notas de crédito',
+        default='local_refund',
+        help='En el caso de que la opción Notas de crédito locales este marcado, validará que la suma de las notas de crédito emitidas no sobrepase el valor de la factura.'
+    )

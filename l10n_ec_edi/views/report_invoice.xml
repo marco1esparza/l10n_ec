@@ -103,10 +103,14 @@
             <table name="social_reason" class="table table-condensed w-100" style="font-size:10px;">
                 <tr>
                     <td class="p-1 text-center w-50"><strong>Company Name / Name and Surname: </strong><span t-field="o.partner_id"/></td>
+                    <td class="p-1 text-center w-50"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
+                </tr>
+                <tr>
+                    <td class="p-1"></td>
                     <td class="p-1 text-center w-50"><strong>Invoice Date: </strong><span t-field="o.invoice_date"/></td>
                 </tr>
                 <tr>
-                    <td class="p-1 text-center w-50"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
+                    <td class="p-1"></td>
                     <td class="p-1 text-center w-50"><strong>Due Date: </strong><span t-field="o.invoice_date_due"/></td>
                 </tr>
                 <tr t-if="o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.code == '04'">
@@ -173,7 +177,7 @@
                 </table>
             </div>
             <div class="col-6 pl-5 mt-5">
-                <table class="table table-sm" style="page-break-inside: avoid" >
+                <table class="table table-sm" style="page-break-inside: avoid; font-size:11px;" >
                     <tr class="border-black o_subtotal" style="">
                         <td><strong>Subtotal</strong></td>
                         <td class="text-right">
@@ -210,7 +214,50 @@
                 </table>
             </div>
         </xpath>
+        <xpath expr="//div[@id='total']" position="after">
+            <t t-set="additional_info" t-value="o._get_additional_info()"/>
+            <t t-if="additional_info">
+                <div class="row">
+                    <div class="col-6 mt-5">
+                        <table name="social_reason" class="table table-condensed w-100" style="font-size:10px;">
+                            <tr>
+                                <th class="text-center">Información Adicional:</th>
+                            </tr>
+                            <t t-foreach="additional_info" t-as="info">
+                                <tr>
+                                    <td class="p-1 text-left w-50">
+                                        <span t-esc="info"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+        <xpath expr="//p[@name='comment']" position="attributes">
+            <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
+        </xpath>
+        <xpath expr="//p[@name='payment_term']" position="attributes">
+            <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
+        </xpath>
+        <xpath expr="//p[@name='note']" position="attributes">
+            <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
+        </xpath>
     </template>
 
-    <template id="report_invoice_document_with_payments" inherit_id="l10n_ec_edi.report_invoice_document" primary="True"/>
+    <!-- FIXME: Temp fix to allow fetching invoice_documemt in Studio Reports with localisation -->
+    <template id="report_invoice" inherit_id="account.report_invoice">
+        <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
+            <t t-if="o._get_name_invoice_report() == 'l10n_ec_edi.report_invoice_document'"
+                t-call="l10n_ec_edi.report_invoice_document" t-lang="lang"/>
+        </xpath>
+    </template>
+
+    <template id="report_invoice_with_payments" inherit_id="account.report_invoice_with_payments">
+        <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
+            <t t-if="o._get_name_invoice_report() == 'l10n_ec_edi.report_invoice_document'"
+                t-call="l10n_ec_edi.report_invoice_document" t-lang="lang"/>
+        </xpath>
+    </template>
 </odoo>

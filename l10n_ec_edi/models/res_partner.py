@@ -21,18 +21,18 @@ class ResPartner(models.Model):
     def get_invoice_ident_type(self):
         '''
         '''
-        type_vat = self.l10n_latam_identification_type_id.name
-        if type_vat == 'RUC':
-            return '04'
-        elif type_vat == 'CEDULA':
-            return '05'
-        elif type_vat == 'PERS. NATURAL EXTRANJERA':
-            return '06'
-        elif type_vat == 'CONSUMIDOR FINAL': 
-            return '07'
-        elif type_vat == 'PERS. JURIDICA EXTRANJERA': 
-            return '08'
-        return False
+        code = False
+        if self.vat == '9999999999999': #CONSUMIDOR FINAL
+            code = '07'
+        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_dni').id: #CEDULA
+            code = '05'
+        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_ruc').id: #RUC
+            code = '04'
+        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_pass').id: #PERS. NATURAL EXTRANJERA
+            code = '06' 
+        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
+            code = '08'
+        return code
 
     def get_invoice_partner_data(self):
         '''
@@ -52,10 +52,10 @@ class ResPartner(models.Model):
         Este método asigna un código a cada tipo de identificación
         '''
         for partner in self:
-            partner.l10n_ec_code = self._l10n_ec_get_code_by_vat(partner.vat, partner.l10n_latam_identification_type_id.name)
+            partner.l10n_ec_code = self._l10n_ec_get_code_by_vat()
 
     @api.model
-    def _l10n_ec_get_code_by_vat(self, vat, type_vat):
+    def _l10n_ec_get_code_by_vat(self):
         """
         Calcula el codigo del partner basado en el vat y el type_vat. Permite
         hacer el calculo para un vat y type_vat que no esten ligados a un
@@ -66,17 +66,16 @@ class ResPartner(models.Model):
         # se entrega un str y en otra se entrega un unicode, para solucionarlo
         # se quita la tilde en todo lugar que se ocupe
         code = 'O'
-        if vat:
-            if type_vat == 'CONSUMIDOR FINAL':
-                code = 'F'
-            elif type_vat == 'CEDULA':
-                code = 'C'
-            elif type_vat == 'RUC':
-                code = 'R'
-            elif type_vat == 'PERS. NATURAL EXTRANJERA' or type_vat == 'PERS. JURIDICA EXTRANJERA':
-                code = 'P'
-            else:
-                code = 'O'
+        if self.vat == '9999999999999': #CONSUMIDOR FINAL
+            code = 'F'
+        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_dni').id: #CEDULA
+            code = 'C'
+        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_ruc').id: #RUC
+            code = 'R'
+        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_pass').id: #PERS. NATURAL EXTRANJERA
+            code = 'P' 
+        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
+            code = 'P'
         return code
 
     #Columns
@@ -85,7 +84,7 @@ class ResPartner(models.Model):
         help=''
         )
     l10n_ec_code = fields.Char(
-        string='Identification Type',
+        string='Ecuadorian Identification Type',
         compute='_l10n_ec_get_code', 
         method=True,
         store=False,  

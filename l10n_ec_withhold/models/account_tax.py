@@ -27,6 +27,12 @@ class AccountTax(models.Model):
                     if withhold_vat.company_id.tax_calculation_rounding_method == 'round_globally':
                         tax['base'] = tax['base'] * vat_percentage
                     else: #redondeo por línea
-                        prec = self.env['decimal.precision'].precision_get('Account')
-                        tax['base'] = float_round(tax['base'] * vat_percentage, precision_digits=prec)
+                        #Para ubicar la precision del redondeo
+                        if not currency:
+                            if not self:
+                                company = self.env.company
+                            else:
+                                company = self[0].company_id
+                            currency = company.currency_id
+                        tax['base'] = float_round(tax['base'] * vat_percentage, precision_rounding=currency.rounding)
         return res

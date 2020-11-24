@@ -18,12 +18,13 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
-        'l10n_ec_edi'
+        'l10n_ec_edi',
     ],   
     'data': [
         #Data
         #wizard
         #Views
+        'views/account_move_view.xml',
         'views/account_fiscal_position_view.xml',        
         'views/res_company_view.xml',
         'views/res_partner_view.xml',

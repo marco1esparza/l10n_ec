@@ -8,6 +8,9 @@
 		<field name="arch" type="xml">
 			<xpath expr="//field[@name='property_supplier_payment_term_id']" position="after">
 				<field name="property_l10n_ec_profit_withhold_tax_id"/>
+				<button name='l10n_ec_change_to_microenterprise' string="Cambiar a Microempresa" 
+					type="object"
+					confirm="¿Está seguro que quiere convertir este cliente a microempresa? Si acepta, se configurará el impuesto 346 (Microempresas 1.75)"/>
 			</xpath>
 		</field>
 	</record>

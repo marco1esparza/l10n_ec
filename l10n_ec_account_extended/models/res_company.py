@@ -35,6 +35,18 @@ class ResCompany(models.Model):
         vals['l10n_ec_profit_withhold_tax_credit_card'] = l10n_ec_profit_withhold_tax_credit_card
         return vals    
     
+    _SOURCE = [
+        ('proyectox', 'Proyectox Versión 8'),
+        ('trescloud_v7', 'Trescloud Versión 7'),
+        ('trescloud_v10', 'Trescloud Versión 10'),
+        ('trescloud_v13', 'Trescloud Versión 13'),
+        ('trescloud_v14', 'Trescloud Versión 14'),
+        ('other', 'Otros proveedores')]
+    l10n_ec_issue_withholds = fields.Boolean(
+        string='Issue Withhols',
+        default=True,
+        help='If set Odoo will automatically compute purchase withholds for relevant vendor bills'
+        )
     l10n_ec_fallback_profit_withhold_goods = fields.Many2one(
         'account.tax',
         string='Withhold consumibles',
@@ -57,3 +69,12 @@ class ResCompany(models.Model):
         domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax')],
         help='When payment method will be credit card apply this withhold',
         )
+    db_source = fields.Selection(
+            _SOURCE,
+            string='Origen',
+            track_visibility='onchange',
+            default='trescloud_v13',
+            help='Campo informativo del origen de la base de datos del cual se migro la información, permite ejecutar ciertos script de migración.'
+        ) #TODO V15, moverlo a la tabla de parametros
+    
+    

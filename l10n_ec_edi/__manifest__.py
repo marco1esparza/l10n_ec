@@ -3,7 +3,7 @@
 
 {
     'name': 'Facturas ecuatorianas',
-    'version': '1.1',
+    'version': '1.3',
     'summary': 'SRI electronic documents, invoices, credit notes, debit notes, RIDEs, tributary documents, printer points, etc',
     'category': 'Localization',
     'description': '''
@@ -18,9 +18,7 @@
         
         Autores:
             Ing. Andres Calle
-            Ing. Patricio Rangles
             Ing. José Miguel Rivero
-            Ing. Santiago Orozco        
     ''',
     'author': 'TRESCLOUD',
     'maintainer': 'TRESCLOUD CIA. LTDA.',

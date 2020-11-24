@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data noupdate="1">
+
+		<record id="refund_default_product" model="product.product">
+            <field name="name">REEMBOLSO INTERMEDIARIO</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">0</field>
+            <field name="list_price">0</field>
+            <field name="type">service</field>
+            <field name="description">Producto de reembolso por defecto del sistema.</field>
+            <field name="default_code">REEMB_PROD</field>
+            <!-- Se deja desactivado para que no sea seleccionable de forma manual -->
+            <field name="sale_ok">False</field>
+            <field name="purchase_ok">False</field>
+            <field name="taxes_id" eval="[]"/>
+            <field name="supplier_taxes_id" eval="[]"/>
+			<!-- Se deja sin cta para que el usuario cree manulamente la cta, hay un raise de advertencia
+			<field name="property_account_income_id" search="[('code','=','101040401')]"/>
+			<field name="property_account_expense_id" search="[('code','=','101040401')]"/> -->
+        </record>
+        
+	</data>
+</odoo>

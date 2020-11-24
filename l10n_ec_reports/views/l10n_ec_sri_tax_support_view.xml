@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="view_sri_tax_support_form" model="ir.ui.view">
+    	<field name="name">view.sri.tax.support.form</field>
+        <field name="model">l10n_ec.sri.tax.support</field>
+	    <field name="type">form</field>
+	    <field name="arch" type="xml">
+	    	<form string="Tax Support">
+	    		<sheet>
+	    			<group>
+		  				<field name="code" required="1"/>
+		  				<field name="name" required="1"/>
+		  			    <field name="priority" required="1"/>
+		  			    <field name="active"/>
+				    </group>
+	    		</sheet>
+              	<div class="oe_chatter">
+                	<field name="message_follower_ids" widget="mail_followers"/>
+                  	<field name="message_ids" widget="mail_thread"/>
+				</div>   
+	        </form>
+		</field>
+	</record>
+	
+	<record id="view_sri_tax_support_tree" model="ir.ui.view">
+		<field name="name">view.sri.tax.support.form</field>
+	    <field name="model">l10n_ec.sri.tax.support</field>
+	    <field name="type">tree</field>
+	    <field name="arch" type="xml">
+	        <tree string="Tax Support">
+				<field name="code"/>
+				<field name="name"/>
+				<field name="priority"/>
+	        </tree>
+		</field>
+	</record>
+	
+	<record id="view_sri_tax_support_filter" model="ir.ui.view">
+    	<field name="name">view.sri.tax.support.form</field>
+        <field name="model">l10n_ec.sri.tax.support</field> 
+        <field name="arch" type="xml">
+        	<search string="Search Tax Support">
+                <field name="code"/>
+             	<field name="name"/>
+          	</search>
+       	</field>
+    </record>
+    
+   	<record id="action_sri_tax_support" model="ir.actions.act_window">
+       <field name="name">Tax Support</field>
+       <field name="res_model">l10n_ec.sri.tax.support</field>
+       <field name="view_mode">tree,form</field>
+    </record>
+
+	<menuitem id="menu_sri_tax_support" action="action_sri_tax_support" parent="account.account_account_menu" sequence="25"/>
+
+</odoo>

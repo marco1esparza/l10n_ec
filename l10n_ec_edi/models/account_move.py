@@ -4,6 +4,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 import odoo.addons.decimal_precision as dp
+from odoo.tools.float_utils import float_compare
 import re
 
 
@@ -101,12 +102,45 @@ class AccountMove(models.Model):
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
-        posted = super()._post(soft)
+        res = super(AccountMove, self)._post(soft)
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
+            if invoice.l10n_latam_document_type_id.l10n_ec_require_vat:
+                if not invoice.partner_id.l10n_latam_identification_type_id:
+                    raise ValidationError(u'Indique un tipo de identificación para el proveedor "%s".' % invoice.partner_id.name)
+                if not invoice.partner_id.vat:
+                    raise ValidationError(u'Indique un número de identificación para el proveedor "%s".' % invoice.partner_id.name)
+            # Se inicializa el amount_total_refunds con el monto de la nota de credito actual, pues al estar en estado borrador queda excluida
+            # en la verificacion que se realiza mas adelanta y evitamos que se aprueben nc con montos superiores a la factura cuando no existe
+            # ninguna aprobada previamente
+            # Para las notas de credito exterior se setea amount_total_refunds con el valor de la NC
+            # ya que no cuenta con un invoice_rectification_id para obtener el total de la factura.
+            # Caso especial NC exterior
+            if invoice.move_type in ['in_refund', 'out_refund']:
+                if invoice.l10n_latam_document_type_id.code == '0500':
+                    amount_total_refunds = 0.00
+                else:
+                    amount_total_refunds = invoice.amount_total
+                for refund in invoice.reversed_entry_id.reversal_move_id.filtered(lambda m:m.id != invoice.id
+                                                                                           and m.move_type in ['in_refund', 'out_refund']
+                                                                                           and m.state in ['open', 'paid']):
+                    amount_total_refunds += refund.amount_total
+                refund_value_control = invoice.company_id.l10n_ec_refund_value_control
+                if float_compare(amount_total_refunds, invoice.reversed_entry_id.amount_total, precision_digits=2) == 1 \
+                    and refund_value_control == 'local_refund':
+                    raise UserError(_(u'La nota de crédito %s no se puede aprobar debido a que el valor de las notas de crédito emitidas '
+                                      u'más la actual suman USD %s, sobrepasando el valor de USD %s de la factura %s.')
+                                      %(invoice.name, amount_total_refunds,
+                                        invoice.reversed_entry_id.amount_total, invoice.reversed_entry_id.name))
+                # Validacion de notas de credito no se las realice a consumidor final
+                if invoice.company_id.l10n_ec_refund_value_control == 'local_refund' and invoice.partner_id.vat == '9999999999999':
+                    raise UserError(_(
+                        u'La nota de crédito %s no se puede aprobar debido a que en REGLAMENTO DE COMPROBANTES DE VENTA, RETENCIÓN Y DOCUMENTOS COMPLEMENTARIOS en su ART 15 y ART 25 impiden la emision de Notas de crédito a "Consumidor Final".')
+                                        % (invoice.name,))
             invoice._l10n_ec_validate_number()
-            #in v14 we also have edi document "factur-x" for interchanging docs among differente odoo instances
-            ec_edi_document = invoice.edi_document_ids.filtered(lambda r: r.edi_format_id.code == 'l10n_ec_tax_authority')
-            if ec_edi_document.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
+            if not invoice.l10n_ec_invoice_payment_method_ids:
+                #autofill, usefull as onchange is not called when invoicing from other modules (ie subscriptions) 
+                invoice.onchange_set_l10n_ec_invoice_payment_method_ids()
+            if invoice.edi_document_ids.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
                 if not invoice.company_id.vat:
                     raise ValidationError(u'Please setup your VAT number in the company form')
                 if not invoice.company_id.street:
@@ -114,10 +148,30 @@ class AccountMove(models.Model):
                 if not invoice.l10n_ec_printer_id.printer_point_address:
                     raise ValidationError(u'Please setup the printer point address, in Accounting / Settings / Printer Points')
                 #needed to print offline RIDE and populate XML request
-                ec_edi_document._l10n_ec_set_access_key()
-                self.l10n_ec_authorization = ec_edi_document.l10n_ec_access_key #for auditing manual changes
-                ec_edi_document._l10n_ec_generate_request_xml_file() #useful for troubleshooting
-        return posted
+                invoice.edi_document_ids._l10n_ec_set_access_key()
+                self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
+                invoice.edi_document_ids._l10n_ec_generate_request_xml_file() #useful for troubleshooting
+        return res
+
+    def _is_manual_document_number(self, journal):
+        if self.country_code == 'EC':
+            doc_code = self.l10n_latam_document_type_id and self.l10n_latam_document_type_id.code or ''
+            if journal.type == 'purchase' and doc_code not in ['03']:
+                return True
+            else:
+                return False
+        else:
+            super()._is_manual_document_number(journal)
+    
+    def get_is_edi_needed(self, edi_format):
+        '''
+        Liquidaciones electronicas en compras
+        '''
+        res = super(AccountMove, self).get_is_edi_needed(edi_format)
+        if self.country_code == 'EC':
+            if self.move_type == 'in_invoice' and self.l10n_latam_document_type_id.code in ['03'] and self.l10n_ec_printer_id.allow_electronic_document:
+                return True
+        return res
     
     def view_credit_note(self):
         [action] = self.env.ref('account.action_move_out_refund_type').read()
@@ -191,6 +245,9 @@ class AccountMove(models.Model):
         if self.l10n_latam_use_documents and self.country_code == 'EC' \
                 and self.move_type in ('out_invoice', 'out_refund') and self.l10n_latam_document_type_id.code in ['04', '18']:
             return 'l10n_ec_edi.report_invoice_document'
+        elif self.l10n_latam_use_documents and self.country_code == 'EC' \
+                and self.move_type in ('in_invoice') and self.l10n_latam_document_type_id.code in ['03']:
+            return 'l10n_ec_edi.report_invoice_document'
         return super(AccountMove, self)._get_name_invoice_report()
     
     def _compute_total_invoice_ec(self):
@@ -201,8 +258,11 @@ class AccountMove(models.Model):
             l10n_ec_base_doce_iva = 0.0
             l10n_ec_vat_doce_subtotal = 0.0
             l10n_ec_base_cero_iva = 0.0
+            l10n_ec_vat_cero_subtotal = 0.0
             l10n_ec_base_tax_free = 0.0
             l10n_ec_base_not_subject_to_vat = 0.0
+            l10n_ec_total_irbpnr = 0.0
+            l10n_ec_total_to_withhold = 0.0
             for invoice_line in invoice.invoice_line_ids:
                 l10n_ec_total_discount += invoice_line.l10n_ec_total_discount
             for move_line in invoice.line_ids:
@@ -212,16 +272,25 @@ class AccountMove(models.Model):
                         l10n_ec_vat_doce_subtotal += move_line.price_subtotal
                     if move_line.tax_group_id.l10n_ec_type in ['zero_vat']:
                         l10n_ec_base_cero_iva += move_line.tax_base_amount
+                        l10n_ec_vat_cero_subtotal += move_line.price_subtotal
                     if move_line.tax_group_id.l10n_ec_type in ['exempt_vat']:
                         l10n_ec_base_tax_free += move_line.tax_base_amount
                     if move_line.tax_group_id.l10n_ec_type in ['not_charged_vat']:
                         l10n_ec_base_not_subject_to_vat += move_line.tax_base_amount
+                    if move_line.tax_group_id.l10n_ec_type in ['irbpnr']:
+                        l10n_ec_total_irbpnr += move_line.price_subtotal
+                    elif move_line.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax']:
+                        l10n_ec_total_to_withhold += move_line.price_subtotal
             invoice.l10n_ec_total_discount = l10n_ec_total_discount
             invoice.l10n_ec_base_doce_iva = l10n_ec_base_doce_iva
             invoice.l10n_ec_vat_doce_subtotal = l10n_ec_vat_doce_subtotal
             invoice.l10n_ec_base_cero_iva = l10n_ec_base_cero_iva
+            invoice.l10n_ec_vat_cero_subtotal =  l10n_ec_vat_cero_subtotal
             invoice.l10n_ec_base_tax_free = l10n_ec_base_tax_free
-            invoice.l10n_ec_base_not_subject_to_vat = l10n_ec_base_not_subject_to_vat
+            invoice.l10n_ec_base_not_subject_to_vat = l10n_ec_base_not_subject_to_vat            
+            invoice.l10n_ec_total_irbpnr = l10n_ec_total_irbpnr
+            invoice.l10n_ec_total_with_tax = invoice.amount_untaxed + invoice.l10n_ec_vat_cero_subtotal + invoice.l10n_ec_vat_doce_subtotal + invoice.l10n_ec_total_irbpnr
+            invoice.l10n_ec_total_to_withhold = l10n_ec_total_to_withhold
 
     def _get_formatted_sequence(self, number=0):
         return "%s-%09d" % (self.l10n_ec_printer_id.name, number)
@@ -251,7 +320,15 @@ class AccountMove(models.Model):
         # Return the refund count
         for invoice in self:
             invoice.refund_count = len(invoice.reversal_move_id)
-    
+
+    def _get_additional_info(self):
+        self.ensure_one()
+        document = self.mapped('edi_document_ids')
+        additional_info = []
+        if document:
+            additional_info = document[0]._get_additional_info()
+        return additional_info    
+
     def button_draft(self):
         if self.country_code == 'EC':
             for move in self:
@@ -271,7 +348,7 @@ class AccountMove(models.Model):
         ondelete='restrict',
         help='The tax authority authorized printer point from where to send or receive invoices'
         )
-    l10n_ec_authorization = fields.Char(
+    l10n_ec_authorization = fields.Text(
         string='Autorización', readonly = True,
         states = {'draft': [('readonly', False)]},
         copy = False,
@@ -295,31 +372,27 @@ class AccountMove(models.Model):
              'electrónicos. No tienen efecto contable.'
         )
     #functional fields
-    l10n_ec_effective_method = fields.Float(
+    l10n_ec_effective_method = fields.Monetary(
         compute='compute_payment_method',
         string='Effective', 
-        digits=dp.get_precision('Account'),
         method=True,
         help='Es la sumatoria de las formas de pago con código 01.'
         )
-    l10n_ec_electronic_method = fields.Float(
+    l10n_ec_electronic_method = fields.Monetary(
         compute='compute_payment_method',
         string='Electronic Money',
-        digits=dp.get_precision('Account'),
         method=True,
         help='Es la sumatoria de las formas de pago con código 17.'
         )
-    l10n_ec_card_method = fields.Float(
+    l10n_ec_card_method = fields.Monetary(
         compute='compute_payment_method',
-        string='Card Credit / Debit', 
-        digits=dp.get_precision('Account'),
+        string='Card Credit / Debit',
         method=True,
         help='Es la sumatoria de las formas de pago con códigos 10, 11, 16, 18, 19.'
         )
-    l10n_ec_other_method = fields.Float(
+    l10n_ec_other_method = fields.Monetary(
         compute='compute_payment_method',
         string='Others', 
-        digits=dp.get_precision('Account'),
         method=True,
         help='Es la sumatoria de las formas de pago con códigos 02, 03, 04, 05, 06, 08, 09, 12, 13, 14, 15, 20, 21.'
         )
@@ -351,6 +424,13 @@ class AccountMove(models.Model):
         readonly=True,
         help='Sum of total prices included discount of products that tax VAT 0%'
         )
+    l10n_ec_vat_cero_subtotal = fields.Monetary(
+        string='VAT Value 0',
+        compute='_compute_total_invoice_ec',
+        method=True,
+        readonly=True,
+        help=''
+        )
     l10n_ec_base_tax_free = fields.Monetary(
         string='Base Exempt VAT',
         compute='_compute_total_invoice_ec',
@@ -364,6 +444,27 @@ class AccountMove(models.Model):
         method=True,
         readonly=True, 
         help='Sum of total prices included discount of products not subject to VAT'
+        )
+    l10n_ec_total_irbpnr = fields.Monetary(
+        string='IRBPNR',
+        compute='_compute_total_invoice_ec',
+        method=True,
+        readonly=True,
+        help='Impuesto redimible a las botellas plásticas no retornables PET',
+        )
+    l10n_ec_total_with_tax = fields.Monetary(
+        string='Total With Taxes', 
+        compute='_compute_total_invoice_ec',
+        method=True,
+        readonly=True,
+        help='Result of the sum of taxable amount plus the Value of VAT'
+        )
+    l10n_ec_total_to_withhold = fields.Monetary(
+        string='Total to Withhold', 
+        compute='_compute_total_invoice_ec',
+        method=True,
+        readonly=True,
+        help='Sum of values to be retained'
         )
     l10n_ec_authorization_type = fields.Selection(related='l10n_latam_document_type_id.l10n_ec_authorization')
     refund_count = fields.Integer(string='Refund Count', compute='_get_refund_count', readonly=True)
@@ -380,7 +481,7 @@ class AccountMoveLine(models.Model):
             if line.discount:
                 if line.tax_ids:
                     taxes_res = line.tax_ids._origin.compute_all(line.l10n_latam_price_unit,
-                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.type in ('out_refund', 'in_refund'))
+                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
                     total_discount = taxes_res['total_excluded'] - line.l10n_latam_price_subtotal    
                 else:
                     total_discount = (line.quantity * line.l10n_latam_price_unit) - line.l10n_latam_price_subtotal
@@ -401,7 +502,8 @@ class AccountMoveLine(models.Model):
 
 
 class L10NECInvoicePaymentMethod(models.Model):
-    _name = 'l10n_ec.invoice.payment.method'
+    _name = 'l10n_ec.invoice.payment.method' #TODO V15 cambiarle el nombre con el sufijo "lines"
+    _description = "Ecuadorian Invoice Payment Method Detail"
     
     payment_method_id = fields.Many2one(
         'l10n_ec.payment.method',
