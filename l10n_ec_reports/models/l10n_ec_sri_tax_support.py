@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
+from odoo.osv import expression
 
 
 class L10nEcSRITaxSupport(models.Model):
@@ -29,8 +30,8 @@ class L10nEcSRITaxSupport(models.Model):
         domain = []
         if name:
             domain = ['|', ('code', operator, name), ('name', operator, name)]
-        support = self.search(domain + args, limit=limit)
-        return support.name_get()
+        support = self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
+        return support
 
     #Columns
     code = fields.Char(
