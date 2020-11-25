@@ -80,7 +80,7 @@ class AccountMove(models.Model):
     def _post(self, soft=True):
         #Execute ecuadorian validations with bypass option
         for document in self:
-            if self.country_code == 'EC':
+            if document.country_code == 'EC':
                 bypass = document.l10n_ec_bypass_validations
                 if not bypass:
                     document._l10n_ec_validations_to_posted()
@@ -125,55 +125,51 @@ class AccountMove(models.Model):
     @api.depends('l10n_latam_document_type_id')
     def _l10n_ec_compute_require_vat_tax(self):
         #Indicates if the invoice requires a vat tax or not
-        if self.country_code != 'EC':
-            return False
         for move in self:
             result = False
-            #TODO agregar regiment especial en un AND al siguiente if
-            if move.move_type in ['in_invoice','in_refund','out_invoice','out_refund'] and self.company_id.l10n_ec_issue_withholds:
-                if self.l10n_latam_document_type_id.code in [
-                                    '01', # factura compra
-                                    '02', # nota de venta
-                                    '03', # liquidacion compra
-                                    '04', # Notas de credito en compras o ventas
-                                    '05', # Notas de debito en compras o ventas
-                                    '08', # Boletos espectaculos publicos
-                                    '09', # Tiquetes
-                                    '11', # Pasajes
-                                    '12', # Inst FInancieras
-                                    '18', # Factura de venta
-                                    '20', # Estado
-                                    '21', # Carta porte aereo
-                                    '41', # Reembolsos de gastos compras y ventas, liquidaciones, facturas
-                                    '47', # Nota de crédito de reembolso
-                                    '48', # Nota de débito de reembolso
-                                    ]:
-                    result = True
+            if move.country_code == 'EC':
+                if move.move_type in ['in_invoice', 'in_refund', 'out_invoice', 'out_refund'] and move.company_id.l10n_ec_issue_withholds:
+                    if move.l10n_latam_document_type_id.code in [
+                                        '01', # factura compra
+                                        '02', # nota de venta
+                                        '03', # liquidacion compra
+                                        '04', # Notas de credito en compras o ventas
+                                        '05', # Notas de debito en compras o ventas
+                                        '08', # Boletos espectaculos publicos
+                                        '09', # Tiquetes
+                                        '11', # Pasajes
+                                        '12', # Inst FInancieras
+                                        '18', # Factura de venta
+                                        '20', # Estado
+                                        '21', # Carta porte aereo
+                                        '41', # Reembolsos de gastos compras y ventas, liquidaciones, facturas
+                                        '47', # Nota de crédito de reembolso
+                                        '48', # Nota de débito de reembolso
+                                        ]:
+                        result = True
             move.l10n_ec_require_vat_tax = result
             
     @api.depends('l10n_latam_document_type_id')
     def _l10n_ec_compute_require_withhold_tax(self):
         #Indicates if the invoice requires a withhold or not
-        if self.country_code != 'EC':
-            return False
         for move in self:
             result = False
-            #TODO agregar regiment especial en un AND al siguiente if
-            if move.move_type == 'in_invoice' and self.company_id.l10n_ec_issue_withholds:
-                if self.l10n_latam_document_type_id.code in [
-                                    '01', # factura compra
-                                    '03', # liquidacion compra
-                                    '08', # Entradas a espectaculos
-                                    '09', # Tiquetes
-                                    '11', # Pasajes
-                                    '12', # Inst FInancieras
-                                    '20', # Estado
-                                    '21', # Carta porte aereo
-                                    '41', # Reembolsos de gastos compras y ventas, liquidaciones, facturas
-                                    '47', # Nota de crédito de reembolso
-                                    '48', # Nota de débito de reembolso
-                                    ]:
-                    result = True
+            if move.country_code == 'EC':
+                if move.move_type == 'in_invoice' and move.company_id.l10n_ec_issue_withholds:
+                    if move.l10n_latam_document_type_id.code in [
+                                        '01', # factura compra
+                                        '03', # liquidacion compra
+                                        '08', # Entradas a espectaculos
+                                        '09', # Tiquetes
+                                        '11', # Pasajes
+                                        '12', # Inst FInancieras
+                                        '20', # Estado
+                                        '21', # Carta porte aereo
+                                        '41', # Reembolsos de gastos compras y ventas, liquidaciones, facturas
+                                        '47', # Nota de crédito de reembolso
+                                        '48', # Nota de débito de reembolso
+                                        ]:
+                        result = True
             move.l10n_ec_require_withhold_tax = result
 
     
