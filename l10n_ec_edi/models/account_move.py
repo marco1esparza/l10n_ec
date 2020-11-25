@@ -97,6 +97,9 @@ class AccountMove(models.Model):
                 new_payment_method_lines += candidate
             self.l10n_ec_invoice_payment_method_ids -= existing_payment_method_lines - new_payment_method_lines
 
+    def is_withholding(self):
+        return False
+
     def _post(self, soft=True):
         '''
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
@@ -104,6 +107,8 @@ class AccountMove(models.Model):
         '''
         res = super(AccountMove, self)._post(soft)
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
+            if not invoice.is_invoice() and not invoice.is_withholding():
+                raise ValidationError(u'Para Ecuador por favor desactivar la opcion Usa Documentos del Diario %s.' % invoice.journal_id.name)
             if invoice.l10n_latam_document_type_id.l10n_ec_require_vat:
                 if not invoice.partner_id.l10n_latam_identification_type_id:
                     raise ValidationError(
