@@ -295,7 +295,7 @@ class AccountMove(models.Model):
                     raise UserError(_(u'La recepción de egresos para reembolso de gastos como intermediario debe realizarse con el impuesto 555, erroneamente esta utilizando los códigos: %s' %", ".join(base_codes)))
         return super(AccountMove, self)._post(soft)
 
-    @api.depends('l10n_latam_document_type_id', 'type', 'l10n_ec_sri_tax_support_id')
+    @api.depends('l10n_latam_document_type_id', 'move_type', 'l10n_ec_sri_tax_support_id')
     def _show_reimbursements(self):
         '''
         Si es una factura de venta o compra por reembolso de gastos como INTERMEDIARIO
