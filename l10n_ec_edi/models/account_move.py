@@ -477,7 +477,6 @@ class AccountMove(models.Model):
         )
     l10n_ec_authorization_type = fields.Selection(related='l10n_latam_document_type_id.l10n_ec_authorization')
     refund_count = fields.Integer(string='Refund Count', compute='_get_refund_count', readonly=True)
-    l10n_latam_document_number = fields.Char(store=True)
 
 
 class AccountMoveLine(models.Model):
