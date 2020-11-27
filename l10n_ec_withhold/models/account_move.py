@@ -480,8 +480,8 @@ class AccountMove(models.Model):
         return is_invoice
 
     def is_withholding(self):
-        is_withholding = super().is_withholding()
-        if self.country_code == 'EC' and self.move_type in ('entry') and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold') and self.l10n_latam_document_type_id.code in ['07']:
+        is_withholding = False
+        if self.country_code == 'EC' and self.move_type in ('entry') and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold') and self.l10n_latam_document_type_id.code in ['07']:
             is_withholding = True
         return is_withholding
 

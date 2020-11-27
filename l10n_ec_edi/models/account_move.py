@@ -164,14 +164,18 @@ class AccountMove(models.Model):
         return res
 
     def _is_manual_document_number(self, journal):
-        if self.country_code == 'EC':
-            doc_code = self.l10n_latam_document_type_id and self.l10n_latam_document_type_id.code or ''
-            if journal.type == 'purchase' and doc_code not in ['03']:
-                return True
+        for res in self:
+            if res.country_code == 'EC':
+                doc_code = self.l10n_latam_document_type_id and self.l10n_latam_document_type_id.code or ''
+                l10n_ec_type = self.l10n_latam_document_type_id and self.l10n_latam_document_type_id.l10n_ec_type or ''
+                if journal.type == 'purchase' and doc_code not in ['03']:
+                    return True
+                elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
+                    return True
+                else:
+                    return False
             else:
-                return False
-        else:
-            super()._is_manual_document_number(journal)
+                super()._is_manual_document_number(journal)
     
     def get_is_edi_needed(self, edi_format):
         '''
