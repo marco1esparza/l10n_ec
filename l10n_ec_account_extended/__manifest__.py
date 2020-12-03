@@ -18,6 +18,7 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
+        'account',
         'l10n_ec_edi',
     ],   
     'data': [
