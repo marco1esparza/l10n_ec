@@ -1,0 +1,364 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_account_extended
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-12-03 07:23+0000\n"
+"PO-Revision-Date: 2020-12-03 07:23+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_account_extended
+#: model:ir.actions.act_window,name:l10n_ec_account_extended.TODO_action_implementar_para_cada_menu2
+msgid "Account Print Journal"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.ui.menu,name:l10n_ec_account_extended.menu_account_type
+msgid "Account Types"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model_terms:ir.ui.view,arch_db:l10n_ec_account_extended.view_account_invoice_filter
+msgid "Approved EDI"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_bank_statement_line__l10n_ec_bypass_validations
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move__l10n_ec_bypass_validations
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_payment__l10n_ec_bypass_validations
+msgid "Bypass Validaciones"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_account_bank_statement_line__l10n_ec_bypass_validations
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_account_move__l10n_ec_bypass_validations
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_account_payment__l10n_ec_bypass_validations
+msgid ""
+"Bypass para ciertas validaciones ecuatorianas:\n"
+"- Permite anular facturas con retenciones ya emitidas\n"
+"- Permite aprobar facturas sin impuestos"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model_terms:ir.ui.view,arch_db:l10n_ec_account_extended.view_partner_property_form_withhold_tax
+msgid "Cambiar a Microempresa"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_res_company__db_source
+msgid ""
+"Campo informativo del origen de la base de datos del cual se migro la "
+"información, permite ejecutar ciertos script de migración."
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model,name:l10n_ec_account_extended.model_res_company
+msgid "Companies"
+msgstr "Compañías"
+
+#. module: l10n_ec_account_extended
+#: model:ir.model,name:l10n_ec_account_extended.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_edi_document__display_name
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_fiscal_position__display_name
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_tax__display_name
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_l10n_latam_document_type__display_name
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_edi_document.py:0
+#, python-format
+msgid "El número de Autorización (%s) debe ser único"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_edi_document.py:0
+#, python-format
+msgid "El número de Autorización es incorrecto, presenta %s dígitos"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model,name:l10n_ec_account_extended.model_account_edi_document
+msgid "Electronic Document for an account.move"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model,name:l10n_ec_account_extended.model_account_fiscal_position
+msgid "Fiscal Position"
+msgstr "Tipos de Contribuyentes"
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_partner__property_l10n_ec_profit_withhold_tax_id
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_users__property_l10n_ec_profit_withhold_tax_id
+msgid "Force profit withhold"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_fiscal_position__l10n_ec_vat_withhold_goods
+msgid "Goods VAT withhold"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_edi_document__id
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_fiscal_position__id
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move_line__id
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_tax__id
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_l10n_latam_document_type__id
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_partner__id
+msgid "ID"
+msgstr "ID (identificación)"
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_res_company__l10n_ec_issue_withholds
+msgid ""
+"If set Odoo will automatically compute purchase withholds for relevant "
+"vendor bills"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_res_partner__property_l10n_ec_profit_withhold_tax_id
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_res_users__property_l10n_ec_profit_withhold_tax_id
+msgid ""
+"If set forces the vat withhold tax on applicable purchases (also a withhold "
+"is required on document type). The profit withhold prevalence order is "
+"payment method (credit cards retains 0%), then partner, then product"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_account_fiscal_position__l10n_ec_vat_withhold_goods
+msgid ""
+"If set forces vat withhold in invoice lines with product in applicable "
+"purchases (also depends on document type)"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__l10n_ec_issue_withholds
+msgid "Issue Withhols"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model,name:l10n_ec_account_extended.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: l10n_ec_account_extended
+#: model:ir.model,name:l10n_ec_account_extended.model_account_move_line
+msgid "Journal Item"
+msgstr "Apunte contable"
+
+#. module: l10n_ec_account_extended
+#: model:ir.ui.menu,name:l10n_ec_account_extended.menu_karded_valued
+msgid "Kardex Valorado"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_l10n_latam_document_type__l10n_ec_apply_withhold
+msgid "L10N Ec Apply Withhold"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_bank_statement_line__l10n_ec_require_vat_tax
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move__l10n_ec_require_vat_tax
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_payment__l10n_ec_require_vat_tax
+msgid "L10N Ec Require Vat Tax"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_bank_statement_line__l10n_ec_require_withhold_tax
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move__l10n_ec_require_withhold_tax
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_payment__l10n_ec_require_withhold_tax
+msgid "L10N Ec Require Withhold Tax"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_edi_document____last_update
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_fiscal_position____last_update
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move____last_update
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move_line____last_update
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_tax____last_update
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_l10n_latam_document_type____last_update
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company____last_update
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_partner____last_update
+msgid "Last Modified on"
+msgstr "Última modificación el"
+
+#. module: l10n_ec_account_extended
+#: model:ir.model,name:l10n_ec_account_extended.model_l10n_latam_document_type
+msgid "Latam Document Type"
+msgstr "Tipo de Documento Latam"
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid ""
+"Only activate bypass if you know what you are doing, it can break system "
+"integrity"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__db_source
+msgid "Origen"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__other
+msgid "Otros proveedores"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid ""
+"Please select one and only one profit withhold type (312, 332, 322, etc) for product:\n"
+"\n"
+"%s"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid ""
+"Please select one and only one vat type (IVA 12, IVA 0, etc) for product:\n"
+"\n"
+"%s"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid "Please set a VAT number in the partner for document %s"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__proyectox
+msgid "Proyectox Versión 8"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_fiscal_position__l10n_ec_vat_withhold_services
+msgid "Services VAT withhold"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model,name:l10n_ec_account_extended.model_account_tax
+msgid "Tax"
+msgstr "Impuesto"
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_account_fiscal_position__l10n_ec_vat_withhold_services
+msgid "This field defines the VAT withholding tax for services"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model_terms:ir.ui.view,arch_db:l10n_ec_account_extended.view_account_invoice_filter
+msgid "To Approve EDI"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__trescloud_v10
+msgid "Trescloud Versión 10"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__trescloud_v13
+msgid "Trescloud Versión 13"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__trescloud_v14
+msgid "Trescloud Versión 14"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__trescloud_v7
+msgid "Trescloud Versión 7"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.ui.menu,name:l10n_ec_account_extended.menu_stock_valuation
+msgid "Valoración Existencias"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.ui.menu,name:l10n_ec_account_extended.menu_valuation_stock_warehouse
+msgid "Valoración de Existencias por Bodega"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.ui.menu,name:l10n_ec_account_extended.menu_inventory_valuation
+msgid "Valoración de Inventario"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid "Warning"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_res_company__l10n_ec_fallback_profit_withhold_services
+msgid ""
+"When no profit withhold is found in partner or product, if product is a "
+"service or not setthe withhold fallbacks to this tax code"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_res_company__l10n_ec_fallback_profit_withhold_goods
+msgid ""
+"When no profit withhold is found in partner or product, if product is a "
+"stockable or consumiblethe withhold fallbacks to this tax code"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_res_company__l10n_ec_profit_withhold_tax_credit_card
+msgid "When payment method will be credit card apply this withhold"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__l10n_ec_profit_withhold_tax_credit_card
+msgid "Withhold Credit Card"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__l10n_ec_fallback_profit_withhold_goods
+msgid "Withhold consumibles"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__l10n_ec_fallback_profit_withhold_services
+msgid "Withhold services"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid ""
+"You can't set to draft the journal entry %s because an electronic document "
+"has already been requested. Instead you can cancel this document (Request "
+"EDI Cancellation button) and then create a new one"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model_terms:ir.ui.view,arch_db:l10n_ec_account_extended.view_partner_property_form_withhold_tax
+msgid ""
+"¿Está seguro que quiere convertir este cliente a microempresa? Si acepta, se"
+" configurará el impuesto 346 (Microempresas 1.75)"
+msgstr ""
