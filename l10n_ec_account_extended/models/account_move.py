@@ -3,12 +3,38 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_is_zero, float_compare
+from odoo.tools.misc import format_date
+
+from datetime import datetime
 
 
 class AccountMove(models.Model):
     _inherit='account.move'
+    
+    @api.depends('journal_id', 'partner_id', 'company_id', 'move_type')
+    def _compute_l10n_latam_available_document_types(self):
+        #Para EC el computo del tipo de documento no depende del partner, se rescribe en ese sentido
+        #esto permite tener un tipo de documento por defecto al crear facturas, y facilita el ignreso
+        #del numero de autorización
+        self.l10n_latam_available_document_type_ids = False
+        for rec in self.filtered(lambda x: x.journal_id and x.l10n_latam_use_documents): #en esta linea se borro el filtro de partner_id
+            rec.l10n_latam_available_document_type_ids = self.env['l10n_latam.document.type'].search(rec._get_l10n_latam_documents_domain())
+            #TODO V15, hacer que para el consumidor final se excluyan los documentos que no puede manejar
 
-
+    @api.depends('l10n_latam_available_document_type_ids')
+    @api.depends_context('internal_type')
+    def _compute_l10n_latam_document_type(self):
+        #Reescribimos el metodo original de l10n_latam_document_type, pues reescribia el tipo de documento
+        #cada vez q se cambiaba el partner, cuando debería reescribirlo solo si el tipo de documento
+        #viejo no forma parte del nuevo l10n_latam_available_document_type_ids
+        internal_type = self._context.get('internal_type', False)
+        for rec in self.filtered(lambda x: x.state == 'draft'):
+            document_types = rec.l10n_latam_available_document_type_ids._origin
+            document_types = internal_type and document_types.filtered(lambda x: x.internal_type == internal_type) or document_types
+            #linea agregada por trescloud:
+            if rec.l10n_latam_document_type_id not in document_types:
+                rec.l10n_latam_document_type_id = document_types and document_types[0].id
+            
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         # OVERRIDE to also recompute withhold taxes
@@ -16,8 +42,7 @@ class AccountMove(models.Model):
         self._l10n_ec_onchange_tax_dependecies()
         return res
     
-    @api.onchange("fiscal_position_id","l10n_latam_document_type_id",
-                  "l10n_ec_fiscal","l10n_ec_payment_method_id")
+    @api.onchange("fiscal_position_id","l10n_latam_document_type_id", "l10n_ec_payment_method_id")
     def _l10n_ec_onchange_tax_dependecies(self):
         #triger recompute of profit withhold for purchase invoice
         #TODO v15: Recompute separately profit withhold and vat withhold
@@ -34,10 +59,25 @@ class AccountMove(models.Model):
             #line.tax_ids = [(6, 0, taxes.ids)]
             line.tax_ids = taxes
         return res
+
+    def write(self, vals):
+        PROTECTED_FIELDS_TAX_LOCK_DATE = ['l10n_ec_authorization', 'l10n_ec_sri_tax_support_id']
+        # Check the tax lock date.
+        if any(self.env['account.move']._field_will_change(self, vals, field_name) for field_name in PROTECTED_FIELDS_TAX_LOCK_DATE):
+            self._check_tax_lock_date()
+        return super().write(vals)
+
+    def _check_tax_lock_date(self):
+        for move in self.filtered(lambda x: x.state == 'posted'):
+            if move.company_id.tax_lock_date and move.date <= move.company_id.tax_lock_date:
+                raise UserError(_("The operation is refused as it would impact an already issued tax statement. "
+                                  "Please change the journal entry date or the tax lock date set in the settings (%s) to proceed.")
+                                % format_date(self.env, move.company_id.tax_lock_date))
         
     def button_draft(self):
         #Execute ecuadorian validations with bypass option
         for document in self:
+            bypass = False
             if self.country_code == 'EC':
                 bypass = document.l10n_ec_bypass_validations
                 if not bypass:
@@ -71,7 +111,18 @@ class AccountMove(models.Model):
     def _l10n_ec_validations_to_draft_when_edi(self):
         #FIX, because account_edi module of v13 allows to set to draft posted invoices not yet received by SRI
         #TODO V14: Validar si todavía hace falta
-        if self.edi_document_ids:
+        #if self.state in ['cancel']:
+        ec_edi = self.edi_document_ids.filtered(lambda x: x.edi_format_id.code == 'l10n_ec_tax_authority')
+        procesing_edi_job = self._context.get('procesing_edi_job',False)
+        if ec_edi:
+            if self.state == 'posted' and self.edi_state == 'to_cancel' and procesing_edi_job:
+                #cuando he requerido la anulación del documento todavía me encuentro en estado posted
+                #en este caso obvio la validación
+                return
+            if self.state == 'posted' and self.edi_state == 'cancelled' and procesing_edi_job:
+                #la anulación edi de account_edi obliga a pasar temporalmente por draft, mediante el
+                #contexto procesing_edi_job bypaseamos la restricción cuando es una anulación del proceso edi
+                return
             raise UserError(_(
                 "You can't set to draft the journal entry %s because an electronic document has already been requested. "
                 "Instead you can cancel this document (Request EDI Cancellation button) and then create a new one"
@@ -84,6 +135,38 @@ class AccountMove(models.Model):
                 bypass = document.l10n_ec_bypass_validations
                 if not bypass:
                     document._l10n_ec_validations_to_posted()
+                    # Se inicializa el amount_total_refunds con el monto de la nota de credito actual, pues al estar
+                    # en estado borrador queda excluida en la verificacion que se realiza mas adelante y evitamos que se
+                    # aprueben nc con montos superiores a la factura cuando no existe ninguna aprobada previamente
+                    # Para las notas de credito exterior se setea amount_total_refunds con el valor de la NC
+                    # ya que no cuenta con un invoice_rectification_id para obtener el total de la factura.
+                    # Caso especial NC exterior
+                    if document.move_type in ['in_refund', 'out_refund']:
+                        if self.partner_id != self.reversed_entry_id.partner_id:
+                            raise UserError(_("Por favor, no puede crear una Nota de Credito con Cliente/Proveedor distinto a %s") % self.reversed_entry_id.name)
+                        if document.l10n_latam_document_type_id.code == '0500':
+                            amount_total_refunds = 0.00
+                        else:
+                            amount_total_refunds = document.l10n_ec_total_with_tax
+                        for refund in document.reversed_entry_id.reversal_move_id.\
+                                filtered(lambda m: m.id != document.id and m.type in ['in_refund', 'out_refund']
+                                                   and m.state in ['posted']):
+                            amount_total_refunds += refund.l10n_ec_total_with_tax
+                        refund_value_control = document.company_id.l10n_ec_refund_value_control
+                        if float_compare(amount_total_refunds, document.reversed_entry_id.l10n_ec_total_with_tax, precision_digits=2) == 1 \
+                                and refund_value_control == 'local_refund':
+                            raise UserError(_(u'La nota de crédito %s no se puede aprobar debido a que el valor de las '
+                                              u'notas de crédito emitidas más la actual suman USD %s, sobrepasando el '
+                                              u'valor de USD %s de la factura %s.')
+                                            % (document.name, amount_total_refunds,
+                                               document.reversed_entry_id.l10n_ec_total_with_tax, document.reversed_entry_id.name))
+                        # Validacion de notas de credito no se las realice a consumidor final
+                        if document.company_id.l10n_ec_refund_value_control == 'local_refund' \
+                                and document.partner_id.vat == '9999999999999':
+                            raise UserError(_(u'La nota de crédito %s no se puede aprobar debido a que en REGLAMENTO DE '
+                                              u'COMPROBANTES DE VENTA, RETENCIÓN Y DOCUMENTOS COMPLEMENTARIOS en su ART 15 '
+                                              u'y ART 25 impiden la emision de Notas de crédito a "Consumidor Final".')
+                                            % (document.name,))
         #hack: send the context to later bypass account_edi restrictions
         # Se modifica la ejecucion del post al final porque res se debe devolver con la ejecucion de todos los documentos
         res = super(AccountMove, self)._post(soft)
@@ -96,11 +179,22 @@ class AccountMove(models.Model):
             #Require partner's VAT type and ID
             if not self.partner_id.vat:
                 raise UserError(_("Please set a VAT number in the partner for document %s") % self.display_name)
-            #TODO V14 implemnetar validacion del tipo de documento, debe estar seteado con una opción válida        
+            if self.partner_id.vat == '9999999999999':
+                if self.move_type == 'out_invoice' and float_compare(self.amount_total, 200, precision_rounding=self.currency_id.rounding) > 0:
+                    raise UserError(_("Para facturas de Consumidor Final no se puede superar los $200 USD."))
+                if self.move_type in ('in_invoice', 'in_refund'):
+                    raise UserError(_("No se pueden emitir Documentos de Compras como Consumidor Final"))
+            #TODO V14 implemnetar validacion del tipo de documento, debe estar seteado con una opción válida
+        if self.l10n_ec_authorization_type == 'third' and self.l10n_ec_authorization:
+            #validamos la clave de acceso contra los datos de la cabecera de la factura
+            self._l10n_ec_validate_authorization()
         #validations per invoice line
         l10n_ec_require_withhold_tax = self.l10n_ec_require_withhold_tax
         l10n_ec_require_vat_tax = self.l10n_ec_require_vat_tax
         for line in self.invoice_line_ids:
+            if self.move_type in ('in_refund', 'out_refund'):
+                if line.tax_ids.filtered(lambda x:x.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax']):
+                    raise UserError('Las notas de crédito no deben tener impuesto de retención (IVA o RENTA), verifique la línea con producto "%s".' % line.name)
             #TODO V16, medir performance, podria optimizarse para no iterar todas las lineas... SQL?
             vat_taxes = self.env['account.tax'] #empty recordset
             profit_withhold_taxes = self.env['account.tax'] #empty recordset
@@ -122,12 +216,127 @@ class AccountMove(models.Model):
                 if len(profit_withhold_taxes) != 1:
                     raise UserError(_("Please select one and only one profit withhold type (312, 332, 322, etc) for product:\n\n%s") % line.name)
     
+    def _l10n_ec_validate_authorization(self):
+        '''
+        - Validate the authorization number lenght
+        - Validate access_key integrity against invoice number, date, ruc, etc
+        '''
+        auth_len = len(self.l10n_ec_authorization)
+        if auth_len in (10,42):
+            return True #no podemos aplicar ninguna validacion
+        if auth_len != 49:
+            raise UserError(_("El número de Autorización es incorrecto, presenta %s dígitos") % auth_len)
+        #la siguiente seccion es solo para el caso de 49 digitos, osea claves de acceso
+        access_key_data = self._extract_data_from_access_key()
+        if self.invoice_date != access_key_data['document_date']:
+            invoice_date = self.invoice_date.strftime('%d%m%Y')
+            access_key_date = access_key_data['document_date'].strftime('%d%m%Y')
+            raise ValidationError(u'No existe correspondencia entre la clave de acceso "%s" y la fecha del documento "%s", para la autorización seleccionada se espera '\
+                                  u'como fecha del documento"%s".' % (self.l10n_ec_authorization, invoice_date, access_key_date))
+        if self.l10n_latam_document_type_id != access_key_data['l10n_latam_document_type_id']:
+            raise ValidationError(u'No existe correspondencia entre la clave de acceso "%s" y el codigo de documento "%s", para la autorización seleccionada se espera '\
+                                  u'como codigo de documento "%s".' % (self.l10n_ec_authorization, self.l10n_latam_document_type_id.code, access_key_data['l10n_latam_document_type_id'].code))
+        if self.partner_id.vat != access_key_data['partner_vat']:
+            raise ValidationError(u'No existe correspondencia entre la clave de acceso "%s" y el RUC registrado "%s", para la autorización seleccionada se espera '\
+                                  u'como RUC del documento"%s".' % (self.l10n_ec_authorization, self.partner_id.vat, access_key_data['partner_vat']))
+        if self.l10n_latam_document_number != access_key_data['document_number']:
+            raise ValidationError(u'No existe correspondencia entre la clave de acceso "%s" y el número de factura "%s", para la autorización seleccionada se espera '\
+                                  u'como número de factura "%s".' % (self.l10n_ec_authorization, self.l10n_latam_document_number, access_key_data['document_number']))
+        
+    @api.onchange('l10n_ec_authorization')
+    def onchange_l10n_ec_authorization(self):
+        '''
+        For invoices in draft:
+        - Updates partner, invoice number, invoice date, etc
+        For invoices in posted or cancel:
+        - Validates integrity against already existing partner, invoice number, invoice date, etc
+        '''
+        if self.l10n_ec_authorization:
+            if self.state in ['draft']:
+                self._update_document_header_from_access_key()
+            elif self.state in ['posted','cancel']:
+                self._l10n_ec_validate_authorization()
+            else:
+                raise #nunca deberia caer aqui
+    
+    def _extract_data_from_access_key(self):
+        '''
+        Extrae los diferentes campos de la clave de acceso (la clave de acceso es guardada en el campo name
+                Estructura de la clave de acceso:
+                Nro Digitos    Campo
+                8              fecha de emision
+                2              tipo de comprobante
+                13             numero de ruc 
+                1              tipo de ambiente 
+                3              tienda
+                3              pto emision 
+                9              nro comprobante 
+                8              filler 
+                1              tipo emision 
+                1              digito verificador
+        Retorna un diccionario con los datos
+        '''
+        access_key = self.l10n_ec_authorization
+        document_date = datetime.strptime(access_key[0:8], "%d%m%Y").date()
+        #l10n_latam_document_type_id
+        if self.move_type in ['out_invoice','out_refund','in_invoice','in_refund']:
+            l10n_ec_type_filter = self.move_type
+        elif self.withhold_type:
+            l10n_ec_type_filter = self.withhold_type
+        else:
+            raise #nunca deberia caer aquí, problema con tipos de documentos
+        l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
+            [('code','=',access_key[8:10]),
+             ('l10n_ec_type','=',l10n_ec_type_filter),],
+            limit=1)
+        if not l10n_latam_document_type_id:
+            raise UserError(_("No se ha encontrado un tipo de documento con codigo %s") % access_key[8:10])
+        #vat_emmiter
+        partner_vat = access_key[10:23]
+        partner_id = self.partner_id
+        if not partner_id.vat == partner_vat:
+            #cambiamos de partner solo si el seleccionado no cumple 
+            partner_id = self.env['res.partner'].search(
+                [('vat','=',partner_vat)
+                 ],limit=1).commercial_partner_id        
+        environment_type = access_key[23:24]
+        if self.company_id.l10n_ec_environment_type == '2': #ambiente producción
+            if environment_type != '2':
+                raise UserError(_("No se debe digitar claves de acceso de un ambiente de pruebas en un ambiente de producción, los documentos de ambiente de pruebas no son validos"))
+        document_number = "-".join([access_key[24:27],access_key[27:30],access_key[30:39]])
+        #filler del 40 al 47, no se usa
+        emission_type = access_key[47:48]
+        if emission_type != '1':
+            raise UserError(_("Actualmente, bajo el esquema offline, el tipo de emisión no puede ser 'contingencia'"))        
+        #49 digito verificador, no se usa
+        return {
+            'document_date': document_date,
+            'l10n_latam_document_type_id': l10n_latam_document_type_id,
+            'partner_vat': partner_vat,
+            'partner_id': partner_id, #sometimes False
+            'environment_type': environment_type,
+            'document_number': document_number,
+            'emission_type': emission_type,
+            }
+        
+    def _update_document_header_from_access_key(self):
+        access_key_data = self._extract_data_from_access_key()
+        self.invoice_date = access_key_data['document_date']
+        self.l10n_latam_document_type_id = access_key_data['l10n_latam_document_type_id']
+        if access_key_data['partner_id']:
+            self.partner_id = access_key_data['partner_id']
+        else:
+            #TODO V15, deberíamos poder popup el form del partner prellenada su RUC
+            self.partner_id = False
+        self.l10n_latam_document_number = access_key_data['document_number']
+        
     @api.depends('l10n_latam_document_type_id')
     def _l10n_ec_compute_require_vat_tax(self):
         #Indicates if the invoice requires a vat tax or not
         for move in self:
             result = False
             if move.country_code == 'EC':
+		#TODO agregar regiment especial en un AND al siguiente if
                 if move.move_type in ['in_invoice', 'in_refund', 'out_invoice', 'out_refund'] and move.company_id.l10n_ec_issue_withholds:
                     if move.l10n_latam_document_type_id.code in [
                                         '01', # factura compra
@@ -155,6 +364,7 @@ class AccountMove(models.Model):
         for move in self:
             result = False
             if move.country_code == 'EC':
+                #TODO agregar regiment especial en un AND al siguiente if
                 if move.move_type == 'in_invoice' and move.company_id.l10n_ec_issue_withholds:
                     if move.l10n_latam_document_type_id.code in [
                                         '01', # factura compra
@@ -201,7 +411,7 @@ class AccountMove(models.Model):
         '''
         warning_msgs = ''
         missing_withhold_error = u'Acorde a los impuestos que usted ha seleccionado está pendiente aprobar la retención, de no ser así corrija los impuestos.'
-        aproved_states = ['open','paid']
+        aproved_states = ['posted','cancel']
         if self.state not in aproved_states:
             return warning_msgs
         #determinamos si debemos emitir retenciones electronicas
@@ -221,6 +431,15 @@ class AccountMove(models.Model):
         else:
             pass
         return warning_msgs
+
+    def unlink(self):
+        """ When using documents, on vendor bills the document_number is set manually by the number given from the vendor,
+        the odoo sequence is not used. In this case We allow to delete vendor bills with document_number/move_name """
+        self.filtered(lambda x: x.type in x.get_purchase_types() and x.state in ('draft', 'cancel')
+                                and x.l10n_latam_use_documents and x.country_code == 'EC').write({'name': '/'})
+        self.filtered(lambda x: x.is_withholding() and x.state in ('draft', 'cancel')
+                                and x.l10n_latam_use_documents and x.country_code == 'EC').write({'name': '/'})
+        return super().unlink()
     
     #columns
     l10n_ec_require_withhold_tax = fields.Boolean(compute='_l10n_ec_compute_require_withhold_tax')

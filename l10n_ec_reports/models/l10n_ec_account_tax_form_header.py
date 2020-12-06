@@ -64,33 +64,33 @@ class AccountTaxFormHeader(models.TransientModel):
         for group in obj.tax_group_ids:
             formgrouptaxes[group.group_name] = formgrouptaxes.get(group.group_name, []) + [group]
         FIELDS = [
-            (u'Fecha', 'invoice_date', 'datef', 30),
-            (u'Asiento', 'invoice_id.name', 'std', 40),
-            (u'Contribuyente', 'partner_id.name', 'std', 100),
-            (u'R.U.C.', 'partner_id.vat', 'std', 40),
-            (u'Retención No', 'withholding_number', 'std', 40),
-            (u'Base imponible', 'base', 'num', 40),
-            (u'Valor', 'amount', 'num', 40),
-            (u'Estado', 'invoice_id.state', 'std', 20)
+            (u'Fecha', 'invoice_date', 'datef', 12.5),
+            (u'Asiento', 'invoice_id.name', 'std', 25),
+            (u'Contribuyente', 'partner_id.name', 'std', 60),
+            (u'R.U.C.', 'partner_id.vat', 'std', 15),
+            (u'Retención No', 'withholding_number', 'std', 25),
+            (u'Base imponible', 'base', 'num', 17),
+            (u'Valor', 'amount', 'num', 17),
+            (u'Estado', 'invoice_id.state', 'std', 10)
         ]
         FIELDS_RES = [
             (u'Codigo Aplicado', 'tax_code', 'std'),
             (u'Codigo Base', 'tax_code_base', 'std'),
             (u'Codigo ATS', 'tax_code_ats', 'std'),
-            (u'Impuesto', 'tax_name', 'std'),
+            (u'Impuesto', 'tax_name', 'std_short'),
             (u'Total base imponible', 'base', 'num'),
             (u'Total valor', 'amount', 'num'),
         ]
 
-        titleheader = book.add_format({'font_name': 'Arial', 'bold': True, 'font_size': 12, 'valign': 'center', 'align': 'center'})
-        bold = book.add_format({'font_name': 'Arial', 'bold': True, 'font_size': 12})
-        std =  book.add_format({'font_name': 'Arial', 'font_size': 11})
-        title = book.add_format({'font_name': 'Arial', 'bold': True, 'font_color': '#FFFFFF', 'bg_color': '#C3CDE6', 'font_size': 12, 'align': 'center'})
-        perc = book.add_format({'font_name': 'Arial', 'font_size': 11, 'num_format': '0.00%'})
-        datef = book.add_format({'font_name': 'Arial', 'font_size': 11, 'num_format': 'YYYY/mm/dd'})
-        num = book.add_format({'font_name': 'Arial', 'font_size': 11, 'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00', 'align': 'right'})
-        num_bold = book.add_format({'font_name': 'Arial', 'bold': True, 'font_size': 11, 'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00', 'align': 'right'})
-
+        titleheader = book.add_format({'font_name': 'Arial', 'bold': True, 'font_size': 11, 'valign': 'vjustify', 'align': 'center'})
+        bold = book.add_format({'font_name': 'Arial', 'bold': True, 'font_size': 11, 'valign': 'vjustify'})
+        std =  book.add_format({'font_name': 'Arial', 'font_size': 10, 'valign': 'vjustify'})
+        std_short = book.add_format({'font_name': 'Arial', 'font_size': 8, 'valign': 'vjustify'})
+        title = book.add_format({'font_name': 'Arial', 'bold': True, 'font_color': '#FFFFFF', 'bg_color': '#C3CDE6', 'font_size': 11, 'align': 'center', 'valign': 'vjustify'})
+        perc = book.add_format({'font_name': 'Arial', 'font_size': 10, 'num_format': '0.00%', 'valign': 'vjustify'})
+        datef = book.add_format({'font_name': 'Arial', 'font_size': 10, 'num_format': 'YYYY/mm/dd', 'valign': 'vjustify'})
+        num = book.add_format({'font_name': 'Arial', 'font_size': 10, 'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00', 'align': 'right', 'valign': 'vjustify'})
+        num_bold = book.add_format({'font_name': 'Arial', 'bold': True, 'font_size': 10, 'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00', 'align': 'right', 'valign': 'vjustify'})
 
         for formulario, taxes_group in iter(formgrouptaxes.items()):
             sheet = book.add_worksheet(formulario and str(formulario) or 'Des')
@@ -103,7 +103,7 @@ class AccountTaxFormHeader(models.TransientModel):
                 row += 1
             row += 2
             for group in taxes_group:
-                sheet.write(row, 0, 'Impuesto: %s (%s)'%(group.tax_name,group.tax_code), bold)
+                sheet.merge_range(row, 0, row, 4, 'Impuesto: %s (%s)'%(group.tax_name, group.tax_code), bold)
                 for col, field in enumerate(FIELDS, 0):
                     sheet.set_column(col, col, field[3])
                     sheet.write(row+1, col, field[0], title)
@@ -121,16 +121,25 @@ class AccountTaxFormHeader(models.TransientModel):
                 row += len(group.account_tax_line_ids) + 3
             #=======================================================================
             # Resumen Tributario
-            sheet.write(row, 0, 'RESUMEN TRIBUTARIO', bold)
+            sheet.merge_range(row, 0, row, 3, 'RESUMEN TRIBUTARIO', bold)
+            sheet.set_row(row+2, height=25)
             for col, field in enumerate(FIELDS_RES, 0):
                 sheet.write(row+2, col, field[0], title)
             for aux, group in enumerate(taxes_group, 0):
                 col_aux = 0
+                sheet.set_row(aux+row+3, height=51)
                 for col, (field, attr, sty) in enumerate(FIELDS_RES):
                     if field[0] != ' ':
                         value = evalobj(group, attr)
                         value = '(%s Registros)'%len(value) if field == u'Movimientos' else value
-                        sheet.write(aux+row+3, col + col_aux, value or '', std)
+                        style = std
+                        if sty == 'num':
+                            style = num
+                        if sty == 'std_short':
+                            style = std_short
+                        elif sty == 'datef':
+                            style = datef
+                        sheet.write(aux+row+3, col + col_aux, value or '', style)
             #=======================================================================
         book.close()
         output.seek(0)

@@ -4,4 +4,3 @@
 from . import res_company
 from . import account_refund_client
 from . import account_move
-

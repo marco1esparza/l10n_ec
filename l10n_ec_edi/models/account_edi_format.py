@@ -31,27 +31,23 @@ class AccountEdiFormat(models.Model):
         self.ensure_one()
         if invoice.country_code == 'EC' and self.code == 'l10n_ec_tax_authority':
             is_required_for_invoice = False
+            if not invoice.l10n_ec_printer_id.allow_electronic_document:
+                #first lets verify that the printer point is an electronic one
+                return is_required_for_invoice
             #Facturas de venta
-            if invoice.l10n_latam_document_type_id.code in ['18']:
-                if invoice.l10n_ec_printer_id.allow_electronic_document:
-                    is_required_for_invoice = True
+            if invoice.move_type == 'out_invoice' and invoice.l10n_latam_document_type_id.code in ['18','41']:
+                is_required_for_invoice = True
             #NC en ventas
-            if invoice.move_type == 'out_refund' and invoice.l10n_latam_document_type_id.code in ['04']:
-                if invoice.l10n_ec_printer_id.allow_electronic_document:
-                    is_required_for_invoice = True
+            elif invoice.move_type == 'out_refund' and invoice.l10n_latam_document_type_id.code in ['04']:
+                is_required_for_invoice = True
             # Liquidacion de Compra
-            if invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code in ['03']:
-                if invoice.l10n_ec_printer_id.allow_electronic_document:
-                    is_required_for_invoice = True
+            elif invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code in ['03','41']:
+                is_required_for_invoice = True
             return is_required_for_invoice
         return super()._is_required_for_invoice(invoice)
 
     def _needs_web_services(self):
-        """ Indicate if the EDI must be generated asynchronously through to some web services.
-
-        :return: True if such a web service is available, False otherwise.
-        """
-        self.ensure_one()
+        #OVERRIDE
         return True if self.code == 'l10n_ec_tax_authority' else super()._needs_web_services()
     
     def _is_compatible_with_journal(self, journal):
@@ -70,7 +66,7 @@ class AccountEdiFormat(models.Model):
 
     def _is_embedding_to_invoice_pdf_needed(self):
         self.ensure_one()
-        return False if self.code == 'l10n_ec_tax_authority' else super()._is_embedding_to_invoice_pdf_needed()
+        return False if self.country_code == 'EC' else super()._is_embedding_to_invoice_pdf_needed()
 
     def _post_invoice_edi(self, invoices, test_mode=False):
         """ Create the file content representing the invoice (and calls web services if necessary).
@@ -170,6 +166,23 @@ class AccountEdiFormat(models.Model):
             #here invoice refers to any document, an invoice, withhold, waybill
             document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_cancel")
             msgs = []
+            
+            if not test_mode:
+                # Si no tenemos Modo test por context, entonces evaluamos que la company_id este en modo Demo
+                enviroment_type = invoice.company_id.l10n_ec_environment_type
+                if enviroment_type and enviroment_type == '0':
+                    test_mode = True
+            # Si estamos en Modo test y tenemos documentos electronicos y tenemos request
+            # asignamos el attachment con dicho documento.
+            if test_mode:
+                
+                res = {'success': True} #indicates cancell operation success
+                edi_result[invoice] = res
+                #Chatter, no_new_invoice to prevent creation of another new invoice "from the attachment"
+                invoice.with_context(no_new_invoice=True).message_post(
+                    body=_("The ecuadorian electronic document was successfully voided (Demo mode)")
+                )
+                return edi_result
             #Firts try to download reply, if not available try sending again
             response_state, response = document._l10n_ec_download_electronic_document_reply()
             if response_state not in ['non-existent']:

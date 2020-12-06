@@ -6,7 +6,7 @@
 		<field name="model">res.company</field>
 		<field name="inherit_id" ref="l10n_ec_edi.view_company_electronic_form"/>
 		<field name="arch" type="xml">
-			<xpath expr="//field[@name='l10n_ec_digital_cert_id']" position="after">
+			<xpath expr="//group[@name='others']" position="inside">
 				<field name="refund_product_id"/>
 			</xpath>
 		</field>

@@ -14,34 +14,6 @@ class AccountRefundClient(models.Model):
     '''
     _name = 'account.refund.client'
 
-    @api.model
-    def create(self, vals):
-        '''
-        To create a line check if the number complies with certain characteristics
-        '''
-        country_code = self.env['account.move'].browse(vals.get('move_id')).country_code
-        if country_code == 'EC':
-            number = vals.get('number') or False
-            if number:
-                cadena = '(\d{3})+\-(\d{3})+\-(\d{9})'
-                if not re.match(cadena, number):
-                    raise ValidationError(u'El número del reembolso de gastos es incorrecto, debe tener el siguiente formato: 00X-00X-000XXXXXX, donde X es un dígito numérico.')
-        return super(AccountRefundClient, self).create(vals) 
-
-    def write(self, vals):
-        '''
-        To write a line check if the number complies with certain characteristics
-        '''
-        if self.move_id.country_code == 'EC':
-            number = vals.get('number') or False
-            if not number:
-                number = self.number
-            if number:
-                cadena = '(\d{3})+\-(\d{3})+\-(\d{9})'
-                if not re.match(cadena, number):
-                    raise ValidationError(u'El número del reembolso de gastos es incorrecto, debe tener el siguiente formato: 00X-00X-000XXXXXX, donde X es un dígito numérico.')
-        return super(AccountRefundClient, self).write(vals)
-
     @api.onchange('partner_id')
     def onchange_partner_id(self):
         '''
@@ -129,10 +101,8 @@ class AccountRefundClient(models.Model):
             return
         #caso facturas de compra por reembolso, este caso requiere refactoring a la nueva API
         res = {'value': {},'warning': {},'domain': {}}
-        res['value']['number'] = ''
         if not self.authorization:
-            return res
-        res['value']['number'] = '001-001-'
+            res['value']['number'] = '001-001-'
         return res
 
     @api.onchange('base_tax_free', 'no_vat_amount', 'base_vat_0', 'base_vat_no0', 'vat_amount_no0', 'ice_amount')
@@ -256,44 +226,44 @@ class AccountRefundClient(models.Model):
         string='Transaction type',
         method=True,
         store=False,
-        help='Indicate the transaction type that performer the partner.'
+        help='Technical field to compute the performed transaction type'
         )
     base_tax_free = fields.Float(
-        string='Base TAX free', 
-        help='Show the base value of tax free'
+        string='Base Exenta IVA',
+        help='La base imponible exenta de IVA, la puede encontrar en el subtotal del documento de compra'
         )
     no_vat_amount = fields.Float(
-        string='NO VAT amount',
-        help='Show the amount without VAT in this purchase invoice'
+        string='Base No Objeto IVA',
+        help='La base imponible "no objeto de IVA", la puede encontrar en el subtotal del documento de compra'
         )
     base_vat_0 = fields.Float(
-        string='0% VAT base', 
-        help='Show the base VAT zero used in this purchase invoice'
+        string='Base IVA 0%', 
+        help='La base imponible que grava IVA 0%, la puede encontrar en el subtotal del documento de compra'
         )
     base_vat_no0 = fields.Float(
-        string='NO 0% VAT base',
-        help='Show the base VAT no zero used in this purchase invoice'
+        string='Base Grava IVA',
+        help='La base imponible que grava IVA (ya sea IVA 12%, IVA 14% u otros porcentajes), la puede encontrar en el subtotal del documento de compra'
         )
     vat_amount_no0 = fields.Float(
-        string='NO 0% VAT value',
-        help='Show the amount of VAT no zero in this purchase invoice'
+        string='Valor IVA',
+        help='El valor del IVA (usualmente el total de la factura multiplicado por 0.12), la puede encontrar en el subtotal del documento de compra'
         )
     ice_amount = fields.Float(
-        string='ICE Value',
-        help='Show the amount of ICE VAT in this purchase invoice'
+        string='Valor ICE',
+        help='El valor del ICE, lo puede encontrar en el subtotal del documento de compra'
         )
     total = fields.Float(
         string='Total',
-        help='Show the total amount of the purchase invoice'
+        help='El valor total del documento de compra'
         )
     move_id = fields.Many2one(
         'account.move',
+        required=True,
         string='Factura Reembolso',
-        default=lambda self: 'active_id' in self._context and self._context['active_id'] or False,
-        help='Store the associated invoice id to this refund client line'
+        ondelete='cascade',
+        default=lambda self: 'active_id' in self._context and self._context['active_id'] or False        
         )
     state = fields.Selection(
         string='State',
-        related='move_id.state',
-        help=''
+        related='move_id.state'
         )

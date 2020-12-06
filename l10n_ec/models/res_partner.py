@@ -12,6 +12,9 @@ class ResPartner(models.Model):
             from stdnum.ec import ci, ruc
         except ImportError:
             return True
+        if self._context.get('bypass_check_vat',False):
+            #usefull for migrations from previous versions or integrations
+            return True
 
         if self.l10n_latam_identification_type_id.is_vat:
             vat = clean(vat, ' -.').upper().strip()

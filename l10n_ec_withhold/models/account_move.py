@@ -256,6 +256,7 @@ class AccountMove(models.Model):
         Retenciones electronicas en compras
         '''
         res = super(AccountMove, self).get_is_edi_needed(edi_format)
+        #TODO V15: mover la logica a account_edi_format._is_required_for_invoice()
         if self.country_code == 'EC':
             if self.move_type == 'entry' and self.l10n_ec_withhold_type == 'in_withhold' and self.l10n_latam_document_type_id.code in ['07'] and self.l10n_ec_printer_id.allow_electronic_document:
                 return True
@@ -504,20 +505,20 @@ class AccountMove(models.Model):
         if not moves:
             return
         self.flush()
-        # Si son retenciones en ventas analizamos el partner
+        #Si son retenciones en ventas analizamos el partner
         out_withhold = self.filtered(lambda move: move.l10n_ec_withhold_type == 'out_withhold')
         if out_withhold:
             # /!\ Computed stored fields are not yet inside the database.
             self._cr.execute('''
-                    SELECT move2.id
-                    FROM account_move move
-                    INNER JOIN account_move move2 ON
-                        move2.name = move.name
-                        AND move2.journal_id = move.journal_id
-                        AND move2.move_type = move.move_type
-                        AND move2.id != move.id
-                    WHERE move.id IN %s AND move2.partner_id IN %s AND move2.state = 'posted'
-                ''', [tuple(moves.ids), tuple(moves.mapped('partner_id').ids)])
+                SELECT move2.id
+                FROM account_move move
+                INNER JOIN account_move move2 ON
+                    move2.name = move.name
+                    AND move2.journal_id = move.journal_id
+                    AND move2.move_type = move.move_type
+                    AND move2.id != move.id
+                WHERE move.id IN %s AND move2.partner_id IN %s AND move2.state = 'posted'
+            ''', [tuple(moves.ids), tuple(moves.mapped('partner_id').ids)])
             res = self._cr.fetchone()
             if res:
                 raise ValidationError(_('Posted journal entry must have an unique sequence number per company.'))

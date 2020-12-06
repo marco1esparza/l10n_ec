@@ -16,7 +16,7 @@ class L10nEcSRITaxSupport(models.Model):
         '''
         result = []
         for support in self:
-            new_name = (support.code and '[' + support.code + '] ' or '') + support.name or ''
+            new_name = (support.code and '(' + support.code + ') ' or '') + support.name
             result.append((support.id, new_name))
         return result
 
@@ -30,8 +30,8 @@ class L10nEcSRITaxSupport(models.Model):
         domain = []
         if name:
             domain = ['|', ('code', operator, name), ('name', operator, name)]
-        support = self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
-        return support
+        ids = self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
+        return self.browse(ids).name_get()
 
     #Columns
     code = fields.Char(
@@ -70,4 +70,4 @@ class L10nLatamDocumentType(models.Model):
         'tax_support_id',
         string='Tax support lines',
         help=''
-        )     
+        )

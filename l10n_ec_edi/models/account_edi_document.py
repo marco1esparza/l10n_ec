@@ -48,7 +48,10 @@ class AccountEdiDocument(models.Model):
                 invoice_wizard.send_and_print_action()
     
     def _process_jobs(self, to_process):
-        super(AccountEdiDocument, self)._process_jobs(to_process)
+        #sends an email
+        #context to bypass _l10n_ec_validations_to_draft_when_edi validations when
+        #voiding a document
+        super(AccountEdiDocument,  self.with_context(procesing_edi_job=True))._process_jobs(to_process)
         for key, documents in to_process:
             self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.country_code == 'EC'))
 
@@ -188,21 +191,19 @@ class AccountEdiDocument(models.Model):
     def _l10n_ec_generate_request_xml_file(self):
         #generates and validates an xml request to later be sent to SRI
         self.ensure_one()
-        if (self.move_id.move_type in ('out_invoice', 'out_refund') and self.move_id.l10n_latam_document_type_id.code in ['18', '04']) or \
-            (self.move_id.move_type in ('in_invoice') and self.move_id.l10n_latam_document_type_id.code in ['03']):
-            etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
-            xml_content = clean_xml(etree_content)
-            try: #validamos el XML contra el XSD
-                if self.move_id.move_type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18']:
-                    validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
-                elif self.move_id.move_type in ('out_refund') and self.move_id.l10n_latam_document_type_id.code in ['04']:
-                    validate_xml_vs_xsd(xml_content, XSD_SRI_110_NOTA_CREDITO)
-                elif self.move_id.move_type in ('in_invoice') and self.move_id.l10n_latam_document_type_id.code in ['03']:
-                    validate_xml_vs_xsd(xml_content, XSD_SRI_110_LIQ_COMPRA)
-            except ValueError: 
-                raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
-            self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
-            self.l10n_ec_request_xml_file = base64.encodestring(xml_content)
+        etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
+        xml_content = clean_xml(etree_content)
+        try: #validamos el XML contra el XSD
+            if self.move_id.type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18','41']:
+                validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
+            elif self.move_id.type in ('out_refund') and self.move_id.l10n_latam_document_type_id.code in ['04']:
+                validate_xml_vs_xsd(xml_content, XSD_SRI_110_NOTA_CREDITO)
+            elif self.move_id.type in ('in_invoice') and self.move_id.l10n_latam_document_type_id.code in ['03', '41']:
+                validate_xml_vs_xsd(xml_content, XSD_SRI_110_LIQ_COMPRA)
+        except ValueError: 
+            raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
+        self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
+        self.l10n_ec_request_xml_file = base64.encodestring(xml_content)
     
     @api.model
     def _l10n_ec_get_xml_request_for_sale_invoice(self):
@@ -272,19 +273,19 @@ class AccountEdiDocument(models.Model):
                 ('totalSinImpuestos', '{0:.2f}'.format(self.move_id.amount_untaxed)),
                 ('totalDescuento', '{0:.2f}'.format(self.move_id.l10n_ec_total_discount))
             ])
-#             if document_type.code == '41':
-#                 amount_total, totalComprobantesReembolso, totalImpuestoReembolso = 0, 0, 0
-#                 for refund_line in self.account_refund_client_ids:
-#                     amount_total += refund_line.total
-#                     totalComprobantesReembolso += refund_line.base_tax_free + refund_line.base_vat_0 + \
-#                         refund_line.no_vat_amount + refund_line.base_vat_no0
-#                     totalImpuestoReembolso += refund_line.vat_amount_no0
-#                 infoFactElements.extend([
-#                     ('codDocReembolso', '41'),
-#                     ('totalComprobantesReembolso', amount_total),
-#                     ('totalBaseImponibleReembolso', totalComprobantesReembolso),
-#                     ('totalImpuestoReembolso', totalImpuestoReembolso),
-#                 ])
+            if document_type.code == '41':
+                amount_total, totalComprobantesReembolso, totalImpuestoReembolso = 0.0, 0.0, 0.0
+                for refund_line in self.move_id.refund_ids:
+                    amount_total += refund_line.total
+                    totalComprobantesReembolso += refund_line.base_tax_free + refund_line.base_vat_0 + \
+                        refund_line.no_vat_amount + refund_line.base_vat_no0
+                    totalImpuestoReembolso += refund_line.vat_amount_no0
+                infoFactElements.extend([
+                    ('codDocReembolso', '41'),
+                    ('totalComprobantesReembolso', '{0:.2f}'.format(amount_total)),
+                    ('totalBaseImponibleReembolso', '{0:.2f}'.format(totalComprobantesReembolso)),
+                    ('totalImpuestoReembolso', '{0:.2f}'.format(totalImpuestoReembolso)),
+                ])
         elif type == 'out_refund':
             infoFactElements.extend([
                 ('tipoIdentificacionComprador', self.move_id.partner_id.get_invoice_ident_type()),
@@ -314,19 +315,19 @@ class AccountEdiDocument(models.Model):
                     ('totalSinImpuestos', '{0:.2f}'.format(self.move_id.amount_untaxed)),
                     ('totalDescuento', '{0:.2f}'.format(self.move_id.l10n_ec_total_discount)),
                 ])
-#                 if document_type.code == '41':
-#                     amount_total, totalComprobantesReembolso, totalImpuestoReembolso = 0, 0, 0
-#                     for refund_line in self.account_refund_client_ids:
-#                         amount_total += refund_line.total
-#                         totalComprobantesReembolso += refund_line.base_tax_free + refund_line.base_vat_0 + \
-#                             refund_line.no_vat_amount + refund_line.base_vat_no0
-#                         totalImpuestoReembolso += refund_line.vat_amount_no0
-#                     infoFactElements.extend([
-#                         ('codDocReembolso', '41'),
-#                         ('totalComprobantesReembolso', amount_total),
-#                         ('totalBaseImponibleReembolso', totalComprobantesReembolso),
-#                         ('totalImpuestoReembolso', totalImpuestoReembolso),
-#                     ])
+                if document_type.code == '41':
+                    amount_total, totalComprobantesReembolso, totalImpuestoReembolso = 0, 0, 0
+                    for refund_line in self.move_id.refund_ids:
+                        amount_total += refund_line.total
+                        totalComprobantesReembolso += refund_line.base_tax_free + refund_line.base_vat_0 + \
+                            refund_line.no_vat_amount + refund_line.base_vat_no0
+                        totalImpuestoReembolso += refund_line.vat_amount_no0
+                    infoFactElements.extend([
+                        ('codDocReembolso', '41'),
+                        ('totalComprobantesReembolso', '{0:.2f}'.format(amount_total)),
+                        ('totalBaseImponibleReembolso', '{0:.2f}'.format(totalComprobantesReembolso)),
+                        ('totalImpuestoReembolso', '{0:.2f}'.format(totalImpuestoReembolso)),
+                    ])
         infoFactElements.append(('totalConImpuestos', None))
         if type == 'out_invoice':
             infoFactElements.extend([
@@ -467,56 +468,57 @@ class AccountEdiDocument(models.Model):
                 else:
                     #ignoramos otros impuestos fuera del grupo contable de ecuador
                     pass
-#         if document_type.code == '41':
-#             reembolsos = self.create_SubElement(factura, 'reembolsos')
-#             for each in self.account_refund_client_ids:
-#                 reembolsoDetalle = self.create_SubElement(reembolsos, 'reembolsoDetalle')
-#                 detalle_data = []
-#                 tipoProveedor, estabDocReembolso, ptoEmiDocReembolso = False, False, False
-#                 secuencialDocReembolso = False
-#                 #TODO: AL unir a las ramas ecommerce reestructurar el computo del tipoProveedor
-#                 if each.partner_id.property_account_position_id and 'PERSONA NATURAL' in each.partner_id.property_account_position_id.name.upper():
-#                     tipoProveedor = '01'
-#                 else:
-#                     tipoProveedor = '02'
-#                 #se asume que el formulario obliga a que se cumpla el formato ###-###-##########
-#                 number_refund = each.number.split('-')
-#                 estabDocReembolso = number_refund[0]
-#                 ptoEmiDocReembolso = number_refund[1]
-#                 secuencialDocReembolso = number_refund[2]
-#                 #TODO: AL unir a las ramas ecommerce reestructurar el computo del get_ident_type
-#                 #TODO: se esta usando el metodo get_invoice_ident_type de la clase account.refund
-#                 # debido a que el de auxiliar_function solo funciona con facturas, hay que unir estos metodos.
-#                 detalle_data.append(('tipoIdentificacionProveedorReembolso', each.get_invoice_ident_type()))
-#                 detalle_data.append(('identificacionProveedorReembolso', each.partner_id.vat))
-#                 detalle_data.append(('tipoProveedorReembolso', tipoProveedor))
-#                 detalle_data.append(('codDocReembolso', '01'))
-#                 detalle_data.append(('estabDocReembolso', estabDocReembolso))
-#                 detalle_data.append(('ptoEmiDocReembolso', ptoEmiDocReembolso))
-#                 detalle_data.append(('secuencialDocReembolso', secuencialDocReembolso))
-#                 detalle_data.append(('fechaEmisionDocReembolso', datetime.strptime(each.creation_date,'%Y-%m-%d').strftime('%d/%m/%Y')))
-#                 detalle_data.append(('numeroautorizacionDocReemb', each.authorizations_id.name))
-#                 self.create_TreeElements(reembolsoDetalle, detalle_data)
-#                 detalleImpuestos = self.create_SubElement(reembolsoDetalle, 'detalleImpuestos')
-#                 detalleImpuesto_data = []
-#                 if each.base_vat_no0:
-#                     detalleImpuesto = self.create_SubElement(detalleImpuestos, 'detalleImpuesto')
-#                     detalleImpuesto_data.append(('codigo', '2'))
-#                     detalleImpuesto_data.append(('codigoPorcentaje', '2'))
-#                     detalleImpuesto_data.append(('tarifa', '12'))
-#                     detalleImpuesto_data.append(('baseImponibleReembolso', each.base_vat_no0))
-#                     detalleImpuesto_data.append(('impuestoReembolso', each.vat_amount_no0))
-#                     self.create_TreeElements(detalleImpuesto, detalleImpuesto_data)
-#                     detalleImpuesto_data = []
-#                 if each.base_vat_0:
-#                     detalleImpuesto = self.create_SubElement(detalleImpuestos, 'detalleImpuesto')
-#                     detalleImpuesto_data.append(('codigo', '2'))
-#                     detalleImpuesto_data.append(('codigoPorcentaje', '0'))
-#                     detalleImpuesto_data.append(('tarifa', '0'))
-#                     detalleImpuesto_data.append(('baseImponibleReembolso', each.base_tax_free + each.base_vat_0 + each.no_vat_amount))
-#                     detalleImpuesto_data.append(('impuestoReembolso', '0.00'))
-#                     self.create_TreeElements(detalleImpuesto, detalleImpuesto_data)
-#                     detalleImpuesto_data = []
+        if document_type.code == '41':
+            reembolsos = self.create_SubElement(factura, 'reembolsos')
+            for each in self.move_id.refund_ids:
+                reembolsoDetalle = self.create_SubElement(reembolsos, 'reembolsoDetalle')
+                detalle_data = []
+                tipoProveedor, estabDocReembolso, ptoEmiDocReembolso = False, False, False
+                secuencialDocReembolso = False
+                #TODO: AL unir a las ramas ecommerce reestructurar el computo del tipoProveedor
+                if each.partner_id.property_account_position_id and 'PERSONA NATURAL' in each.partner_id.property_account_position_id.name.upper():
+                    tipoProveedor = '01'
+                else:
+                    tipoProveedor = '02'
+                #se asume que el formulario obliga a que se cumpla el formato ###-###-##########
+                number_refund = each.number.split('-')
+                estabDocReembolso = number_refund[0]
+                ptoEmiDocReembolso = number_refund[1]
+                secuencialDocReembolso = number_refund[2]
+                #TODO: AL unir a las ramas ecommerce reestructurar el computo del get_ident_type
+                #TODO: se esta usando el metodo get_invoice_ident_type de la clase account.refund
+                # debido a que el de auxiliar_function solo funciona con facturas, hay que unir estos metodos.
+                detalle_data.append(('tipoIdentificacionProveedorReembolso', each.partner_id.get_invoice_ident_type()))
+                detalle_data.append(('identificacionProveedorReembolso', each.partner_id.vat))
+                detalle_data.append(('tipoProveedorReembolso', tipoProveedor))
+                detalle_data.append(('codDocReembolso', '01'))
+                detalle_data.append(('estabDocReembolso', estabDocReembolso))
+                detalle_data.append(('ptoEmiDocReembolso', ptoEmiDocReembolso))
+                detalle_data.append(('secuencialDocReembolso', secuencialDocReembolso))
+                detalle_data.append(('fechaEmisionDocReembolso', each.creation_date.strftime('%d/%m/%Y')))
+                detalle_data.append(('numeroautorizacionDocReemb', each.authorization))
+                self.create_TreeElements(reembolsoDetalle, detalle_data)
+                detalleImpuestos = self.create_SubElement(reembolsoDetalle, 'detalleImpuestos')
+                detalleImpuesto_data = []
+                if each.base_vat_no0:
+                    detalleImpuesto = self.create_SubElement(detalleImpuestos, 'detalleImpuesto')
+                    detalleImpuesto_data.append(('codigo', '2'))
+                    detalleImpuesto_data.append(('codigoPorcentaje', '2'))
+                    detalleImpuesto_data.append(('tarifa', '12'))
+                    detalleImpuesto_data.append(('baseImponibleReembolso', '{0:.2f}'.format(each.base_vat_no0)))
+                    detalleImpuesto_data.append(('impuestoReembolso', '{0:.2f}'.format(each.vat_amount_no0)))
+                    self.create_TreeElements(detalleImpuesto, detalleImpuesto_data)
+                    detalleImpuesto_data = []
+                if each.base_vat_0:
+                    detalleImpuesto = self.create_SubElement(detalleImpuestos, 'detalleImpuesto')
+                    detalleImpuesto_data.append(('codigo', '2'))
+                    detalleImpuesto_data.append(('codigoPorcentaje', '0'))
+                    detalleImpuesto_data.append(('tarifa', '0'))
+                    base = each.base_tax_free + each.base_vat_0 + each.no_vat_amount
+                    detalleImpuesto_data.append(('baseImponibleReembolso', '{0:.2f}'.format(base)))
+                    detalleImpuesto_data.append(('impuestoReembolso', '0.00'))
+                    self.create_TreeElements(detalleImpuesto, detalleImpuesto_data)
+                    detalleImpuesto_data = []
         infoAdicional = self.create_SubElement(factura, 'infoAdicional')
         if self.move_id.company_id.l10n_ec_regime == 'micro':
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'Regimen'}, text=_MICROCOMPANY_REGIME_LABEL)
@@ -591,7 +593,7 @@ class AccountEdiDocument(models.Model):
             if self.move_id.l10n_latam_document_type_id.code in ('03','41'):
                 additional_info.append('Monto Letras: %s' % amount_to_words_es(self.move_id.l10n_ec_total_with_tax))
         return additional_info
-    
+
     def _l10n_ec_map_tax_groups(self, tax_id):
         #Maps different tax types (aka groups) to codes for electronic invoicing
         if tax_id.tax_group_id.l10n_ec_type in _IVA_CODES:
@@ -682,7 +684,9 @@ class AccountEdiDocument(models.Model):
               reception -> conecta al WS que permite enviar documentos    
         '''
         environment_type = self.move_id.company_id.l10n_ec_environment_type
-        if environment_type == '1': #SRI Test Environment
+        if environment_type == '0': #SRI Test Environment
+            raise ValidationError('Error de programación, se iba a intentar una conexión al SRI en modo demo, no permitido')
+        elif environment_type == '1': #SRI Test Environment
             if mode == 'autorization':
                 WSDL_URL = ELECTRONIC_SRI_WSDL_AUTORIZATION_TEST_OFFLINE
             elif mode == 'reception':

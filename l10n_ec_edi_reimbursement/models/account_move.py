@@ -4,6 +4,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare
+import re
 
 
 class AccountMove(models.Model):
@@ -154,15 +155,13 @@ class AccountMove(models.Model):
         account_move_obj = self.env['account.move']
         # ponemos unas validaciones
         if any(x.move_type not in ('in_invoice') for x in self):
-            raise UserError(_(
-                u'La generación de facturas de venta por reembolso de gastos solo aplica para facturas de compra por reembolso de gastos.'))
+            raise UserError(_(u'La generación de facturas de venta por reembolso de gastos solo aplica para facturas de compra por reembolso de gastos.'))
         if any(x.state not in ('posted') for x in self):
             raise UserError(_(u'Las facturas seleccionadas deben estar aprobadas.'))
         l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_59')
         if not l10n_latam_document_type_id:
-            raise UserError(_(
-                u'No se encontro un tipo de documento de reembolso para venta, por favor verifique la configuración del documento de venta con código 41.'))
-        # computo del campo origin
+            raise UserError(_(u'No se encontro un tipo de documento de reembolso para venta, por favor verifique la configuración del documento de venta con código 41.'))
+        #computo del campo origin
         origin = []
         for purchase in self:
             text = []
@@ -174,25 +173,24 @@ class AccountMove(models.Model):
         origin = ";".join(origin)
         # creamos la factura
         invoice_header = {
-            'partner_id': self[0].company_id.partner_id.id,
-            # temporalmente se deja con esta empresa hasta que el usuario selecciona una manualmente
-            'move_type': 'out_invoice',  # se indica aqui el tipo de factura para el resto de la creacion
-            # 'date_invoice': fields.Date.context_today(self),
+            'partner_id': self[0].company_id.partner_id.id, #temporalmente se deja con esta empresa hasta que el usuario selecciona una manualmente
+            'move_type': 'out_invoice', # se indica aqui el tipo de factura para el resto de la creacion
+            #'date_invoice': fields.Date.context_today(self),
             'invoice_origin': origin,
             'l10n_latam_document_type_id': l10n_latam_document_type_id.id
-        }
+            }
         inv_id = account_move_obj.new(invoice_header)
         res_partner = inv_id._onchange_partner_id()
-        # volvemos a crear el inv_id pero con la data del onchange del partner incorporada
-        # esto incluye el printer_id que estaba faltando
+        #volvemos a crear el inv_id pero con la data del onchange del partner incorporada
+        #esto incluye el printer_id que estaba faltando
         inv_id_dict = inv_id._convert_to_write({name: inv_id[name] for name in inv_id._cache})
         inv_id = account_move_obj.new(inv_id_dict)
-        # los otros dos onchanges no requieren redefinicion del inv_id
+        #los otros dos onchanges no requieren redefinicion del inv_id
         res_document = inv_id._inverse_l10n_latam_document_number()
         res_printer = inv_id.onchange_l10n_ec_printer_id()
         inv_id_dict = inv_id._convert_to_write({name: inv_id[name] for name in inv_id._cache})
-        inv_id_dict.update(invoice_header)  # para mantener nuestros datos maestros
-        # computo de las lineas de reembolso
+        inv_id_dict.update(invoice_header) #para mantener nuestros datos maestros
+        #computo de las lineas de reembolso
         refund_lines_vals = []
         for purchase in self:
             refund_lines_vals.append(
@@ -213,12 +211,12 @@ class AccountMove(models.Model):
                   'total': purchase.l10n_ec_total_with_tax
                   }
                  )
-            )
-        inv_id_dict.update({'refund_ids': refund_lines_vals})  # agregamos las lineas
+                )
+        inv_id_dict.update({'refund_ids': refund_lines_vals}) #agregamos las lineas
         sale_invoice_id = account_move_obj.create(inv_id_dict)
-        # computamos los rubros a facturar
+        #computamos los rubros a facturar
         sale_invoice_id.compute_sale_lines_from_refunds()
-        # retornamos la factura de venta por reembolso de gastos
+        #retornamos la factura de venta por reembolso de gastos
         action = self.env.ref('account.action_move_in_invoice_type').read()[0]
         action['domain'] = [('id', 'in', sale_invoice_id.ids)]
         return action
@@ -293,6 +291,14 @@ class AccountMove(models.Model):
                     pass
                 if base_codes:
                     raise UserError(_(u'La recepción de egresos para reembolso de gastos como intermediario debe realizarse con el impuesto 555, erroneamente esta utilizando los códigos: %s' %", ".join(base_codes)))
+            for refund in invoice.refund_ids:
+                cadena = '(\d{3})+\-(\d{3})+\-(\d{9})'
+                if not re.match(cadena, refund.number):
+                    raise ValidationError(u'Revise la sección de reembolsos, los números de documentos deben tener el siguiente formato: 00X-00X-000XXXXXX, donde X es un dígito numérico.')
+                if len(refund.authorization) not in (10, 37, 49):
+                    raise ValidationError(u'El número de autorización no tiene la longitud requerida, las longitudes válidas son 10, 37 o 49.')
+                if not refund.partner_id.l10n_latam_identification_type_id or not refund.partner_id.vat:
+                    raise ValidationError(u'Revise el tipo y número de identificación para el cliente/proveedor "%s".' % refund.partner_id.name)
         return super(AccountMove, self)._post(soft)
 
     @api.depends('l10n_latam_document_type_id', 'move_type', 'l10n_ec_sri_tax_support_id')
@@ -327,15 +333,11 @@ class AccountMove(models.Model):
     show_reimbursements_related = fields.Boolean(
         string='Mostrar Reembolsos Intermediario',
         compute='_show_reimbursements',
-        method=True,
-        store=False,
         help='Campo tecnico, ayuda a ocultar o presentar el boton de ver facturas de reembolso vinculadas desde compras o ventas'
         ) 
     show_reimbursements_detail = fields.Boolean(
         string='Mostrar Detalle Reembolso',
         compute='_show_reimbursements',
-        method=True,
-        store=False,
         help='Campo tecnico, ayuda a ocultar o presentar el detalle de las facturas reembolsadas'
         )
     refund_ids = fields.One2many(
