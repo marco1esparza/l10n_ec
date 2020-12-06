@@ -38,7 +38,7 @@
         'views/account_move_view.xml'
     ],
     'installable': True,
-    'auto_install': False,
+    'auto_install': True,
     # Se hace uso del post_init_hook para al finalizar la instalacion del modulo, se ejecute el metodo _assign_default_refund_product_id
     # para que asigne el Producto para Descuento Post-Venta en las compañias existentes (Metodo existente en __init__.py)
     'post_init_hook': '_assign_default_refund_product_id',
