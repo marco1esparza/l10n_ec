@@ -4,6 +4,7 @@
 from odoo import models, fields, api
 from datetime import datetime
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
+from odoo.exceptions import UserError
 import calendar
 
 
@@ -80,7 +81,7 @@ class AccountTaxReportWizard(models.TransientModel):
             date_from = datetime.strptime('%s-%s-01' % (today.year, today.month), DEFAULT_SERVER_DATE_FORMAT)
             self.date_from = date_from
         else:
-            date_from = datetime.strptime(self.date_from, DEFAULT_SERVER_DATE_FORMAT)
+            date_from = self.date_from
             self.date_from = datetime.strptime('%s-%s-01' % (date_from.year, date_from.month),
                                                DEFAULT_SERVER_DATE_FORMAT)
         self.date_to = datetime.strptime('%s-%s-%s' % (date_from.year, date_from.month,
@@ -157,6 +158,8 @@ class AccountTaxReportWizard(models.TransientModel):
                 'res_id': form.id,
             }
             return action
+        else:
+            raise UserError('No hay registros para mostrar en este período.')
 
     #Columns
     company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env['res.company']._company_default_get(),

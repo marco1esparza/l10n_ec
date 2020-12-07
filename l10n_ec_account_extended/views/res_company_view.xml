@@ -6,13 +6,16 @@
 	    <field name="model">res.company</field>
 	    <field name="inherit_id" ref="l10n_ec_edi.view_company_electronic_form"/>
 	    <field name="arch" type="xml">
-			<xpath expr="//field[@name='l10n_ec_digital_cert_id']" position="after">
+		        <xpath expr="//group[@name='withholds']" position="inside">
 				<field name="l10n_ec_issue_withholds" widget="boolean_toggle"/>
 				<field name="l10n_ec_fallback_profit_withhold_goods" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}"/>
 				<field name="l10n_ec_fallback_profit_withhold_services" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}"/>
 				<field name="l10n_ec_profit_withhold_tax_credit_card" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}"/>
+			</xpath>
+			<xpath expr="//group[@name='others']" position="inside">
+				<field name="l10n_ec_refund_value_control"/>
 				<field name="db_source"/>
-	   		</xpath>
+			</xpath>
 		</field>
 	</record>
 

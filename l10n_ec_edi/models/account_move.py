@@ -52,7 +52,7 @@ class AccountMove(models.Model):
             prefix_to_validate = self.l10n_ec_printer_id.name + '-'
         if prefix_to_validate:
             if self.l10n_latam_document_number[0:8] != prefix_to_validate:
-                raise ValidationError("Acorde a la configuraicòn del tipo de documento, el prefijo del número de documento debería empezar con %s" % prefix_to_validate)
+                raise ValidationError("Acorde a la configuración del tipo de documento, el prefijo del número de documento debería empezar con %s" % prefix_to_validate)
     
     @api.onchange('invoice_date', 'invoice_payment_term_id', 'l10n_ec_payment_method_id', 'invoice_line_ids', 'invoice_date_due')
     def onchange_set_l10n_ec_invoice_payment_method_ids(self):
@@ -86,7 +86,7 @@ class AccountMove(models.Model):
                         'amount': line.debit
                     })
                 else:
-                    create_method = in_draft_mode and self.env['l10n_ec.invoice.payment.method'].new or self.env['l10n.ec.invoice.payment.method'].create
+                    create_method = in_draft_mode and self.env['l10n_ec.invoice.payment.method'].new or self.env['l10n_ec.invoice.payment.method'].create
                     candidate = create_method({
                         'payment_method_id': self.l10n_ec_payment_method_id.id,
                         'days_payment_term': days_payment_term,
@@ -100,6 +100,21 @@ class AccountMove(models.Model):
     def is_withholding(self):
         return False
 
+    @api.onchange('partner_id', 'l10n_latam_document_type_id', 'l10n_ec_available_sri_tax_support_ids')
+    def _onchange_l10n_ec_available_sri_tax_support_ids(self):
+        '''
+        '''
+        if self.l10n_latam_country_code == 'EC':
+            #Solamente las compras tienen sustento tributario...
+            if self.type in ['in_invoice', 'in_refund']:
+                l10n_ec_sri_tax_support_id = False
+                if self.l10n_latam_document_type_id:
+                    if self.l10n_ec_available_sri_tax_support_ids:
+                        #Usamos _origin para obtener el id del registro y evitar algo como lo sig: NewId: <NewId origin=2>
+                        l10n_ec_sri_tax_support_id = self.l10n_ec_available_sri_tax_support_ids[0]._origin.id
+                self.l10n_ec_sri_tax_support_id = l10n_ec_sri_tax_support_id
+    
+
     def _post(self, soft=True):
         '''
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
@@ -111,56 +126,26 @@ class AccountMove(models.Model):
                 raise ValidationError(u'Para Ecuador por favor desactivar la opcion Usa Documentos del Diario %s.' % invoice.journal_id.name)
             if invoice.l10n_latam_document_type_id.l10n_ec_require_vat:
                 if not invoice.partner_id.l10n_latam_identification_type_id:
-                    raise ValidationError(
-                        u'Indique un tipo de identificación para el proveedor "%s".' % invoice.partner_id.name)
+                    raise ValidationError(_('Indicate a type of identification for the provider "%s".') % invoice.partner_id.name)
                 if not invoice.partner_id.vat:
-                    raise ValidationError(
-                        u'Indique un número de identificación para el proveedor "%s".' % invoice.partner_id.name)
-            # Se inicializa el amount_total_refunds con el monto de la nota de credito actual, pues al estar en estado borrador queda excluida
-            # en la verificacion que se realiza mas adelanta y evitamos que se aprueben nc con montos superiores a la factura cuando no existe
-            # ninguna aprobada previamente
-            # Para las notas de credito exterior se setea amount_total_refunds con el valor de la NC
-            # ya que no cuenta con un invoice_rectification_id para obtener el total de la factura.
-            # Caso especial NC exterior
-            if invoice.move_type in ['in_refund', 'out_refund']:
-                if invoice.l10n_latam_document_type_id.code == '0500':
-                    amount_total_refunds = 0.00
-                else:
-                    amount_total_refunds = invoice.amount_total
-                for refund in invoice.reversed_entry_id.reversal_move_id.filtered(lambda m: m.id != invoice.id and m.move_type in ['in_refund', 'out_refund'] and m.state in ['posted']):
-                    amount_total_refunds += refund.amount_total
-                refund_value_control = invoice.company_id.l10n_ec_refund_value_control
-                if float_compare(amount_total_refunds, invoice.reversed_entry_id.amount_total, precision_digits=2) == 1 \
-                        and refund_value_control == 'local_refund':
-                    raise UserError(_(
-                        u'La nota de crédito %s no se puede aprobar debido a que el valor de las notas de crédito emitidas '
-                        u'más la actual suman USD %s, sobrepasando el valor de USD %s de la factura %s.')
-                                    % (invoice.name, amount_total_refunds,
-                                       invoice.reversed_entry_id.amount_total, invoice.reversed_entry_id.name))
-                # Validacion de notas de credito no se las realice a consumidor final
-                if invoice.company_id.l10n_ec_refund_value_control == 'local_refund' and invoice.partner_id.vat == '9999999999999':
-                    raise UserError(_(
-                        u'La nota de crédito %s no se puede aprobar debido a que en REGLAMENTO DE COMPROBANTES DE VENTA, RETENCIÓN Y DOCUMENTOS COMPLEMENTARIOS en su ART 15 y ART 25 impiden la emision de Notas de crédito a "Consumidor Final".')
-                                    % (invoice.name,))
+                    raise ValidationError(_('Enter an identification number for the provider "%s".') % invoice.partner_id.name)
             invoice._l10n_ec_validate_number()
             if not invoice.l10n_ec_invoice_payment_method_ids:
                 # autofill, usefull as onchange is not called when invoicing from other modules (ie subscriptions)
                 invoice.onchange_set_l10n_ec_invoice_payment_method_ids()
-                # in v14 we also have edi document "factur-x" for interchanging docs among differente odoo instances
-            ec_edi_document = invoice.edi_document_ids.filtered(
-                lambda r: r.edi_format_id.code == 'l10n_ec_tax_authority')
-            if ec_edi_document.state or 'no_edi' in ('to_send'):  # if an electronic document is on the way
+            # in v14 we also have edi document "factur-x" for interchanging docs among differente odoo instances
+            edi_ec = invoice.edi_document_ids.filtered(lambda d: d.edi_format_id.code == 'l10n_ec_tax_authority')
+            if edi_ec.state or 'no_edi' in ('to_send'): #if an electronic document is on the way
                 if not invoice.company_id.vat:
-                    raise ValidationError(u'Please setup your VAT number in the company form')
+                    raise ValidationError(_('Please setup your VAT number in the company form'))
                 if not invoice.company_id.street:
-                    raise ValidationError(u'Please setup the your company address in the company form')
+                    raise ValidationError(_('Please setup the your company address in the company form'))
                 if not invoice.l10n_ec_printer_id.printer_point_address:
-                    raise ValidationError(
-                        u'Please setup the printer point address, in Accounting / Settings / Printer Points')
-                # needed to print offline RIDE and populate XML request
-                ec_edi_document._l10n_ec_set_access_key()
-                self.l10n_ec_authorization = ec_edi_document.l10n_ec_access_key  # for auditing manual changes
-                ec_edi_document._l10n_ec_generate_request_xml_file()  # useful for troubleshooting
+                    raise ValidationError(_('Please setup the printer point address, in Accounting / Settings / Printer Points'))
+                #needed to print offline RIDE and populate XML request
+                edi_ec._l10n_ec_set_access_key()
+                self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
+                edi_ec._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
 
     def _is_manual_document_number(self, journal):
@@ -340,7 +325,108 @@ class AccountMove(models.Model):
         additional_info = []
         if document:
             additional_info = document[0]._get_additional_info()
-        return additional_info    
+        return additional_info
+    
+    @api.depends('l10n_latam_document_type_id')
+    def _compute_l10n_ec_available_sri_tax_supports(self):
+        '''
+        '''
+        for invoice in self:
+            l10n_ec_available_sri_tax_support_ids = False
+            if invoice.l10n_latam_document_type_id:
+                l10n_ec_available_sri_tax_support_ids = invoice.l10n_latam_document_type_id.l10n_ec_sri_tax_support_ids
+            invoice.l10n_ec_available_sri_tax_support_ids = l10n_ec_available_sri_tax_support_ids
+
+    def _compute_l10n_ec_transaction_type(self):
+        ''' 
+        Este campo agrega un código de tipo de transación en base al partner y el tipo de operacion(compras, ventas)
+        '''
+        partner_obj = self.env['res.partner']
+        for invoice in self:
+            #TODO jm: evaluar con andres la logica del sig metodo "_get_type_vat_by_vat", en caso que se requiere implementarlo
+            #y descomentar las siguientes 5 lineas de codigo, temporalmente voy a poner a la variable code_error en vacia para
+            #que que no explote.
+            code_error = ''
+#             type_vat, code_error = partner_obj._get_type_vat_by_vat(
+#                 invoice.invoice_country_id,
+#                 invoice.invoice_vat,
+#                 invoice.fiscal_position_id.transaction_type,
+#             )
+            invoice_type = invoice.move_type
+            code = invoice.partner_id._l10n_ec_get_code_by_vat()
+            # Determinamos el pais, para segun el código del país
+            # hacer uno o otro procedimiento
+            if not invoice.country_code:
+                invoice.l10n_ec_transaction_type = 'Debe definir el país de la factura.'
+                invoice.l10n_ec_transaction_type += ' Documento ' + str(invoice.l10n_latam_document_number or '')
+                invoice.l10n_ec_transaction_type += ' Empresa ' + (invoice.partner_id.name or '')
+            elif invoice_type in ['in_invoice', 'in_refund']: #COMPRAS
+                # RUC
+                if code == 'R':
+                    invoice.l10n_ec_transaction_type = '01'
+                # CEDULA
+                elif code == 'C':
+                    invoice.l10n_ec_transaction_type = '02'
+                # PERS. JURÍDICA EXTRANJERA, PERS. NATURAL EXTRANJERA
+                elif code == 'P':
+                    invoice.l10n_ec_transaction_type = '03'
+                # Este caso es especial, es un proveedor con tipo de compania detectada 
+                # como nacional por la posicion fiscal pero el pais es extranjero
+                elif code_error == 'ERROR_POSICION_FISCAL_Y_PAIS':
+                    invoice.l10n_ec_transaction_type = 'Debe revisar la posicion fiscal del proveedor y el pais seleccionado para que guarden coherencia entre si.'                    
+                    invoice.l10n_ec_transaction_type += ' Documento de Compra ' + str(invoice.l10n_latam_document_number or '')
+                    invoice.l10n_ec_transaction_type += ' Proveedor ' + (invoice.partner_id.name or '')
+                else:
+                    #cubre el caso de code == 'O': #OTROS
+                    #cubre otros casos no determinados
+                    #no se usa tildes por problema de unicode al ats
+                    invoice.l10n_ec_transaction_type = 'Proveedor no tiene asignado una identificacion (CEDULA/RUC/PASAPORTE) correcta.'
+                    invoice.l10n_ec_transaction_type += ' Documento de Compra ' + str(invoice.l10n_latam_document_number or '')
+                    invoice.l10n_ec_transaction_type += ' Proveedor ' + (invoice.partner_id.name or '')
+            elif invoice_type in ['out_invoice', 'out_refund']: #VENTAS
+                # RUC
+                if code == 'R':
+                    invoice.l10n_ec_transaction_type = '04'
+                # CEDULA
+                elif code == 'C':
+                    invoice.l10n_ec_transaction_type = '05'
+                # PERS. JURÍDICA EXTRANJERA, PERS. NATURAL EXTRANJERA
+                elif code == 'P':
+                    invoice.l10n_ec_transaction_type = '06'
+                # CONSUMIDOR FINAL
+                elif code == 'F':
+                    invoice.l10n_ec_transaction_type = '07'
+                # Este caso es especial, es un cliente con tipo de compania detectada 
+                # como nacional por la posicion fiscal pero el pais es extranjero
+                elif code_error == 'ERROR_POSICION_FISCAL_Y_PAIS':
+                    invoice.l10n_ec_transaction_type = 'Debe revisar la posicion fiscal del cliente y el pais seleccionado para que guarden coherencia entre si.'
+                    invoice.l10n_ec_transaction_type += ' Documento de Venta ' + str(invoice.l10n_latam_document_number or '')
+                    invoice.l10n_ec_transaction_type += ' Cliente ' + (invoice.partner_id.name or '')
+                else:
+                    #cubre el caso de code == 'O': #OTROS
+                    #cubre otros casos no determinados
+                    #no se usa tildes por problema de unicode al ats
+                    invoice.l10n_ec_transaction_type = 'Cliente no tiene asignado una identificacion (CEDULA/RUC/PASAPORTE) correcta.'
+                    invoice.l10n_ec_transaction_type += ' Documento de Venta ' + str(invoice.l10n_latam_document_number or '')
+                    invoice.l10n_ec_transaction_type += ' Cliente ' + (invoice.partner_id.name or '')
+            else:
+                invoice.l10n_ec_transaction_type = 'La factura no tiene tipo... contacte a soporte tecnico.'
+                invoice.l10n_ec_transaction_type += ' Documento ' + str(invoice.l10n_latam_document_number or '')
+                invoice.l10n_ec_transaction_type += ' Empresa ' + (invoice.partner_id.name or '')
+
+    @api.depends('l10n_latam_document_type_id','state')
+    def _show_l10n_ec_authorization(self):
+        for res in self:
+            show_l10n_ec_authorization = False
+            if res.country_code == 'EC':
+                if res.is_invoice() or res.is_withholding():
+                    if res.l10n_ec_authorization_type == 'third':
+                        show_l10n_ec_authorization = True
+                    elif res.l10n_ec_authorization_type == 'own' and res.state in ['posted','cancel']:
+                        #las autorizaciones emitidas por nosotros no se muestran en
+                        #el estado borrador pues se generará en el flujo del documento electronico
+                        show_l10n_ec_authorization = True
+            res.show_l10n_ec_authorization = show_l10n_ec_authorization
 
     def button_draft(self):
         if self.country_code == 'EC':
@@ -352,7 +438,7 @@ class AccountMove(models.Model):
                     ) % move.display_name)
         res = super().button_draft()
         return res
-    
+        
     l10n_ec_printer_id = fields.Many2one(
         'l10n_ec.sri.printer.point',
         string='Punto de emisión', readonly = True,
@@ -481,6 +567,30 @@ class AccountMove(models.Model):
         )
     l10n_ec_authorization_type = fields.Selection(related='l10n_latam_document_type_id.l10n_ec_authorization')
     refund_count = fields.Integer(string='Refund Count', compute='_get_refund_count', readonly=True)
+    l10n_ec_available_sri_tax_support_ids = fields.Many2many(
+        'l10n_ec.sri.tax.support', 
+        compute='_compute_l10n_ec_available_sri_tax_supports'
+        )
+    l10n_ec_sri_tax_support_id = fields.Many2one(
+        'l10n_ec.sri.tax.support',
+        string='Tax Support',
+        default=lambda self: self.env['l10n_ec.sri.tax.support'].search([], order='priority asc', limit=1),
+        ondelete='restrict',
+        help='Indicates the tax support for this document'
+        )
+    l10n_ec_transaction_type = fields.Char(
+        compute='_compute_l10n_ec_transaction_type',
+        string='Transaction Type',
+        method=True,
+        store=False,
+        help='Indicate the transaction type that performer the partner. Supplier Invoice '
+             '[01-RUC,02-CEDULA,03-PASAPORTE],Customer Invoice [04-RUC,05-CEDULA,06-PASAPORTE, '
+             '07-CONSUMIDOR FINAL, 0-OTROS].'
+        )
+    show_l10n_ec_authorization = fields.Boolean(
+        string='Mostrar Autorizacion',
+        compute='_show_l10n_ec_authorization',
+    )
 
 
 class AccountMoveLine(models.Model):
@@ -495,7 +605,7 @@ class AccountMoveLine(models.Model):
                 if line.tax_ids:
                     taxes_res = line.tax_ids._origin.compute_all(line.l10n_latam_price_unit,
                         quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
-                    total_discount = taxes_res['total_excluded'] - line.l10n_latam_price_subtotal    
+                    total_discount = taxes_res['total_excluded'] - line.l10n_latam_price_subtotal
                 else:
                     total_discount = (line.quantity * line.l10n_latam_price_unit) - line.l10n_latam_price_subtotal
                 #In case of multi currency, round before it's use for computing debit credit
@@ -520,7 +630,8 @@ class L10NECInvoicePaymentMethod(models.Model):
     
     payment_method_id = fields.Many2one(
         'l10n_ec.payment.method',
-        string='Way to Pay', 
+        string='Way to Pay',
+        ondelete='restrict',
         help='Way of payment of the SRI'
         )
     days_payment_term = fields.Integer(

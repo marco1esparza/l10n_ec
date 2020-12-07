@@ -6,14 +6,14 @@
 		<field name="model">account.move</field>
 		<field name="inherit_id" ref="l10n_ec_edi.view_move_invoice_customization_form"/>
 		<field name="arch" type="xml">
-			<xpath expr="//field[@name='company_id']" position="after">
+			<xpath expr="//field[@name='partner_id']" position="after">
 				<field name="show_reimbursements_related" invisible="1"/>
 				<field name="show_reimbursements_detail" invisible="1"/>
 			</xpath>
 			<xpath expr="//page[@id='invoice_tab']" position="after">
 				<page name="client_refund_data"
 					string="Reembolsos"
-				    attrs="{'invisible':[('show_reimbursements_detail','=',False),('show_reimbursements_related','=',False)]}">				    
+				    attrs="{'invisible':[('show_reimbursements_detail','=',False),('show_reimbursements_related','=',False)]}">
 				    <!-- Ventas-->
 				    <button name="compute_sale_lines_from_refunds"
 						string="Computar rubros a facturar"
@@ -42,29 +42,27 @@
 						attrs="{'invisible': ['|', ('show_reimbursements_related','=',False), ('move_type', '!=', 'in_invoice')]}"
 						context="{'journal_type': 'sale', 'default_move_type': 'out_invoice', 'move_type': 'out_invoice'}"
 						/>
-            		<group colspan="4" col="2">
-						<field name="refund_ids" nolabel="1" groups="account.group_account_manager" 
-							attrs="{'invisible':[('show_reimbursements_detail','=',False)], 'required':[('show_reimbursements_detail','=',True)], 'readonly':[('state','!=','draft')]}"
-							context="{'active_id':id, 'invoice_date':invoice_date}">
-							<tree string="Refund Data Lines" editable="bottom">
-								<field name="partner_id" required="1"/>
-								<field name="l10n_latam_document_type_id" required="1" options="{'no_create': True, 'no_open': True}"/>
-								<field name="number" required="1"/>
-								<field name="authorization" attrs="{'required':[('state','=','draft')]}"/>
-								<field name="creation_date" required="1"/>
-								<field name="transaction_type"/>
-								<field name="base_tax_free" sum="Total"/>
-           						<field name="no_vat_amount" sum="Total"/>
-								<field name="base_vat_0" sum="Total"/>
-           						<field name="base_vat_no0" sum="Total" context="{'calc_vat': True}"/>
-           						<field name="vat_amount_no0" sum="Total"/>
-           						<field name="ice_amount" sum="Total"/>
-								<field name="total" sum="Total"/>
-								<field name="move_id" invisible="1"/>
-								<field name="state" invisible="1"/>
-							</tree>
-						</field>
-					</group>
+					<field name="refund_ids" nolabel="1" groups="account.group_account_manager"
+						attrs="{'invisible':[('show_reimbursements_detail','=',False)], 'required':[('show_reimbursements_detail','=',True)], 'readonly':[('state','!=','draft')]}"
+						context="{'active_id':id, 'invoice_date':invoice_date}">
+						<tree string="Refund Data Lines" editable="bottom">
+							<field name="partner_id" required="1"/>
+							<field name="l10n_latam_document_type_id" required="1" domain="[('l10n_ec_type', '=', 'in_invoice')]" options="{'no_create': True, 'no_open': True}"/>
+							<field name="number" required="1"/>
+							<field name="authorization" attrs="{'required':[('state','=','draft')]}" widget="section_and_note_text"/>
+							<field name="creation_date" required="1"/>
+							<field name="transaction_type" widget="section_and_note_text"/>
+							<field name="base_tax_free" sum="Total"/>
+          						<field name="no_vat_amount" sum="Total"/>
+							<field name="base_vat_0" sum="Total"/>
+          						<field name="base_vat_no0" sum="Total" context="{'calc_vat': True}"/>
+          						<field name="vat_amount_no0" sum="Total"/>
+          						<field name="ice_amount" sum="Total"/>
+							<field name="total" sum="Total"/>
+							<field name="move_id" invisible="1"/>
+							<field name="state" invisible="1"/>
+						</tree>
+					</field>
 				</page>
 			</xpath>
 		</field>

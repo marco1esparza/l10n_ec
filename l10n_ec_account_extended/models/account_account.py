@@ -6,7 +6,7 @@ from odoo import models, api, fields, _
 
 class AccountAccount(models.Model):
     _inherit = 'account.account'
-        
+
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
         '''

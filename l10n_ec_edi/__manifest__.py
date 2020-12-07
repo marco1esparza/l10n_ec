@@ -34,9 +34,11 @@
         'data/l10n_ec_sri_printer_point_data.xml',
         'data/l10n_ec_payment_method_data.xml',
         'data/account_edi_format_data.xml',
+        'data/l10n_ec_sri_tax_support_data.xml',
+        'data/l10n_latam_document_type_data.xml',
         #Security
-       'security/ir.model.access.csv',
-       'security/l10n_ec_multicompany_security.xml',
+        'security/ir.model.access.csv',
+        'security/l10n_ec_multicompany_security.xml',
         #Views
         'views/l10n_ec_sri_printer_point_view.xml',
         'views/l10n_ec_digital_signature_view.xml',
@@ -47,6 +49,7 @@
         'views/account_move_view.xml',
         'views/account_report.xml',
         'views/report_invoice.xml',
+        'views/l10n_ec_sri_tax_support_view.xml',
     ],
     'installable': True,
     'auto_install': True,

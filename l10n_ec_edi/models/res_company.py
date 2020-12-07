@@ -35,11 +35,6 @@ class Company(models.Model):
         ('2', 'Production Environment'),
     ]
 
-    _REFUND_VS_INVOICE_CONTROL = [
-        ('local_refund', 'Notas de crédito locales'),
-        ('without_control', 'Sin control')
-    ]
-
     #Columns
     l10n_ec_legal_name = fields.Char(
         string=u'Nombre legal',
@@ -55,6 +50,7 @@ class Company(models.Model):
         'l10n_ec.digital.signature',
         compute='_digital_signature',
         string="Digital Signature",
+        ondelete='restrict',
         help='For signing SRI electronic documents, configure one in Accounting / Configuration / Digital Signatures'
     )
     l10n_ec_special_contributor_number = fields.Char(
@@ -88,10 +84,4 @@ class Company(models.Model):
         string=u"Agente Ret. No.",
         help=u"Ultimos digitos del número de resolución del SRI donde se declara que se es agente de retención.\n"
         u"Si el número de Resolución es NAC-DNCRASC20-00001234 entonces ell No. Resolución sería: 1234",
-    )
-    l10n_ec_refund_value_control = fields.Selection(
-        _REFUND_VS_INVOICE_CONTROL,
-        string='Control del valor de las notas de crédito',
-        default='local_refund',
-        help='En el caso de que la opción Notas de crédito locales este marcado, validará que la suma de las notas de crédito emitidas no sobrepase el valor de la factura.'
     )

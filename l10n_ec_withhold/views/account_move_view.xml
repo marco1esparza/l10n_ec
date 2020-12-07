@@ -33,10 +33,10 @@
 				<span attrs="{'invisible': ['|', '|', ('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold']), ('state', '!=', 'draft'), ('name', '!=', '/')]}">Draft Withhold</span>
 			</xpath>
 			<xpath expr="//field[@name='ref']" position="before">
-				<field name="partner_id" widget="res_partner_many2one"
+				<field name="partner_id" widget="res_partner_many2one" force_save="1"
 					context="{'show_address': 1, 'default_is_company': True, 'show_vat': True}"
 					options='{"always_reload": True, "no_quick_create": True}'
-					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}"/>
+					attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ('out_withhold', 'in_withhold'))], 'readonly': [('l10n_ec_withhold_type', 'in', ('in_withhold'))]}"/>
 			</xpath>
 			<xpath expr="//field[@name='date']" position="attributes">
 				<attribute name="attrs">{'invisible': ['|', ('move_type', 'in', ('out_invoice', 'out_refund', 'out_receipt')), ('l10n_ec_withhold_type', 'in', ['out_withhold', 'in_withhold'])]}</attribute>
@@ -49,8 +49,6 @@
             		<field name="l10n_ec_printer_id"
 						attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])], 'required': [('country_code', '=', 'EC'), ('l10n_ec_withhold_type', 'in', ['in_withhold'])]}"
 						options="{'no_create': True, 'no_open': True}"/>
-					<field name="l10n_ec_authorization"
-						attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
             	</xpath>
 			<xpath expr="//page[@id='aml_tab']" position="before">
 				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
@@ -77,6 +75,8 @@
 						<field name="l10n_ec_profit_withhold"/>						
 						<field name="l10n_ec_total" class="oe_subtotal_footer_separator"/>
 					</group>
+					<!-- Internal note -->
+					<field name="narration" placeholder="Add an internal note..." nolabel="1" height="50"/>
 				</page>				
 				<page id="invoice_tab" string="Invoices" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
 					<group>
@@ -111,6 +111,9 @@
 				<field name="l10n_ec_withhold_type" readonly="1" groups="base.group_no_one"/>
 				<field name="l10n_ec_allow_withhold" readonly="1" groups="base.group_no_one"/>
             </field>
+			<xpath expr="//page[@id='other_tab_entry']//field[@name='narration']" position="attributes">
+				<attribute name="attrs">{'invisible':[('l10n_ec_withhold_type', '!=', False)]}</attribute>
+			</xpath>
 		</field>
 	</record>
 

@@ -570,8 +570,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         '''
         Escribe la seccion de reembolsos en compras en el ats
         '''
-        # TODO: Validar la implementacion para los tipos de documento 47 y 48
-        if in_inv.l10n_latam_document_type_id.code in ['41', '47', '48'] and in_inv.refund_ids:
+        #TODO: Validar la implementacion para los tipos de documento 47 y 48
+        if in_inv.l10n_latam_document_type_id.code in ['41','47','48'] and in_inv.refund_ids:
             reembolsos = doc.createElement('reembolsos')
             detallecompras.appendChild(reembolsos)
             for refund_id in in_inv.refund_ids:
@@ -580,86 +580,86 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 tipoComprobanteReemb = doc.createElement('tipoComprobanteReemb')
                 reembolso.appendChild(tipoComprobanteReemb)
                 tipoComprobanteReemb.appendChild(doc.createTextNode(refund_id.l10n_latam_document_type_id.code))
-
+ 
                 idProvReemb = doc.createElement('tpIdProvReemb')
                 reembolso.appendChild(idProvReemb)
                 vidProvReemb = refund_id.transaction_type
                 idProvReemb.appendChild(doc.createTextNode(vidProvReemb))
-
+                 
                 if len(vidProvReemb) > 2:
-                    # si no es un codigo sino un texto, agregamos el texto del error
+                    #si no es un codigo sino un texto, agregamos el texto del error
                     report_status.append(vidProvReemb)
-
+                 
                 idProvReemb = doc.createElement('idProvReemb')
                 reembolso.appendChild(idProvReemb)
                 idProvReemb.appendChild(doc.createTextNode(refund_id.partner_id.vat))
-
+                 
                 establecimientoReemb = doc.createElement('establecimientoReemb')
                 reembolso.appendChild(establecimientoReemb)
                 establecimientoReemb.appendChild(doc.createTextNode(refund_id.number[0:3]))
-
+                 
                 puntoEmisionReemb = doc.createElement('puntoEmisionReemb')
                 reembolso.appendChild(puntoEmisionReemb)
                 puntoEmisionReemb.appendChild(doc.createTextNode(refund_id.number[4:7]))
-
+                 
                 secuencialReemb = doc.createElement('secuencialReemb')
                 reembolso.appendChild(secuencialReemb)
                 vsecuencialReemb = refund_id.number[8:]
                 secuencialReemb.appendChild(doc.createTextNode(vsecuencialReemb or ''))
                 if not vsecuencialReemb:
-                    # si no es un codigo sino un texto, agregamos el texto del error
+                    #si no es un codigo sino un texto, agregamos el texto del error
                     report_status.append(u'Dentro del reembolso ' + str(refund_id.move_id.l10n_latam_document_number) + \
                                          u', la factura ' + refund_id.number + \
                                          u' no tiene secuencial de reembolso')
                 else:
-                    pass  # do nothing
-
+                    pass #do nothing
+                 
                 fechaEmisionReemb = doc.createElement('fechaEmisionReemb')
                 reembolso.appendChild(fechaEmisionReemb)
                 fechaEmisionReemb.appendChild(doc.createTextNode(self._getFormatDates(refund_id.creation_date)))
-
+                 
                 autorizacionReemb = doc.createElement('autorizacionReemb')
                 reembolso.appendChild(autorizacionReemb)
                 vautorizacionReemb = refund_id.authorization
                 autorizacionReemb.appendChild(doc.createTextNode(vautorizacionReemb or ''))
                 if not vautorizacionReemb:
-                    # si no es un codigo sino un texto, agregamos el texto del error
+                    #si no es un codigo sino un texto, agregamos el texto del error
                     report_status.append(u'Dentro del reembolso ' + str(refund_id.move_id.l10n_latam_document_number) + \
                                          u', la factura ' + refund_id.number + \
                                          u' no tiene autorizacion')
-
+ 
                 elif len(vautorizacionReemb) not in [10, 37, 49]:
                     report_status.append(u'Dentro del reembolso ' + str(refund_id.move_id.l10n_latam_document_number) + \
                                          u', la factura ' + refund_id.number + \
                                          u' tiene una autorizacion incompleta')
-
+ 
                 else:
-                    pass  # do nothing
+                    pass #do nothing
                 baseImponibleReemb = doc.createElement('baseImponibleReemb')
                 reembolso.appendChild(baseImponibleReemb)
-                aux = doc.createTextNode('%.2f' % abs(float(refund_id.base_vat_0)))
+                aux = doc.createTextNode('%.2f' %  abs(float(refund_id.base_vat_0)))
                 baseImponibleReemb.appendChild(aux)
-
+                 
                 baseImpGravReemb = doc.createElement('baseImpGravReemb')
                 reembolso.appendChild(baseImpGravReemb)
                 aux = doc.createTextNode('%.2f' % abs(float(refund_id.base_vat_no0)))
                 baseImpGravReemb.appendChild(aux)
-
+                 
                 baseNoGraIvaReemb = doc.createElement('baseNoGraIvaReemb')
                 reembolso.appendChild(baseNoGraIvaReemb)
                 aux = doc.createTextNode('%.2f' % abs(float(refund_id.no_vat_amount)))
                 baseNoGraIvaReemb.appendChild(aux)
-
+ 
                 baseImpExeReemb = doc.createElement('baseImpExeReemb')
                 reembolso.appendChild(baseImpExeReemb)
                 aux = doc.createTextNode('%.2f' % abs(float(refund_id.base_tax_free)))
                 baseImpExeReemb.appendChild(aux)
-
+                 
                 montoIceRemb = doc.createElement('montoIceRemb')
                 reembolso.appendChild(montoIceRemb)
                 aux = doc.createTextNode('%.2f' % abs(float(refund_id.ice_amount)))
                 montoIceRemb.appendChild(aux)
-
+ 
                 montoIvaRemb = doc.createElement('montoIvaRemb')
                 reembolso.appendChild(montoIvaRemb)
                 aux = doc.createTextNode('%.2f' % abs(float(refund_id.vat_amount_no0)))

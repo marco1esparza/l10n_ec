@@ -26,17 +26,20 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
-        'l10n_ec_reports'
+        'l10n_ec_edi'
     ],
     'data': [
         #Data
-        #TODO: Poner en la version 1.1 y descomentar la sig linea luego de instalado el modulo para evitar la duplicidad del producto, solo cambiar el xml_id
-        #'data/product_data.xml', 
+        'data/product_data.xml', 
         #Security
         'security/ir.model.access.csv',
         #Views
         'views/res_company_view.xml',
         'views/account_move_view.xml'
     ],
-    'installable': True
+    'installable': True,
+    'auto_install': True,
+    # Se hace uso del post_init_hook para al finalizar la instalacion del modulo, se ejecute el metodo _assign_default_refund_product_id
+    # para que asigne el Producto para Descuento Post-Venta en las compañias existentes (Metodo existente en __init__.py)
+    'post_init_hook': '_assign_default_refund_product_id',
 }
