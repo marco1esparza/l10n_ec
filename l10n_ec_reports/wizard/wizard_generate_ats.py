@@ -344,9 +344,9 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 detallecompras.appendChild(pagoExterior)
                 # Se asume que esta en Ecuador y por eso si es del mismo pais
                 # que la compania es residente
-                if not in_inv.l10n_ec_invoice_country_id:
+                if not in_inv.country_code:
                     pago_local_extranjero = u'Compra no tiene identificado un Pais.'
-                elif in_inv.l10n_ec_invoice_country_id == in_inv.company_id.country_id:
+                elif in_inv.country_code == in_inv.company_id.country_code:
                     pago_local_extranjero = '01' # residente!
                 else:
                     #si el pais es distinto
@@ -389,14 +389,14 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                         #País de residencia a quien se efectua el pago regimen general
                         paisEfecPagoGen = doc.createElement('paisEfecPagoGen')
                         pagoExterior.appendChild(paisEfecPagoGen)
-                        vpaisEfecPagoGen = doc.createTextNode(in_inv.l10n_ec_invoice_country_id.code or u'Compra no tiene identificado un Pais.')
+                        vpaisEfecPagoGen = doc.createTextNode(in_inv.country_code or u'Compra no tiene identificado un Pais.')
                         paisEfecPagoGen.appendChild(vpaisEfecPagoGen)
                         
                     #Pais de residencia a quien se efectua el pago
                     #en regimen general se copia el paisEfecPagoGen
                     paisEfecPago = doc.createElement('paisEfecPago')
                     pagoExterior.appendChild(paisEfecPago)
-                    vpaisEfecPago = doc.createTextNode(in_inv.l10n_ec_invoice_country_id.code or u'Compra no tiene identificado un Pais.')
+                    vpaisEfecPago = doc.createTextNode(in_inv.country_code or u'Compra no tiene identificado un Pais.')
                     paisEfecPago.appendChild(vpaisEfecPago)
                     
                     #Denominacion del regimen fiscal preferente
@@ -436,7 +436,6 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 #2.2.2 DATA NOTAS DE CREDITO Y NOTAS DE DEBITO
                 self.write_purchase_credit_and_debit_note_section(doc, main, in_inv, detallecompras, report_status)
                  
-                #TODO jm: implementar reembolsos y descomentar la sig linea
                 #2.2.3 DATA REEMBOLSO
                 self.write_purchase_refund_section(doc, main, in_inv, detallecompras, report_status)
  

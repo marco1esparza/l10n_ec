@@ -5,7 +5,6 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime
 import time
-import re
 
 
 class AccountRefundClient(models.Model):
@@ -211,7 +210,6 @@ class AccountRefundClient(models.Model):
         string='Number of document',
         size=17,
         default='001-001-',
-        help='Add the number of the invoice or document to be reported'
         )
     authorization = fields.Char(
         string='Autorización',

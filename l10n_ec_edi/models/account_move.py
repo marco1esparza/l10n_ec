@@ -114,7 +114,6 @@ class AccountMove(models.Model):
                         l10n_ec_sri_tax_support_id = self.l10n_ec_available_sri_tax_support_ids[0]._origin.id
                 self.l10n_ec_sri_tax_support_id = l10n_ec_sri_tax_support_id
     
-
     def _post(self, soft=True):
         '''
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
@@ -131,7 +130,7 @@ class AccountMove(models.Model):
                     raise ValidationError(_('Enter an identification number for the provider "%s".') % invoice.partner_id.name)
             invoice._l10n_ec_validate_number()
             if not invoice.l10n_ec_invoice_payment_method_ids:
-                # autofill, usefull as onchange is not called when invoicing from other modules (ie subscriptions)
+                #autofill, usefull as onchange is not called when invoicing from other modules (ie subscriptions) 
                 invoice.onchange_set_l10n_ec_invoice_payment_method_ids()
             # in v14 we also have edi document "factur-x" for interchanging docs among differente odoo instances
             edi_ec = invoice.edi_document_ids.filtered(lambda d: d.edi_format_id.code == 'l10n_ec_tax_authority')
@@ -162,16 +161,6 @@ class AccountMove(models.Model):
             else:
                 super()._is_manual_document_number(journal)
     
-    def get_is_edi_needed(self, edi_format):
-        '''
-        Liquidaciones electronicas en compras
-        '''
-        res = super(AccountMove, self).get_is_edi_needed(edi_format)
-        if self.country_code == 'EC':
-            if self.move_type == 'in_invoice' and self.l10n_latam_document_type_id.code in ['03'] and self.l10n_ec_printer_id.allow_electronic_document:
-                return True
-        return res
-    
     def view_credit_note(self):
         [action] = self.env.ref('account.action_move_out_refund_type').read()
         action['domain'] = [('id', 'in', self.reversal_move_id.ids)]
@@ -187,7 +176,7 @@ class AccountMove(models.Model):
             printer_id = self.env['l10n_ec.printer.id'].browse(self._context['default_l10n_ec_printer_id'])
             return printer_id
         printer_id = False
-        company_id = self.env.company
+        company_id = self.env.company #self.l10n_latam_country_code is still empty
         if company_id.country_code == 'EC':
             move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
             if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
@@ -208,7 +197,7 @@ class AccountMove(models.Model):
             payment_method_id = self.env['l10n_ec.payment.method'].browse(self._context['default_l10n_ec_payment_method_id'])
             return payment_method_id
         payment_method_id = False
-        company_id = self.env.company
+        company_id = self.env.company #self.l10n_latam_country_code is still empty
         if company_id.country_code == 'EC':
             move_type = self._context.get('default_move_type',False) #self.type is not yet populated
             if move_type in ['out_invoice', 'in_invoice']:
@@ -427,17 +416,6 @@ class AccountMove(models.Model):
                         #el estado borrador pues se generará en el flujo del documento electronico
                         show_l10n_ec_authorization = True
             res.show_l10n_ec_authorization = show_l10n_ec_authorization
-
-    def button_draft(self):
-        if self.country_code == 'EC':
-            for move in self:
-                if move.edi_document_ids:
-                    raise UserError(_(
-                        "You can't set to draft the journal entry %s because an electronic document has already been requested. "
-                        "Instead you can cancel this document and then create a new one"
-                    ) % move.display_name)
-        res = super().button_draft()
-        return res
         
     l10n_ec_printer_id = fields.Many2one(
         'l10n_ec.sri.printer.point',
@@ -447,9 +425,8 @@ class AccountMove(models.Model):
         ondelete='restrict',
         help='The tax authority authorized printer point from where to send or receive invoices'
         )
-    l10n_ec_authorization = fields.Text(
+    l10n_ec_authorization = fields.Char(
         string='Autorización', readonly = True,
-        states = {'draft': [('readonly', False)]},
         copy = False,
         help='Authorization number for issuing the tributary document, assigned by SRI, can be 10 numbers long, 41, or 49.'
         )

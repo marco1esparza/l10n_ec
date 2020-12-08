@@ -42,7 +42,7 @@ class AccountMove(models.Model):
         self._l10n_ec_onchange_tax_dependecies()
         return res
     
-    @api.onchange("fiscal_position_id","l10n_latam_document_type_id", "l10n_ec_payment_method_id")
+    @api.onchange("fiscal_position_id","l10n_latam_document_type_id","l10n_ec_payment_method_id")
     def _l10n_ec_onchange_tax_dependecies(self):
         #triger recompute of profit withhold for purchase invoice
         #TODO v15: Recompute separately profit withhold and vat withhold
@@ -78,7 +78,7 @@ class AccountMove(models.Model):
         #Execute ecuadorian validations with bypass option
         for document in self:
             bypass = False
-            if self.country_code == 'EC':
+            if document.country_code == 'EC':
                 bypass = document.l10n_ec_bypass_validations
                 if not bypass:
                     document._l10n_ec_validations_to_draft()

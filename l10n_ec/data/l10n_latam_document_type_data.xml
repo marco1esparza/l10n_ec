@@ -411,5 +411,16 @@
 			<field name="country_id" ref="base.ec"/>
 		</record>
 
+		<record id="ec_employee_advance" model="l10n_latam.document.type">
+			<field name="code">901</field>
+			<field name="name">Anticipo para Empleado</field>
+			<field name="report_name">Anticipo Empleado</field>
+			<field name="doc_code_prefix">AntEmp.</field>
+			<field name="sequence">900</field>
+			<field name="internal_type">invoice</field>
+			<field name="l10n_ec_type">in_invoice</field>
+			<field name="l10n_ec_authorization">none</field>
+			<field name="country_id" ref="base.ec"/>
+		</record>
 	</data>	
 </odoo>

@@ -4,16 +4,21 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0+e\n"
+"Project-Id-Version: Odoo Server 13.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-03 07:23+0000\n"
-"PO-Revision-Date: 2020-12-03 07:23+0000\n"
+"POT-Creation-Date: 2020-11-29 05:00+0000\n"
+"PO-Revision-Date: 2020-11-29 05:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: l10n_ec_account_extended
+#: model:ir.model,name:l10n_ec_account_extended.model_account_move_reversal
+msgid "Account Move Reversal"
+msgstr "Revocación de movimiento en cuenta"
 
 #. module: l10n_ec_account_extended
 #: model:ir.actions.act_window,name:l10n_ec_account_extended.TODO_action_implementar_para_cada_menu2
@@ -23,24 +28,28 @@ msgstr ""
 #. module: l10n_ec_account_extended
 #: model:ir.ui.menu,name:l10n_ec_account_extended.menu_account_type
 msgid "Account Types"
+msgstr "Tipos de Cuenta"
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid ""
+"Actualmente, bajo el esquema offline, el tipo de emisión no puede ser "
+"'contingencia'"
 msgstr ""
 
 #. module: l10n_ec_account_extended
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_extended.view_account_invoice_filter
 msgid "Approved EDI"
-msgstr ""
+msgstr "EDIs Aprobados"
 
 #. module: l10n_ec_account_extended
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_bank_statement_line__l10n_ec_bypass_validations
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move__l10n_ec_bypass_validations
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_payment__l10n_ec_bypass_validations
 msgid "Bypass Validaciones"
 msgstr ""
 
 #. module: l10n_ec_account_extended
-#: model:ir.model.fields,help:l10n_ec_account_extended.field_account_bank_statement_line__l10n_ec_bypass_validations
 #: model:ir.model.fields,help:l10n_ec_account_extended.field_account_move__l10n_ec_bypass_validations
-#: model:ir.model.fields,help:l10n_ec_account_extended.field_account_payment__l10n_ec_bypass_validations
 msgid ""
 "Bypass para ciertas validaciones ecuatorianas:\n"
 "- Permite anular facturas con retenciones ya emitidas\n"
@@ -70,16 +79,9 @@ msgid "Contact"
 msgstr "Contacto"
 
 #. module: l10n_ec_account_extended
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_edi_document__display_name
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_fiscal_position__display_name
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move__display_name
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move_line__display_name
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_tax__display_name
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_l10n_latam_document_type__display_name
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__display_name
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_partner__display_name
-msgid "Display Name"
-msgstr "Nombre mostrado"
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__l10n_ec_refund_value_control
+msgid "Control del valor de las notas de crédito"
+msgstr ""
 
 #. module: l10n_ec_account_extended
 #: code:addons/l10n_ec_account_extended/models/account_edi_document.py:0
@@ -88,14 +90,29 @@ msgid "El número de Autorización (%s) debe ser único"
 msgstr ""
 
 #. module: l10n_ec_account_extended
-#: code:addons/l10n_ec_account_extended/models/account_edi_document.py:0
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
 #, python-format
 msgid "El número de Autorización es incorrecto, presenta %s dígitos"
 msgstr ""
 
 #. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_edi_document.py:0
+#, python-format
+msgid ""
+"El número de Autorización es incorrecto, presenta %s dígitos, deben ser 49"
+msgstr ""
+
+#. module: l10n_ec_account_extended
 #: model:ir.model,name:l10n_ec_account_extended.model_account_edi_document
 msgid "Electronic Document for an account.move"
+msgstr "Documento electrónico para un account.move"
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields,help:l10n_ec_account_extended.field_res_company__l10n_ec_refund_value_control
+msgid ""
+"En el caso de que la opción Notas de crédito locales este marcado, validará "
+"que la suma de las notas de crédito emitidas no sobrepase el valor de la "
+"factura."
 msgstr ""
 
 #. module: l10n_ec_account_extended
@@ -107,24 +124,12 @@ msgstr "Tipos de Contribuyentes"
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_partner__property_l10n_ec_profit_withhold_tax_id
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_users__property_l10n_ec_profit_withhold_tax_id
 msgid "Force profit withhold"
-msgstr ""
+msgstr "Forzar retención renta"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_fiscal_position__l10n_ec_vat_withhold_goods
 msgid "Goods VAT withhold"
-msgstr ""
-
-#. module: l10n_ec_account_extended
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_edi_document__id
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_fiscal_position__id
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move__id
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move_line__id
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_tax__id
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_l10n_latam_document_type__id
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__id
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_partner__id
-msgid "ID"
-msgstr "ID (identificación)"
+msgstr "Retención IVA Bienes"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,help:l10n_ec_account_extended.field_res_company__l10n_ec_issue_withholds
@@ -132,6 +137,8 @@ msgid ""
 "If set Odoo will automatically compute purchase withholds for relevant "
 "vendor bills"
 msgstr ""
+"Si se selecciona Odoo autimaticamente computara retenciones de compra para"
+"documentos de compra relevantes"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,help:l10n_ec_account_extended.field_res_partner__property_l10n_ec_profit_withhold_tax_id
@@ -141,6 +148,9 @@ msgid ""
 "is required on document type). The profit withhold prevalence order is "
 "payment method (credit cards retains 0%), then partner, then product"
 msgstr ""
+"Si se selecciona obliga un impuesto de retención de IVA en compras aplicables (también una retención "
+"es requerida en el tipo de documento). La prevalencia de retenciones a la renta es el "
+"metodo de pago (tarjetas de crédito retienen 0%), luego el proveedor, luego el producto"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,help:l10n_ec_account_extended.field_account_fiscal_position__l10n_ec_vat_withhold_goods
@@ -148,16 +158,18 @@ msgid ""
 "If set forces vat withhold in invoice lines with product in applicable "
 "purchases (also depends on document type)"
 msgstr ""
+"Si se configura obliga una retención de IVA en los detalles de factura de compras "
+"aplicables (también depende del tipo de documento)"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__l10n_ec_issue_withholds
 msgid "Issue Withhols"
-msgstr ""
+msgstr "Emitir Retenciones"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model,name:l10n_ec_account_extended.model_account_move
-msgid "Journal Entry"
-msgstr "Asiento contable"
+msgid "Journal Entries"
+msgstr "Asientos contables"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model,name:l10n_ec_account_extended.model_account_move_line
@@ -170,35 +182,32 @@ msgid "Kardex Valorado"
 msgstr ""
 
 #. module: l10n_ec_account_extended
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_l10n_latam_document_type__l10n_ec_apply_withhold
-msgid "L10N Ec Apply Withhold"
-msgstr ""
-
-#. module: l10n_ec_account_extended
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_bank_statement_line__l10n_ec_require_vat_tax
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move__l10n_ec_require_vat_tax
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_payment__l10n_ec_require_vat_tax
 msgid "L10N Ec Require Vat Tax"
 msgstr ""
 
 #. module: l10n_ec_account_extended
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_bank_statement_line__l10n_ec_require_withhold_tax
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move__l10n_ec_require_withhold_tax
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_payment__l10n_ec_require_withhold_tax
 msgid "L10N Ec Require Withhold Tax"
 msgstr ""
 
 #. module: l10n_ec_account_extended
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_edi_document____last_update
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_fiscal_position____last_update
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move____last_update
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_move_line____last_update
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_tax____last_update
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_l10n_latam_document_type____last_update
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company____last_update
-#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_partner____last_update
-msgid "Last Modified on"
-msgstr "Última modificación el"
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid ""
+"La nota de crédito %s no se puede aprobar debido a que el valor de las notas"
+" de crédito emitidas más la actual suman USD %s, sobrepasando el valor de "
+"USD %s de la factura %s."
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid ""
+"La nota de crédito %s no se puede aprobar debido a que en REGLAMENTO DE "
+"COMPROBANTES DE VENTA, RETENCIÓN Y DOCUMENTOS COMPLEMENTARIOS en su ART 15 y"
+" ART 25 impiden la emision de Notas de crédito a \"Consumidor Final\"."
+msgstr ""
 
 #. module: l10n_ec_account_extended
 #: model:ir.model,name:l10n_ec_account_extended.model_l10n_latam_document_type
@@ -209,9 +218,30 @@ msgstr "Tipo de Documento Latam"
 #: code:addons/l10n_ec_account_extended/models/account_move.py:0
 #, python-format
 msgid ""
+"No se debe digitar claves de acceso de un ambiente de pruebas en un ambiente"
+" de producción, los documentos de ambiente de pruebas no son validos"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid "No se ha encontrado un tipo de documento con codigo %s"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__l10n_ec_refund_value_control__local_refund
+msgid "Notas de crédito locales"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: code:addons/l10n_ec_account_extended/models/account_move.py:0
+#, python-format
+msgid ""
 "Only activate bypass if you know what you are doing, it can break system "
 "integrity"
 msgstr ""
+"Solo active el bypass si usted sabe lo que está haciendo, puede romper la integridad "
+"del sistema"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__db_source
@@ -231,6 +261,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Por favor seleccione uno y solo un tipo de Retención Renta (312, 332, 322, etc) para el producto product:\n"
+"\n"
+"%s"
 
 #. module: l10n_ec_account_extended
 #: code:addons/l10n_ec_account_extended/models/account_move.py:0
@@ -240,12 +273,15 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Por favor seleccione uno y solo un tipo de IVA (IVA 12, IVA 0, etc) para el producto:\n"
+"\n"
+"%s"
 
 #. module: l10n_ec_account_extended
 #: code:addons/l10n_ec_account_extended/models/account_move.py:0
 #, python-format
 msgid "Please set a VAT number in the partner for document %s"
-msgstr ""
+msgstr "Porfavor configure un numero de RUC en la empresa del documento %s"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__proyectox
@@ -255,6 +291,11 @@ msgstr ""
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_account_fiscal_position__l10n_ec_vat_withhold_services
 msgid "Services VAT withhold"
+msgstr "Retención IVA Servicios"
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__l10n_ec_refund_value_control__without_control
+msgid "Sin control"
 msgstr ""
 
 #. module: l10n_ec_account_extended
@@ -265,12 +306,12 @@ msgstr "Impuesto"
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,help:l10n_ec_account_extended.field_account_fiscal_position__l10n_ec_vat_withhold_services
 msgid "This field defines the VAT withholding tax for services"
-msgstr ""
+msgstr "Este campo detefine la retención de IVA para servicios"
 
 #. module: l10n_ec_account_extended
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_extended.view_account_invoice_filter
 msgid "To Approve EDI"
-msgstr ""
+msgstr "EDIs Por Aprobar"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__trescloud_v10
@@ -285,6 +326,16 @@ msgstr ""
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__trescloud_v14
 msgid "Trescloud Versión 14"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__trescloud_v15
+msgid "Trescloud Versión 15"
+msgstr ""
+
+#. module: l10n_ec_account_extended
+#: model:ir.model.fields.selection,name:l10n_ec_account_extended.selection__res_company__db_source__trescloud_v16
+msgid "Trescloud Versión 16"
 msgstr ""
 
 #. module: l10n_ec_account_extended
@@ -311,7 +362,7 @@ msgstr ""
 #: code:addons/l10n_ec_account_extended/models/account_move.py:0
 #, python-format
 msgid "Warning"
-msgstr ""
+msgstr "Aviso"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,help:l10n_ec_account_extended.field_res_company__l10n_ec_fallback_profit_withhold_services
@@ -319,6 +370,8 @@ msgid ""
 "When no profit withhold is found in partner or product, if product is a "
 "service or not setthe withhold fallbacks to this tax code"
 msgstr ""
+"Cuando no se encuentra una retención de la renta en el proveedor o en el producto, si el producto es un "
+"servicio o no hay producto, la retención cae a este codigo de impuesto"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,help:l10n_ec_account_extended.field_res_company__l10n_ec_fallback_profit_withhold_goods
@@ -326,26 +379,28 @@ msgid ""
 "When no profit withhold is found in partner or product, if product is a "
 "stockable or consumiblethe withhold fallbacks to this tax code"
 msgstr ""
+"Cuando no se encuentra una retención a la renta en el proveedor o en el producto, si el producto es un "
+"almacenable o consumible, la retención cae a este codigo de impuesto"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,help:l10n_ec_account_extended.field_res_company__l10n_ec_profit_withhold_tax_credit_card
 msgid "When payment method will be credit card apply this withhold"
-msgstr ""
+msgstr "Cuando la forma de pago sea tarjeta de credito aplica esta retención"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__l10n_ec_profit_withhold_tax_credit_card
 msgid "Withhold Credit Card"
-msgstr ""
+msgstr "Retención Tarjeta Credito"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__l10n_ec_fallback_profit_withhold_goods
 msgid "Withhold consumibles"
-msgstr ""
+msgstr "Retención Consumibles"
 
 #. module: l10n_ec_account_extended
 #: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_company__l10n_ec_fallback_profit_withhold_services
 msgid "Withhold services"
-msgstr ""
+msgstr "Retención Servicios"
 
 #. module: l10n_ec_account_extended
 #: code:addons/l10n_ec_account_extended/models/account_move.py:0
@@ -355,6 +410,9 @@ msgid ""
 "has already been requested. Instead you can cancel this document (Request "
 "EDI Cancellation button) and then create a new one"
 msgstr ""
+"No puede pasar a borrador el asiento contable %s porque un documento electronico "
+"ha sido ya requerido. En lugar de ello puede anular este documento (Botón Requerir "
+"Anulación) y luego crear un nuevo asiento"
 
 #. module: l10n_ec_account_extended
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_extended.view_partner_property_form_withhold_tax
