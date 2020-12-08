@@ -171,7 +171,7 @@ class AccountMove(models.Model):
             text = ",".join(text)
             origin.append(text)
         origin = ";".join(origin)
-        # creamos la factura
+        #creamos la factura 
         invoice_header = {
             'partner_id': self[0].company_id.partner_id.id, #temporalmente se deja con esta empresa hasta que el usuario selecciona una manualmente
             'move_type': 'out_invoice', # se indica aqui el tipo de factura para el resto de la creacion
@@ -194,7 +194,7 @@ class AccountMove(models.Model):
         refund_lines_vals = []
         for purchase in self:
             refund_lines_vals.append(
-                (0, 0,
+                (0, 0, 
                  {'creation_date': purchase.invoice_date,
                   'move_id': purchase.id,
                   'partner_id': purchase.partner_id.id,

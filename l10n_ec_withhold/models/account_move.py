@@ -91,7 +91,7 @@ class AccountMove(models.Model):
         for withhold in self:
             if withhold.country_code == 'EC':
                 if withhold.move_type in ('entry') and withhold.l10n_ec_withhold_type in ['in_withhold', 'out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
-                    #delete account.move.lines for re-posting scenario in sale withholds
+                    #delete account.move.lines for re-posting scenario in sale withholds and purchase withholds
                     withhold.line_ids.unlink()
         return res
     
@@ -433,7 +433,7 @@ class AccountMove(models.Model):
         for invoice in self:
             result = False
             if invoice.country_code == 'EC' and invoice.state == 'posted':
-                if invoice.l10n_latam_document_type_id.code in ['01','03','18']: #TODO añadir codigos, revisar proyecto X
+                if invoice.l10n_latam_document_type_id.code in ['01','03','18']: #TODO ANDRES añadir codigos, revisar proyecto X
                     result = True
             invoice.l10n_ec_allow_withhold = result
     
@@ -462,8 +462,7 @@ class AccountMove(models.Model):
                 and self.move_type in ('entry') and self.l10n_latam_document_type_id.code in ['07']:
             return 'l10n_ec_withhold.report_invoice_document'
         return super()._get_name_invoice_report()
-    
-    
+
     def _get_report_base_filename(self):
         if any(not move.is_invoice() and (not move.l10n_latam_document_type_id) for move in self):
             raise UserError(_("Only invoices could be printed."))

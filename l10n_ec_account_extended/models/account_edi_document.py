@@ -10,7 +10,6 @@ class AccountEdiDocument(models.Model):
 
     def _l10n_ec_set_access_key(self):
         # Heredamos el metodo para poder validar la longitud y unicidad en Numero de Autorizaciones
-        #TODO V14, evaluar como hacer la validación en el write del campo para facturas de compra (o para documentos que no son electronicos)... talvez validarlo al generar el ATS nada mas para alivianar la carga?
         self.ensure_one()
         res = super()._l10n_ec_set_access_key()
         if self.l10n_ec_access_key:

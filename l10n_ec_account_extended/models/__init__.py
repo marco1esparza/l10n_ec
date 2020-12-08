@@ -8,4 +8,4 @@ from . import res_partner
 from . import account_tax
 from . import account_edi_document
 from . import l10n_latam_document_type
-#from . import account_account #TODO AP, implmentar
+from . import account_account
