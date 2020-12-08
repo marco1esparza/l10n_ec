@@ -48,7 +48,7 @@
                             <tr>
                                 <td class="text-center p-1">
                                     <strong>Obliged to keep accounting:</strong>
-                                    <t t-if="o.company_id.l10n_ec_forced_accounting">Yes</t>
+                                    <t t-if="o.company_id.l10n_ec_forced_accounting">Sí</t>
                                     <t t-else="">No</t>
                                 </td>
                             </tr>
