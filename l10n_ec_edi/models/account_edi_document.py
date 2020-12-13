@@ -191,6 +191,8 @@ class AccountEdiDocument(models.Model):
     def _l10n_ec_generate_request_xml_file(self):
         #generates and validates an xml request to later be sent to SRI
         self.ensure_one()
+        if not self.is_invoice():
+           return
         etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
         xml_content = clean_xml(etree_content)
         try: #validamos el XML contra el XSD
