@@ -29,7 +29,11 @@
         % if object.invoice_origin:
             (with reference: ${object.invoice_origin})
         % endif
-        amounting in <strong>${format_amount(object.amount_total, object.currency_id)}</strong>
+        % if object.l10n_ec_withhold_type:
+            amounting in <strong>${format_amount(object.l10n_ec_total, object.currency_id)}</strong>
+        % else:
+            amounting in <strong>${format_amount(object.amount_total, object.currency_id)}</strong>
+        % endif
         from ${object.company_id.name}.
         % if not object.l10n_ec_withhold_type:
             % if object.invoice_payment_state == 'paid':

@@ -22,14 +22,7 @@ class AccountMove(models.Model):
         if self.env.context.get('origin') == 'receive_withhold':
             return super(AccountMove, self)._name_search(name, args=[('id', 'in', self.env.context.get('l10n_ec_withhold_origin_ids'))], operator=operator, limit=limit, name_get_uid=name_get_uid)
         return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
-    
-    def unlink(self):
-        #From l10n_latam, allows to erase withholds
-        withholds = self.filtered(lambda x: x.l10n_ec_withhold_type and x.l10n_ec_withhold_type in ('out_withhold') and x.state in ('draft') and x.l10n_latam_use_documents)
-        if withholds:
-            withholds.write({'name': '/'})
-        return super().unlink()
-    
+        
     def copy_data(self, default=None):
         #avoid duplicating withholds, it has not been tested
         res = super(AccountMove, self).copy_data(default=default)
@@ -43,12 +36,12 @@ class AccountMove(models.Model):
         los asientos de retenciones en ventas con la factura
         '''
         self.l10n_ec_make_withhold_entry()
-        res = super(AccountMove, self)._post(soft)
+        posted = super()._post(soft=soft)
         for withhold in self:
             if withhold.country_code == 'EC':
                 if withhold.move_type in ('entry') and withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_latam_document_type_id.code in ['07']:
                     (withhold + withhold.l10n_ec_withhold_origin_ids).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_receivable_id).reconcile()
-        return res
+        return posted 
 
     def button_cancel_posted_moves(self):
         # Verificamos si es una retencion y se puede ejecutar REQUEST EDI CANCELLATION
@@ -250,17 +243,6 @@ class AccountMove(models.Model):
                                 u'La retención previamente existente ' + withhold_line.move_id.name + \
                                 u' tiene tambien una retención por ' + withhold_category + u'.'  
                     raise ValidationError(error_msg)
-
-    def get_is_edi_needed(self, edi_format):
-        '''
-        Retenciones electronicas en compras
-        '''
-        res = super(AccountMove, self).get_is_edi_needed(edi_format)
-        #TODO V15: mover la logica a account_edi_format._is_required_for_invoice()
-        if self.country_code == 'EC':
-            if self.move_type == 'entry' and self.l10n_ec_withhold_type == 'in_withhold' and self.l10n_latam_document_type_id.code in ['07'] and self.l10n_ec_printer_id.allow_electronic_document:
-                return True
-        return res
 
     def _recompute_tax_lines(self, recompute_tax_base_amount=False):
         '''

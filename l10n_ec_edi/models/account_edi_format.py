@@ -23,7 +23,7 @@ class AccountEdiFormat(models.Model):
     
     #Redefinitions based on account_edi
     def _is_required_for_invoice(self, invoice):
-        """ Indicate if this EDI must be generated for the invoice passed as parameter.
+        """ Indicate if this EDI must be generated for the move passed as parameter.
 
         :param invoice: An account.move having the invoice type.
         :returns:       True if the EDI must be generated, False otherwise.
@@ -42,6 +42,9 @@ class AccountEdiFormat(models.Model):
                 is_required_for_invoice = True
             # Liquidacion de Compra
             elif invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code in ['03','41']:
+                is_required_for_invoice = True
+            #Retenciones compra
+            elif invoice.is_withholding() and invoice.l10n_ec_withhold_type == 'in_withhold':
                 is_required_for_invoice = True
             return is_required_for_invoice
         return super()._is_required_for_invoice(invoice)
@@ -65,8 +68,8 @@ class AccountEdiFormat(models.Model):
         return super()._is_compatible_with_journal(journal) #includes sales
 
     def _is_embedding_to_invoice_pdf_needed(self):
-        self.ensure_one()
-        return False if self.country_code == 'EC' else super()._is_embedding_to_invoice_pdf_needed()
+        self.ensure_one()        
+        return False if self.code == 'l10n_ec_tax_authority' else super()._is_embedding_to_invoice_pdf_needed()
 
     def _post_invoice_edi(self, invoices, test_mode=False):
         """ Create the file content representing the invoice (and calls web services if necessary).
@@ -91,12 +94,16 @@ class AccountEdiFormat(models.Model):
                     test_mode = True
             # Si estamos en Modo test y tenemos documentos electronicos y tenemos request
             # asignamos el attachment con dicho documento.
-            if test_mode and invoice.edi_document_ids.l10n_ec_request_xml_file and not invoice.edi_document_ids.attachment_id:
+            edi_ec = invoice.edi_document_ids.filtered(lambda d: d.edi_format_id.code == 'l10n_ec_tax_authority')
+            if test_mode and not edi_ec.attachment_id:
                 attachment = self.env['ir.attachment'].create({
-                    'name': invoice.edi_document_ids.l10n_ec_request_xml_file_name,
-                    'datas': invoice.edi_document_ids.l10n_ec_request_xml_file,
-                    'mimetype': 'application/xml',
+                    'name': invoice.name+'.xml',
+                    'res_id': invoice.id,
+                    'res_model': invoice._name,
                     'type': 'binary',
+                    'datas': edi_ec.l10n_ec_request_xml_file,
+                    'mimetype': 'application/xml',
+                    'description': _('Demo Ecuadorian electronic document for the %s document.') % invoice.name,
                 })
                 edi_result[invoice] = {'attachment': attachment}
                 return edi_result
@@ -107,9 +114,9 @@ class AccountEdiFormat(models.Model):
                                       "En su lugar debe crear un nuevo documento electrónico" % str(self.name)) 
             if invoice.edi_state not in ('to_send'):
                 raise ValidationError("Error, solo se puede enviar al SRI documentos en estado A ENVIAR: Documento" %s % str(self.name))
-            if len(invoice.edi_document_ids) != 1: #Primera versión, como en v10, relación 1 a 1
+            if len(edi_ec) != 1: #Primera versión, como en v10, relación 1 a 1
                 raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar" %s % str(invoice.name))
-            document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_send")
+            document = edi_ec.filtered(lambda r: r.state == "to_send")
             #Firts try to download reply, if not available try sending again
             response_state, response = document._l10n_ec_download_electronic_document_reply()
             if response_state == 'non-existent':
@@ -137,7 +144,7 @@ class AccountEdiFormat(models.Model):
                 datas = self._l10n_ec_build_external_xml(response).encode('utf-8')
                 datas = base64.encodebytes(datas)
                 electronic_document_attachment = self.env['ir.attachment'].create({
-                    'name': invoice.name,
+                    'name': invoice.name+'.xml',
                     'res_id': invoice.id,
                     'res_model': invoice._name,
                     'type': 'binary',
@@ -164,7 +171,7 @@ class AccountEdiFormat(models.Model):
             return edi_result
         for invoice in invoices:
             #here invoice refers to any document, an invoice, withhold, waybill
-            document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_cancel")
+            document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_cancel" and r.edi_format_id.code == 'l10n_ec_tax_authority')
             msgs = []
             
             if not test_mode:

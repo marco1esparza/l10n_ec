@@ -191,16 +191,16 @@ class AccountEdiDocument(models.Model):
     def _l10n_ec_generate_request_xml_file(self):
         #generates and validates an xml request to later be sent to SRI
         self.ensure_one()
-        if not self.is_invoice():
+        if not self.move_id.is_invoice():
            return
         etree_content = self._l10n_ec_get_xml_request_for_sale_invoice()
         xml_content = clean_xml(etree_content)
         try: #validamos el XML contra el XSD
-            if self.move_id.type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18','41']:
+            if self.move_id.move_type in ('out_invoice') and self.move_id.l10n_latam_document_type_id.code in ['18','41']:
                 validate_xml_vs_xsd(xml_content, XSD_SRI_110_FACTURA)
-            elif self.move_id.type in ('out_refund') and self.move_id.l10n_latam_document_type_id.code in ['04']:
+            elif self.move_id.move_type in ('out_refund') and self.move_id.l10n_latam_document_type_id.code in ['04']:
                 validate_xml_vs_xsd(xml_content, XSD_SRI_110_NOTA_CREDITO)
-            elif self.move_id.type in ('in_invoice') and self.move_id.l10n_latam_document_type_id.code in ['03', '41']:
+            elif self.move_id.move_type in ('in_invoice') and self.move_id.l10n_latam_document_type_id.code in ['03', '41']:
                 validate_xml_vs_xsd(xml_content, XSD_SRI_110_LIQ_COMPRA)
         except ValueError: 
             raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
