@@ -104,9 +104,9 @@ class AccountMove(models.Model):
     def _onchange_l10n_ec_available_sri_tax_support_ids(self):
         '''
         '''
-        if self.l10n_latam_country_code == 'EC':
+        if self.country_code == 'EC':
             #Solamente las compras tienen sustento tributario...
-            if self.type in ['in_invoice', 'in_refund']:
+            if self.move_type in ['in_invoice', 'in_refund']:
                 l10n_ec_sri_tax_support_id = False
                 if self.l10n_latam_document_type_id:
                     if self.l10n_ec_available_sri_tax_support_ids:
@@ -176,7 +176,7 @@ class AccountMove(models.Model):
             printer_id = self.env['l10n_ec.printer.id'].browse(self._context['default_l10n_ec_printer_id'])
             return printer_id
         printer_id = False
-        company_id = self.env.company #self.l10n_latam_country_code is still empty
+        company_id = self.env.company #self.country_code is still empty
         if company_id.country_code == 'EC':
             move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
             if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
@@ -197,7 +197,7 @@ class AccountMove(models.Model):
             payment_method_id = self.env['l10n_ec.payment.method'].browse(self._context['default_l10n_ec_payment_method_id'])
             return payment_method_id
         payment_method_id = False
-        company_id = self.env.company #self.l10n_latam_country_code is still empty
+        company_id = self.env.company #self.country_code is still empty
         if company_id.country_code == 'EC':
             move_type = self._context.get('default_move_type',False) #self.type is not yet populated
             if move_type in ['out_invoice', 'in_invoice']:
