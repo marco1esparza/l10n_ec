@@ -1,0 +1,486 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_withhold
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 13.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-10-17 07:51+0000\n"
+"PO-Revision-Date: 2020-10-17 07:51+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_withhold
+#: model:mail.template,subject:l10n_ec_withhold.l10n_ec_email_template_edi_document
+msgid ""
+"${object.company_id.name} (${not object.l10n_latam_document_type_id and "
+"'Invoice' or object.l10n_latam_document_type_id.report_name or "
+"object.l10n_latam_document_type_id.name}  ${object.name or 'n/a'})"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:mail.template,body_html:l10n_ec_withhold.l10n_ec_email_template_edi_document
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear\n"
+"        % if object.partner_id.parent_id:\n"
+"            ${object.partner_id.name} (${object.partner_id.parent_id.name}),\n"
+"        % else:\n"
+"            ${object.partner_id.name},\n"
+"        % endif\n"
+"        <br/><br/>\n"
+"        Here is your\n"
+"        % if object.name and object.l10n_latam_document_type_id:\n"
+"            ${object.l10n_latam_document_type_id.report_name or object.l10n_latam_document_type_id.name} <strong>${object.name}</strong>\n"
+"        % elif object.name:\n"
+"            Invoice <strong>${object.name}</strong>\n"
+"        % else:\n"
+"            invoice\n"
+"        %endif\n"
+"        % if object.invoice_origin:\n"
+"            (with reference: ${object.invoice_origin})\n"
+"        % endif\n"
+"        amounting in <strong>${format_amount(object.amount_total, object.currency_id)}</strong>\n"
+"        from ${object.company_id.name}.\n"
+"        % if not object.l10n_ec_withhold_type:\n"
+"            % if object.invoice_payment_state == 'paid':\n"
+"                This invoice is already paid.\n"
+"            % else:\n"
+"                Please remit payment at your earliest convenience.\n"
+"            % endif\n"
+"        % endif\n"
+"        <br/><br/>\n"
+"        Do not hesitate to contact us if you have any questions.\n"
+"    </p>\n"
+"</div>\n"
+"            "
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid ""
+"<span attrs=\"{'invisible': ['|', '|', ('l10n_ec_withhold_type', 'not in', "
+"['out_withhold', 'in_withhold']), ('state', '!=', 'draft'), ('name', '!=', "
+"'/')]}\">Draft Withhold</span>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "<span class=\"o_stat_text\">Withholds</span>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Base amount</span>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Date</span>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Document No.</span>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Document</span>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Fiscal exercise</span>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Tax %</span>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Tax amount</span>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Tax</span>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Branch Office address:</strong>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Company Name / Name and Surname: </strong>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Due Date: </strong>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Headquarters Address:</strong>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Identification: </strong>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Invoice Date: </strong>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Obliged to keep accounting:</strong>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Special Taxpayer Number:</strong>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Total</strong>"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "Access Key:"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__account_id
+msgid "Account"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Add Withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_allow_withhold
+msgid "Allow Withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__amount
+msgid "Amount"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "Authorization No.:"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__base
+msgid "Base"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_invoice_vat_doce_subtotal
+msgid "Base Sugerida Ret. IVA"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_invoice_amount_untaxed
+msgid "Base Sugerida Ret. Renta"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_invoice_vat_doce_subtotal
+msgid "Base imponible sugerida (no obligatoria) para retención del IVA"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_invoice_amount_untaxed
+msgid ""
+"Base imponible sugerida (no obligatoria) para retención del Impuesto a la "
+"Renta"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__company_id
+msgid "Company"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__company_currency_id
+msgid "Company Currency"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_l10n_ec_account_withhold_line__company_id
+msgid "Company related to this journal"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_res_currency
+msgid "Currency"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Customer"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields.selection,name:l10n_ec_withhold.selection__account_move__l10n_ec_withhold_type__out_withhold
+msgid "Customer Withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:mail.template,report_name:l10n_ec_withhold.l10n_ec_email_template_edi_document
+msgid ""
+"Document_${(object.name or '').replace('/','_')}${object.state == 'draft' "
+"and '_draft' or ''}"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_account_edi_document
+msgid "Electronic Document for an account.move"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__invoice_id
+msgid "Invoice"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Invoice Date"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_origin_ids
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Invoices"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_account_move
+msgid "Journal Entries"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__move_id
+msgid "Journal Entry"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_withhold_origin_ids
+msgid "Link to invoices related to this withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_withhold_ids
+msgid "Link to withholds related to this invoice"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Listado de facturas afectadas por esta retención"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "Logo"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "No"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_count
+msgid "Number of Withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: code:addons/l10n_ec_withhold/models/account_move.py:0
+#: code:addons/l10n_ec_withhold/models/account_move.py:0
+#, python-format
+msgid "Only invoices could be printed."
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.actions.server,name:l10n_ec_withhold.action_receive_withhold
+msgid "Recibir retención"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Send & Print"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields.selection,name:l10n_ec_withhold.selection__account_move__l10n_ec_withhold_type__in_withhold
+msgid "Supplier Withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_account_tax
+msgid "Tax"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "Tax ID"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__tax_id
+msgid "Taxes"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_allow_withhold
+msgid "Technical field to show/hide \"ADD WITHHOLD\" button"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_l10n_ec_account_withhold_line__move_id
+msgid "The move of this entry line."
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_total_base_vat
+msgid "Total Base IVA"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_total_base_profit
+msgid "Total Base RENTA"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_vat_withhold
+msgid "Total IVA"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_vat_withhold
+msgid "Total IVA value of withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_profit_withhold
+msgid "Total RENTA"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_total
+msgid "Total Withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_total_base_vat
+msgid "Total base IVA of withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_total_base_profit
+msgid "Total base renta of withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_profit_withhold
+msgid "Total renta value of withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_total
+msgid "Total value of withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_l10n_ec_account_withhold_line__company_currency_id
+msgid "Utility field to express amount currency"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Withhold Date"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_l10n_ec_account_withhold_line
+msgid "Withhold Line Detail"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_line_ids
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Withhold Lines"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_type
+msgid "Withhold Type"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: code:addons/l10n_ec_withhold/models/account_move.py:0
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_ids
+#, python-format
+msgid "Withholds"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "Yes"
+msgstr ""

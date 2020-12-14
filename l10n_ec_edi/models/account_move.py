@@ -143,7 +143,7 @@ class AccountMove(models.Model):
                     raise ValidationError(_('Please setup the printer point address, in Accounting / Settings / Printer Points'))
                 #needed to print offline RIDE and populate XML request
                 edi_ec._l10n_ec_set_access_key()
-                self.l10n_ec_authorization = invoice.edi_document_ids.l10n_ec_access_key #for auditing manual changes
+                self.l10n_ec_authorization = edi_ec.l10n_ec_access_key #for auditing manual changes
                 edi_ec._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
 

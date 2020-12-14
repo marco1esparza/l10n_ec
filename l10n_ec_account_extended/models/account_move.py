@@ -149,7 +149,7 @@ class AccountMove(models.Model):
                         else:
                             amount_total_refunds = document.l10n_ec_total_with_tax
                         for refund in document.reversed_entry_id.reversal_move_id.\
-                                filtered(lambda m: m.id != document.id and m.type in ['in_refund', 'out_refund']
+                                filtered(lambda m: m.id != document.id and m.move_type in ['in_refund', 'out_refund']
                                                    and m.state in ['posted']):
                             amount_total_refunds += refund.l10n_ec_total_with_tax
                         refund_value_control = document.company_id.l10n_ec_refund_value_control
@@ -435,7 +435,7 @@ class AccountMove(models.Model):
     def unlink(self):
         """ When using documents, on vendor bills the document_number is set manually by the number given from the vendor,
         the odoo sequence is not used. In this case We allow to delete vendor bills with document_number/move_name """
-        self.filtered(lambda x: x.type in x.get_purchase_types() and x.state in ('draft', 'cancel')
+        self.filtered(lambda x: x.move_type in x.get_purchase_types() and x.state in ('draft', 'cancel')
                                 and x.l10n_latam_use_documents and x.country_code == 'EC').write({'name': '/'})
         self.filtered(lambda x: x.is_withholding() and x.state in ('draft', 'cancel')
                                 and x.l10n_latam_use_documents and x.country_code == 'EC').write({'name': '/'})

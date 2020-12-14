@@ -6,7 +6,7 @@
             <attribute name="t-if">o and o._name != 'account.move' and o.company_id.partner_id.country_id.code != 'EC'</attribute>
         </xpath>
     </template>
-
+    
     <template id="report_invoice_document" inherit_id="account.report_invoice_document" primary="True">
         <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">web.basic_layout</attribute>
@@ -246,7 +246,11 @@
         </xpath>
     </template>
 
-    <!-- FIXME: Temp fix to allow fetching invoice_documemt in Studio Reports with localisation -->
+    <template id="report_invoice_document_with_payments" 
+              inherit_id="l10n_ec_edi.report_invoice_document" 
+              primary="True"/>
+          
+    <!-- FIXME: Temp fix to allow fetching invoice_documemt in Studio Reports with localisation
     <template id="report_invoice" inherit_id="account.report_invoice">
         <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
             <t t-if="o._get_name_invoice_report() == 'l10n_ec_edi.report_invoice_document'"
@@ -260,4 +264,5 @@
                 t-call="l10n_ec_edi.report_invoice_document" t-lang="lang"/>
         </xpath>
     </template>
+     -->
 </odoo>
