@@ -120,6 +120,7 @@ class AccountMove(models.Model):
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
         res = super(AccountMove, self)._post(soft)
+        self.generate_withhold_edis() #antes de ejecutar nuestras validaciones, por eso no puede estar en l10n_ec_withhold
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
             if not invoice.is_invoice() and not invoice.is_withholding():
                 raise ValidationError(u'Para Ecuador por favor desactivar la opcion Usa Documentos del Diario %s.' % invoice.journal_id.name)
@@ -146,6 +147,28 @@ class AccountMove(models.Model):
                 self.l10n_ec_authorization = edi_ec.l10n_ec_access_key #for auditing manual changes
                 edi_ec._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
+    
+    def generate_withhold_edis(self):
+        #como la opcion is_invoice es False para las retenciones, repetimos el codigo que genera los EDIs, extraido de account_edi
+        edi_document_vals_list = []
+        for move in self:
+            for edi_format in move.journal_id.edi_format_ids:
+                is_edi_needed = move.is_withholding() and edi_format._is_required_for_invoice(move)
+                if is_edi_needed:
+                    existing_edi_document = move.edi_document_ids.filtered(lambda x: x.edi_format_id == edi_format)
+                    if existing_edi_document:
+                        existing_edi_document.write({
+                            'state': 'to_send',
+                            'attachment_id': False,
+                        })
+                    else:
+                        edi_document_vals_list.append({
+                            'edi_format_id': edi_format.id,
+                            'move_id': move.id,
+                            'state': 'to_send',
+                        })
+        self.env['account.edi.document'].create(edi_document_vals_list)
+        self.edi_document_ids._process_documents_no_web_services()
 
     def _is_manual_document_number(self, journal):
         for res in self:

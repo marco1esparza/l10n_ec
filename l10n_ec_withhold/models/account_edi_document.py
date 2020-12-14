@@ -126,7 +126,11 @@ class AccountEdiDocument(models.Model):
             detalle_data.append(('numDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_number.replace('-','')))
             detalle_data.append(('fechaEmisionDocSustento', datetime.strftime(line.move_id.l10n_ec_withhold_origin_ids[0].invoice_date,'%d/%m/%Y')))
             self.create_TreeElements(impuesto, detalle_data)
-        infoAdicional = self.create_SubElement(withhold, 'infoAdicional')
+        if self.move_id.company_id.l10n_ec_regime == 'micro' or self.move_id.company_id.l10n_ec_withhold_agent  == 'designated_withhold_agent'\
+           or get_invoice_partner_data['invoice_email'] or get_invoice_partner_data['invoice_address']\
+           or get_invoice_partner_data['invoice_phone']:
+            #dentro del if para asegurar que no quede huerfano el label
+            infoAdicional = self.create_SubElement(withhold, 'infoAdicional')
         if self.move_id.company_id.l10n_ec_regime == 'micro':
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'Regimen'}, text=_MICROCOMPANY_REGIME_LABEL)
         if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':

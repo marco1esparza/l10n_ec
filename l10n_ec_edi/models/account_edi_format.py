@@ -23,7 +23,7 @@ class AccountEdiFormat(models.Model):
     
     #Redefinitions based on account_edi
     def _is_required_for_invoice(self, invoice):
-        """ Indicate if this EDI must be generated for the invoice passed as parameter.
+        """ Indicate if this EDI must be generated for the move passed as parameter.
 
         :param invoice: An account.move having the invoice type.
         :returns:       True if the EDI must be generated, False otherwise.

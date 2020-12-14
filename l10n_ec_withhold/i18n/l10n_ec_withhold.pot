@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 13.0+e\n"
+"Project-Id-Version: Odoo Server 14.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-17 07:51+0000\n"
-"PO-Revision-Date: 2020-10-17 07:51+0000\n"
+"POT-Creation-Date: 2020-12-14 10:01+0000\n"
+"PO-Revision-Date: 2020-12-14 10:01+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -46,7 +46,11 @@ msgid ""
 "        % if object.invoice_origin:\n"
 "            (with reference: ${object.invoice_origin})\n"
 "        % endif\n"
-"        amounting in <strong>${format_amount(object.amount_total, object.currency_id)}</strong>\n"
+"        % if object.l10n_ec_withhold_type:\n"
+"            amounting in <strong>${format_amount(object.l10n_ec_total, object.currency_id)}</strong>\n"
+"        % else:\n"
+"            amounting in <strong>${format_amount(object.amount_total, object.currency_id)}</strong>\n"
+"        % endif\n"
 "        from ${object.company_id.name}.\n"
 "        % if not object.l10n_ec_withhold_type:\n"
 "            % if object.invoice_payment_state == 'paid':\n"
@@ -161,6 +165,12 @@ msgid "<strong>Total</strong>"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: code:addons/l10n_ec_withhold/models/account_move.py:0
+#, python-format
+msgid "A cancellation of the EDI has been requested."
+msgstr ""
+
+#. module: l10n_ec_withhold
 #: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "Access Key:"
 msgstr ""
@@ -176,7 +186,14 @@ msgid "Add Withhold"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Add an internal note..."
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_allow_withhold
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_allow_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_allow_withhold
 msgid "Allow Withhold"
 msgstr ""
 
@@ -196,22 +213,30 @@ msgid "Base"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_invoice_vat_doce_subtotal
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_invoice_vat_doce_subtotal
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_invoice_vat_doce_subtotal
 msgid "Base Sugerida Ret. IVA"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_invoice_amount_untaxed
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_invoice_amount_untaxed
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_invoice_amount_untaxed
 msgid "Base Sugerida Ret. Renta"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_invoice_vat_doce_subtotal
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_invoice_vat_doce_subtotal
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_invoice_vat_doce_subtotal
 msgid "Base imponible sugerida (no obligatoria) para retención del IVA"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_invoice_amount_untaxed
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_invoice_amount_untaxed
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_invoice_amount_untaxed
 msgid ""
 "Base imponible sugerida (no obligatoria) para retención del Impuesto a la "
 "Renta"
@@ -258,15 +283,25 @@ msgid "Customer Withhold"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_document__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_format__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_tax__display_name
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_res_currency__display_name
 msgid "Display Name"
 msgstr ""
 
 #. module: l10n_ec_withhold
 #: model:mail.template,report_name:l10n_ec_withhold.l10n_ec_email_template_edi_document
 msgid ""
-"Document_${(object.name or '').replace('/','_')}${object.state == 'draft' "
+"${(object.name or '').replace('/','_')}${object.state == 'draft' "
 "and '_draft' or ''}"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_account_edi_format
+msgid "EDI format"
 msgstr ""
 
 #. module: l10n_ec_withhold
@@ -275,7 +310,12 @@ msgid "Electronic Document for an account.move"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_document__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_format__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_tax__id
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_res_currency__id
 msgid "ID"
 msgstr ""
 
@@ -290,23 +330,26 @@ msgid "Invoice Date"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_origin_ids
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_origin_ids
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_origin_ids
 #: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
 msgid "Invoices"
 msgstr ""
 
 #. module: l10n_ec_withhold
 #: model:ir.model,name:l10n_ec_withhold.model_account_move
-msgid "Journal Entries"
-msgstr ""
-
-#. module: l10n_ec_withhold
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__move_id
 msgid "Journal Entry"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_document____last_update
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_format____last_update
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move____last_update
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_tax____last_update
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line____last_update
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_res_currency____last_update
 msgid "Last Modified on"
 msgstr ""
 
@@ -321,12 +364,16 @@ msgid "Last Updated on"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_origin_ids
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_withhold_origin_ids
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_origin_ids
 msgid "Link to invoices related to this withhold"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_ids
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_withhold_ids
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_ids
 msgid "Link to withholds related to this invoice"
 msgstr ""
 
@@ -346,7 +393,9 @@ msgid "No"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_count
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_count
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_count
 msgid "Number of Withhold"
 msgstr ""
 
@@ -355,6 +404,12 @@ msgstr ""
 #: code:addons/l10n_ec_withhold/models/account_move.py:0
 #, python-format
 msgid "Only invoices could be printed."
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: code:addons/l10n_ec_withhold/models/account_move.py:0
+#, python-format
+msgid "Posted journal entry must have an unique sequence number per company."
 msgstr ""
 
 #. module: l10n_ec_withhold
@@ -388,7 +443,9 @@ msgid "Taxes"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_allow_withhold
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_allow_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_allow_withhold
 msgid "Technical field to show/hide \"ADD WITHHOLD\" button"
 msgstr ""
 
@@ -398,52 +455,72 @@ msgid "The move of this entry line."
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total_base_vat
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_total_base_vat
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_total_base_vat
 msgid "Total Base IVA"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total_base_profit
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_total_base_profit
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_total_base_profit
 msgid "Total Base RENTA"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_vat_withhold
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_vat_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_vat_withhold
 msgid "Total IVA"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_vat_withhold
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_vat_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_vat_withhold
 msgid "Total IVA value of withhold"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_profit_withhold
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_profit_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_profit_withhold
 msgid "Total RENTA"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_total
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_total
 msgid "Total Withhold"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total_base_vat
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_total_base_vat
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_total_base_vat
 msgid "Total base IVA of withhold"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total_base_profit
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_total_base_profit
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_total_base_profit
 msgid "Total base renta of withhold"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_profit_withhold
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_profit_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_profit_withhold
 msgid "Total renta value of withhold"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_total
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_total
 msgid "Total value of withhold"
 msgstr ""
 
@@ -463,19 +540,25 @@ msgid "Withhold Line Detail"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_line_ids
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_line_ids
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_line_ids
 #: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
 msgid "Withhold Lines"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_type
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_type
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_type
 msgid "Withhold Type"
 msgstr ""
 
 #. module: l10n_ec_withhold
 #: code:addons/l10n_ec_withhold/models/account_move.py:0
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_ids
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_ids
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_ids
 #, python-format
 msgid "Withholds"
 msgstr ""
