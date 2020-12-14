@@ -15,9 +15,11 @@ class L10nEcSRITaxSupport(models.Model):
         Concatena el código y el nombre del sustento tributario
         '''
         result = []
-        for support in self:
-            new_name = (support.code and '(' + support.code + ') ' or '') + support.name
-            result.append((support.id, new_name))
+        for rec in self:
+            name = rec.name
+            if rec.code:
+                name = '(%s) %s' % (rec.code, name)
+            result.append((rec.id, name))
         return result
 
     @api.model
@@ -25,13 +27,12 @@ class L10nEcSRITaxSupport(models.Model):
         '''
         Permite buscar ya sea por nombre o por codigo del sustento tributario
         '''
-        if args is None:
-            args = []
-        domain = []
-        if name:
-            domain = ['|', ('code', operator, name), ('name', operator, name)]
-        ids = self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
-        return self.browse(ids).name_get()
+        args = args or []
+        if operator == 'ilike' and not (name or '').strip():
+            domain = []
+        else:
+            domain = ['|', ('name', 'ilike', name), ('code', 'ilike', name)]
+        return self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
 
     #Columns
     code = fields.Char(

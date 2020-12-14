@@ -432,14 +432,17 @@ class AccountMove(models.Model):
             pass
         return warning_msgs
 
-    def unlink(self):
-        """ When using documents, on vendor bills the document_number is set manually by the number given from the vendor,
-        the odoo sequence is not used. In this case We allow to delete vendor bills with document_number/move_name """
-        self.filtered(lambda x: x.move_type in x.get_purchase_types() and x.state in ('draft', 'cancel')
-                                and x.l10n_latam_use_documents and x.country_code == 'EC').write({'name': '/'})
-        self.filtered(lambda x: x.is_withholding() and x.state in ('draft', 'cancel')
-                                and x.l10n_latam_use_documents and x.country_code == 'EC').write({'name': '/'})
-        return super().unlink()
+#     def unlink(self):
+#         """ When using documents, on vendor bills the document_number is set manually by the number given from the vendor,
+#         the odoo sequence is not used. In this case We allow to delete vendor bills with document_number/move_name """
+#         for move in self:
+#             if move.country_code == 'EC' and move.state in ['draft'] and move.l10n_latam_use_documents:
+#                 edi_ec = move.edi_document_ids.filtered(lambda d: d.edi_format_id.code == 'l10n_ec_tax_authority')
+#                 if not edi_ec:
+#                     #TODO: Llamar a super con contexto
+#                     move.with_context(force_delete=True).unlink()
+#                     move.write({'name': '/'})
+#         return super().unlink()
     
     #columns
     l10n_ec_require_withhold_tax = fields.Boolean(compute='_l10n_ec_compute_require_withhold_tax')

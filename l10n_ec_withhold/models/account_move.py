@@ -22,14 +22,7 @@ class AccountMove(models.Model):
         if self.env.context.get('origin') == 'receive_withhold':
             return super(AccountMove, self)._name_search(name, args=[('id', 'in', self.env.context.get('l10n_ec_withhold_origin_ids'))], operator=operator, limit=limit, name_get_uid=name_get_uid)
         return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
-    
-    def unlink(self):
-        #From l10n_latam, allows to erase withholds
-        withholds = self.filtered(lambda x: x.l10n_ec_withhold_type and x.l10n_ec_withhold_type in ('out_withhold') and x.state in ('draft') and x.l10n_latam_use_documents)
-        if withholds:
-            withholds.write({'name': '/'})
-        return super().unlink()
-    
+        
     def copy_data(self, default=None):
         #avoid duplicating withholds, it has not been tested
         res = super(AccountMove, self).copy_data(default=default)

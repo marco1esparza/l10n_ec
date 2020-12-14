@@ -43,6 +43,9 @@ class AccountEdiFormat(models.Model):
             # Liquidacion de Compra
             elif invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code in ['03','41']:
                 is_required_for_invoice = True
+            #Retenciones compra
+            elif invoice.is_withholding() and invoice.l10n_ec_withhold_type == 'in_withhold':
+                is_required_for_invoice = True
             return is_required_for_invoice
         return super()._is_required_for_invoice(invoice)
 

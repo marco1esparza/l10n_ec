@@ -336,10 +336,10 @@ msgstr "Nombre mostrado"
 #. module: l10n_ec_withhold
 #: model:mail.template,report_name:l10n_ec_withhold.l10n_ec_email_template_edi_document
 msgid ""
-"${(object.name or '').replace('/','_')}${object.state == 'draft' "
+"Document_${(object.name or '').replace('/','_')}${object.state == 'draft' "
 "and '_draft' or ''}"
 msgstr ""
-"${(object.name or '').replace('/','_')}${object.state == 'draft' "
+"Documento_${(object.name or '').replace('/','_')}${object.state == 'draft' "
 "and '_draft' or ''}"
 
 #. module: l10n_ec_withhold
