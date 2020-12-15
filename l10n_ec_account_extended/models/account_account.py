@@ -8,7 +8,7 @@ class AccountAccount(models.Model):
     _inherit = 'account.account'
 
     @api.model
-    def name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
+    def name_search(self, name, args=None, operator='ilike', limit=100):
         '''
         Modificamos el metodo para buscar usando las nomenclaturas:
         - 52022%COMPUTACION: El comodin puede estar en cualquier parte de la
@@ -17,7 +17,7 @@ class AccountAccount(models.Model):
         '''
         args = args or []
         domain = []
-        result = super(AccountAccount, self).name_search(name, args=args,operator=operator, limit=limit, name_get_uid = name_get_uid)
+        result = super(AccountAccount, self).name_search(name, args=args,operator=operator, limit=limit)
         if name:
             # Se agrega el soporte para buscar por codigo + nombre
             domain = [

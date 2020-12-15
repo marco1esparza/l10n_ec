@@ -60,7 +60,7 @@
                             <tr>
                                 <td class="text-center border-top-0 p-2" style="font-size:15px; letter-spacing: 2px;">
                                     <h3>
-                                        <t t-if="o.l10n_latam_document_type_id" t-esc="o.l10n_latam_document_type_id.report_name or o.l10n_latam_document_type_id.name" /> <span t-esc="o.l10n_latam_document_number or o.name"/>
+                                        <t t-if="o.l10n_latam_document_type_id" t-esc="o.l10n_latam_document_type_id.report_name or o.l10n_latam_document_type_id.name" /> <br/> <span t-esc="o.l10n_latam_document_number or o.name"/>
                                     </h3>
                                 </td>
                             </tr>
