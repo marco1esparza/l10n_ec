@@ -60,7 +60,7 @@ class AccountEdiDocument(models.Model):
         to_process = []
         date_filter = fields.Date.context_today(self) - timedelta(days=5)
         # if user manually sent the document with button "send now" just call super, do not limit the 5 days
-        manual = self._context.get('default_type', False)  # hack, if in the account.move form there will be a default_type context
+        manual = self._context.get('default_move_type', False)  # hack, if in the account.move form there will be a default_type context
         for edi in self:
             if not manual:
                 if edi.move_id.country_code == 'EC':
