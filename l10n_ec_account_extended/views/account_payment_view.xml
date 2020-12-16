@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_payment_form_inherit" model="ir.ui.view">
+            <field name="name">account.payment.form.inherit</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account_edi.view_payment_form_inherit" />
+            <field name="arch" type="xml">
+                <xpath expr="//div[hasclass('alert-info')]" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('edi_web_services_to_process', '=', False), ('state', '=', 'draft')]}</attribute>
+                </xpath>
+            </field>
+    </record>
+</odoo>

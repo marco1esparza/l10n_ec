@@ -432,6 +432,20 @@ class AccountMove(models.Model):
             pass
         return warning_msgs
 
+    @api.depends(
+        'edi_document_ids',
+        'edi_document_ids.state',
+        'edi_document_ids.edi_format_id',
+        'edi_document_ids.edi_format_id.name')
+    def _compute_edi_web_services_to_process(self):
+        for move in self:
+            if move.country_code == 'EC':
+                to_process = move.filtered(lambda x: x.is_withholding() or x.is_invoice()).edi_document_ids.filtered(lambda d: d.state in ['to_send', 'to_cancel'])
+                format_web_services = to_process.edi_format_id.filtered(lambda f: f._needs_web_services())
+                move.edi_web_services_to_process = ', '.join(f.name for f in format_web_services) or False
+            else:
+                super(AccountMove, move)._compute_edi_web_services_to_process()
+
 #     def unlink(self):
 #         """ When using documents, on vendor bills the document_number is set manually by the number given from the vendor,
 #         the odoo sequence is not used. In this case We allow to delete vendor bills with document_number/move_name """
