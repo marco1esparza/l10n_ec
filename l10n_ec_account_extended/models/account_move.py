@@ -438,6 +438,10 @@ class AccountMove(models.Model):
         'edi_document_ids.edi_format_id',
         'edi_document_ids.edi_format_id.name')
     def _compute_edi_web_services_to_process(self):
+        '''
+        Heredamos el compute para poder corregir bug de Odoo que asigna documentos electronicos
+        a los account.payment, no necesario para Ecuador.
+        '''
         for move in self:
             if move.country_code == 'EC':
                 to_process = move.filtered(lambda x: x.is_withholding() or x.is_invoice()).edi_document_ids.filtered(lambda d: d.state in ['to_send', 'to_cancel'])
