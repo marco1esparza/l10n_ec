@@ -432,13 +432,14 @@ class AccountEdiDocument(models.Model):
         move_lines = self.move_id.invoice_line_ids.filtered(lambda x:x.display_type not in ['line_section','line_note'])
         for each in move_lines:
             detalle = self.create_SubElement(detalles, 'detalle')
-            detalle_data = []            
+            detalle_data = []
             code =  self.getXMLProductCode(move_line = each)
-            if code:
-                if type == 'out_invoice':
-                    detalle_data.append(('codigoPrincipal', code))
-                elif type == 'out_refund':
-                    detalle_data.append(('codigoInterno', code))
+            if type == 'out_invoice':
+                detalle_data.append(('codigoPrincipal', code))
+            elif type == 'out_refund':
+                detalle_data.append(('codigoInterno', code))
+            elif type == 'in_invoice': #Liq de compras
+                detalle_data.append(('codigoPrincipal', code))
             detalle_data.append(('descripcion', get_SRI_normalized_text(each.name[:300])))
             detalle_data.append(('cantidad', '{0:.6f}'.format(each.quantity)))
             #TODO: usar algo similar al price_unit-final que deberia ser este l10n_latam_price_net o algo parecido
