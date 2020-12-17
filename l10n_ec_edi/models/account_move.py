@@ -303,6 +303,11 @@ class AccountMove(models.Model):
             invoice.l10n_ec_total_with_tax = invoice.amount_untaxed + invoice.l10n_ec_vat_cero_subtotal + invoice.l10n_ec_vat_doce_subtotal + invoice.l10n_ec_total_irbpnr
             invoice.l10n_ec_total_to_withhold = l10n_ec_total_to_withhold
 
+    @api.depends('l10n_latam_document_type_id', 'l10n_ec_printer_id')
+    def _compute_name(self):
+        # Se computa tomando en cuenta tambien cambios en el Punto de Emision.
+        super(AccountMove, self)._compute_name()
+
     def _get_formatted_sequence(self, number=0):
         return "%s-%09d" % (self.l10n_ec_printer_id.name, number)
 
