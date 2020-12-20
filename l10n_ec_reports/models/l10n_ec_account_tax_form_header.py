@@ -94,6 +94,7 @@ class AccountTaxFormHeader(models.TransientModel):
 
         for formulario, taxes_group in iter(formgrouptaxes.items()):
             sheet = book.add_worksheet(formulario and str(formulario) or 'Des')
+            sheet.merge_range(0, 0, 0, 2, self.company_id.l10n_ec_legal_name or self.company_id.name, titleheader)
             sheet.merge_range(1, 0, 1, 2, u'Detalles de '+ self.name, titleheader)
             row = 2
             for row, (key, value) in enumerate(self._get_filters(), 3):

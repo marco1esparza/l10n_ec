@@ -34,6 +34,10 @@ class ResPartner(models.Model):
 
     @api.onchange('vat', 'company_id')
     def _onchange_vat(self):
+        '''
+        Onchange para identificar y enviar mensaje de Alerta cuando existe un Partner
+        con el mismo Nro de Identificacion.
+        '''
         if self.same_vat_partner_id:
             return {
                 'warning': {'title': _('Warning'), 'message': _(
