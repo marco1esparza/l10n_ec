@@ -16,6 +16,29 @@ class ResPartner(models.Model):
         help='If set forces the vat withhold tax on applicable purchases (also a withhold is required on document type). '
         'The profit withhold prevalence order is payment method (credit cards retains 0%), then partner, then product'
         )
+
+    @api.model
+    def default_get(self, default_fields):
+        """Se hereda el metodo default_get para setear el campo vat, cuando el default_name es numerico"""
+        values = super().default_get(default_fields)
+        if 'default_name' in self._context:
+            default_name = self._context['default_name']
+            try:
+                vat = int(default_name)
+                if vat:
+                    values['name'] = False
+                    values['vat'] = vat
+            except:
+                pass
+        return values
+
+    @api.onchange('vat', 'company_id')
+    def _onchange_vat(self):
+        if self.same_vat_partner_id:
+            return {
+                'warning': {'title': _('Warning'), 'message': _(
+                    'A partner with the same Tax ID already exists'), },
+            }
     
     def l10n_ec_change_to_microenterprise(self):
         """
