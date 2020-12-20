@@ -29,8 +29,10 @@ class AccountEdiFormat(models.Model):
         :returns:       True if the EDI must be generated, False otherwise.
         """
         self.ensure_one()
-        if invoice.country_code == 'EC' and self.code == 'l10n_ec_tax_authority':
+        if self.code == 'l10n_ec_tax_authority':
             is_required_for_invoice = False
+            if invoice.country_code != 'EC':
+                return is_required_for_invoice
             if not invoice.l10n_ec_printer_id.allow_electronic_document:
                 #first lets verify that the printer point is an electronic one
                 return is_required_for_invoice
@@ -61,6 +63,8 @@ class AccountEdiFormat(models.Model):
         :returns:       True if this format can be enabled by default on the journal, False otherwise.
         """
         if self.code == 'l10n_ec_tax_authority':
+            if journal.country_code != 'EC':
+                return False
             if journal.type == 'purchase':
                 return True #useful for "Liquidaciónn de Compra"
             elif journal.code == 'RCMPR':

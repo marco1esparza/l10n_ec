@@ -132,6 +132,8 @@ class AccountMove(models.Model):
         #Execute ecuadorian validations with bypass option
         for document in self:
             if document.country_code == 'EC':
+                if document.journal_id.edi_format_ids.filtered(lambda e:e.code == 'facturx_1_0_05'):
+                    raise UserError(_("Por favor, debe deshabilitar primero el Documento Electrónico Factur-X (FR) del Diario %s, Contabilidad/Configuración/Diarios Contables") % self.journal_id.name)
                 bypass = document.l10n_ec_bypass_validations
                 if not bypass:
                     document._l10n_ec_validations_to_posted()
