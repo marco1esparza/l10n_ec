@@ -8,7 +8,7 @@ from lxml import etree
 import base64
 
 from odoo.addons.l10n_ec_edi.models.common_methods import get_SRI_normalized_text, clean_xml, validate_xml_vs_xsd, XSD_SRI_110_FACTURA, XSD_SRI_110_NOTA_CREDITO, XSD_SRI_110_LIQ_COMPRA
-from odoo.addons.l10n_ec_edi.models.amount_to_words import amount_to_words_es
+from odoo.addons.l10n_ec_edi.models.amount_to_words import l10n_ec_amount_to_words
 
 from suds.client import Client #para los webservices, pip install suds-community
 DEFAULT_ECUADORIAN_DATE_FORMAT = '%d-%m-%Y'
@@ -544,10 +544,10 @@ class AccountEdiDocument(models.Model):
         if self.move_id.invoice_payment_term_id.name:
            self. create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'formaPago'}, text=self.move_id.invoice_payment_term_id.name)
         if type != 'in_invoice':
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'totalLetras'}, text=amount_to_words_es(self.move_id.amount_total))
+            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'totalLetras'}, text=l10n_ec_amount_to_words(self.move_id.amount_total))
         else:
             if document_type.code in ('03','41'):
-                self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'totalLetras'}, text=amount_to_words_es(self.move_id.l10n_ec_total_with_tax))
+                self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'totalLetras'}, text=l10n_ec_amount_to_words(self.move_id.l10n_ec_total_with_tax))
         return factura
         
     def create_TreeElements(self, _parent,_tags_text):
@@ -591,10 +591,10 @@ class AccountEdiDocument(models.Model):
         if self.move_id.invoice_payment_term_id.name:
             additional_info.append('Forma de Pago: %s' % self.move_id.invoice_payment_term_id.name)
         if self.move_id.move_type != 'in_invoice':
-            additional_info.append('Monto Letras: %s' % amount_to_words_es(self.move_id.amount_total))
+            additional_info.append('Monto Letras: %s' % l10n_ec_amount_to_words(self.move_id.amount_total))
         else:
             if self.move_id.l10n_latam_document_type_id.code in ('03','41'):
-                additional_info.append('Monto Letras: %s' % amount_to_words_es(self.move_id.l10n_ec_total_with_tax))
+                additional_info.append('Monto Letras: %s' % l10n_ec_amount_to_words(self.move_id.l10n_ec_total_with_tax))
         return additional_info
 
     def _l10n_ec_map_tax_groups(self, tax_id):

@@ -55,7 +55,7 @@ def convert_number(n):
             output += '%s%s' % (DECENAS[int(n[1])-2], UNIDADES[int(n[2])])
     return output
 
-def amount_to_words_es(j):
+def l10n_ec_amount_to_words(j):
     '''
     Separa la parte entera de la fraccionaria del valor recibido
     '''

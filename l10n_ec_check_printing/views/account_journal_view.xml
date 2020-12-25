@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="view_account_journal_checks" model="ir.ui.view">
+		<field name="name">view.account.journal.checks</field>
+		<field name="model">account.journal</field>
+		<field name="inherit_id" ref="account_check_printing.view_account_journal_form_inherited"/>
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='check_next_number']" position="after">
+				<field name="l10n_ec_check_printing_layout_id"/>
+				<field name="l10n_ec_check_margin_top"/>
+				<field name="l10n_ec_check_margin_left"/>
+			</xpath>
+		</field>
+	</record>
+	
+</odoo>
