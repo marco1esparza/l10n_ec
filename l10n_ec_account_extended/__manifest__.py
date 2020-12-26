@@ -32,5 +32,6 @@
         'views/menu_view.xml',
     ],
     'installable': True,
+    'auto_install': True,
     'application': True,
 }
