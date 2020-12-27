@@ -31,7 +31,7 @@ class AccountPayment(models.Model):
         if not check_layout:
             raise ValidationError(_("Something went wrong with Check Layout, please select another layout in Invoicing/Configuration/Journals and try again."))
         self.write({'is_move_sent': True})
-        return report_action.report_action(self)
+        return check_layout.report_action(self)
     
     @api.constrains('check_number', 'journal_id')
     def _constrains_check_number(self):
