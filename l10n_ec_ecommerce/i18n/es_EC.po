@@ -24,4 +24,4 @@ msgstr "RUC/Cédula/Pasaporte"
 #. module: website_sale
 #: model_terms:ir.ui.view,arch_db:website_sale.address_b2b
 msgid "Company Name"
-msgstr "Nombre Empresa (para emitir la factura)"
+msgstr "Nombre para emitir la factura"

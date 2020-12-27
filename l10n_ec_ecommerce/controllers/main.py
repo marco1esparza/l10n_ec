@@ -9,5 +9,6 @@ class WebsiteSale(WebsiteSale):
     def _get_mandatory_billing_fields(self):
         result = super()._get_mandatory_billing_fields()
         if request.website.company_id.country_code == 'EC':
-            result.append("company_name","vat")
+            result.append('company_name')
+            result.append('vat')
         return result
