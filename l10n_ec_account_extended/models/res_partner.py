@@ -4,6 +4,56 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 
+#pache temporal hasta que odoo fusione https://github.com/TRESCLOUD/odoo/pull/529/files
+_ref_vat = {
+    'al': 'ALJ91402501L',
+    'ar': 'AR200-5536168-2 or 20055361682',
+    'at': 'ATU12345675',
+    'au': '83 914 571 673',
+    'be': 'BE0477472701',
+    'bg': 'BG1234567892',
+    'ch': 'CHE-123.456.788 TVA or CHE-123.456.788 MWST or CHE-123.456.788 IVA',  # Swiss by Yannick Vaucher @ Camptocamp
+    'cl': 'CL76086428-5',
+    'co': 'CO213123432-1 or CO213.123.432-1',
+    'cy': 'CY10259033P',
+    'cz': 'CZ12345679',
+    'de': 'DE123456788',
+    'dk': 'DK12345674',
+    'do': 'DO1-01-85004-3 or 101850043',
+    'ec': '1792366836001 or 0103647616 or 9999999999999', #Ecuador by Andres Calle @ Trescloud
+    'ee': 'EE123456780',
+    'el': 'EL12345670',
+    'es': 'ESA12345674',
+    'fi': 'FI12345671',
+    'fr': 'FR23334175221',
+    'gb': 'GB123456782',
+    'gr': 'GR12345670',
+    'hu': 'HU12345676',
+    'hr': 'HR01234567896',  # Croatia, contributed by Milan Tribuson
+    'ie': 'IE1234567FA',
+    'in': "12AAAAA1234AAZA",
+    'is': 'IS062199',
+    'it': 'IT12345670017',
+    'lt': 'LT123456715',
+    'lu': 'LU12345613',
+    'lv': 'LV41234567891',
+    'mc': 'FR53000004605',
+    'mt': 'MT12345634',
+    'mx': 'MXGODE561231GR8 or GODE561231GR8',
+    'nl': 'NL123456782B90',
+    'no': 'NO123456785',
+    'pe': '10XXXXXXXXY or 20XXXXXXXXY or 15XXXXXXXXY or 16XXXXXXXXY or 17XXXXXXXXY',
+    'pl': 'PL1234567883',
+    'pt': 'PT123456789',
+    'ro': 'RO1234567897',
+    'rs': 'RS101134702',
+    'ru': 'RU123456789047',
+    'se': 'SE123456789701',
+    'si': 'SI12345679',
+    'sk': 'SK2022749619',
+    'sm': 'SM24165',
+    'tr': 'TR1234567890 (VERGINO) or TR17291716060 (TCKIMLIKNO)'  # Levent Karakas @ Eska Yazilim A.S.
+}
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
@@ -39,28 +89,6 @@ class ResPartner(models.Model):
         if self.bypass_vat_validation:
             return True
         return super(ResPartner, self).check_vat_ec(vat)
-    
-    def l10n_ec_ecommerce_autoselect_vat_type(self):
-        #smart detect vat type, usefull for ecommerce
-        if not self.env.user.company_id.country_code == 'EC':
-            return True #do nothing
-        #TODO evaluar caso de un contacto... no se debe hacer nada
-        #TODO BYPASS POR DEFECTO para ecommerce
-        new_vat = vals.get('vat')
-        new_identification_type = vals.get('l10n_latam_identification_type')
-        if new_vat and not new_identification_type:
-            #when identification_type not provided attempt to guess the type
-            partner_country = vals.get('country_id') or self.country_id
-            new_identification_type = it_fid #cédula extranjera
-            if partner_country == False or partner_country.country_code == 'EC': 
-                if len(new_vat) == 10:
-                    new_identification_type = ec_dni
-                if len(new_vat) == 13:
-                    new_identification_type = ec_ruc
-            vals.update({
-                'l10n_latam_identification_type': new_identification_type
-                })
-        return vals
     
     @api.model
     def default_get(self, default_fields):

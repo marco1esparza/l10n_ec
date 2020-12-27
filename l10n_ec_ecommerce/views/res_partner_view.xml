@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="view_partner_property_form_l10n_ec_extended" model="ir.ui.view">
+		<field name="name">view.partner.property.form.l10n_ec.extended</field>
+		<field name="model">res.partner</field>
+		<!-- <field name="inherit_id" ref="l10n_latam_base.view_partner_latam_form"/>  -->
+		<field name="inherit_id" ref="account.view_partner_property_form"/>
+		<field name="arch" type="xml">
+		
+		
+		
+			<xpath expr="//field[@name='name']" position="after">
+				<separator/>
+				<field name="l10n_ec_commercial_name" placeholder="Commercial Name" attrs="{'invisible':[('company_type','=','person')]}"/>
+			</xpath>
+			
+			<xpath expr="//field[@name='vat']" position="after">
+				<field name="bypass_vat_validation" attrs="{'readonly': [('parent_id','!=',False)]}" widget="boolean_toggle"/>
+			</xpath>			
+			
+			<xpath expr="//field[@name='property_supplier_payment_term_id']" position="after">
+				<field name="property_l10n_ec_profit_withhold_tax_id"/>
+				<button name='l10n_ec_change_to_microenterprise' string="Cambiar a Microempresa" 
+					type="object"
+					confirm="¿Está seguro que quiere convertir este cliente a microempresa? Si acepta, se configurará el impuesto 346 (Microempresas 1.75)"/>
+			</xpath>
+			
+		</field>
+	</record>
+
+</odoo>
