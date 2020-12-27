@@ -7,9 +7,7 @@
 		<!-- <field name="inherit_id" ref="l10n_latam_base.view_partner_latam_form"/>  -->
 		<field name="inherit_id" ref="account.view_partner_property_form"/>
 		<field name="arch" type="xml">
-		
-		
-		
+			
 			<xpath expr="//field[@name='name']" position="after">
 				<separator/>
 				<field name="l10n_ec_commercial_name" placeholder="Commercial Name" attrs="{'invisible':[('company_type','=','person')]}"/>
@@ -24,6 +22,10 @@
 				<button name='l10n_ec_change_to_microenterprise' string="Cambiar a Microempresa" 
 					type="object"
 					confirm="¿Está seguro que quiere convertir este cliente a microempresa? Si acepta, se configurará el impuesto 346 (Microempresas 1.75)"/>
+			</xpath>
+			
+			<xpath expr="//field[@name='country_id']" position="attributes">
+				<attribute name="attrs">{'readonly': [('type', '=', 'contact'),('parent_id', '!=', False)], 'required': True}</attribute>
 			</xpath>
 			
 		</field>
