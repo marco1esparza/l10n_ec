@@ -21,6 +21,9 @@ class ResPartner(models.Model):
         help=u'Algunas cédulas antiguas no cumplen el formato, éste campo'
              u' permite ignorar la validación hecha al campo CI/RUC/Pass.'
         )
+    country_id = fields.Many2one(
+        default=lambda self: self.env.company_id.country_id.id
+        )
     
     @api.model
     def _commercial_fields(self):
@@ -101,6 +104,3 @@ class ResPartner(models.Model):
                 "No se encuentra un impuesto con código 346, por favor configure correctamente el impuesto"
                 )
         self.property_l10n_ec_profit_withhold_tax_id = tax_id
-
-        
-
