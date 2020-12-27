@@ -420,3 +420,15 @@ msgid ""
 "¿Está seguro que quiere convertir este cliente a microempresa? Si acepta, se"
 " configurará el impuesto 346 (Microempresas 1.75)"
 msgstr ""
+
+# Parche temporal hasta que Odoo fusione https://github.com/TRESCLOUD/odoo/pull/529/files
+#. module: base_vat
+#: code:addons/base_vat/models/res_partner.py:134
+#, python-format
+msgid ""
+"The VAT number [%s] for partner [%s] does not seem to be valid. \n"
+"Note: the expected format is %s"
+msgstr ""
+"El número de RUC/Céd [%s] para la empresa [%s] parece no ser valido. \n"
+"Nota: el formato esperado es %s"
+
