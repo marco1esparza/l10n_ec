@@ -39,7 +39,7 @@ class AccountRefundClient(models.Model):
                     #cubre otros casos no determinados
                     res['value']['transaction_type'] = 'Proveedor en reembolso no tiene asignado una identificacion correcta (CEDULA/RUC/PASAPORTE).'
                     res['value']['transaction_type'] += ' Documento ' + str(self.move_id.l10n_latam_document_number or '')
-                    res['value']['transaction_type'] += ' Proveedor ' + commercial_partner.name
+                    res['value']['transaction_type'] += ' Proveedor ' + commercial_partner.commercial_company_name
             else: #VENTAS
                 res['value']['transaction_type'] = 'No Aplica Para Ventas'
             if self.move_id.move_type == 'out_invoice':
@@ -191,7 +191,7 @@ class AccountRefundClient(models.Model):
                     #cubre otros casos no determinados
                     refund.transaction_type = 'Proveedor en reembolso no tiene asignado una identificacion correcta (CEDULA/RUC/PASAPORTE).'
                     refund.transaction_type += ' Documento ' + str(refund.move_id.l10n_latam_document_number or '')
-                    refund.transaction_type += ' Proveedor ' + commercial_partner.name
+                    refund.transaction_type += ' Proveedor ' + commercial_partner.commercial_company_name
             else: #caso de ventas
                 refund.transaction_type = 'No Aplica Para Ventas'
 

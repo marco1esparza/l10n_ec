@@ -47,14 +47,21 @@ class AccountTaxReportWizard(models.TransientModel):
         Obtener informacion de impuestos.
         '''
         params = []
-        sql = """select ai.id as invoice_id, ai.move_type, t.id as tax_id, t.tax_group_id, t.name as taxname, 
-            abs(ait.tax_base_amount) as base,
-            abs(ait.balance) as amount, 
-            ait.account_id, abs(t.amount) as perc 
-              from account_move ai 
-                  join account_move_line ait on ai.id = ait.move_id and exclude_from_invoice_tab
-                  join account_tax t on ait.tax_line_id = t.id 
-              WHERE ai.state IN ('posted') """
+        sql = """
+            select
+                ai.id as invoice_id,
+                ai.move_type,
+                t.id as tax_id,
+                t.tax_group_id,
+                t.name as taxname,
+                abs(ait.tax_base_amount) as base,
+                abs(ait.balance) as amount,
+                ait.account_id,
+                abs(t.amount) as perc
+            from account_move ai
+                join account_move_line ait on ai.id = ait.move_id and exclude_from_invoice_tab
+                join account_tax t on ait.tax_line_id = t.id
+            where ai.state in ('posted') """
         if self.date_from:
             sql += " AND ai.invoice_date >= %s "
             params.append(self.date_from)
@@ -94,12 +101,20 @@ class AccountTaxReportWizard(models.TransientModel):
         '''
         group = {}
         for tax in invoice_taxes:
+            base = tax[5]
+            amount = tax[6]
+            l10n_ec_type = self.env['account.tax.group'].browse(tax[3]).l10n_ec_type
+            if tax[1] == 'out_refund':
+                base *= -1
+                amount *= -1
+            if l10n_ec_type in ('withhold_vat', 'withhold_income_tax'):
+                amount *= -1
             invoice = {'invoice_id': tax[0],
                        'tax_id': tax[2],
                        'tax_name': tax[4],
                        'tax_group_id': tax[3],
-                       'base': tax[5],
-                       'amount': tax[6],
+                       'base': base,
+                       'amount': amount,
                        'perc': tax[8],
                        'account_id': tax[7],
                        'type': tax[1]
@@ -108,9 +123,9 @@ class AccountTaxReportWizard(models.TransientModel):
             values.update({
                 'tax_id': tax[2],
                 'tax_name': tax[4],
-                'base': values['base'] + (tax[5]),
+                'base': values['base'] + base,
+                'amount': values['amount'] + amount,
                 'perc': tax[8],
-                'amount': values['amount'] + (tax[6]),
                 'tax_group_id': tax[3],
                 'invoice_ids': values['invoice_ids'] + [invoice]
             })
@@ -144,8 +159,8 @@ class AccountTaxReportWizard(models.TransientModel):
                                                                        'tax_group_id': invoice['tax_group_id'],
                                                                        'account_id': invoice['account_id'],
                                                                        'base': invoice['base'],
-                                                                       'perc': invoice['perc'],
                                                                        'amount': invoice['amount'],
+                                                                       'perc': invoice['perc'],
                                                                        'currency_id': self.company_id.currency_id.id})
 
             action = {
