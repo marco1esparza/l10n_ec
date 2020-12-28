@@ -18,8 +18,4 @@
         <field name="attachment_use">True</field>
     </record>
 
-    <record id="account.account_invoices_without_payment" model="ir.actions.report">
-        <field name="attachment_use">True</field>
-    </record>
-
 </odoo>

@@ -3,7 +3,7 @@
     <data noupdate="0">
 
         <record id="l10n_ec_email_template_edi_document" model="mail.template">
-            <field name="name">EDI Documents: Send by email</field>
+            <field name="name">Withholding: Send by email</field>
             <field name="model_id" ref="account.model_account_move"/>
             <field name="email_from">${(object.invoice_user_id.email_formatted or user.email_formatted) |safe}</field>
             <field name="partner_to">${object.partner_id.id}</field>
@@ -48,7 +48,7 @@
 </div>
             </field>
             <field name="report_template" ref="account.account_invoices"/>
-            <field name="report_name">Document_${(object.name or '').replace('/','_')}${object.state == 'draft' and '_draft' or ''}</field>
+            <field name="report_name">${(object.name or '').replace('/','_')}${object.state == 'draft' and '_draft' or ''}</field>
             <field name="lang">${object.partner_id.lang}</field>
             <field name="auto_delete" eval="True"/>
         </record>

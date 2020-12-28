@@ -3,7 +3,7 @@
 
 {
     'name': 'Facturas ecuatorianas',
-    'version': '1.3',
+    'version': '1.6',
     'summary': 'SRI electronic documents, invoices, credit notes, debit notes, RIDEs, tributary documents, printer points, etc',
     'category': 'Localization',
     'description': '''
@@ -52,4 +52,6 @@
     ],
     'installable': True,
     'auto_install': True,
+    # Para modificar la plantilla de correo de Facturas.
+    'post_init_hook': '_change_email_template_edi_invoice',
 }
