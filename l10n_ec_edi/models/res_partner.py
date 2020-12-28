@@ -40,7 +40,7 @@ class ResPartner(models.Model):
         if self.commercial_partner_id:
             self = self.commercial_partner_id
         return {
-            'invoice_name': self.name,
+            'invoice_name': self.commercial_company_name,
             'invoice_vat': self.vat,
             'invoice_address': ' '.join([value for value in [self.street, self.street2] if value]),
             'invoice_phone': self.phone or self.mobile,
