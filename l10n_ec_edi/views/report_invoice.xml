@@ -102,7 +102,7 @@
 
             <table name="social_reason" class="table table-condensed w-100" style="font-size:10px;">
                 <tr>
-                    <td class="p-1 text-center w-50"><strong>Company Name / Name and Surname: </strong><span t-field="o.partner_id"/></td>
+                    <td class="p-1 text-center w-50"><strong>Company Name / Name and Surname: </strong><span t-field="o.partner_id.commercial_partner_id.commercial_company_name"/></td>
                     <td class="p-1 text-center w-50"><strong>Identification: </strong><span t-field="o.partner_id.vat"/></td>
                 </tr>
                 <tr>
