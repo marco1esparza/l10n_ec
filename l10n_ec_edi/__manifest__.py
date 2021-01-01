@@ -36,6 +36,7 @@
         'data/account_edi_format_data.xml',
         'data/l10n_ec_sri_tax_support_data.xml',
         'data/l10n_latam_document_type_data.xml',
+        'data/mail_template_data.xml',
         #Security
         'security/ir.model.access.csv',
         'security/l10n_ec_multicompany_security.xml',
@@ -52,6 +53,4 @@
     ],
     'installable': True,
     'auto_install': True,
-    # Para modificar la plantilla de correo de Facturas.
-    'post_init_hook': '_change_email_template_edi_invoice',
 }

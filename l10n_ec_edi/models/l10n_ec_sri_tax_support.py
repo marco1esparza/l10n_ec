@@ -58,6 +58,14 @@ class L10nEcSRITaxSupport(models.Model):
         track_visibility='onchange',
         help='This field determines whether the tax support is active or not'
         )
+    l10n_latam_document_type_ids = fields.Many2many(
+        'l10n_latam.document.type',
+        'document_type_sri_tax_support_rel',
+        'tax_support_id',
+        'document_type_id',
+        string='Document Type',
+        help=''
+    )
     
 
 class L10nLatamDocumentType(models.Model):
