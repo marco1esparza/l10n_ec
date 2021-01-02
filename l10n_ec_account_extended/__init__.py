@@ -17,7 +17,7 @@ def _assign_default_company_tax(cr, registry):
         if not company.l10n_ec_fallback_profit_withhold_goods:
             tax = env['res.company'].search([
                 ('company_id', '=', company.id),
-                ('name', '=', '312 1.75% TRANSFERENCIA DE BIENES MUEBLES DE NATURALEZA CORPORAL')
+                ('l10n_ec_code_ats', '=', '312')
             ])
             if tax:
                 company.write({
@@ -27,7 +27,7 @@ def _assign_default_company_tax(cr, registry):
         if not company.l10n_ec_fallback_profit_withhold_services:
             tax = env['res.company'].search([
                 ('company_id', '=', company.id),
-                ('name', '=', '3440 2.75% OTRAS RETENCIONES APLICABLES EL 2,75%')
+                ('l10n_ec_code_ats', '=', '3440')
             ])
             if tax:
                 company.write({
@@ -37,7 +37,7 @@ def _assign_default_company_tax(cr, registry):
     if not company.l10n_ec_profit_withhold_tax_credit_card:
         tax = env['res.company'].search([
             ('company_id', '=', company.id),
-            ('name', '=', '332G 0% PAGOS CON TARJETA DE CREDITO')
+            ('name', '=', '332G')
         ])
         if tax:
             company.write({

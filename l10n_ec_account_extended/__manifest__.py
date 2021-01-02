@@ -34,6 +34,6 @@
     'installable': True,
     'auto_install': True,
     'application': True,
-    # Para modificar la plantilla de correo de Facturas.
+    # Post Init para asignacion de impuesto a compañia.
     'post_init_hook': '_assign_default_company_tax',
 }
