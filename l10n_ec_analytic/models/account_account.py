@@ -29,7 +29,6 @@ class AccountAccount(models.Model):
         _ANALYTIC_POLICY,
         string='Política para las cuentas analíticas',
         required=True,
-        default='optional',
         help='Establecer la política para cuentas analíticas:\n'
         '* Si selecciona "Opcional", el contable tendrá la libertad de poner una cuenta analítica en un apunte contable de esta cuenta.\n'
         '* Si selecciona "Siempre", el contable recibirá un mensaje de error si no hay cuenta analítica.\n'
