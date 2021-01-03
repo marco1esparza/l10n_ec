@@ -15,8 +15,7 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
-        'sale_stock_analytic',
-        'stock_inventory_analytic'
+        'l10n_ec'
     ],
     'data': [
         #Views
