@@ -7,9 +7,8 @@
     'category': 'Stock',
     'summary': 'Cuentas analíticas en inventario',
     'description': '''
-        Este metodo agrega la cuenta analítica en la cabecera de los picking, la política analítica
-        en las cuentas contables y validaciones de cuentas analíticas en el proceso de creación de
-        apuntes contables.
+        Este metodo agrega la cuenta analítica en la cabecera de los picking y validaciones
+        de cuentas analíticas en el proceso de creación de apuntes contables.
     ''',
     'author': 'TRESCLOUD',
     'maintainer': 'TRESCLOUD CIA. LTDA.',
@@ -17,13 +16,11 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
-        'sale_stock_analytic',
-        'stock_inventory_analytic'
+        'l10n_ec_analytic'
     ],
     'data': [
         #Views
-        'views/stock_picking_view.xml',
-        'views/account_account_view.xml'
+        'views/stock_picking_view.xml'
     ],
     'installable': True
 }
