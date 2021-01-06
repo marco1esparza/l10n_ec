@@ -29,6 +29,7 @@
         'views/res_company_view.xml',
         'views/res_partner_view.xml',
         'views/menu_view.xml',
+        'views/res_users_view.xml',
         #wizard
         'wizard/account_move_reversal_view.xml',
     ],

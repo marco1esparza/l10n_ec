@@ -14,8 +14,8 @@ class AccountPayment(models.Model):
     def _compute_check_amount_in_words(self):
         #overwrite Odoo core, Ecuadorian way is not currently supported by Odoo or num2words
         for pay in self:
-            if not self.country_code == 'EC':
-                return super(AccountPayment, self)._compute_check_amount_in_words()
+            if not pay.country_code == 'EC':
+                return super(AccountPayment, pay)._compute_check_amount_in_words()
             if pay.currency_id and pay.payment_method_id.code == 'check_printing':
                 pay.check_amount_in_words = l10n_ec_amount_to_words(pay.amount)
             else:
@@ -38,12 +38,13 @@ class AccountPayment(models.Model):
         #extra validations for Ecuador
         #TODO, el core de Odoo en estado borrador permite numeros de cheque duplicado, bug reportado #xxxxxx
         #      si no lo arreglan ellos tendremos que arreglarlo nosotros
-        if self.country_code == 'EC':
-            if not self.check_number:
-                return
-            if len(self.check_number) != 6:
-                raise ValidationError(_('Ecuadorian check numbers must have 6 digits, you should add some zeros to the left?'))
-            if not self.check_number.isnumeric():
-                raise ValidationError(_('Ecuadorian check numbers must be a positive number'))
+        for pay in self:
+            if pay.country_code == 'EC':
+                if not pay.check_number:
+                    return
+                if len(pay.check_number) != 6:
+                    raise ValidationError(_('Ecuadorian check numbers must have 6 digits, you should add some zeros to the left?'))
+                if not pay.check_number.isnumeric():
+                    raise ValidationError(_('Ecuadorian check numbers must be a positive number'))
         return super(AccountPayment, self)._constrains_check_number()
     

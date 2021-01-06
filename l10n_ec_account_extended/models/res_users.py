@@ -8,10 +8,11 @@ from odoo.exceptions import UserError, ValidationError
 class Users(models.Model):
     _inherit = 'res.users'
     
-    #TODO V15, moverlo al l10n_ec_account_extended
-    l10n_ec_printer_id = fields.Many2one(
+    property_l10n_ec_printer_id = fields.Many2one(
         'l10n_ec.sri.printer.point',
+        company_dependent=True,
         string='Default Printer Point',
+        domain="[('company_id', '=', current_company_id)]",
         ondelete='restrict',
         help='Punto de emisión asignado al usuario, por ejemplo 001-001'
         )

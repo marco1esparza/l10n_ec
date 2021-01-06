@@ -9,7 +9,6 @@ from . import l10n_ec_sri_tax_support
 from . import ir_sequence
 from . import l10n_ec_digital_signature
 from . import res_company
-from . import res_users
 from . import res_partner #TODO move l10n_ec_commercial_name to l10n_ec_account_extended
 from . import l10n_ec_payment_method
 from . import account_move
