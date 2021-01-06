@@ -22,7 +22,6 @@
     ],   
     'data': [
         #Data
-        #wizard
         #Views
         'views/account_move_view.xml',
         'views/account_payment_view.xml',
@@ -30,6 +29,8 @@
         'views/res_company_view.xml',
         'views/res_partner_view.xml',
         'views/menu_view.xml',
+        #wizard
+        'wizard/account_move_reversal_view.xml',
     ],
     'installable': True,
     'auto_install': True,

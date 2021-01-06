@@ -15,7 +15,7 @@ def _assign_default_company_tax(cr, registry):
     company_ids = env['res.company'].search([])
     for company in company_ids:
         if not company.l10n_ec_fallback_profit_withhold_goods:
-            tax = env['res.company'].search([
+            tax = env['account.tax'].search([
                 ('company_id', '=', company.id),
                 ('l10n_ec_code_ats', '=', '312')
             ])
@@ -25,7 +25,7 @@ def _assign_default_company_tax(cr, registry):
                 })
 
         if not company.l10n_ec_fallback_profit_withhold_services:
-            tax = env['res.company'].search([
+            tax = env['account.tax'].search([
                 ('company_id', '=', company.id),
                 ('l10n_ec_code_ats', '=', '3440')
             ])
@@ -35,11 +35,11 @@ def _assign_default_company_tax(cr, registry):
                 })
 
     if not company.l10n_ec_profit_withhold_tax_credit_card:
-        tax = env['res.company'].search([
+        tax = env['account.tax'].search([
             ('company_id', '=', company.id),
             ('name', '=', '332G')
         ])
         if tax:
             company.write({
-                'l10n_ec_fallback_profit_withhold_goods': tax[0].id,
+                'l10n_ec_profit_withhold_tax_credit_card': tax[0].id,
             })
