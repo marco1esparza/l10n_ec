@@ -446,6 +446,23 @@ class AccountMove(models.Model):
 #                     move.write({'name': '/'})
 #         return super().unlink()
     
+    @api.model
+    def _default_l10n_ec_printer_id(self):
+        #Redefine por completo el metodo de l10n_ec_edi, para soportar punto de emision en formulario de usuario
+        if self._context.get('default_l10n_ec_printer_id'):
+            printer_id = self.env['l10n_ec.printer.id'].browse(self._context['default_l10n_ec_printer_id'])
+            return printer_id
+        printer_id = False
+        company_id = self.env.company #self.country_code is still empty
+        if company_id.country_code == 'EC':
+            move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
+            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
+                #regular account.move doesn't need a printer point
+                printer_id = self.env.user.property_l10n_ec_printer_id.id
+                if not printer_id: #search first printer point
+                    printer_id = self.env['l10n_ec.sri.printer.point'].search([('company_id', '=', company_id.id)], order="sequence asc", limit=1)
+        return printer_id
+    
     #columns
     l10n_ec_require_withhold_tax = fields.Boolean(compute='_l10n_ec_compute_require_withhold_tax')
     l10n_ec_require_vat_tax = fields.Boolean(compute='_l10n_ec_compute_require_vat_tax')

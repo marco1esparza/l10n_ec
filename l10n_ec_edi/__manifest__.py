@@ -44,7 +44,6 @@
         'views/l10n_ec_digital_signature_view.xml',
         'views/l10n_ec_payment_method_view.xml',
         'views/res_company_view.xml',
-        'views/res_users_view.xml',
         'views/account_move_view.xml',
         'views/account_report.xml',
         'views/report_invoice.xml',
