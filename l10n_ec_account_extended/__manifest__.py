@@ -36,5 +36,5 @@
     'auto_install': True,
     'application': True,
     # Post Init para asignacion de impuesto a compañia.
-    'post_init_hook': '_assign_default_company_tax',
+    #'post_init_hook': '_assign_default_company_tax',
 }

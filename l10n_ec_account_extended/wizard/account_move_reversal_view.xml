@@ -6,9 +6,9 @@
             <field name="model">account.move.reversal</field>
             <field name="inherit_id" ref="account.view_account_move_reversal"/>
             <field name="arch" type="xml">
-                <field name="refund_method" position="attributes">
+                <xpath expr="//form/group" position="attributes">
                     <attribute name="groups">base.group_no_one</attribute>
-                </field>
+                </xpath>
             </field>
         </record>
     </data>
