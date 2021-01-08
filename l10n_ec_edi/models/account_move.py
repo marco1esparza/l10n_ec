@@ -199,10 +199,7 @@ class AccountMove(models.Model):
  
     @api.model
     def _default_l10n_ec_printer_id(self):
-        '''
-        Este metodo obtiene el punto de emisión configurado en las preferencias del usuario, en caso
-        que no tenga, se obtiene el primer punto de impresion que exista generalmente es el 001-001
-        '''
+        #Gets the first printer point by its sequence as default value, usually 001-001
         if self._context.get('default_l10n_ec_printer_id'):
             printer_id = self.env['l10n_ec.printer.id'].browse(self._context['default_l10n_ec_printer_id'])
             return printer_id
@@ -212,9 +209,7 @@ class AccountMove(models.Model):
             move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
             if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
                 #regular account.move doesn't need a printer point
-                printer_id = self.env.user.l10n_ec_printer_id.id
-                if not printer_id: #search first printer point
-                    printer_id = self.env['l10n_ec.sri.printer.point'].search([('company_id', '=', company_id.id)], order="sequence asc", limit=1)
+                printer_id = self.env['l10n_ec.sri.printer.point'].search([('company_id', '=', company_id.id)], order="sequence asc", limit=1)
         return printer_id
 
     @api.model

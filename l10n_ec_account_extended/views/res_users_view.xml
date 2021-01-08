@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 	
+	<delete id="l10n_ec_edi.view_users_printer_point_form" model="ir.ui.view"/>
+	<delete id="l10n_ec_edi.view_users_simple_modif_printer_point_form" model="ir.ui.view"/>
+	
 	<record id="view_users_simple_modif_printer_point_form" model="ir.ui.view">
 		<field name="name">view.users.simple.modif.printer.point.form</field>
 		<field name="model">res.users</field>
 		<field name="inherit_id" ref="base.view_users_form_simple_modif"/>
 		<field name="arch" type="xml">
 			<xpath expr="//field[@name='tz']" position="after">
-				<field name="l10n_ec_printer_id" options='{"no_open": True, "create":False, "create_edit": False}'/>
+				<field name="property_l10n_ec_printer_id" options='{"no_open": True, "create":False, "create_edit": False}'/>
 			</xpath>
 		</field>
 	</record>
@@ -18,7 +21,7 @@
 		<field name="inherit_id" ref="base.view_users_form"/>
 		<field name="arch" type="xml">
 			<xpath expr="//field[@name='tz']" position="after">
-				<field name="l10n_ec_printer_id"/>
+				<field name="property_l10n_ec_printer_id"/>
 			</xpath>
 		</field>
 	</record>
