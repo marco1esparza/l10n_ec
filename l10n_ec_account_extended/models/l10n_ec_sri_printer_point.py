@@ -2,9 +2,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError, ValidationError
-import re
-
 
 class L10nEcSRIPrinterPoint(models.Model):
     _inherit = 'l10n_ec.sri.printer.point'

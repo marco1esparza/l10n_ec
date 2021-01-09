@@ -19,7 +19,7 @@
                 		{'invisible': ['|', ('l10n_latam_use_documents', '=', False), ('l10n_latam_manual_document_number', '=', False), '|', '|', ('l10n_latam_use_documents', '=', False), ('highest_name', '!=', False), ('state', '!=', 'draft')],
                 		 'required': ['|', ('l10n_latam_manual_document_number', '=', True), ('highest_name', '=', False)],
                 		 'readonly': ['|','&amp;',('posted_before', '=', True),('state', '!=', 'draft'),
-									  '&amp;','&amp;',('posted_before', '=', True),('state', '=', 'draft'),('l10n_latam_manual_document_number', '=', False)]
+						              '&amp;','&amp;',('posted_before', '=', True),('state', '=', 'draft'),('l10n_latam_manual_document_number', '=', False)]
                 		}</attribute>
                 </xpath>
             </field>

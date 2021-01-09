@@ -7,7 +7,7 @@
 		<field name="inherit_id" ref="l10n_ec_edi.view_printer_point_form"/>
 		<field name="arch" type="xml">
 			<xpath expr="//field[@name='allow_electronic_document']" position="after">
-				<field name="automatic_numbering" required="1"/>
+				<field name="automatic_numbering"/>
 			</xpath>
 		</field>
 	</record>
@@ -18,7 +18,7 @@
 		<field name="inherit_id" ref="l10n_ec_edi.view_printer_point_tree"/>
 		<field name="arch" type="xml">
 			<xpath expr="//field[@name='allow_electronic_document']" position="after">
-				<field name="automatic_numbering" required="1"/>
+				<field name="automatic_numbering"/>
 			</xpath>
 		</field>
 	</record>
