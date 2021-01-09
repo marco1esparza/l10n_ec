@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	
+	<record id="view_printer_point_form" model="ir.ui.view">
+		<field name="name">view.printer.point.form</field>
+		<field name="model">l10n_ec.sri.printer.point</field>
+		<field name="inherit_id" ref="l10n_ec_edi.view_printer_point_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='allow_electronic_document']" position="after">
+				<field name="automatic_numbering" required="1"/>
+			</xpath>
+		</field>
+	</record>
+
+	<record id="view_printer_point_tree" model="ir.ui.view">
+		<field name="name">view.printer.point.tree</field>
+		<field name="model">l10n_ec.sri.printer.point</field>
+		<field name="inherit_id" ref="l10n_ec_edi.view_printer_point_tree"/>
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='allow_electronic_document']" position="after">
+				<field name="automatic_numbering" required="1"/>
+			</xpath>
+		</field>
+	</record>
+
+</odoo>

@@ -148,6 +148,14 @@ class AccountMove(models.Model):
                 edi_ec._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
     
+#     def button_draft(self):
+#         #permitir cambiar el numero de facutra cuando se ha digitado mal, en documentos con numeracion manual
+#         for document in self:
+#             if document.l10n_latam_use_documents and document.country_code == 'EC':
+#                 if document.l10n_latam_manual_document_number and document.posted_before:
+#                     document.posted_before = False #para permitir redigitar el numero de factura 
+#         super().button_draft() 
+    
     def generate_withhold_edis(self):
         #como la opcion is_invoice es False para las retenciones, repetimos el codigo que genera los EDIs, extraido de account_edi
         edi_document_vals_list = []
@@ -171,18 +179,17 @@ class AccountMove(models.Model):
         self.edi_document_ids._process_documents_no_web_services()
 
     def _is_manual_document_number(self, journal):
-        for res in self:
-            if res.country_code == 'EC':
-                doc_code = self.l10n_latam_document_type_id and self.l10n_latam_document_type_id.code or ''
-                l10n_ec_type = self.l10n_latam_document_type_id and self.l10n_latam_document_type_id.l10n_ec_type or ''
-                if journal.type == 'purchase' and doc_code not in ['03']:
-                    return True
-                elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
-                    return True
-                else:
-                    return False
+        if self.l10n_latam_use_documents and self.country_code == 'EC':
+            doc_code = self.l10n_latam_document_type_id.code or ''
+            l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
+            if journal.type == 'purchase' and doc_code not in ['03']:
+                return True
+            elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
+                return True
             else:
-                super()._is_manual_document_number(journal)
+                return False
+        else:
+            super()._is_manual_document_number(journal)
     
     def view_credit_note(self):
         [action] = self.env.ref('account.action_move_out_refund_type').read()

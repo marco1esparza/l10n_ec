@@ -84,6 +84,11 @@ msgid "Control del valor de las notas de crédito"
 msgstr ""
 
 #. module: l10n_ec_account_extended
+#: model:ir.model.fields,field_description:l10n_ec_account_extended.field_res_users__property_l10n_ec_printer_id
+msgid "Default Printer Point"
+msgstr ""
+
+#. module: l10n_ec_account_extended
 #: code:addons/l10n_ec_account_extended/models/account_edi_document.py:0
 #, python-format
 msgid "El número de Autorización (%s) debe ser único"
