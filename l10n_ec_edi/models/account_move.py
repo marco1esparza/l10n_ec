@@ -148,14 +148,6 @@ class AccountMove(models.Model):
                 edi_ec._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
     
-#     def button_draft(self):
-#         #permitir cambiar el numero de facutra cuando se ha digitado mal, en documentos con numeracion manual
-#         for document in self:
-#             if document.l10n_latam_use_documents and document.country_code == 'EC':
-#                 if document.l10n_latam_manual_document_number and document.posted_before:
-#                     document.posted_before = False #para permitir redigitar el numero de factura 
-#         super().button_draft() 
-    
     def generate_withhold_edis(self):
         #como la opcion is_invoice es False para las retenciones, repetimos el codigo que genera los EDIs, extraido de account_edi
         edi_document_vals_list = []
