@@ -840,7 +840,7 @@ msgstr "Firma original encriptada"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_other_method
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "Others"
-msgstr "Otros"
+msgstr "Otros con utilización del sistema financiero"
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_company_electronic_form
