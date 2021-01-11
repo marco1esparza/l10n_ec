@@ -99,10 +99,17 @@ class AccountMove(models.Model):
     
     def _is_manual_document_number(self, journal):
         #override for manual entry of invoice numbers, usefull for re-typing documents from old system
-        if self.l10n_latam_use_documents and self.country_code == 'EC': 
-            if not self.l10n_ec_printer_id.automatic_numbering:
-                return True
-        super()._is_manual_document_number(journal)
+        if self.l10n_latam_use_documents and self.country_code == 'EC':
+            doc_code = self.l10n_latam_document_type_id.code or ''
+            l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
+            if self.l10n_ec_printer_id.automatic_numbering:
+                if journal.type == 'sale':
+                    return True
+                elif journal.type == 'purchase' and doc_code in ['03']:
+                    return True
+                elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['in_withhold']:
+                    return True
+        return super()._is_manual_document_number(journal)
         
     @api.depends('l10n_latam_document_type_id', 'journal_id', 'l10n_ec_printer_id')
     def _compute_l10n_latam_manual_document_number(self):
