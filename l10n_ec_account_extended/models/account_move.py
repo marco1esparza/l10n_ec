@@ -102,7 +102,7 @@ class AccountMove(models.Model):
         if self.l10n_latam_use_documents and self.country_code == 'EC':
             doc_code = self.l10n_latam_document_type_id.code or ''
             l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
-            if self.l10n_ec_printer_id.automatic_numbering:
+            if not self.l10n_ec_printer_id.automatic_numbering:
                 if journal.type == 'sale':
                     return True
                 elif journal.type == 'purchase' and doc_code in ['03']:
