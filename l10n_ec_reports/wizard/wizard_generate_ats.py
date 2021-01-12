@@ -248,7 +248,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                       
                     denoProv = doc.createElement('denoProv')
                     detallecompras.appendChild(denoProv)
-                    vdenoProv = get_name_only_characters(in_inv.partner_id.commercial_company_name) #name_in_ascii
+                    vdenoProv = get_name_only_characters(in_inv.partner_id._get_complete_name()) #name_in_ascii
                     denoProv.appendChild(doc.createTextNode(vdenoProv))
                   
                 if len(transaction_type) > 2:
@@ -1077,7 +1077,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 if invoice.l10n_ec_transaction_type == '06':
                     values.update({
                         'tipoCliente': invoice.partner_id.get_invoice_ident_type(), 
-                        'denoCli': get_name_only_characters(invoice.partner_id.commercial_company_name)
+                        'denoCli': get_name_only_characters(invoice.partner_id.get_complete_name())
                     })
                 group_sales[id_partner] = values
         return group_sales
