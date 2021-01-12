@@ -21,6 +21,12 @@ class ResPartner(models.Model):
                 return ruc.is_valid(vat)
         return True
 
+    def _get_complete_name(self):
+        self.ensure_one()
+        if self.commercial_partner_id:
+            self = self.commercial_partner_id
+        return self.commercial_company_name or self.name
+
     def _get_complete_address(self):
         self.ensure_one()
         partner_id = self

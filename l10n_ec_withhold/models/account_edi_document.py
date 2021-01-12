@@ -74,6 +74,8 @@ class AccountEdiDocument(models.Model):
         withhold = etree.Element('comprobanteRetencion', {'id': 'comprobante', 'version': '1.0.0'})
         # CREACION INFO TRIBUTARIA
         infoTributaria = etree.SubElement(withhold, 'infoTributaria')
+        if not self.move_id.company_id.l10n_ec_legal_name:
+            raise UserError('Defina el nombre legal para la compañía "%s".' % (self.move_id.company_id.name))
         infoTribElements = [
             ('ambiente', self.move_id.company_id._get_l10n_ec_environment_type()),
             ('tipoEmision', '1'),
@@ -88,7 +90,7 @@ class AccountEdiDocument(models.Model):
             ('estab', self.move_id.l10n_latam_document_number[0:3]),
             ('ptoEmi', self.move_id.l10n_latam_document_number[4:7]),
             ('secuencial', self.move_id.l10n_latam_document_number[8:]),
-            ('dirMatriz', self.move_id.company_id.street)
+            ('dirMatriz', self.move_id.company_id.partner_id._get_complete_address())
         ])
         self.create_TreeElements(infoTributaria, infoTribElements)
         # CREACION INFO Retencion
