@@ -1077,7 +1077,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 if invoice.l10n_ec_transaction_type == '06':
                     values.update({
                         'tipoCliente': invoice.partner_id.get_invoice_ident_type(), 
-                        'denoCli': get_name_only_characters(invoice.partner_id.get_invoice_partner_data['invoice_name'])
+                        'denoCli': get_name_only_characters(invoice.partner_id.get_complete_name())
                     })
                 group_sales[id_partner] = values
         return group_sales
