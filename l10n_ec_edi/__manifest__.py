@@ -3,7 +3,7 @@
 
 {
     'name': 'Facturas ecuatorianas',
-    'version': '1.3',
+    'version': '1.4',
     'summary': 'SRI electronic documents, invoices, credit notes, debit notes, RIDEs, tributary documents, printer points, etc',
     'category': 'Localization',
     'description': '''
