@@ -33,6 +33,12 @@ class ResPartner(models.Model):
         elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
             code = '08'
         return code
+    
+    def _get_complete_name(self):
+        for partner in self:
+            if partner.commercial_partner_id:
+                partner = partner.commercial_partner_id
+            return partner.commercial_company_name or partner.name
 
     def get_invoice_partner_data(self):
         '''
