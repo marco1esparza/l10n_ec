@@ -18,7 +18,7 @@ _logger = logging.getLogger(__name__)
 
 from odoo.addons.l10n_ec_reports.models.l10n_ec_auxiliar_function import get_name_only_characters
 
-ATS_FILENAME = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'ats_29_08_2016.xsd')
+ATS_FILENAME = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'ats_2020_12_02.xsd')
 ATS_CONTENT = open(ATS_FILENAME, 'rb').read().strip()
 
 #Documentos a reportar al SRI
@@ -78,10 +78,12 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
     @api.onchange('periodicity')
     def onchange_periodicity(self):
         #sets current period depending on periodicity field (monthly or bianual)
+        #alters domain for period depending on periodicity 
         period = False
         current_date = fields.Date.context_today(self)
         current_month = current_date.strftime("%b").lower() # 'dec'
         if self.periodicity == 'monthly':
+            res = {'domain':{'partner_id':[('customer','=',True)]}}
             period = current_month
         elif self.periodicity == 'biannual':
             if current_month in ['jan','feb','mar','apr','may','jun']:
@@ -152,7 +154,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                     'mar': '03', 
                     'apr': '04', 
                     'may': '05', 
-                    'jun': '05',
+                    'jun': '06',
                     'first_semester': 'SEMESTRE1', 
                     'jul': '07', 
                     'aug': '08', 
@@ -172,7 +174,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             'date_start': self.date_start,
             'date_finish': self.date_finish,
             'ats_filename': ats_filename,
-            'errors_filename': 'errores.txt' ,
+            'errors_filename': 'Errores.txt' ,
             # Contenido de los reportes
             'ats_file': base64.encodestring(report_data.toprettyxml(encoding='utf-8')),
             'errors_file': base64.encodestring((u'\n'.join(report_status) or u'').encode('utf-8'))
@@ -195,7 +197,24 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         #2.1 IDENTIFICACION DEL INFORMANTE
         init_total_time = tm()
         company = self.env.user.company_id
-        anio, mes, dia = str(self.date_start).split('-')
+        map_periods = {
+                    'jan': '01', 
+                    'feb': '02', 
+                    'mar': '03', 
+                    'apr': '04', 
+                    'may': '05', 
+                    'jun': '06',
+                    'first_semester': '06', 
+                    'jul': '07', 
+                    'aug': '08', 
+                    'sep': '09', 
+                    'oct': '10', 
+                    'nov': '11', 
+                    'dec': '12',
+                    'second_semester': '12',
+                    }
+        anio = self.year[1:]
+        mes = map_periods[self.period]
         doc = Document()
         if not company.vat:
             report_status.append(u'Ingrese el CI/RUC/PASS de la compañía.')
@@ -1243,22 +1262,27 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         string='Errors File',
         help='Errors file content'
         )
+    
     #Campos básicos
     periodicity = fields.Selection(
         _PERIODICITY,
         string='Periodicidad',
+        required=True,
         help='Indica si el reporte será mensual o semestra, desde enero de 2021 las microempresas pueden reportar semestralmente',
         )
     year = fields.Selection(
         _YEARS,
         string='Año',
+        required=True,
         help='Año sobre el que se reporta',
         )
     period = fields.Selection(
         _PERIODS,
         string='Periodo',
+        required=True,
         help='Periodo sobre el que se reporta',
         )
+     
     date_start = fields.Date(
         string='Fecha Desde',
         help='Campo técnico utilizado para filtrar los documentos a mostrar'

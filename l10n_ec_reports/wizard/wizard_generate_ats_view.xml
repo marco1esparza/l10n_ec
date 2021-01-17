@@ -6,16 +6,16 @@
 		<field name="model">l10n_ec.simplified.transactional.annex</field>
 		<field name="arch" type="xml">
 			<form string="ATS - XML File Generator">
-				<group>
-					<group>
-						<field name="periodicity" required="1"/>
-						<field name="year" required="1"/>
-						<field name="period" required="1"/>
+				<group col="12">
+					<group colspan="4">
+						<field name="periodicity"/>
+						<field name="year"/>
+						<field name="period"/>
 						<field name="date_start" groups="base.group_no_one"/>
 						<field name="date_finish" groups="base.group_no_one"/>
 						<field name="include_electronic_document_in_ats"/>
 					</group>
-					<group>
+					<group colspan="8">
 						<field name="wizard2" invisible="1"/>
 						<field name="report_errors" readonly="1" nolabel="1"
 							style="text-align:justify; color:red" attrs="{'invisible':[('report_errors','=',False)]}"/>
