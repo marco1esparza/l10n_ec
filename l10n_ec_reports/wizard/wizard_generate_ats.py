@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models, _
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 from xml.dom.minidom import Document
@@ -17,38 +17,100 @@ import logging
 _logger = logging.getLogger(__name__)
 
 from odoo.addons.l10n_ec_reports.models.l10n_ec_auxiliar_function import get_name_only_characters
- 
+
 ATS_FILENAME = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'ats_29_08_2016.xsd')
 ATS_CONTENT = open(ATS_FILENAME, 'rb').read().strip()
- 
+
 #Documentos a reportar al SRI
 _LOCAL_PURCHASE_DOCUMENT_CODES = ['01', '02', '03', '04', '05', '09', '11', '12', '19', '20', '21','41', '43', '45', '47', '48']
 _FOREIGN_PURCHASE_DOCUMENT_CODES = ['15']
 _SALE_DOCUMENT_CODES = ['02', '04', '05', '18', '41']
 _WITHHOLD_CODES = ['07']
-
+    
 class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
     _name = 'l10n_ec.simplified.transactional.annex'
-
+    
+    #Fechas y periodos
+    _YEARS = [
+        ('y2017', '2017'),
+        ('y2018', '2018'),
+        ('y2019', '2019'),
+        ('y2020', '2020'),
+        ('y2021', '2021'),
+        ('y2022', '2022'),
+        ('y2023', '2023'),
+        ('y2024', '2024'),
+        ('y2025', '2025'),
+        ('y2026', '2026'),
+        ]
+    _PERIODICITY = [
+        ('monthly', 'Mensual'),
+        ('biannual', 'Semestral'),
+        ]
+    _PERIODS = [
+        ('jan', 'Enero'),
+        ('feb', 'Febrero'),
+        ('mar', 'Marzo'),
+        ('apr', 'Abril'),
+        ('may', 'Mayo'),
+        ('jun', 'Junio'),
+        ('first_semester', 'Primer Semestre (Enero a Junio)'),
+        ('jul', 'Julio'),
+        ('aug', 'Agosto'),
+        ('sep', 'Septiembre'),
+        ('oct', 'Octubre'),
+        ('nov', 'Noviembre'),
+        ('dec', 'Diciembre'),
+        ('second_semester', 'Segundo Semestre (Julio a Diciembre)'),
+        ]
+    
     @api.model
     def default_get(self, fields):
-        '''
-        Invocamos el default_get para popular un valor de la compania
-        '''
+        #Indicate if electronic documents are included in ATS
         res = super(L10nEcSimplifiedTransactionalAannex, self).default_get(fields)
-        res.update({'include_electronic_document_in_ats': self.env.user.company_id.include_electronic_document_in_ats})
+        current_date = date.today() #fields.Date.context_today(self)
+        res.update({
+            'include_electronic_document_in_ats': self.env.user.company_id.include_electronic_document_in_ats,
+            'year': 'y'+str(current_date.year)
+            })
         return res
- 
-    @api.onchange('date_start')
-    def onchange_start_date(self):
-        '''
-        Setea la fecha de inicio y fin
-        '''
-        if not self.date_start:
-            today = datetime.now()
-            self.date_start = datetime.strptime('%s-%s-01' % (today.year,today.month), DF)
-        self.date_finish = datetime.strptime('%s-%s-%s' % (self.date_start.year, self.date_start.month, calendar.monthrange(self.date_start.year, self.date_start.month)[1]), DF)
- 
+    
+    @api.onchange('periodicity')
+    def onchange_periodicity(self):
+        #sets current period depending on periodicity field (monthly or bianual)
+        period = False
+        current_date = fields.Date.context_today(self)
+        current_month = current_date.strftime("%b").lower() # 'dec'
+        if self.periodicity == 'monthly':
+            period = current_month
+        elif self.periodicity == 'biannual':
+            if current_month in ['jan','feb','mar','apr','may','jun']:
+                period = 'first_semester'
+            else:
+                period = 'second_semester'
+        self.period = period
+        
+    @api.onchange('year','period')
+    def onchange_period(self):
+        #sets start and end date depending on year and period
+        date_start = date_end = False
+        if self.year and self.period:
+            if self.period == 'first_semester':
+                date_start = '01/jan/'+self.year[1:]
+                date_end = '30/jun/'+self.year[1:]
+            elif self.period == 'second_semester':
+                date_start = '01/jul/'+self.year[1:]
+                date_end = '31/dec/'+self.year[1:]
+            else: #meses
+                date_start = '01/'+self.period+'/'+self.year[1:]
+                date_start_datetime = datetime.strptime(date_start, '%d/%b/%Y')
+                last_day = calendar.monthrange(date_start_datetime.year, date_start_datetime.month)[1]
+                date_end = str(last_day)+'/'+self.period+'/'+self.year[1:]
+        if date_start:
+            self.date_start = datetime.strptime(date_start, '%d/%b/%Y')
+        if date_end:
+            self.date_finish = datetime.strptime(date_end, '%d/%b/%Y')        
+  
     def act_generate_ats(self):
         '''
         Este método acumula los errores que saltaron en la validación del ATS y levanta un segundo wizard
@@ -83,10 +145,27 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                                  u'Los detalles del error son los siguientes: ' + str(e))
             ctx.update({'report_errors': True})
         view = self.env.ref('l10n_ec_reports.view_wizard_ats_form')
-        anio, mes, dia = str(self.date_start).split('-')
-        ats_filename = 'ATS' + str(mes) + str(anio) + '.xml'
+        #set a nice name for file
+        map_periods = {
+                    'jan': '01', 
+                    'feb': '02', 
+                    'mar': '03', 
+                    'apr': '04', 
+                    'may': '05', 
+                    'jun': '05',
+                    'first_semester': 'SEMESTRE1', 
+                    'jul': '07', 
+                    'aug': '08', 
+                    'sep': '09', 
+                    'oct': '10', 
+                    'nov': '11', 
+                    'dec': '12',
+                    'second_semester': 'SEMESTRE2',
+                    }
+        ats_filename = 'ATS_' + self.company_id.vat + '_' + self.year[1:] + '_' + map_periods[self.period]
         if self.include_electronic_document_in_ats:
-            ats_filename = 'ATS' + str(mes) + str(anio) + '_con_rets_electrónicas.xml'
+            ats_filename += '_RETS'
+        ats_filename += '.xml'
         self.write({
             'report_errors': self.with_context(ctx)._report_errors(),
             'wizard2': True,
@@ -1165,13 +1244,28 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         help='Errors file content'
         )
     #Campos básicos
+    periodicity = fields.Selection(
+        _PERIODICITY,
+        string='Periodicidad',
+        help='Indica si el reporte será mensual o semestra, desde enero de 2021 las microempresas pueden reportar semestralmente',
+        )
+    year = fields.Selection(
+        _YEARS,
+        string='Año',
+        help='Año sobre el que se reporta',
+        )
+    period = fields.Selection(
+        _PERIODS,
+        string='Periodo',
+        help='Periodo sobre el que se reporta',
+        )
     date_start = fields.Date(
         string='Fecha Desde',
-        help=''
+        help='Campo técnico utilizado para filtrar los documentos a mostrar'
         )
     date_finish = fields.Date(
         string='Fecha Hasta',
-        help=''
+        help='Campo técnico utilizado para filtrar los documentos a mostrar'
         )
     report_status = fields.Text(
         string='Report status',
@@ -1189,3 +1283,5 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         string=u'Incluir retenciones electrónicas emitidas a proveedores en el ATS',
         help=u'Active esta opción si desea incluir las retenciones electrónicas emitidas a proveedores en el ATS.'
         )
+    company_id = fields.Many2one('res.company', string='Company', required=True, readonly=True, default=lambda self: self.env.company,
+        help="Company related to this report")
