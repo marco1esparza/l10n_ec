@@ -212,9 +212,14 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             main.appendChild(compras)
             for in_inv in purchase_invoice_ids:
                 #La factura que lleve retencion y no la tenga, debe ser reportada para su posterior revision
-                if in_inv.line_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type in ['withhold_vat','withhold_income_tax']):
-                    if not in_inv.l10n_ec_withhold_ids or not in_inv.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted'):
-                        report_status.append(u'Factura ' + str(in_inv.l10n_latam_document_number) + u' no tiene retencion')
+                #se excluyen las "(02) Nota o Boleta de Venta", quizas se requiera agregar mas exclusiones
+                #para cubir casos no identificados al momento. Las siguientes 4 lineas de code no existen
+                #en el ats de v10 se agregan aqui a modo de sustitucion del campo "warning_msgs" que ya no
+                #existe en esta version.
+                if in_inv.l10n_latam_document_type_id.code not in ['02']:
+                    if in_inv.line_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type in ['withhold_vat','withhold_income_tax']):
+                        if not in_inv.l10n_ec_withhold_ids or not in_inv.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted'):
+                            report_status.append(u'Factura ' + str(in_inv.l10n_latam_document_number) + u' no tiene retencion')
                  
                 detallecompras = doc.createElement('detalleCompras')
                 compras.appendChild(detallecompras)
