@@ -100,6 +100,9 @@ class AccountMove(models.Model):
     def is_withholding(self):
         return False
 
+    def is_shipment(self):
+        return False
+
     @api.onchange('partner_id', 'l10n_latam_document_type_id', 'l10n_ec_available_sri_tax_support_ids')
     def _onchange_l10n_ec_available_sri_tax_support_ids(self):
         '''
@@ -120,9 +123,9 @@ class AccountMove(models.Model):
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
         res = super(AccountMove, self)._post(soft)
-        self.generate_withhold_edis() #antes de ejecutar nuestras validaciones, por eso no puede estar en l10n_ec_withhold
+        self.generate_other_documents_edi() #antes de ejecutar nuestras validaciones, por eso no puede estar en l10n_ec_withhold
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
-            if not invoice.is_invoice() and not invoice.is_withholding():
+            if not invoice.is_invoice() and not invoice.is_withholding() and not invoice.is_shipment():
                 raise ValidationError(u'Para Ecuador por favor desactivar la opcion Usa Documentos del Diario %s.' % invoice.journal_id.name)
             if invoice.l10n_latam_document_type_id.l10n_ec_require_vat:
                 if not invoice.partner_id.l10n_latam_identification_type_id:
@@ -148,12 +151,12 @@ class AccountMove(models.Model):
                 edi_ec._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
     
-    def generate_withhold_edis(self):
+    def generate_other_documents_edi(self):
         #como la opcion is_invoice es False para las retenciones, repetimos el codigo que genera los EDIs, extraido de account_edi
         edi_document_vals_list = []
         for move in self:
             for edi_format in move.journal_id.edi_format_ids:
-                is_edi_needed = move.is_withholding() and edi_format._is_required_for_invoice(move)
+                is_edi_needed = (move.is_withholding() or move.is_shipment()) and edi_format._is_required_for_invoice(move)
                 if is_edi_needed:
                     existing_edi_document = move.edi_document_ids.filtered(lambda x: x.edi_format_id == edi_format)
                     if existing_edi_document:
@@ -197,8 +200,8 @@ class AccountMove(models.Model):
         printer_id = False
         company_id = self.env.company #self.country_code is still empty
         if company_id.country_code == 'EC':
-            move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
-            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
+            move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) or self._context.get('default_shipment_type', False) #self.type is not yet populated
+            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold', 'edi_shipment']:
                 #regular account.move doesn't need a printer point
                 printer_id = self.env['l10n_ec.sri.printer.point'].search([('company_id', '=', company_id.id)], order="sequence asc", limit=1)
         return printer_id
@@ -244,6 +247,19 @@ class AccountMove(models.Model):
             invoice.l10n_ec_electronic_method = electronic_method
             invoice.l10n_ec_card_method = card_method
             invoice.l10n_ec_other_method = other_method
+
+    def _get_report_base_filename_ec(self):
+        if not self.is_invoice() and not self.is_withholding() and not self.is_shipment():
+            return _("Only invoices could be printed.")
+
+    def _get_report_base_filename(self):
+        if self.country_code != 'EC':
+            return super()._get_report_base_filename()
+        else:
+            msg = self._get_report_base_filename_ec()
+            if msg:
+                raise UserError(msg)
+        return self._get_move_display_name()
 
     def _get_name_invoice_report(self):
         self.ensure_one()

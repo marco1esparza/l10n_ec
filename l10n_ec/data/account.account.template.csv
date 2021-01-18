@@ -460,3 +460,4 @@ ec520304,520304,DIFERENCIA EN CAMBIO,FALSE,account.data_account_type_expenses,l1
 ec520305,520305,OTROS GASTOS FINANCIEROS,FALSE,account.data_account_type_expenses,l10n_ec_ifrs
 ec520401,520401,PERDIDA EN INVERSIONES EN ASOCIADAS / SUBSIDIARIAS Y OTRAS,FALSE,account.data_account_type_expenses,l10n_ec_ifrs
 ec52040201,52040201,Otros Gastos,FALSE,account.data_account_type_expenses,l10n_ec_ifrs
+ec999,999,(No Usar) Guia Remision Transitoria ,FALSE,account.data_account_type_expenses,l10n_ec_ifrs

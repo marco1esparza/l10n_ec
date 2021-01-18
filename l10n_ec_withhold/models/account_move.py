@@ -438,21 +438,6 @@ class AccountMove(models.Model):
             invoice.l10n_ec_invoice_vat_doce_subtotal = sum(inv.l10n_ec_vat_doce_subtotal for inv in invoice.l10n_ec_withhold_origin_ids)
             invoice.l10n_ec_invoice_amount_untaxed = sum(inv.amount_untaxed for inv in invoice.l10n_ec_withhold_origin_ids)
 
-    def _get_name_invoice_report(self):
-        self.ensure_one()
-        if self.l10n_latam_use_documents and self.company_id.country_id.code == 'EC' \
-                and self.move_type in ('entry') and self.l10n_latam_document_type_id.code in ['07']:
-            return 'l10n_ec_withhold.report_invoice_document'
-        return super()._get_name_invoice_report()
-
-    def _get_report_base_filename(self):
-        if any(not move.is_invoice() and (not move.l10n_latam_document_type_id) for move in self):
-            raise UserError(_("Only invoices could be printed."))
-        elif any(not move.is_invoice() and move.l10n_latam_document_type_id.code not in ['07']
-                 and move.country_code == 'EC' for move in self):
-            raise UserError(_("Only invoices could be printed."))
-        return self._get_move_display_name()
-
     def is_invoice(self, include_receipts=False):
         #Hack, permite enviar por mail documentos distintos de facturas
         is_invoice = super(AccountMove, self).is_invoice(include_receipts)

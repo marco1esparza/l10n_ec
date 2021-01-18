@@ -25,6 +25,7 @@ XSD_SRI_110_FACTURA = _load_xsd(path+'/../resources/sri_110_factura.xsd')
 XSD_SRI_110_NOTA_CREDITO = _load_xsd(path+'/../resources/Nota_Credito_V_1_1_0.xsd')
 XSD_SRI_100_RETENCION = _load_xsd(path+'/../resources/sri_100_retencion.xsd')
 XSD_SRI_110_LIQ_COMPRA = _load_xsd(path+'/../resources/Liquidacion_Compra_V_1_1_0.xsd')
+XSD_SRI_110_GUIA_REMISION = _load_xsd(path+'/../resources/sri_110_guia_remision.xsd')
 
 
 def get_SRI_normalized_text(text):
