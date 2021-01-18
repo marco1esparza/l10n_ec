@@ -364,7 +364,7 @@ class AccountMove(models.Model):
 #                 invoice.fiscal_position_id.transaction_type,
 #             )
             invoice_type = invoice.move_type
-            code = invoice.partner_id._l10n_ec_get_code_by_vat()
+            code = invoice.partner_id.l10n_ec_code
             # Determinamos el pais, para segun el código del país
             # hacer uno o otro procedimiento
             if not invoice.country_code:

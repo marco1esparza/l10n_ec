@@ -8,7 +8,6 @@
 			<form string="ATS - XML File Generator">
 				<group col="12">
 					<group colspan="4">
-						<field name="periodicity"/>
 						<field name="year"/>
 						<field name="period"/>
 						<field name="date_start" groups="base.group_no_one"/>

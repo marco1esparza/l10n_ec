@@ -8,6 +8,7 @@ from xml.dom.minidom import Document
 from lxml import etree
 from datetime import date, datetime
 from time import time as tm
+import dateutil.relativedelta
 import time
 import calendar
 import base64
@@ -43,10 +44,6 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         ('y2025', '2025'),
         ('y2026', '2026'),
         ]
-    _PERIODICITY = [
-        ('monthly', 'Mensual'),
-        ('biannual', 'Semestral'),
-        ]
     _PERIODS = [
         ('jan', 'Enero'),
         ('feb', 'Febrero'),
@@ -67,15 +64,20 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
     @api.model
     def default_get(self, fields):
         #Indicate if electronic documents are included in ATS
+        #Sets the dates for previous month
         res = super(L10nEcSimplifiedTransactionalAannex, self).default_get(fields)
         current_date = date.today() #fields.Date.context_today(self)
+        report_date = current_date - dateutil.relativedelta.relativedelta(months=1) 
+        year = 'y'+str(report_date.year)
+        month = report_date.strftime("%b").lower() #dec
         res.update({
             'include_electronic_document_in_ats': self.env.user.company_id.include_electronic_document_in_ats,
-            'year': 'y'+str(current_date.year)
+            'year': year,
+            'period': month,
             })
         return res
     
-    @api.onchange('periodicity')
+    
     def onchange_periodicity(self):
         #sets current period depending on periodicity field (monthly or bianual)
         #alters domain for period depending on periodicity 
@@ -91,7 +93,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             else:
                 period = 'second_semester'
         self.period = period
-        
+    
+    
     @api.onchange('year','period')
     def onchange_period(self):
         #sets start and end date depending on year and period
@@ -133,7 +136,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                     report_status.append(u'Ocurrieron los siguientes errores durante la validación del reporte ATS. '
                                          u'Contáctese con el administrador del servicio o el soporte técnico '
                                          u'indicándoles con exactitud los siguientes errores ocurridos: \n'
-                                         u'>>> Inicio de errores <<<\n' + schema.error_log +
+                                         u'>>> Inicio de errores <<<\n' + str(schema.error_log) +
                                          u'\n>>> Fin de errores <<<')
                     ctx.update({'report_errors': True})
             except Exception as e:
@@ -204,14 +207,14 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                     'apr': '04', 
                     'may': '05', 
                     'jun': '06',
-                    'first_semester': '06', 
+                    'first_semester': '06', #se reporta como junio
                     'jul': '07', 
                     'aug': '08', 
                     'sep': '09', 
                     'oct': '10', 
                     'nov': '11', 
                     'dec': '12',
-                    'second_semester': '12',
+                    'second_semester': '12', #se reporta como diciembre
                     }
         anio = self.year[1:]
         mes = map_periods[self.period]
@@ -224,8 +227,11 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
  
         ruc = doc.createElement('TipoIDInformante')
         main.appendChild(ruc)
-        ruc.appendChild(doc.createTextNode(company.partner_id.l10n_ec_code))
- 
+        code = company.partner_id.l10n_ec_code
+        ruc.appendChild(doc.createTextNode(code))
+        if not company.partner_id.l10n_latam_identification_type_id == self.env.ref('l10n_ec.ec_ruc'): #RUC
+            report_status.append(u'El tipo de identificación de su compañía debería ser "RUC"')
+        
         IdInformante = doc.createElement('IdInformante')
         main.appendChild(IdInformante)
         IdInformante.appendChild(doc.createTextNode(company.vat or ''))
@@ -241,7 +247,12 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         atsmes = doc.createElement('Mes')
         main.appendChild(atsmes)
         atsmes.appendChild(doc.createTextNode(mes))
-
+        
+        if self.period in ['first_semester','second_semester']:
+            regimenMicroempresa = doc.createElement('regimenMicroempresa')
+            main.appendChild(regimenMicroempresa)
+            regimenMicroempresa.appendChild(doc.createTextNode('SI'))
+        
         suc = []
         printers = self.env['l10n_ec.sri.printer.point'].sudo().search([('company_id','=',self.env.user.company_id.id)])
         for printer in printers:
@@ -378,10 +389,13 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 fechaEmision = doc.createElement('fechaEmision')
                 detallecompras.appendChild(fechaEmision)
                 fechaEmision.appendChild(doc.createTextNode(self._getFormatDates(in_inv.invoice_date)))
-                
+                                
                 autorizacion = doc.createElement('autorizacion')
                 detallecompras.appendChild(autorizacion)
                 autorizacion.appendChild(doc.createTextNode(in_inv.l10n_ec_authorization or ''))
+                #en v14 la autorización es opcional, por tanto controlamos que esté lleanda
+                if not in_inv.l10n_ec_authorization:
+                    report_status.append(in_inv.name + u' no tiene número de autorización o clave de acceso')
      
                 baseNoGraIva = doc.createElement('baseNoGraIva')
                 detallecompras.appendChild(baseNoGraIva)
@@ -619,6 +633,12 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 autRetencion1 = doc.createElement('autRetencion1')
                 detallecompras.appendChild(autRetencion1)
                 autRetencion1.appendChild(doc.createTextNode(str(withhold.l10n_ec_authorization or '').strip()))
+                #en v14 la autorización es opcional, por tanto controlamos que esté lleanda
+                if not withhold.l10n_ec_authorization:
+                    report_status.append(in_inv.name + u' no tiene número de autorización o clave de acceso')
+
+                
+                
  
                 fechaEmiRet1 = doc.createElement('fechaEmiRet1')
                 detallecompras.appendChild(fechaEmiRet1)
@@ -1264,12 +1284,6 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         )
     
     #Campos básicos
-    periodicity = fields.Selection(
-        _PERIODICITY,
-        string='Periodicidad',
-        required=True,
-        help='Indica si el reporte será mensual o semestra, desde enero de 2021 las microempresas pueden reportar semestralmente',
-        )
     year = fields.Selection(
         _YEARS,
         string='Año',
