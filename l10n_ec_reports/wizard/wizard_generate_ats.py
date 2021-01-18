@@ -77,24 +77,6 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             })
         return res
     
-    
-    def onchange_periodicity(self):
-        #sets current period depending on periodicity field (monthly or bianual)
-        #alters domain for period depending on periodicity 
-        period = False
-        current_date = fields.Date.context_today(self)
-        current_month = current_date.strftime("%b").lower() # 'dec'
-        if self.periodicity == 'monthly':
-            res = {'domain':{'partner_id':[('customer','=',True)]}}
-            period = current_month
-        elif self.periodicity == 'biannual':
-            if current_month in ['jan','feb','mar','apr','may','jun']:
-                period = 'first_semester'
-            else:
-                period = 'second_semester'
-        self.period = period
-    
-    
     @api.onchange('year','period')
     def onchange_period(self):
         #sets start and end date depending on year and period
