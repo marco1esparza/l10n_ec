@@ -526,7 +526,7 @@ class AccountMoveLine(models.Model):
 
                         #compute vat withhold
                         if 'vat12' in tax_groups or 'vat14' in tax_groups:
-                            if not self.product_id or self.product_id.type in ['consu']:
+                            if not self.product_id or self.product_id.type in ['consu','product']:
                                 vat_withhold_tax = fiscal_postition_id.l10n_ec_vat_withhold_goods
                             else: #services
                                 vat_withhold_tax = fiscal_postition_id.l10n_ec_vat_withhold_services
