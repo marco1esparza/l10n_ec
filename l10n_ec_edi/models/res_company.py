@@ -45,14 +45,14 @@ class Company(models.Model):
         string='Type of Environment',
         default='2',
         help='Identifica si Odoo emitira los documentos electronicos en un Ambiente de Pruebas o de Produccion'
-    )
+        )
     l10n_ec_digital_cert_id = fields.Many2one(
         'l10n_ec.digital.signature',
         compute='_digital_signature',
         string="Digital Signature",
         ondelete='restrict',
         help='For signing SRI electronic documents, configure one in Accounting / Configuration / Digital Signatures'
-    )
+        )
     l10n_ec_special_contributor_number = fields.Char(
         string='Special Tax Contributor Number',
         help='If set, your company is considered a Special Tax Contributor, this number will be printed in electronic invoices and reports'
@@ -70,7 +70,7 @@ class Company(models.Model):
         required=True,
         help=u"Mostrará el mensaje adicional en el RIDE 'Regimen Contribuyente Regimen Microempresas', utilicelo si su empresa esta en los catastros del SRI.\n"
         u"No tiene efecto en el computo de retenciones del sistema, si desea desactivar las retenciones utilice el campo emitir retenciones\n"
-    )
+        )
     l10n_ec_withhold_agent = fields.Selection(
         [('not_designated', 'Sin designación (sin msgs adicionales en el RIDE)'),
          ('designated_withhold_agent', 'Agente de Retención Designado')],
@@ -79,9 +79,9 @@ class Company(models.Model):
         required=True,
         help=u"Mostrará el mensaje adicional en el RIDE 'Agente de Retención No Resolución 12345' conforme la Resolución Nro. NAC-DGERCGC20-00000057\n"
         u"No tiene efecto en el computo de retenciones del sistema, si desea desactivar las retenciones utilice el campo emitir retenciones\n"
-    )
+        )
     l10n_ec_wihhold_agent_number = fields.Char(
         string=u"Agente Ret. No.",
         help=u"Ultimos digitos del número de resolución del SRI donde se declara que se es agente de retención.\n"
         u"Si el número de Resolución es NAC-DNCRASC20-00001234 entonces ell No. Resolución sería: 1234",
-    )
+        )

@@ -128,15 +128,10 @@ class AccountEdiDocument(models.Model):
             detalle_data.append(('numDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_number.replace('-','')))
             detalle_data.append(('fechaEmisionDocSustento', datetime.strftime(line.move_id.l10n_ec_withhold_origin_ids[0].invoice_date,'%d/%m/%Y')))
             self.create_TreeElements(impuesto, detalle_data)
-        if self.move_id.company_id.l10n_ec_regime == 'micro' or self.move_id.company_id.l10n_ec_withhold_agent  == 'designated_withhold_agent'\
-           or get_invoice_partner_data['invoice_email'] or get_invoice_partner_data['invoice_address']\
+        if get_invoice_partner_data['invoice_email'] or get_invoice_partner_data['invoice_address']\
            or get_invoice_partner_data['invoice_phone']:
             #dentro del if para asegurar que no quede huerfano el label
             infoAdicional = self.create_SubElement(withhold, 'infoAdicional')
-        if self.move_id.company_id.l10n_ec_regime == 'micro':
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'Regimen'}, text=_MICROCOMPANY_REGIME_LABEL)
-        if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'Agente de Retencion'}, text=''.join([u'Resolución Nro. ', self.move_id.company_id.l10n_ec_wihhold_agent_number]))
         if get_invoice_partner_data['invoice_email']:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'email'}, text=get_invoice_partner_data['invoice_email'])
         if get_invoice_partner_data['invoice_address']:
@@ -151,10 +146,6 @@ class AccountEdiDocument(models.Model):
         if self.move_id.is_withholding():
             additional_info = []
             get_invoice_partner_data = self.move_id.partner_id.get_invoice_partner_data()
-            if self.move_id.company_id.l10n_ec_regime == 'micro':
-                additional_info.append('Regimen: %s' % _MICROCOMPANY_REGIME_LABEL)
-            if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
-                additional_info.append('Agente de Retencion: %s' % ''.join([u'Resolución Nro. ', self.move_id.company_id.l10n_ec_wihhold_agent_number]))
             if get_invoice_partner_data['invoice_email']:
                 additional_info.append('Email: %s' % get_invoice_partner_data['invoice_email'])
             if get_invoice_partner_data['invoice_address']:

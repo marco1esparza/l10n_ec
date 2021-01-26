@@ -45,6 +45,21 @@
                                     <t t-else="">No</t>
                                 </td>
                             </tr>
+                            <t t-if="o.company_id.l10n_ec_regime == 'micro'">
+	                            <tr>
+	                                <td class="text-center p-1">
+	                                    CONTRIBUYENTE RÉGIMEN MICROEMPRESAS
+	                                </td>
+	                            </tr>
+                            </t>
+                            <t t-if="o.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent'">
+	                            <tr>
+	                                <td class="text-center p-1">
+	                                    <strong>Agente de Retención Resolución No.:</strong>
+	                                    <span t-field="o.company_id.l10n_ec_wihhold_agent_number"/>
+	                                </td>
+	                            </tr>
+	                        </t>
                         </table>
                     </td>
                     <td class="p-1" style="width: 70%">
