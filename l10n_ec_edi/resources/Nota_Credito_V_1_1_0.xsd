@@ -251,6 +251,8 @@
 			<xsd:element name="ptoEmi" type="puntoEmision"/>
 			<xsd:element name="secuencial" type="secuencial"/>
 			<xsd:element name="dirMatriz" type="dirMatriz"/>
+			<xsd:element name="regimenMicroempresas" minOccurs="0" type="dirMatriz"/>
+			<xsd:element name="agenteRetencion" minOccurs="0" type="dirMatriz"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:element name="notaCredito">
@@ -403,6 +405,23 @@
 			<xsd:pattern value="[^\n]*"/>
 		</xsd:restriction>
 	</xsd:simpleType>
+	
+	<!-- Agregado  temporalmente por trescloud -->
+	<xsd:simpleType name="regimenMicroempresas">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="300"/>
+			<xsd:pattern value="[^\n]*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="agenteRetencion">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="300"/>
+			<xsd:pattern value="[^\n]*"/>
+		</xsd:restriction>
+	</xsd:simpleType>	
+
 	<xsd:simpleType name="fechaEmision">
 		<xsd:restriction base="xsd:string">
 			<xsd:pattern
