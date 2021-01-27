@@ -251,8 +251,8 @@
 			<xsd:element name="ptoEmi" type="puntoEmision"/>
 			<xsd:element name="secuencial" type="secuencial"/>
 			<xsd:element name="dirMatriz" type="dirMatriz"/>
-			<xsd:element name="regimenMicroempresas" minOccurs="0" type="dirMatriz"/>
-			<xsd:element name="agenteRetencion" minOccurs="0" type="dirMatriz"/>
+			<xsd:element name="regimenMicroempresas" minOccurs="0" type="regimenMicroempresas"/>
+			<xsd:element name="agenteRetencion" minOccurs="0" type="agenteRetencion"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:element name="notaCredito">
