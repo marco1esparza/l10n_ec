@@ -92,6 +92,10 @@ class AccountEdiDocument(models.Model):
             ('secuencial', self.move_id.l10n_latam_document_number[8:]),
             ('dirMatriz', self.move_id.company_id.partner_id._get_complete_address())
         ])
+        if self.move_id.company_id.l10n_ec_regime == 'micro':
+            infoTribElements.extend([('regimenMicroempresas', _MICROCOMPANY_REGIME_LABEL)])
+        if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
+            infoTribElements.extend([('agenteRetencion', self.move_id.company_id.l10n_ec_wihhold_agent_number)])
         self.create_TreeElements(infoTributaria, infoTribElements)
         # CREACION INFO Retencion
         infoCompRetencion = etree.SubElement(withhold, 'infoCompRetencion')
