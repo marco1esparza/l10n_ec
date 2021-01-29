@@ -341,6 +341,11 @@ class AccountMove(models.Model):
             }
         
     def _update_document_header_from_access_key(self):
+        auth_len = len(self.l10n_ec_authorization)
+        if auth_len in (10,42):
+            return True #no podemos aplicar ninguna validacion
+        if auth_len != 49:
+            raise UserError(_("El número de Autorización es incorrecto, presenta %s dígitos, debe ser de 10 o 42 digitos") % auth_len)
         access_key_data = self._extract_data_from_access_key()
         self.invoice_date = access_key_data['document_date']
         self.l10n_latam_document_type_id = access_key_data['l10n_latam_document_type_id']

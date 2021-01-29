@@ -6,7 +6,7 @@
 		<field name="model">res.users</field>
 		<field name="inherit_id" ref="base.view_users_form_simple_modif"/>
 		<field name="arch" type="xml">
-			<xpath expr="//field[@name='tz']" position="after">
+			<xpath expr="//field[@name='tz']" position="before">
 				<field name="property_l10n_ec_printer_id" options='{"no_open": True, "create":False, "create_edit": False}'/>
 			</xpath>
 		</field>
@@ -17,7 +17,7 @@
 		<field name="model">res.users</field>
 		<field name="inherit_id" ref="base.view_users_form"/>
 		<field name="arch" type="xml">
-			<xpath expr="//field[@name='tz']" position="after">
+			<xpath expr="//field[@name='tz']" position="before">
 				<field name="property_l10n_ec_printer_id"/>
 			</xpath>
 		</field>
