@@ -445,6 +445,8 @@ class AccountMove(models.Model):
         states = {'draft': [('readonly', False)]},
         default = _default_l10n_ec_printer_id,
         ondelete='restrict',
+        index=True,
+        check_company=True,
         help='The tax authority authorized printer point from where to send or receive invoices'
         )
     l10n_ec_authorization = fields.Char(
