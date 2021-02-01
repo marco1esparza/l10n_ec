@@ -1,0 +1,62 @@
+.ckec_page_produbanco {
+    .ckec_check {
+        top: 0in;
+        font-family: Courier New;
+        font-size: 11pt;
+    }
+
+    .line_1 {
+        margin-bottom:10px;
+        margin-top:10px;
+        height: 10px;
+    }
+    .line_2 {
+        margin-left: 30px;
+        margin-bottom:12px;
+        height: 30px;
+    }
+    .line_3 {
+        margin-left: 30px;
+        height: 10px;
+    }
+
+    .ckec_amount {
+        top: 1.17in;
+        left: 6.77in;
+        width: 1.08in;
+        text-align: left;
+    }
+    .ckec_date {
+        top: 0.55in;
+        left: 6.37in;
+        width: 1.47in;
+        text-align: center;
+    }
+    .ckec_date_format {
+        top: 0.75in;
+        left: 6.37in;
+        width: 1.47in;
+        text-align: center;
+        font-size: 0.8em;
+    }
+
+    .ckec_amount_in_word {
+        top: 1.17in;
+        left: 0.25in;
+        width: 6in;
+        text-align: left;
+        font-weight: bold;
+        overflow: hidden;
+    }
+    .ckec_payee_name {
+        top: 1.67in;
+        left: 0.5in;
+        width: 4.0in;
+        text-align: left;
+    }
+    .ckec_city {
+        left: 6.77in;
+        width: 1.08in;
+        text-align: left;
+    }
+}

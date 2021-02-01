@@ -20,6 +20,9 @@ class AccountPayment(models.Model):
                 pay.check_amount_in_words = l10n_ec_amount_to_words(pay.amount)
             else:
                 pay.check_amount_in_words = False
+
+    def _check_fill_line(self, amount_str):
+        return amount_str and (amount_str + ' ').ljust(94, '*') or ''
     
     def do_print_checks(self):
         #Overwrite Odoo core because validations should be by journal not by company
@@ -27,11 +30,9 @@ class AccountPayment(models.Model):
             return super(AccountPayment, self).do_print_checks()
         if not self.company_id.city:
             raise ValidationError(_("You have to setup a city in your company form, it is needed to print the issuing city on the check."))
-        check_layout = self.journal_id.l10n_ec_check_printing_layout_id
-        if not check_layout:
-            raise ValidationError(_("Something went wrong with Check Layout, please select another layout in Invoicing/Configuration/Journals and try again."))
-        self.write({'is_move_sent': True})
-        return check_layout.report_action(self)
+        if not self.journal_id.l10n_ec_bank_check_format:
+            raise ValidationError(_("No exite formato de cheque."))
+        return super(AccountPayment, self).do_print_checks()
     
     @api.constrains('check_number', 'journal_id')
     def _constrains_check_number(self):
@@ -47,4 +48,3 @@ class AccountPayment(models.Model):
                 if not pay.check_number.isnumeric():
                     raise ValidationError(_('Ecuadorian check numbers must be a positive number'))
         return super(AccountPayment, self)._constrains_check_number()
-    

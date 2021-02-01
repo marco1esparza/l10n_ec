@@ -21,9 +21,9 @@ Supported formats
     'website': 'https://www.trescloud.com',
     'depends': ['account_check_printing', 'l10n_ec_edi'],
     'data': [
-        #'data/ec_check_printing.xml',
-        #'report/print_check.xml',
-        #'report/print_check_top.xml',
+        'data/ec_check_printing.xml',
+        'report/print_check.xml',
+        'report/print_check_ec.xml',
         'views/account_journal_view.xml',
     ],
     'installable': True,

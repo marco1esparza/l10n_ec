@@ -11,5 +11,7 @@ class report_print_check(models.Model):
         page = super(report_print_check, self)._check_build_page_info(i, p)
         page.update({
             'payment_date_ecuador': format_date(self.env, self.date, date_format='yyyy-MM-dd'),
+            'city': self.company_id.city + ', ',
+            'partner_name': self.commercial_partner_id.name,
         })
         return page
