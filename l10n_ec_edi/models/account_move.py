@@ -177,6 +177,7 @@ class AccountMove(models.Model):
         self.edi_document_ids._process_documents_no_web_services()
 
     def _is_manual_document_number(self, journal):
+        #overriden in l10n_ec_account_extended
         if self.l10n_latam_use_documents and self.country_code == 'EC':
             doc_code = self.l10n_latam_document_type_id.code or ''
             l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
@@ -326,11 +327,11 @@ class AccountMove(models.Model):
                 l10n_latam_document_type_id = self.l10n_latam_document_type_id
                 # Se obtiene el sequence para el l10n_latam_document_type_id correspondiente con
                 # 18 - Factura de Venta
-                if self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_59'):
+                if self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_59'): #Factura de Venta Emitida por Reembolso de Gastos
                     l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_04')
                 # Verificamos si el documento es 41 - Liquidación de Compras Emitida por Reembolso de Gastos
                 # a traves de su reference id
-                elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_57'):
+                elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_57'): #Liquidación de Compras Emitida por Reembolso de Gastos
                     l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_08')
                 where_string += "AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND l10n_ec_printer_id = %(l10n_ec_printer_id)s"
                 param.update({'l10n_latam_document_type_id': l10n_latam_document_type_id.id or 0,

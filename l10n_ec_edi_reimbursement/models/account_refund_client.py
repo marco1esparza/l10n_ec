@@ -15,33 +15,9 @@ class AccountRefundClient(models.Model):
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
-        '''
-        When the partner changed need recalculate the transaction type.
-        '''
+        #In sale reimbursements auto-fill related puchases
         res = {'value': {},'warning': {},'domain': {}}
         if self.move_id.country_code == 'EC':
-            res['value']['l10n_latam_document_type_id'] = False
-            res['value']['authorization'] = False
-            if not self.partner_id:
-                return res
-            commercial_partner = self.partner_id.commercial_partner_id
-            refund_type = self.move_id.move_type
-            code = commercial_partner._l10n_ec_get_code_by_vat()
-            if refund_type in ['in_invoice', 'in_refund']: #COMPRAS
-                if code == 'R': #RUC
-                    res['value']['transaction_type'] = '01'
-                elif code == 'C': #CEDULA
-                    res['value']['transaction_type'] = '02'
-                elif code == 'P': #PERS. JURÍDICA EXTRANJERA, PERS. NATURAL EXTRANJERA
-                    res['value']['transaction_type'] = '03' 
-                else: 
-                    #cubre el caso de code == 'O': #OTROS
-                    #cubre otros casos no determinados
-                    res['value']['transaction_type'] = 'Proveedor en reembolso no tiene asignado una identificacion correcta (CEDULA/RUC/PASAPORTE).'
-                    res['value']['transaction_type'] += ' Documento ' + str(self.move_id.l10n_latam_document_number or '')
-                    res['value']['transaction_type'] += ' Proveedor ' + commercial_partner._get_complete_name()
-            else: #VENTAS
-                res['value']['transaction_type'] = 'No Aplica Para Ventas'
             if self.move_id.move_type == 'out_invoice':
                 #rellenamos los datos de la factura de compra
                 vals = self._fill_purchase_invoice()
@@ -176,25 +152,24 @@ class AccountRefundClient(models.Model):
         que sera usado en la generacion del ATS
         '''
         for refund in self:
-            commercial_partner = refund.partner_id.commercial_partner_id
             refund_type = refund.move_id.move_type
-            code = commercial_partner._l10n_ec_get_code_by_vat()
             if refund_type in ['in_invoice', 'in_refund']: #COMPRAS
-                if code == 'R': #RUC
-                    refund.transaction_type = '01'
-                elif code == 'C': #CEDULA
-                    refund.transaction_type = '02'
-                elif code == 'P': #PERS. JURÍDICA EXTRANJERA, PERS. NATURAL EXTRANJERA
-                    refund.transaction_type = '03' 
-                else: 
-                    #cubre el caso de code == 'O': #OTROS
-                    #cubre otros casos no determinados
-                    refund.transaction_type = 'Proveedor en reembolso no tiene asignado una identificacion correcta (CEDULA/RUC/PASAPORTE).'
-                    refund.transaction_type += ' Documento ' + str(refund.move_id.l10n_latam_document_number or '')
-                    refund.transaction_type += ' Proveedor ' + commercial_partner._get_complete_name()
+                commercial_partner = refund.partner_id.commercial_partner_id
+                transaction_type = 'En la %s corrija el RUC/Ced/Pasaporte del proveedor %s' % (self.name,commercial_partner.name)
+                #if self.vat == '9999999999999': #CONSUMIDOR FINAL
+                #    transaction_type = '01'*
+                if self.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_dni').id: #CEDULA
+                    transaction_type = '02'
+                elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_ruc').id: #RUC
+                    transaction_type = '01'
+                elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_pass').id: #PERS. NATURAL EXTRANJERA
+                    transaction_type = '03'
+                elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
+                    transaction_type = '03'
             else: #caso de ventas
-                refund.transaction_type = 'No Aplica Para Ventas'
-
+                transaction_type = 'No Aplica Para Ventas'
+            refund.transaction_type = transaction_type
+    
     # Columns
     partner_id = fields.Many2one(
         'res.partner',
