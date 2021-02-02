@@ -78,5 +78,9 @@
 			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CREDIT_TRIB'),ref('COSTO_GASTO'),ref('ACTF_CREDTRIB'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_CREDTRIB'),ref('INV_COSTGAST')])]"/>
 		</record>
 
+		<record id="l10n_ec.ec_document_no_fiscal" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('CAS_ESP')])]"/>
+		</record>
+
 	</data>
 </odoo>
