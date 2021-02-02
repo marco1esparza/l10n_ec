@@ -415,7 +415,7 @@ class AccountMove(models.Model):
         for invoice in self:
             result = False
             if invoice.country_code == 'EC' and invoice.state == 'posted':
-                if invoice.l10n_latam_document_type_id.code in ['01','03','18']: #TODO ANDRES añadir codigos, revisar proyecto X
+                if invoice.l10n_latam_document_type_id.code in ['01','02','03','18']: #TODO ANDRES añadir codigos, revisar proyecto X
                     result = True
             invoice.l10n_ec_allow_withhold = result
     
