@@ -440,7 +440,7 @@
 			<field name="code">100</field>
 			<field name="name">Documentos sin validez tributaria</field>
 			<field name="report_name">Doc. Sin Validez Tributaria</field>
-			<field name="doc_code_prefix">Doc. S.V.T.</field>
+			<field name="doc_code_prefix">SinDoc</field>
 			<field name="sequence">910</field>
 			<field name="internal_type">invoice</field>
 			<field name="l10n_ec_type">in_invoice</field>
