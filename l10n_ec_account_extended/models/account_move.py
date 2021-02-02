@@ -105,7 +105,7 @@ class AccountMove(models.Model):
             if not self.l10n_ec_printer_id.automatic_numbering:
                 if journal.type == 'sale':
                     return True
-                elif journal.type == 'purchase' and doc_code in ['03']:
+                elif journal.type == 'purchase' and doc_code in ['03', '41']:
                     return True
                 elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['in_withhold']:
                     return True

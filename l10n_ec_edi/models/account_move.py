@@ -20,7 +20,7 @@ class AccountMove(models.Model):
     @api.onchange('l10n_latam_document_number')
     def onchange_l10n_latam_document_number(self):
         #Autofills document number when needed
-        if self.country_code == 'EC' and self.l10n_latam_document_number:
+        if self.country_code == 'EC' and self.journal_id.l10n_latam_use_documents and self.l10n_latam_document_number:
             regex = '(\d{3})+\-(\d{3})+\-(\d{9})'
             if re.match(regex, self.l10n_latam_document_number):
                 return #if matches ###-###-######### do nothing
@@ -39,6 +39,12 @@ class AccountMove(models.Model):
                 if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own':
                     prefix = self.l10n_ec_printer_id.name + '-'
             self.l10n_latam_document_number = prefix + number
+        else:
+            # Se manda a computar l10n_latam_document_number de forma manual para documentos no tributarios
+            # al igual que asientos manuales debido a que el onchange desactiva el compute
+            self._compute_l10n_latam_document_number()
+
+
     
     def _l10n_ec_validate_number(self):
         #Check invoice number is like ###-###-#########, and prefix corresponds to printer point
@@ -174,7 +180,7 @@ class AccountMove(models.Model):
         if self.l10n_latam_use_documents and self.country_code == 'EC':
             doc_code = self.l10n_latam_document_type_id.code or ''
             l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
-            if journal.type == 'purchase' and doc_code not in ['03']:
+            if journal.type == 'purchase' and doc_code not in ['03', '41']:
                 return True
             elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
                 return True
@@ -317,8 +323,17 @@ class AccountMove(models.Model):
         if self.company_id.country_id == self.env.ref('base.ec') and self.l10n_latam_use_documents:
             where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
             if self.l10n_latam_document_type_id and self.l10n_ec_printer_id:
+                l10n_latam_document_type_id = self.l10n_latam_document_type_id
+                # Se obtiene el sequence para el l10n_latam_document_type_id correspondiente con
+                # 18 - Factura de Venta
+                if self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_59'):
+                    l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_04')
+                # Verificamos si el documento es 41 - Liquidación de Compras Emitida por Reembolso de Gastos
+                # a traves de su reference id
+                elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_57'):
+                    l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_08')
                 where_string += "AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND l10n_ec_printer_id = %(l10n_ec_printer_id)s"
-                param.update({'l10n_latam_document_type_id': self.l10n_latam_document_type_id.id or 0,
+                param.update({'l10n_latam_document_type_id': l10n_latam_document_type_id.id or 0,
                               'l10n_ec_printer_id': self.l10n_ec_printer_id.id or 0})
         else:
             where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
