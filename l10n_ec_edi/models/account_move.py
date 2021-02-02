@@ -440,19 +440,28 @@ class AccountMove(models.Model):
                 invoice.l10n_ec_transaction_type += ' Documento ' + str(invoice.l10n_latam_document_number or '')
                 invoice.l10n_ec_transaction_type += ' Empresa ' + (invoice.partner_id.name or '')
 
-    @api.depends('l10n_latam_document_type_id','state')
-    def _show_l10n_ec_authorization(self):
+    @api.depends('l10n_latam_document_type_id','l10n_ec_printer_id','state')
+    def _show_edit_l10n_ec_authorization(self):
         for res in self:
             show_l10n_ec_authorization = False
+            edit_l10n_ec_authorization = False
             if res.country_code == 'EC':
                 if res.is_invoice() or res.is_withholding():
                     if res.l10n_ec_authorization_type == 'third':
                         show_l10n_ec_authorization = True
-                    elif res.l10n_ec_authorization_type == 'own' and res.state in ['posted','cancel']:
-                        #las autorizaciones emitidas por nosotros no se muestran en
-                        #el estado borrador pues se generará en el flujo del documento electronico
-                        show_l10n_ec_authorization = True
+                    elif res.l10n_ec_authorization_type == 'own':
+                        if res.l10n_ec_printer_id.allow_electronic_document:
+                            if res.state in ['posted','cancel']:
+                                #las autorizaciones emitidas por nosotros no se muestran en
+                                #el estado borrador pues se generará en el flujo del documento electronico
+                                show_l10n_ec_authorization = True
+                        else:
+                            #en documentos preimrpresos si mostramos el numero de autorización
+                            #en todos los estadoss
+                            show_l10n_ec_authorization = True
+                            edit_l10n_ec_authorization = True
             res.show_l10n_ec_authorization = show_l10n_ec_authorization
+            res.edit_l10n_ec_authorization = edit_l10n_ec_authorization
         
     l10n_ec_printer_id = fields.Many2one(
         'l10n_ec.sri.printer.point',
@@ -605,9 +614,12 @@ class AccountMove(models.Model):
         )
     show_l10n_ec_authorization = fields.Boolean(
         string='Mostrar Autorizacion',
-        compute='_show_l10n_ec_authorization',
+        compute='_show_edit_l10n_ec_authorization',
     )
-
+    edit_l10n_ec_authorization = fields.Boolean(
+        string='Mostrar Autorizacion',
+        compute='_show_edit_l10n_ec_authorization',
+    )
 
 class AccountMoveLine(models.Model):
     _inherit='account.move.line'
