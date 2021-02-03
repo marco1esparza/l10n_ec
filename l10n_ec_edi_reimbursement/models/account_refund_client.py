@@ -88,7 +88,7 @@ class AccountRefundClient(models.Model):
         '''
         if self._context.get('calc_vat'):
             self.vat_amount_no0 = self.base_vat_no0 * 12.0 / 100.0
-            if self.creation_date >= datetime.strptime('2016-06-01', '%Y-%m-%d').date() and self.creation_date <= datetime.strptime('2017-05-31', '%Y-%m-%d').date():
+            if self.creation_date and self.creation_date >= datetime.strptime('2016-06-01', '%Y-%m-%d').date() and self.creation_date <= datetime.strptime('2017-05-31', '%Y-%m-%d').date():
                 self.vat_amount_no0 = self.base_vat_no0 * 14.0 / 100.0
         self.total = self.base_tax_free + self.no_vat_amount + self.base_vat_0 + self.base_vat_no0 + self.vat_amount_no0 + self.ice_amount
 
@@ -125,7 +125,7 @@ class AccountRefundClient(models.Model):
                 select 
                     id 
                 from account_move
-                where commercial_partner_id=%s and l10n_latam_document_type_id=%s and name ilike %s and type='in_invoice'
+                where commercial_partner_id=%s and l10n_latam_document_type_id=%s and name ilike %s and move_type='in_invoice'
             ''', (self.partner_id.commercial_partner_id.id, self.l10n_latam_document_type_id.id, '%' + self.number + '%'))
             purchases = self.env.cr.fetchall()
             if purchases:
@@ -155,16 +155,16 @@ class AccountRefundClient(models.Model):
             refund_type = refund.move_id.move_type
             if refund_type in ['in_invoice', 'in_refund']: #COMPRAS
                 commercial_partner = refund.partner_id.commercial_partner_id
-                transaction_type = 'En la %s corrija el RUC/Ced/Pasaporte del proveedor %s' % (self.name,commercial_partner.name)
+                transaction_type = 'En la %s corrija el RUC/Ced/Pasaporte del proveedor %s' % (self.number, commercial_partner.name)
                 #if self.vat == '9999999999999': #CONSUMIDOR FINAL
                 #    transaction_type = '01'*
-                if self.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_dni').id: #CEDULA
+                if commercial_partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_dni').id: #CEDULA
                     transaction_type = '02'
-                elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_ruc').id: #RUC
+                elif commercial_partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_ruc').id: #RUC
                     transaction_type = '01'
-                elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_pass').id: #PERS. NATURAL EXTRANJERA
+                elif commercial_partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_pass').id: #PERS. NATURAL EXTRANJERA
                     transaction_type = '03'
-                elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
+                elif commercial_partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
                     transaction_type = '03'
             else: #caso de ventas
                 transaction_type = 'No Aplica Para Ventas'
