@@ -401,7 +401,6 @@ class AccountMove(models.Model):
                                         '12', # Inst FInancieras
                                         '20', # Estado
                                         '21', # Carta porte aereo
-                                        '41', # Reembolsos de gastos compras y ventas, liquidaciones, facturas
                                         '47', # Nota de crédito de reembolso
                                         '48', # Nota de débito de reembolso
                                         ]:
