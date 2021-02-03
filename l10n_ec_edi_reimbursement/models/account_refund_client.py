@@ -80,16 +80,20 @@ class AccountRefundClient(models.Model):
             res['value']['number'] = '001-001-'
         return res
 
-    @api.onchange('base_tax_free', 'no_vat_amount', 'base_vat_0', 'base_vat_no0', 'vat_amount_no0', 'ice_amount')
-    def onchange_total(self):
+    @api.depends('base_vat_no0')
+    def _compute_vat_amount_no0(self):
+        for refund in self:
+            if refund._context.get('calc_vat'):
+                refund.vat_amount_no0 = refund.base_vat_no0 * 12.0 / 100.0
+                if refund.creation_date and refund.creation_date >= datetime.strptime('2016-06-01', '%Y-%m-%d').date() and refund.creation_date <= datetime.strptime('2017-05-31', '%Y-%m-%d').date():
+                    refund.vat_amount_no0 = refund.base_vat_no0 * 14.0 / 100.0
+
+    @api.depends('base_tax_free', 'no_vat_amount', 'base_vat_0', 'base_vat_no0', 'vat_amount_no0', 'ice_amount')
+    def _compute_total(self):
         '''
         Calculate the total and the vat value depending the field using
         calc_vat = True -> show the value of vat using the base
         '''
-        if self._context.get('calc_vat'):
-            self.vat_amount_no0 = self.base_vat_no0 * 12.0 / 100.0
-            if self.creation_date and self.creation_date >= datetime.strptime('2016-06-01', '%Y-%m-%d').date() and self.creation_date <= datetime.strptime('2017-05-31', '%Y-%m-%d').date():
-                self.vat_amount_no0 = self.base_vat_no0 * 14.0 / 100.0
         self.total = self.base_tax_free + self.no_vat_amount + self.base_vat_0 + self.base_vat_no0 + self.vat_amount_no0 + self.ice_amount
 
     def _fill_purchase_invoice(self):
@@ -106,7 +110,6 @@ class AccountRefundClient(models.Model):
         -type
         '''
         vals = {
-            'authorization': '',
             'creation_date': fields.Date.context_today(self),
             'base_tax_free': 0.0,
             'no_vat_amount': 0.0,
@@ -114,7 +117,6 @@ class AccountRefundClient(models.Model):
             'base_vat_no0': 0.0,
             'vat_amount_no0': 0.0,
             'ice_amount': 0.0,
-            'total': 0.0
             }
         has_number = False
         if self.number and len(self.number) == 17:
@@ -142,7 +144,6 @@ class AccountRefundClient(models.Model):
                         'base_vat_no0': purchase.l10n_ec_base_doce_iva,
                         'vat_amount_no0': purchase.l10n_ec_vat_doce_subtotal,
                         'ice_amount': 0.0,
-                        'total': purchase.amount_total
                         }
         return vals
 
@@ -219,6 +220,9 @@ class AccountRefundClient(models.Model):
         )
     vat_amount_no0 = fields.Float(
         string='Valor IVA',
+        compute='_compute_vat_amount_no0',
+        store=True,
+        readonly=False,
         help='El valor del IVA (usualmente el total de la factura multiplicado por 0.12), la puede encontrar en el subtotal del documento de compra'
         )
     ice_amount = fields.Float(
@@ -227,6 +231,8 @@ class AccountRefundClient(models.Model):
         )
     total = fields.Float(
         string='Total',
+        compute='_compute_total',
+        store=True,
         help='El valor total del documento de compra'
         )
     move_id = fields.Many2one(

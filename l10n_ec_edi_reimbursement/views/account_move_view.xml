@@ -86,14 +86,14 @@
 						<group>
 							<field name="move_id" invisible="1"/>
 							<field name="state" invisible="1"/>
+							<field name="authorization" required="1" widget="section_and_note_text"/>
 							<field name="partner_id" required="1"/>
 						</group>
 						<group>
-							<field name="creation_date" required="1"/>
 							<field name="l10n_latam_document_type_id" required="1"/>
 							<field name="number" required="1"/>
-							<field name="authorization" required="1" widget="section_and_note_text"/>
-							<field name="transaction_type" readonly="1"/>
+							<field name="creation_date" required="1"/>
+							<field name="transaction_type" invisible="1"/>
 						</group>
 					</group>
 					<notebook colspan="4">
@@ -114,7 +114,7 @@
                                     <div class="oe_inline">
                                         <label for="total" />
                                     </div>
-                                    <field name="total" required="1" nolabel="1" widget='monetary'/>
+                                    <field name="total" required="1" nolabel="1" widget='monetary' readonly="1"/>
 							</group>
 						</page>
 					</notebook>
