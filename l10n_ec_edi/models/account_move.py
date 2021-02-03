@@ -120,6 +120,15 @@ class AccountMove(models.Model):
                         l10n_ec_sri_tax_support_id = self.l10n_ec_available_sri_tax_support_ids[0]._origin.id
                 self.l10n_ec_sri_tax_support_id = l10n_ec_sri_tax_support_id
     
+    def button_cancel(self):
+        # validate number format of void documents when voiding draft documents
+        for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents and x.state == 'draft'):
+            if invoice.l10n_ec_printer_id.allow_electronic_document:
+                raise ValidationError(_('%s: El punto de emisión está configurado para documentos electrónicos, para anularlo debería haberlo aprobado en el SRI primero!... o talvez se equivocó de punto de emisión?') % invoice.name)
+            invoice._l10n_ec_validate_number()
+        res = super().button_cancel()
+        return res
+    
     def _post(self, soft=True):
         '''
         Invocamos el metodo post para setear el numero de factura en base a la secuencia del punto de impresion
@@ -471,6 +480,7 @@ class AccountMove(models.Model):
         ondelete='restrict',
         index=True,
         check_company=True,
+        track_visibility='onchange',
         help='The tax authority authorized printer point from where to send or receive invoices'
         )
     l10n_ec_authorization = fields.Char(
