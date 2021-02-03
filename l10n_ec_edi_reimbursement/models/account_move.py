@@ -227,8 +227,44 @@ class AccountMove(models.Model):
         '''
         for invoice in self:
             if invoice.show_reimbursements_detail:
-                #si se debio llenar 
+                #si se debio llenar
                 refund_total = 0.0
+                if invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code == '41':
+                    # no se emite retencion sobre facturas de compra por reembolso como cliente final (en este caso el codigo es 41)
+                    if invoice.l10n_ec_total_to_withhold != 0.0:  # aplica para compras
+                        raise UserError(_(
+                            u'La factura de reembolsos de gastos como cliente final no puede tener impuestos de retención, por favor elimínelos para poder validarla.'))
+                # validamos los impuestos para EMISION de REEMBOLSOS COMO INTERMEDIARIO
+                if invoice.move_type == 'out_invoice' and invoice.l10n_latam_document_type_id.code == '41':
+                    # solo permitimos con la base 444 *equivale al codigo aplicado 454
+                    base_codes = invoice.line_ids.mapped('tax_ids').mapped('l10n_ec_code_base')
+                    base_codes = list(dict.fromkeys(base_codes))  # remueve duplicados
+                    try:
+                        base_codes.remove('444')  # removemos el unico codigo permitido
+                    except ValueError:
+                        # si el codigo 444 no esta en la lista lanza un error, lo capturamos.
+                        pass
+                    if base_codes:
+                        raise UserError(_(
+                            u'La emisión de reembolsos de gastos como intermediario debe realizarse con el impuesto 454, erroneamente esta utilizando los códigos: %s' % ", ".join(
+                                base_codes)))
+                # validamos los impuestos para RECEPCION de compras para REEMBOLSOS COMO INTERMEDIARIO
+                if invoice.move_type == 'in_invoice' and invoice.l10n_ec_sri_tax_support_id.code == '08':
+                    # solo permitimos con la base 545 *equivale al codigo aplicado 555
+                    vat_taxes = invoice.line_ids.mapped('tax_ids').filtered(
+                        lambda r: r.tax_group_id.l10n_ec_type in ['vat12', 'vat14', 'zero_vat', 'not_charged_vat',
+                                                                  'exempt_vat'])
+                    base_codes = vat_taxes.mapped('l10n_ec_code_base')
+                    base_codes = list(dict.fromkeys(base_codes))  # remueve duplicados
+                    try:
+                        base_codes.remove('545')  # removemos el unico codigo permitido
+                    except ValueError:
+                        # si el codigo 545 no esta en la lista lanza un error, lo capturamos.
+                        pass
+                    if base_codes:
+                        raise UserError(_(
+                            u'La recepción de egresos para reembolso de gastos como intermediario debe realizarse con el impuesto 555, erroneamente esta utilizando los códigos: %s' % ", ".join(
+                                base_codes)))
                 for refund in invoice.refund_ids:
                     refund_total += refund.total
                 if float_compare(invoice.l10n_ec_total_with_tax,refund_total,invoice.company_id.currency_id.decimal_places) != 0:
@@ -262,35 +298,6 @@ class AccountMove(models.Model):
             if not invoice.show_reimbursements_detail and invoice.refund_ids:
                 #si no se debio llenar los detalles de reembolso
                 raise ValidationError(u'Es extraño, la tabla de detalles de reembolso no debería seguir llena, por favor contacte a soporte o repita la transacción desde el inicio.')
-            if invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code == '41':
-                #no se emite retencion sobre facturas de compra por reembolso como cliente final (en este caso el codigo es 41)
-                if invoice.l10n_ec_total_to_withhold != 0.0: #aplica para compras
-                    raise UserError(_(u'La factura de reembolsos de gastos como cliente final no puede tener impuestos de retención, por favor elimínelos para poder validarla.'))
-            #validamos los impuestos para EMISION de REEMBOLSOS COMO INTERMEDIARIO
-            if invoice.move_type == 'out_invoice' and invoice.l10n_latam_document_type_id.code == '41':
-                #solo permitimos con la base 444 *equivale al codigo aplicado 454
-                base_codes = invoice.line_ids.mapped('tax_ids').mapped('l10n_ec_code_base')
-                base_codes = list(dict.fromkeys(base_codes)) #remueve duplicados
-                try:
-                    base_codes.remove('444') #removemos el unico codigo permitido
-                except ValueError:
-                    #si el codigo 444 no esta en la lista lanza un error, lo capturamos. 
-                    pass
-                if base_codes:
-                    raise UserError(_(u'La emisión de reembolsos de gastos como intermediario debe realizarse con el impuesto 454, erroneamente esta utilizando los códigos: %s' %", ".join(base_codes)))
-            #validamos los impuestos para RECEPCION de compras para REEMBOLSOS COMO INTERMEDIARIO
-            if invoice.move_type == 'in_invoice' and invoice.l10n_ec_sri_tax_support_id.code == '08':
-                #solo permitimos con la base 545 *equivale al codigo aplicado 555
-                vat_taxes = invoice.line_ids.mapped('tax_ids').filtered(lambda r: r.tax_group_id.l10n_ec_type in ['vat12', 'vat14','zero_vat','not_charged_vat','exempt_vat'])
-                base_codes = vat_taxes.mapped('l10n_ec_code_base')
-                base_codes = list(dict.fromkeys(base_codes)) #remueve duplicados
-                try:
-                    base_codes.remove('545') #removemos el unico codigo permitido
-                except ValueError:
-                    #si el codigo 545 no esta en la lista lanza un error, lo capturamos. 
-                    pass
-                if base_codes:
-                    raise UserError(_(u'La recepción de egresos para reembolso de gastos como intermediario debe realizarse con el impuesto 555, erroneamente esta utilizando los códigos: %s' %", ".join(base_codes)))
             for refund in invoice.refund_ids:
                 cadena = '(\d{3})+\-(\d{3})+\-(\d{9})'
                 if not re.match(cadena, refund.number):
