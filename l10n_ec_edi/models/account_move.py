@@ -336,14 +336,32 @@ class AccountMove(models.Model):
                 # Se obtiene el sequence para el l10n_latam_document_type_id correspondiente con
                 # 18 - Factura de Venta
                 if self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_59'):
-                    l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_04')
+                    l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_04')
+                # Verificamos si el documento es 18 - Factura de Venta
+                # a traves de su reference id
+                elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_04'):   #Factura de Venta
+                    l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_59')
                 # Verificamos si el documento es 41 - Liquidación de Compras Emitida por Reembolso de Gastos
                 # a traves de su reference id
                 elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_57'):
-                    l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_08')
-                where_string += "AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND l10n_ec_printer_id = %(l10n_ec_printer_id)s"
-                param.update({'l10n_latam_document_type_id': l10n_latam_document_type_id.id or 0,
-                              'l10n_ec_printer_id': self.l10n_ec_printer_id.id or 0})
+                    l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_08')
+                # Verificamos si el documento es 03 - Liquidación de Compras
+                # a traves de su reference id
+                elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_08'): #Liquidación de Compras
+                    l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_57')
+                where_string += "AND l10n_ec_printer_id = %(l10n_ec_printer_id)s "
+                where_string += "AND l10n_latam_document_type_id IN ("
+                single_doc_type = True
+                if not l10n_latam_document_type_id:
+                    where_string += 0
+                for doctype_id in l10n_latam_document_type_id:
+                    if not single_doc_type:
+                        where_string += ', ' + str(doctype_id.id)
+                    else:
+                        where_string += str(doctype_id.id)
+                        single_doc_type = False
+                where_string += ") "
+                param.update({'l10n_ec_printer_id': self.l10n_ec_printer_id.id or 0})
         else:
             where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
         return where_string, param
