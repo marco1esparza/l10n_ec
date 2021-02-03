@@ -350,16 +350,13 @@ class AccountMove(models.Model):
                 elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_08'): #Liquidación de Compras
                     l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_57')
                 where_string += "AND l10n_ec_printer_id = %(l10n_ec_printer_id)s "
+                # Creamos un IN para poder buscar por mas de un tipo de documento,
+                # para poder saber cual es el ultimo Nro de documento asignado para tipos de documentos compartidos.
                 where_string += "AND l10n_latam_document_type_id IN ("
-                single_doc_type = True
-                if not l10n_latam_document_type_id:
-                    where_string += 0
-                for doctype_id in l10n_latam_document_type_id:
-                    if not single_doc_type:
-                        where_string += ', ' + str(doctype_id.id)
-                    else:
-                        where_string += str(doctype_id.id)
-                        single_doc_type = False
+                doctype_id = ','.join(str(x.id) for x in l10n_latam_document_type_id)
+                if not doctype_id:
+                    doctype_id = 0
+                where_string += doctype_id
                 where_string += ") "
                 param.update({'l10n_ec_printer_id': self.l10n_ec_printer_id.id or 0})
         else:
