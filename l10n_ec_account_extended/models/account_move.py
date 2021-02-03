@@ -58,6 +58,10 @@ class AccountMove(models.Model):
             taxes = line._get_computed_taxes()
             #line.tax_ids = [(6, 0, taxes.ids)]
             line.tax_ids = taxes
+        # Se manda a ejecutar el _onchange_mark_recompute_taxes, que verifica si la linea tiene creada la tabla de impuestos
+        # sino tiene creada la tabla de impuestos las marca para que estas sean creadas en el _recompute_dynamic_lines.
+        self.line_ids._onchange_mark_recompute_taxes()
+        self._recompute_dynamic_lines()
         return res
 
     def write(self, vals):
