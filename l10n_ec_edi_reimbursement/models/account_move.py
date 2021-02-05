@@ -60,8 +60,6 @@ class AccountMove(models.Model):
         '''
         #primero unas validaciones
         self.ensure_one()
-        account_tax_obj = self.env['account.tax']
-        account_move_line_obj = self.env['account.move.line']
         if self.state != 'draft':
             raise UserError(_(u'Solo se puede aplicar sobre facturas en estado borrador.'))
         if self.invoice_line_ids:
@@ -75,9 +73,7 @@ class AccountMove(models.Model):
             raise UserError(_(u'No se ha configurado la cta de egresos por reembolso de gastos como intermediario en el producto de reembolso de gastos seteado en la compañia, usualmente es la cta 101040402 OTROS ANTICIPOS POR INTERMEDIARIO.'))
         tax_zero_refund, tax_vat_refund, tax_exempt_vat_refund, tax_not_charged_vat_refund = self.get_tax_apply_refund()
         lst_taxed_refund = [tax_zero_refund, tax_vat_refund, tax_exempt_vat_refund, tax_not_charged_vat_refund]
-        for purchase in self.refund_ids: 
-            amount_0_vat = purchase.base_tax_free + purchase.no_vat_amount + purchase.base_vat_0
-            amount_vat = purchase.base_vat_no0
+        for purchase in self.refund_ids:
             #se espera construir un texto de la siguiente forma:
             #Reembolso de gastos RUC: 1792366836001, Fact No. 001-001-0000000001, Neto Tarifa 0% $99.99
             #Reembolso de gastos RUC: 1792366836001, Fact No. 001-001-0000000001, Neto Tarifa 12% $100.00, IVA $12.00
@@ -145,17 +141,21 @@ class AccountMove(models.Model):
         '''
         base_name = []
         base_name.append('Reembolso de gastos RUC ' + purchase.partner_id.vat)
-        base_name.append(purchase.document_invoice_type_id.description + ' No. ' + purchase.number)
+        base_name.append(purchase.l10n_latam_document_type_id.doc_code_prefix + ' No. ' + str(purchase.number))
         inv_line = self.env['account.move.line'].new({
-            'invoice_id': self.id,
+            'move_id': self.id,
             'product_id': self.company_id.refund_product_id.id,
         })
         inv_line._onchange_product_id()
-        inv_line.invoice_line_tax_ids = tax
-        inv_line.name = self.get_new_name_invoice_line(tax.type_ec, base_name, amount, purchase)
+        name = list(base_name)
+        name.append('Neto Tarifa ' + tax.description + ' $ ' + "{:.2f}".format(amount))
+        inv_line.name = "; ".join(name)
+        inv_line.credit = amount
         inv_line.price_unit = amount
+        inv_line.tax_ids = tax
         inv_line_values = self.env['account.move.line']._convert_to_write(inv_line._cache)
-        self.env['account.invoice.line'].create(inv_line_values)
+        line = self.env['account.move.line'].with_context(check_move_validity=False).create(inv_line_values)
+        line.recompute_tax_line = True
 
     def action_view_refunds(self):
         '''
