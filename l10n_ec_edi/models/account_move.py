@@ -474,6 +474,7 @@ class AccountMove(models.Model):
                 if res.is_invoice() or res.is_withholding():
                     if res.l10n_ec_authorization_type == 'third':
                         show_l10n_ec_authorization = True
+                        edit_l10n_ec_authorization = True
                     elif res.l10n_ec_authorization_type == 'own':
                         if res.l10n_ec_printer_id.allow_electronic_document:
                             if res.state in ['posted','cancel']:
