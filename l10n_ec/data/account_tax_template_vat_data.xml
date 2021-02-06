@@ -332,25 +332,25 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'tag_ids': [ref('tax_tag_412')],
+                    'tag_ids': [ref('tax_tag_444')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('ec_other_downpayments'),
-                    'tag_ids': [ref('tax_tag_422')],
+                    'tag_ids': [ref('tax_tag_454')],
                 })]"/>
             <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'tag_ids': [ref('tax_tag_411')],
+                    'tag_ids': [ref('tax_tag_444')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('ec_other_downpayments'),
-                    'tag_ids': [ref('tax_tag_421')],
+                    'tag_ids': [ref('tax_tag_454')],
                 })]"/>
         </record>
         <record id="tax_vat0_444" model="account.tax.template">
@@ -368,25 +368,25 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'tag_ids': [ref('tax_tag_412')],
+                    'tag_ids': [ref('tax_tag_444')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('ec_other_downpayments'),
-                    'tag_ids': [ref('tax_tag_422')],
+                    'tag_ids': [ref('tax_tag_454')],
                 })]"/>
             <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'tag_ids': [ref('tax_tag_411')],
+                    'tag_ids': [ref('tax_tag_444')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('ec_other_downpayments'),
-                    'tag_ids': [ref('tax_tag_421')],
+                    'tag_ids': [ref('tax_tag_454')],
                 })]"/>
         </record>
         <record id="tax_vatexempt_444" model="account.tax.template">
@@ -404,25 +404,25 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'tag_ids': [ref('tax_tag_412')],
+                    'tag_ids': [ref('tax_tag_444')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('ec_other_downpayments'),
-                    'tag_ids': [ref('tax_tag_422')],
+                    'tag_ids': [ref('tax_tag_454')],
                 })]"/>
             <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'tag_ids': [ref('tax_tag_411')],
+                    'tag_ids': [ref('tax_tag_444')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('ec_other_downpayments'),
-                    'tag_ids': [ref('tax_tag_421')],
+                    'tag_ids': [ref('tax_tag_454')],
                 })]"/>
         </record>
         <record id="tax_vatnotcharged_444" model="account.tax.template">
@@ -440,25 +440,25 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'tag_ids': [ref('tax_tag_412')],
+                    'tag_ids': [ref('tax_tag_444')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('ec_other_downpayments'),
-                    'tag_ids': [ref('tax_tag_422')],
+                    'tag_ids': [ref('tax_tag_454')],
                 })]"/>
             <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'tag_ids': [ref('tax_tag_411')],
+                    'tag_ids': [ref('tax_tag_444')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('ec_other_downpayments'),
-                    'tag_ids': [ref('tax_tag_421')],
+                    'tag_ids': [ref('tax_tag_454')],
                 })]"/>
         </record>
         <record id="tax_vat_510" model="account.tax.template">
