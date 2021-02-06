@@ -1,16 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
-from odoo.tools.date_utils import get_month, get_fiscal_year
-from odoo.tools.misc import format_date
-
-import re
-from collections import defaultdict
-import json
-
 
 class ReSequenceWizard(models.TransientModel):
-    _inherit = 'account.move.reversal'
+    _inherit = 'account.resequence.wizard'
 
     def resequence(self):
         #impedimos la renumeración de asientos contables con "use documents" (ejemplo facturas)
