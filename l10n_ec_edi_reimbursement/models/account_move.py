@@ -184,14 +184,14 @@ class AccountMove(models.Model):
                     select 
                         id 
                     from account_move
-                    where commercial_partner_id=%s and l10n_latam_document_type_id=%s and name ilike %s and type='in_invoice'
+                    where commercial_partner_id=%s and l10n_latam_document_type_id=%s and name ilike %s and move_type='in_invoice'
                 ''', (purchase.partner_id.commercial_partner_id.id, purchase.l10n_latam_document_type_id.id, '%' + purchase.number + '%'))
                 purchases = self.env.cr.fetchall()
                 for purchase in purchases:
                     invoice_ids.append(purchase[0])
         if self.move_type == 'out_invoice' and not invoice_ids:
             #lanzamos una notificacion al usuario indicandole que no se encontraron las facturas buscadas
-            raise UserError(u'En el módulo contable no se encontraron las facturas de compra para el reembolso, posiblemente no las digitó en el sistema')
+            raise UserError(u'En el módulo de proveedores no se encontraron las facturas de compra utilizadas en este reembolso, posiblemente no las digitó en el sistema')
         if self.move_type == 'in_invoice' and not invoice_ids:
             #lanzamos una notificacion al usuario indicandole que no se encontraron las facturas buscadas
             raise UserError(u'No se encontró una factura de venta por reembolso como intermediario, puede generar una con el boton "Generar Venta"') 

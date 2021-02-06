@@ -21,7 +21,7 @@
 						class="oe_highlight oe_inline"
 						attrs="{'invisible': ['|', ('state','!=','draft'), ('move_type', '!=', 'out_invoice')]}"/>
 					<button name="action_view_refunds"
-						string="Buscar facturas recibidas"
+						string="Ver documentos de compra.."
 						type="object"
 						class="oe_inline"
 						attrs="{'invisible': ['|', ('show_reimbursements_related','=',False), ('move_type', '!=', 'out_invoice')]}"

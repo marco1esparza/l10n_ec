@@ -94,7 +94,8 @@ class AccountRefundClient(models.Model):
         Calculate the total and the vat value depending the field using
         calc_vat = True -> show the value of vat using the base
         '''
-        self.total = self.base_tax_free + self.no_vat_amount + self.base_vat_0 + self.base_vat_no0 + self.vat_amount_no0 + self.ice_amount
+        for line in self:
+            line.total = line.base_tax_free + line.no_vat_amount + line.base_vat_0 + line.base_vat_no0 + line.vat_amount_no0 + line.ice_amount
 
     def _fill_purchase_invoice(self):
         '''
