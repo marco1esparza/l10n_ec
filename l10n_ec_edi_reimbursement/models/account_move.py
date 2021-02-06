@@ -234,17 +234,11 @@ class AccountMove(models.Model):
             'invoice_origin': origin,
             'l10n_latam_document_type_id': l10n_latam_document_type_id.id
             }
-        inv_id = account_move_obj.new(invoice_header)
-        res_partner = inv_id._onchange_partner_id()
+        inv_id = account_move_obj.with_context(default_move_type='out_invoice').new(invoice_header)
+        inv_id._onchange_partner_id()
         #volvemos a crear el inv_id pero con la data del onchange del partner incorporada
-        #esto incluye el printer_id que estaba faltando
         inv_id_dict = inv_id._convert_to_write({name: inv_id[name] for name in inv_id._cache})
-        inv_id = account_move_obj.new(inv_id_dict)
-        #los otros dos onchanges no requieren redefinicion del inv_id
-        res_document = inv_id._inverse_l10n_latam_document_number()
-        res_printer = inv_id.onchange_l10n_ec_printer_id()
-        inv_id_dict = inv_id._convert_to_write({name: inv_id[name] for name in inv_id._cache})
-        inv_id_dict.update(invoice_header) #para mantener nuestros datos maestros
+        inv_id = account_move_obj.with_context(default_move_type='out_invoice').create(inv_id_dict)
         #computo de las lineas de reembolso
         refund_lines_vals = []
         for purchase in self:
@@ -267,13 +261,12 @@ class AccountMove(models.Model):
                   }
                  )
                 )
-        inv_id_dict.update({'refund_ids': refund_lines_vals}) #agregamos las lineas
-        sale_invoice_id = account_move_obj.create(inv_id_dict)
+        inv_id.write({'refund_ids': refund_lines_vals}) #agregamos las lineas
         #computamos los rubros a facturar
-        sale_invoice_id.compute_sale_lines_from_refunds()
+        inv_id.compute_sale_lines_from_refunds()
         #retornamos la factura de venta por reembolso de gastos
         action = self.env.ref('account.action_move_in_invoice_type').read()[0]
-        action['domain'] = [('id', 'in', sale_invoice_id.ids)]
+        action['domain'] = [('id', 'in', inv_id.ids)]
         return action
 
     def _post(self, soft=True):
@@ -357,8 +350,6 @@ class AccountMove(models.Model):
                 cadena = '(\d{3})+\-(\d{3})+\-(\d{9})'
                 if not re.match(cadena, refund.number):
                     raise ValidationError(u'Revise la sección de reembolsos, los números de documentos deben tener el siguiente formato: 00X-00X-000XXXXXX, donde X es un dígito numérico.')
-                if len(refund.authorization) not in (10, 37, 49):
-                    raise ValidationError(u'El número de autorización no tiene la longitud requerida, las longitudes válidas son 10, 37 o 49.')
                 if not refund.partner_id.l10n_latam_identification_type_id or not refund.partner_id.vat:
                     raise ValidationError(u'Revise el tipo y número de identificación para el cliente/proveedor "%s".' % refund.partner_id.name)
         return super(AccountMove, self)._post(soft)
