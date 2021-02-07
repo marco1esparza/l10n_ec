@@ -277,11 +277,6 @@ class AccountMove(models.Model):
             if invoice.show_reimbursements_detail:
                 #si se debio llenar
                 refund_total = 0.0
-                if invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code == '41':
-                    # no se emite retencion sobre facturas de compra por reembolso como cliente final (en este caso el codigo es 41)
-                    if invoice.l10n_ec_total_to_withhold != 0.0:  # aplica para compras
-                        raise UserError(_(
-                            u'La factura de reembolsos de gastos como cliente final no puede tener impuestos de retención, por favor elimínelos para poder validarla.'))
                 # validamos los impuestos para EMISION de REEMBOLSOS COMO INTERMEDIARIO
                 if invoice.move_type == 'out_invoice' and invoice.l10n_latam_document_type_id.code == '41':
                     # solo permitimos con la base 444 *equivale al codigo aplicado 454
@@ -345,7 +340,7 @@ class AccountMove(models.Model):
                     raise ValidationError(u'Ha seleccionado varias veces la misma factura de compra, debe incluirla una sola vez.')
             if not invoice.show_reimbursements_detail and invoice.refund_ids:
                 #si no se debio llenar los detalles de reembolso
-                raise ValidationError(u'Es extraño, la tabla de detalles de reembolso no debería seguir llena, por favor contacte a soporte o repita la transacción desde el inicio.')
+                raise ValidationError(u'Los detalles del reembolso de gastos (código de documento 41) esta llena, primero borre los detalles del reembolso cambiando el código de tipo de documento a 41.')
             for refund in invoice.refund_ids:
                 cadena = '(\d{3})+\-(\d{3})+\-(\d{9})'
                 if not re.match(cadena, refund.number):
