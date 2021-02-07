@@ -410,12 +410,12 @@ class AccountMove(models.Model):
                                         '12', # Inst FInancieras
                                         '20', # Estado
                                         '21', # Carta porte aereo
-                                        '41', # Reembolso de gastos, en compras si requiere retención
+                                        #'41', # Reembolso de gastos como cliente final, no requiere retención
                                         '47', # Nota de crédito de reembolso
                                         '48', # Nota de débito de reembolso
                                         ]:
-                        if move.l10n_ec_sri_tax_support_id.code not in ['08']: #compras por reembolso como intermediario
-                            result = True
+                        #if move.l10n_ec_sri_tax_support_id.code not in ['08']: #compras por reembolso como intermediario
+                        result = True
             move.l10n_ec_require_withhold_tax = result
     
     def _validate_require_withhold(self):
