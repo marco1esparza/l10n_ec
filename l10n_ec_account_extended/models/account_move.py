@@ -240,6 +240,11 @@ class AccountMove(models.Model):
             if l10n_ec_require_withhold_tax:
                 if len(profit_withhold_taxes) != 1:
                     raise UserError(_("Please select one and only one profit withhold type (312, 332, 322, etc) for product:\n\n%s") % line.name)
+                if len(vat_withhold_taxes) not in [0,1]:
+                    raise UserError(_("Please select no more than one vat withhold tax for product:\n\n%s") % line.name)
+            else:
+                if len(profit_withhold_taxes) + len(vat_withhold_taxes):
+                    raise UserError(_("This document doesn't needs a withholding tax, please remove it for product:\n\n%s") % line.name)
     
     def _l10n_ec_validate_authorization(self):
         '''
@@ -388,7 +393,7 @@ class AccountMove(models.Model):
                         result = True
             move.l10n_ec_require_vat_tax = result
             
-    @api.depends('l10n_latam_document_type_id')
+    @api.depends('l10n_latam_document_type_id','l10n_ec_sri_tax_support_id')
     def _l10n_ec_compute_require_withhold_tax(self):
         #Indicates if the invoice requires a withhold or not
         for move in self:
@@ -405,12 +410,13 @@ class AccountMove(models.Model):
                                         '12', # Inst FInancieras
                                         '20', # Estado
                                         '21', # Carta porte aereo
+                                        '41', # Reembolso de gastos, en compras si requiere retención
                                         '47', # Nota de crédito de reembolso
                                         '48', # Nota de débito de reembolso
                                         ]:
-                        result = True
+                        if move.l10n_ec_sri_tax_support_id.code not in ['08']: #compras por reembolso como intermediario
+                            result = True
             move.l10n_ec_require_withhold_tax = result
-
     
     def _validate_require_withhold(self):
         '''
