@@ -264,10 +264,11 @@ class AccountMove(models.Model):
     def _get_name_invoice_report(self):
         self.ensure_one()
         if self.l10n_latam_use_documents and self.country_code == 'EC' \
-                and self.move_type in ('out_invoice', 'out_refund') and self.l10n_latam_document_type_id.code in ['04', '18']:
+                and self.move_type in ('out_invoice', 'out_refund') and self.l10n_latam_document_type_id.code in ['04', '18', '05', '41']:
             return 'l10n_ec_edi.report_invoice_document'
         elif self.l10n_latam_use_documents and self.country_code == 'EC' \
-                and self.move_type in ('in_invoice') and self.l10n_latam_document_type_id.code in ['03']:
+                and self.move_type in ('in_invoice') and self.l10n_latam_document_type_id.code in ['03', '41'] \
+                and self.l10n_latam_document_type_id.l10n_ec_authorization == 'own':
             return 'l10n_ec_edi.report_invoice_document'
         return super(AccountMove, self)._get_name_invoice_report()
     
