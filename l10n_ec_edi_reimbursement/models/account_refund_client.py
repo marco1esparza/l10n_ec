@@ -157,7 +157,7 @@ class AccountRefundClient(models.Model):
             refund_type = refund.move_id.move_type
             if refund_type in ['in_invoice', 'in_refund']: #COMPRAS
                 commercial_partner = refund.partner_id.commercial_partner_id
-                transaction_type = 'En la %s corrija el RUC/Ced/Pasaporte del proveedor %s' % (self.number, commercial_partner.name)
+                transaction_type = 'En la %s corrija el RUC/Ced/Pasaporte del proveedor %s' % (refund.number, commercial_partner.name)
                 #if self.vat == '9999999999999': #CONSUMIDOR FINAL
                 #    transaction_type = '01'*
                 if commercial_partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_dni').id: #CEDULA
