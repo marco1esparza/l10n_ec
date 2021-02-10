@@ -403,6 +403,7 @@ class AccountMove(models.Model):
                 if move.move_type == 'in_invoice' and move.company_id.l10n_ec_issue_withholds:
                     if move.l10n_latam_document_type_id.code in [
                                         '01', # factura compra
+                                        '02', # Nota de venta
                                         '03', # liquidacion compra
                                         '08', # Entradas a espectaculos
                                         '09', # Tiquetes
