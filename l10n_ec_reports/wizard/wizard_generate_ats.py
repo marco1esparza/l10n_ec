@@ -379,9 +379,12 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                                 
                 autorizacion = doc.createElement('autorizacion')
                 detallecompras.appendChild(autorizacion)
-                autorizacion.appendChild(doc.createTextNode(in_inv.l10n_ec_authorization or ''))
+                authorization_number = in_inv.l10n_ec_authorization or ''
+                if not authorization_number and in_inv.l10n_ec_authorization_type == 'none':
+                    authorization_number = '9999999999' #facturas del exterior no requieren autorizacion, van con nueves
+                autorizacion.appendChild(doc.createTextNode(authorization_number))
                 #en v14 la autorización es opcional, por tanto controlamos que esté lleanda
-                if not in_inv.l10n_ec_authorization:
+                if not authorization_number:
                     report_status.append(in_inv.name + u' no tiene número de autorización o clave de acceso')
      
                 baseNoGraIva = doc.createElement('baseNoGraIva')
