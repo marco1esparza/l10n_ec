@@ -137,19 +137,14 @@ class AccountMove(models.Model):
         #if self.state in ['cancel']:
         ec_edi = self.edi_document_ids.filtered(lambda x: x.edi_format_id.code == 'l10n_ec_tax_authority')
         procesing_edi_job = self._context.get('procesing_edi_job',False)
-        if ec_edi:
-            if self.state == 'posted' and self.edi_state == 'to_cancel' and procesing_edi_job:
-                #cuando he requerido la anulación del documento todavía me encuentro en estado posted
-                #en este caso obvio la validación
-                return
-            if self.state == 'posted' and self.edi_state == 'cancelled' and procesing_edi_job:
-                #la anulación edi de account_edi obliga a pasar temporalmente por draft, mediante el
-                #contexto procesing_edi_job bypaseamos la restricción cuando es una anulación del proceso edi
-                return
+        if ec_edi and not procesing_edi_job:
+            #la anulación edi de account_edi obliga a pasar temporalmente por draft, mediante el
+            #contexto procesing_edi_job bypaseamos la restricción cuando es una anulación del proceso edi
             raise UserError(_(
                 "You can't set to draft the journal entry %s because an electronic document has already been requested. "
-                "Instead you can cancel this document (Request EDI Cancellation button) and then create a new one"
-            ) % self.display_name)
+                "Instead you can cancel this document (Request EDI Cancellation button) and then create a new one."
+                "DebugData:ID%s,S%s,C%s,C%s"
+            ) % (self.display_name,str(self.id),self.state,self.procesing_edi_job))
     
     def _post(self, soft=True):
         #Execute ecuadorian validations with bypass option
