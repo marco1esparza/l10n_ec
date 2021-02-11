@@ -123,8 +123,8 @@ class AccountMove(models.Model):
     def button_cancel(self):
         # validate number format of void documents when voiding draft documents
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents and x.state == 'draft'):
-            if invoice.l10n_ec_printer_id.allow_electronic_document:
-                raise ValidationError(_('%s: El punto de emisión está configurado para documentos electrónicos, para anularlo debería haberlo aprobado en el SRI primero!... o talvez se equivocó de punto de emisión?') % invoice.name)
+            if not invoice._context.get('procesing_edi_job',False) and invoice.l10n_ec_printer_id.allow_electronic_document:
+                raise ValidationError(_('%s: El punto de emisión está configurado para documentos electrónicos, debió primero aprobarlo en el SRI y luego aplastar el botón de ANULACIÓN EDI') % invoice.name)
             invoice._l10n_ec_validate_number()
         res = super().button_cancel()
         return res
