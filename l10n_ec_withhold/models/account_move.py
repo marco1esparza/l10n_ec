@@ -255,6 +255,8 @@ class AccountMove(models.Model):
         for invoice in self:
             if not invoice.country_code == 'EC':
                 raise ValidationError(u'Withhold documents are only aplicable for Ecuador')
+            if invoice.state != 'posted':
+                raise ValidationError(u'No se puede registrar la retención, el documento %s no está aprobado' %invoice.name)
             if not invoice.l10n_ec_allow_withhold:
                 raise ValidationError(u'The selected document type does not support withholds')
             if len(self) > 1 and invoice.move_type != 'out_invoice':
