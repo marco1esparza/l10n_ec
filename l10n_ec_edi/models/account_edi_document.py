@@ -3,7 +3,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-from datetime import datetime, timedelta
+from datetime import datetime
 from lxml import etree
 import base64
 
