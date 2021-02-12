@@ -144,7 +144,7 @@ class AccountMove(models.Model):
                 "You can't set to draft the journal entry %s because an electronic document has already been requested. "
                 "Instead you can cancel this document (Request EDI Cancellation button) and then create a new one."
                 "DebugData:ID%s,S%s,C%s,C%s"
-            ) % (self.display_name,str(self.id),self.state,self.procesing_edi_job))
+            ) % (self.display_name,str(self.id),self.state,procesing_edi_job))
     
     def _post(self, soft=True):
         #Execute ecuadorian validations with bypass option
