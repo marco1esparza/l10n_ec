@@ -26,10 +26,10 @@ class AccountEdiDocument(models.Model):
                 raise UserError(_("El número de Autorización (%s) debe ser único") % self.l10n_ec_access_key)
         return res
 
-    def _process_jobs(self, to_process):
+    def _process_job(self, documents, doc_type):
         #context to bypass _l10n_ec_validations_to_draft_when_edi validations when
         #voiding a document
-        super(AccountEdiDocument,  self.with_context(procesing_edi_job=True))._process_jobs(to_process)
+        super(AccountEdiDocument,  self.with_context(procesing_edi_job=True))._process_job(documents, doc_type)
 
     def _prepare_jobs(self):
         #For Ecuador do not attempt again a document after 5 days (for not being blacklisted by SRI)
