@@ -19,6 +19,7 @@
     'depends': [
         'base',
         'l10n_ec_edi',
+        'l10n_ec_withhold',
     ],   
     'data': [
         #Data
