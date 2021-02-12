@@ -142,9 +142,10 @@ class AccountMove(models.Model):
             #contexto procesing_edi_job bypaseamos la restricción cuando es una anulación del proceso edi
             raise UserError(_(
                 "You can't set to draft the journal entry %s because an electronic document has already been requested. "
-                "Instead you can cancel this document (Request EDI Cancellation button) and then create a new one."
-                "DebugData:ID%s,S%s,C%s,C%s"
-            ) % (self.display_name,str(self.id),self.state,procesing_edi_job))
+                "Instead you can cancel this document (Request EDI Cancellation button) and then create a new one"
+                "|n|n"
+                "DebugData:ID%s,S%s,C%s"
+            ) % (self.display_name,str(self.id),self.state,str(procesing_edi_job)))
     
     def _post(self, soft=True):
         #Execute ecuadorian validations with bypass option
