@@ -17,6 +17,40 @@ class AccountMove(models.Model):
     '''    
     _inherit = 'account.move'
 
+    def get_tax_apply_refund(self):
+        '''
+        Obtiene todos los impuesto disponibles para aplicar automaticamente en el reembolso
+        de gastos.
+        '''
+        tax_zero_refund = self.env['account.tax'].search([
+            ('amount', '=', 0.0),
+            ('tax_group_id.l10n_ec_type', '=', 'zero_vat'),
+            ('type_tax_use', '=', 'sale'),
+            ('l10n_ec_code_base', '=', '444'),
+            ('l10n_ec_code_applied', '=', '454'),
+        ], limit=1)
+        tax_vat_refund = self.env['account.tax'].search([
+            ('amount', '=', 12.0),
+            ('tax_group_id.l10n_ec_type', '=', 'vat12'),
+            ('type_tax_use', '=', 'sale'),
+            ('l10n_ec_code_base', '=', '444'),
+            ('l10n_ec_code_applied', '=', '454'),
+        ], limit=1)
+        tax_exempt_vat_refund = self.env['account.tax'].search([
+            ('amount', '=', 0.0),
+            ('tax_group_id.l10n_ec_type', '=', 'exempt_vat'),
+            ('type_tax_use', '=', 'sale'),
+            ('l10n_ec_code_base', '=', '444')
+        ], limit=1)
+        tax_not_charged_vat_refund = self.env['account.tax'].search([
+            ('amount', '=', 0.0),
+            ('tax_group_id.l10n_ec_type', '=', 'not_charged_vat'),
+            ('type_tax_use', '=', 'sale'),
+            ('l10n_ec_code_base', '=', '444')
+        ], limit=1)
+        return tax_zero_refund, tax_vat_refund, tax_exempt_vat_refund, tax_not_charged_vat_refund
+
+
     def compute_sale_lines_from_refunds(self):
         '''
         Genera los rubros de la factura de venta por reembolso como intermediario a partir
@@ -26,8 +60,6 @@ class AccountMove(models.Model):
         '''
         #primero unas validaciones
         self.ensure_one()
-        account_tax_obj = self.env['account.tax']
-        account_move_line_obj = self.env['account.move.line']
         if self.state != 'draft':
             raise UserError(_(u'Solo se puede aplicar sobre facturas en estado borrador.'))
         if self.invoice_line_ids:
@@ -39,68 +71,91 @@ class AccountMove(models.Model):
             raise UserError(_(u'No se ha configurado la cta de ingresos por reembolso de gastos como intermediario en el producto de reembolso de gastos seteado en la compañia, usualmente es la cta 101040402 OTROS ANTICIPOS POR INTERMEDIARIO.'))
         if not refund_product.property_account_expense_id:
             raise UserError(_(u'No se ha configurado la cta de egresos por reembolso de gastos como intermediario en el producto de reembolso de gastos seteado en la compañia, usualmente es la cta 101040402 OTROS ANTICIPOS POR INTERMEDIARIO.'))
-        tax_zero_refund = account_tax_obj.search([
-            ('amount','=',0.0),
-            ('tax_group_id.l10n_ec_type','=','zero_vat'),
-            ('type_tax_use','=','sale'),
-            ('l10n_ec_code_base','=','444'),
-            ('l10n_ec_code_applied','=','454'),
-            ], limit=1)
-        tax_vat_refund = account_tax_obj.search([
-            ('amount','=',12.0),
-            ('tax_group_id.l10n_ec_type','=','vat12'),
-            ('type_tax_use','=','sale'),
-            ('l10n_ec_code_base','=','444'),
-            ('l10n_ec_code_applied','=','454'),
-            ], limit=1)
-        if not tax_zero_refund:
-            raise UserError(_(u'No se encuentra el IVA 0% en reembolsos de gastos, codigo base 444, por favor configurelo correctamente.'))
-        if not tax_vat_refund:
-            raise UserError(_(u'No se encuentra el IVA 12% en reembolsos de gastos, codigo base 444, por favor configurelo correctamente.'))
-        for purchase in self.refund_ids: 
-            amount_0_vat = purchase.base_tax_free + purchase.no_vat_amount + purchase.base_vat_0
-            amount_vat = purchase.base_vat_no0
+        tax_zero_refund, tax_vat_refund, tax_exempt_vat_refund, tax_not_charged_vat_refund = self.get_tax_apply_refund()
+        lst_taxed_refund = [tax_zero_refund, tax_vat_refund, tax_exempt_vat_refund, tax_not_charged_vat_refund]
+        for purchase in self.refund_ids:
             #se espera construir un texto de la siguiente forma:
             #Reembolso de gastos RUC: 1792366836001, Fact No. 001-001-0000000001, Neto Tarifa 0% $99.99
             #Reembolso de gastos RUC: 1792366836001, Fact No. 001-001-0000000001, Neto Tarifa 12% $100.00, IVA $12.00
             if not purchase.l10n_latam_document_type_id.doc_code_prefix:
                 raise UserError(_(u'Configure una "Descripcion" (Por ejemplo "Fact." o "Doc") como nombre corto para el tipo de documento %s') % purchase.l10n_latam_document_type_id.name)
-            base_name = []
-            base_name.append('Reembolso de gastos RUC ' + purchase.partner_id.vat)
-            base_name.append(purchase.l10n_latam_document_type_id.doc_code_prefix + ' No. ' + purchase.number)
-            if amount_0_vat:
-                inv_line = account_move_line_obj.new({
-                    'move_id': self.id,
-                    'product_id': self.company_id.refund_product_id.id,
-                    })
-                inv_line._onchange_product_id()                
-                name = list(base_name)
-                name.append('Neto Tarifa 0% $ ' + "{:.2f}".format(amount_0_vat))
-                inv_line.name = "; ".join(name)
-                inv_line.credit = amount_0_vat
-                inv_line.price_unit = amount_0_vat
-                inv_line.tax_ids = tax_zero_refund
-                inv_line_values = account_move_line_obj._convert_to_write(inv_line._cache)
-                line = account_move_line_obj.with_context(check_move_validity=False).create(inv_line_values)
-                line.recompute_tax_line = True
-            if amount_vat:
-                inv_line = account_move_line_obj.new({
-                    'move_id': self.id,
-                    'product_id': self.company_id.refund_product_id.id
-                    })
-                inv_line._onchange_product_id()
-                name = list(base_name)
-                name.append('Neto $ ' + "{:.2f}".format(amount_vat))
-                name.append('IVA 12% $ ' + "{:.2f}".format(purchase.vat_amount_no0))
-                inv_line.name = "; ".join(name)
-                inv_line.credit = amount_vat
-                inv_line.price_unit = amount_vat
-                inv_line.tax_ids = tax_vat_refund
-                inv_line_values = account_move_line_obj._convert_to_write(inv_line._cache)
-                line = account_move_line_obj.with_context(check_move_validity=False).create(inv_line_values)
-                line.recompute_tax_line = True
+            self.create_line_from_each_value(purchase, lst_taxed_refund)
         self.with_context(check_move_validity=False)._onchange_invoice_line_ids()
         self.onchange_set_l10n_ec_invoice_payment_method_ids()
+
+    def create_line_from_each_value(self, purchase, lst_taxed_refund):
+        '''
+        Para cada impuesto aplicado del reembolso se genera una linea en el detalle de la factura.
+        :return:
+        '''
+        tax_zero_refund, tax_vat_refund, tax_exempt_vat_refund, tax_not_charged_vat_refund = lst_taxed_refund
+        amount_0_vat = purchase.base_vat_0
+        amount_vat_free = purchase.base_tax_free
+        amount_not_vat = purchase.no_vat_amount
+        amount_vat = purchase.base_vat_no0
+        # agrega una nueva linea segun el tipo de impuesto aplicado.
+        if amount_0_vat:
+            # iva 0
+            self.tax_exists_refund(tax_zero_refund, 'zero_vat')
+            self.create_sale_lines_from_refunds(tax_zero_refund, amount_0_vat, purchase)
+        if amount_vat:
+            # iva 12
+            self.tax_exists_refund(tax_vat_refund, 'vat')
+            self.create_sale_lines_from_refunds(tax_vat_refund, amount_vat, purchase)
+        if amount_vat_free:
+            # exento de iva
+            self.tax_exists_refund(tax_exempt_vat_refund, 'exempt_vat')
+            self.create_sale_lines_from_refunds(tax_exempt_vat_refund, amount_vat_free, purchase)
+        if amount_not_vat:
+            # no objeto de iva
+            self.tax_exists_refund(tax_not_charged_vat_refund, 'not_charged_vat')
+            self.create_sale_lines_from_refunds(tax_not_charged_vat_refund, amount_not_vat, purchase)
+
+    def tax_exists_refund(self, tax_refund, type):
+        '''
+        Valida la existencia de los impuestos de reembolso de gastos
+        :param tax_refund: impuesto a aplicar en cada linea
+        :param type:
+        :return:
+        '''
+        str_tax = "N/A"
+        if type == 'zero_vat':
+            str_tax = 'IVA 0%'
+        elif type == 'vat':
+            str_tax = 'IVA 12%'
+        elif type == 'not_charged_vat':
+            str_tax = 'No objeto de IVA'
+        elif type == 'exempt_vat':
+            str_tax = 'Excento de IVA'
+        if not tax_refund:
+            raise UserError(_(
+                u'No se encuentra el %s en reembolsos de gastos, codigo base 444, por favor configurelo correctamente'%(str_tax)))
+
+    def create_sale_lines_from_refunds(self, tax, amount, purchase):
+        '''
+        crea las lineas de la factura de venta segun los datos de reembolso (impuestos).
+        :param tax: objeto impuesto
+        :param amount: valor del impuesto
+        :param purchase: objeto purchase
+        :return:
+        '''
+        base_name = []
+        base_name.append('Reembolso de gastos RUC ' + purchase.partner_id.vat)
+        base_name.append(purchase.l10n_latam_document_type_id.doc_code_prefix + ' No. ' + str(purchase.number))
+        inv_line = self.env['account.move.line'].new({
+            'move_id': self.id,
+            'product_id': self.company_id.refund_product_id.id,
+        })
+        inv_line._onchange_product_id()
+        name = list(base_name)
+        name.append('Neto Tarifa ' + tax.description + ' $ ' + "{:.2f}".format(amount))
+        inv_line.name = "; ".join(name)
+        inv_line.credit = amount
+        inv_line.price_unit = amount
+        inv_line.tax_ids = tax
+        inv_line_values = self.env['account.move.line']._convert_to_write(inv_line._cache)
+        line = self.env['account.move.line'].with_context(check_move_validity=False).create(inv_line_values)
+        line.recompute_tax_line = True
 
     def action_view_refunds(self):
         '''
@@ -129,14 +184,14 @@ class AccountMove(models.Model):
                     select 
                         id 
                     from account_move
-                    where commercial_partner_id=%s and l10n_latam_document_type_id=%s and name ilike %s and type='in_invoice'
+                    where commercial_partner_id=%s and l10n_latam_document_type_id=%s and name ilike %s and move_type='in_invoice'
                 ''', (purchase.partner_id.commercial_partner_id.id, purchase.l10n_latam_document_type_id.id, '%' + purchase.number + '%'))
                 purchases = self.env.cr.fetchall()
                 for purchase in purchases:
                     invoice_ids.append(purchase[0])
         if self.move_type == 'out_invoice' and not invoice_ids:
             #lanzamos una notificacion al usuario indicandole que no se encontraron las facturas buscadas
-            raise UserError(u'En el módulo contable no se encontraron las facturas de compra para el reembolso, posiblemente no las digitó en el sistema')
+            raise UserError(u'En el módulo de proveedores no se encontraron las facturas de compra utilizadas en este reembolso, posiblemente no las digitó en el sistema')
         if self.move_type == 'in_invoice' and not invoice_ids:
             #lanzamos una notificacion al usuario indicandole que no se encontraron las facturas buscadas
             raise UserError(u'No se encontró una factura de venta por reembolso como intermediario, puede generar una con el boton "Generar Venta"') 
@@ -179,17 +234,11 @@ class AccountMove(models.Model):
             'invoice_origin': origin,
             'l10n_latam_document_type_id': l10n_latam_document_type_id.id
             }
-        inv_id = account_move_obj.new(invoice_header)
-        res_partner = inv_id._onchange_partner_id()
+        inv_id = account_move_obj.with_context(default_move_type='out_invoice').new(invoice_header)
+        inv_id._onchange_partner_id()
         #volvemos a crear el inv_id pero con la data del onchange del partner incorporada
-        #esto incluye el printer_id que estaba faltando
         inv_id_dict = inv_id._convert_to_write({name: inv_id[name] for name in inv_id._cache})
-        inv_id = account_move_obj.new(inv_id_dict)
-        #los otros dos onchanges no requieren redefinicion del inv_id
-        res_document = inv_id._inverse_l10n_latam_document_number()
-        res_printer = inv_id.onchange_l10n_ec_printer_id()
-        inv_id_dict = inv_id._convert_to_write({name: inv_id[name] for name in inv_id._cache})
-        inv_id_dict.update(invoice_header) #para mantener nuestros datos maestros
+        inv_id = account_move_obj.with_context(default_move_type='out_invoice').create(inv_id_dict)
         #computo de las lineas de reembolso
         refund_lines_vals = []
         for purchase in self:
@@ -212,13 +261,12 @@ class AccountMove(models.Model):
                   }
                  )
                 )
-        inv_id_dict.update({'refund_ids': refund_lines_vals}) #agregamos las lineas
-        sale_invoice_id = account_move_obj.create(inv_id_dict)
+        inv_id.write({'refund_ids': refund_lines_vals}) #agregamos las lineas
         #computamos los rubros a facturar
-        sale_invoice_id.compute_sale_lines_from_refunds()
+        inv_id.compute_sale_lines_from_refunds()
         #retornamos la factura de venta por reembolso de gastos
         action = self.env.ref('account.action_move_in_invoice_type').read()[0]
-        action['domain'] = [('id', 'in', sale_invoice_id.ids)]
+        action['domain'] = [('id', 'in', inv_id.ids)]
         return action
 
     def _post(self, soft=True):
@@ -227,8 +275,39 @@ class AccountMove(models.Model):
         '''
         for invoice in self:
             if invoice.show_reimbursements_detail:
-                #si se debio llenar 
+                #si se debio llenar
                 refund_total = 0.0
+                # validamos los impuestos para EMISION de REEMBOLSOS COMO INTERMEDIARIO
+                if invoice.move_type == 'out_invoice' and invoice.l10n_latam_document_type_id.code == '41':
+                    # solo permitimos con la base 444 *equivale al codigo aplicado 454
+                    base_codes = invoice.line_ids.mapped('tax_ids').mapped('l10n_ec_code_base')
+                    base_codes = list(dict.fromkeys(base_codes))  # remueve duplicados
+                    try:
+                        base_codes.remove('444')  # removemos el unico codigo permitido
+                    except ValueError:
+                        # si el codigo 444 no esta en la lista lanza un error, lo capturamos.
+                        pass
+                    if base_codes:
+                        raise UserError(_(
+                            u'La emisión de reembolsos de gastos como intermediario debe realizarse con el impuesto 454, erroneamente esta utilizando los códigos: %s' % ", ".join(
+                                base_codes)))
+                # validamos los impuestos para RECEPCION de compras para REEMBOLSOS COMO INTERMEDIARIO
+                if invoice.move_type == 'in_invoice' and invoice.l10n_ec_sri_tax_support_id.code == '08':
+                    # solo permitimos con la base 545 *equivale al codigo aplicado 555
+                    vat_taxes = invoice.line_ids.mapped('tax_ids').filtered(
+                        lambda r: r.tax_group_id.l10n_ec_type in ['vat12', 'vat14', 'zero_vat', 'not_charged_vat',
+                                                                  'exempt_vat'])
+                    base_codes = vat_taxes.mapped('l10n_ec_code_base')
+                    base_codes = list(dict.fromkeys(base_codes))  # remueve duplicados
+                    try:
+                        base_codes.remove('545')  # removemos el unico codigo permitido
+                    except ValueError:
+                        # si el codigo 545 no esta en la lista lanza un error, lo capturamos.
+                        pass
+                    if base_codes:
+                        raise UserError(_(
+                            u'La recepción de egresos para reembolso de gastos como intermediario debe realizarse con el impuesto 555, erroneamente esta utilizando los códigos: %s' % ", ".join(
+                                base_codes)))
                 for refund in invoice.refund_ids:
                     refund_total += refund.total
                 if float_compare(invoice.l10n_ec_total_with_tax,refund_total,invoice.company_id.currency_id.decimal_places) != 0:
@@ -261,42 +340,11 @@ class AccountMove(models.Model):
                     raise ValidationError(u'Ha seleccionado varias veces la misma factura de compra, debe incluirla una sola vez.')
             if not invoice.show_reimbursements_detail and invoice.refund_ids:
                 #si no se debio llenar los detalles de reembolso
-                raise ValidationError(u'Es extraño, la tabla de detalles de reembolso no debería seguir llena, por favor contacte a soporte o repita la transacción desde el inicio.')
-            if invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code == '41':
-                #no se emite retencion sobre facturas de compra por reembolso como cliente final (en este caso el codigo es 41)
-                if invoice.l10n_ec_total_to_withhold != 0.0: #aplica para compras
-                    raise UserError(_(u'La factura de reembolsos de gastos como cliente final no puede tener impuestos de retención, por favor elimínelos para poder validarla.'))
-            #validamos los impuestos para EMISION de REEMBOLSOS COMO INTERMEDIARIO
-            if invoice.move_type == 'out_invoice' and invoice.l10n_latam_document_type_id.code == '41':
-                #solo permitimos con la base 444 *equivale al codigo aplicado 454
-                base_codes = invoice.line_ids.mapped('tax_ids').mapped('l10n_ec_code_base')
-                base_codes = list(dict.fromkeys(base_codes)) #remueve duplicados
-                try:
-                    base_codes.remove('444') #removemos el unico codigo permitido
-                except ValueError:
-                    #si el codigo 444 no esta en la lista lanza un error, lo capturamos. 
-                    pass
-                if base_codes:
-                    raise UserError(_(u'La emisión de reembolsos de gastos como intermediario debe realizarse con el impuesto 454, erroneamente esta utilizando los códigos: %s' %", ".join(base_codes)))
-            #validamos los impuestos para RECEPCION de compras para REEMBOLSOS COMO INTERMEDIARIO
-            if invoice.move_type == 'in_invoice' and invoice.l10n_ec_sri_tax_support_id.code == '08':
-                #solo permitimos con la base 545 *equivale al codigo aplicado 555
-                vat_taxes = invoice.line_ids.mapped('tax_ids').filtered(lambda r: r.tax_group_id.l10n_ec_type in ['vat12', 'vat14','zero_vat','not_charged_vat','exempt_vat'])
-                base_codes = vat_taxes.mapped('l10n_ec_code_base')
-                base_codes = list(dict.fromkeys(base_codes)) #remueve duplicados
-                try:
-                    base_codes.remove('545') #removemos el unico codigo permitido
-                except ValueError:
-                    #si el codigo 545 no esta en la lista lanza un error, lo capturamos. 
-                    pass
-                if base_codes:
-                    raise UserError(_(u'La recepción de egresos para reembolso de gastos como intermediario debe realizarse con el impuesto 555, erroneamente esta utilizando los códigos: %s' %", ".join(base_codes)))
+                raise ValidationError(u'Los detalles del reembolso de gastos (código de documento 41) esta llena, primero borre los detalles del reembolso cambiando el código de tipo de documento a 41.')
             for refund in invoice.refund_ids:
                 cadena = '(\d{3})+\-(\d{3})+\-(\d{9})'
                 if not re.match(cadena, refund.number):
                     raise ValidationError(u'Revise la sección de reembolsos, los números de documentos deben tener el siguiente formato: 00X-00X-000XXXXXX, donde X es un dígito numérico.')
-                if len(refund.authorization) not in (10, 37, 49):
-                    raise ValidationError(u'El número de autorización no tiene la longitud requerida, las longitudes válidas son 10, 37 o 49.')
                 if not refund.partner_id.l10n_latam_identification_type_id or not refund.partner_id.vat:
                     raise ValidationError(u'Revise el tipo y número de identificación para el cliente/proveedor "%s".' % refund.partner_id.name)
         return super(AccountMove, self)._post(soft)

@@ -18,7 +18,7 @@ class L10nLatamDocumentType(models.Model):
     ]
 
     _EC_AUTHORIZATION = [
-        ('none', 'None'),
+        ('none', 'None'), #use authorization 9999999999 instead
         ('own', 'Issued by my company'),
         ('third', 'Issued by Third Parties')
     ]

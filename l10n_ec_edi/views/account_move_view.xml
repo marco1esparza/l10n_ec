@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
 
@@ -9,9 +9,10 @@
             <field name="arch" type="xml">
             	<xpath expr="//h1[@class='mt0']" position="after">
 					<field name="show_l10n_ec_authorization" invisible="1"/>
+					<field name="edit_l10n_ec_authorization" invisible="1"/>
 					<field name="l10n_ec_authorization"
 						attrs="{'invisible': [('show_l10n_ec_authorization', '!=', True)],
-						        'readonly': [('l10n_ec_authorization_type', '=', 'own')]
+						        'readonly': [('edit_l10n_ec_authorization', '=', False)]
 						       }"
 						placeholder="Clave de Acceso o Número de autorización"/>
             	</xpath>
@@ -19,7 +20,10 @@
 					<field name="l10n_ec_authorization_type" invisible="1"/>
             		<field name="l10n_ec_printer_id"
 						attrs="{'invisible': ['|', '|',  ('country_code', '!=', 'EC'), ('l10n_ec_authorization_type', '!=', 'own'), ('move_type', 'not in', ('out_invoice', 'out_refund', 'in_invoice'))],
-						        'required': [('country_code', '=', 'EC'), ('move_type', 'in', ('out_invoice', 'out_refund', 'in_invoice')), ('l10n_ec_authorization_type', '=', 'own')]}"
+						        'required': [('country_code', '=', 'EC'), ('move_type', 'in', ('out_invoice', 'out_refund', 'in_invoice')), ('l10n_ec_authorization_type', '=', 'own')],
+						        'readonly': ['|','&amp;',('posted_before', '=', True),('state', '!=', 'draft'),
+						                     '&amp;','&amp;',('posted_before', '=', True),('state', '=', 'draft'),('l10n_latam_manual_document_number', '=', False)]
+						        }"
 						options="{'no_create': True, 'no_open': True}"/>
             	</xpath>
             	<xpath expr="//field[@name='l10n_latam_document_number']" position="after">

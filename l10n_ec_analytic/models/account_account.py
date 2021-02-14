@@ -15,7 +15,20 @@ class AccountAccount(models.Model):
         '''
         self.analytic_policy = 'never'
         if self.code and self.code.startswith(('4', '5', '6', '7', '8')):
-            self.analytic_policy = 'posted'
+            self.analytic_policy = 'posted'            
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        #set a valid value for new accounts created by other modules (when creating a journal for instance)
+        for vals in vals_list:
+            if not vals.get('analytic_policy',False):
+                code = vals.get('code')
+                analytic_policy = 'never'
+                if code.startswith(('4', '5', '6', '7', '8')):
+                    analytic_policy = 'posted'
+                vals['analytic_policy'] = analytic_policy
+        res_ids = super(AccountAccount, self).create(vals_list)
+        return res_ids
             
     _ANALYTIC_POLICY = [
         ('optional', 'Opcional'),

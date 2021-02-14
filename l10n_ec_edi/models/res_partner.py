@@ -33,6 +33,12 @@ class ResPartner(models.Model):
         elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
             code = '08'
         return code
+    
+    def _get_complete_name(self):
+        for partner in self:
+            if partner.commercial_partner_id:
+                partner = partner.commercial_partner_id
+            return partner.commercial_company_name or partner.name
 
     def get_invoice_partner_data(self):
         '''
@@ -40,44 +46,29 @@ class ResPartner(models.Model):
         if self.commercial_partner_id:
             self = self.commercial_partner_id
         return {
-            'invoice_name': self.commercial_company_name,
+            'invoice_name': self._get_complete_name(),
             'invoice_vat': self.vat,
             'invoice_address': ' '.join([value for value in [self.street, self.street2] if value]),
             'invoice_phone': self.phone or self.mobile,
             'invoice_email': self.email,
         }
         
-    def _l10n_ec_get_code(self):
-        '''
-        Este método asigna un código a cada tipo de identificación
-        '''
+    def _compute_l10n_ec_code(self):
+        #Este método asigna un código a cada tipo de identificación
         for partner in self:
-            partner.l10n_ec_code = self._l10n_ec_get_code_by_vat()
-
-    @api.model
-    def _l10n_ec_get_code_by_vat(self):
-        """
-        Calcula el codigo del partner basado en el vat y el type_vat. Permite
-        hacer el calculo para un vat y type_vat que no esten ligados a un
-        partner
-        """
-        # Variable type_vat:
-        # Existe un problema con la tilde en esta version, en una parte
-        # se entrega un str y en otra se entrega un unicode, para solucionarlo
-        # se quita la tilde en todo lugar que se ocupe
-        code = 'O'
-        if self.vat == '9999999999999': #CONSUMIDOR FINAL
-            code = 'F'
-        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_dni').id: #CEDULA
-            code = 'C'
-        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_ruc').id: #RUC
-            code = 'R'
-        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_pass').id: #PERS. NATURAL EXTRANJERA
-            code = 'P' 
-        elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
-            code = 'P'
-        return code
-
+            code = 'O'
+            if partner.vat == '9999999999999': #CONSUMIDOR FINAL
+                code = 'F'
+            elif partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_dni').id: #CEDULA
+                code = 'C'
+            elif partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_ruc').id: #RUC
+                code = 'R'
+            elif partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_pass').id: #PERS. NATURAL EXTRANJERA
+                code = 'P' 
+            elif partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
+                code = 'P'
+            partner.l10n_ec_code = code
+    
     #Columns
     l10n_ec_commercial_name = fields.Char(
         string='Commercial Name',
@@ -85,7 +76,7 @@ class ResPartner(models.Model):
         )
     l10n_ec_code = fields.Char(
         string='Ecuadorian Identification Type',
-        compute='_l10n_ec_get_code', 
+        compute='_compute_l10n_ec_code', 
         method=True,
         store=False,  
         help='Indicates the type of identification of the partner, is used for the ATS'

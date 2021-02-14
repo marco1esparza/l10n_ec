@@ -74,6 +74,8 @@ class AccountEdiDocument(models.Model):
         withhold = etree.Element('comprobanteRetencion', {'id': 'comprobante', 'version': '1.0.0'})
         # CREACION INFO TRIBUTARIA
         infoTributaria = etree.SubElement(withhold, 'infoTributaria')
+        if not self.move_id.company_id.l10n_ec_legal_name:
+            raise UserError('Defina el nombre legal para la compañía "%s".' % (self.move_id.company_id.name))
         infoTribElements = [
             ('ambiente', self.move_id.company_id._get_l10n_ec_environment_type()),
             ('tipoEmision', '1'),
@@ -88,8 +90,12 @@ class AccountEdiDocument(models.Model):
             ('estab', self.move_id.l10n_latam_document_number[0:3]),
             ('ptoEmi', self.move_id.l10n_latam_document_number[4:7]),
             ('secuencial', self.move_id.l10n_latam_document_number[8:]),
-            ('dirMatriz', self.move_id.company_id.street)
+            ('dirMatriz', self.move_id.company_id.partner_id._get_complete_address())
         ])
+        if self.move_id.company_id.l10n_ec_regime == 'micro':
+            infoTribElements.extend([('regimenMicroempresas', _MICROCOMPANY_REGIME_LABEL)])
+        if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
+            infoTribElements.extend([('agenteRetencion', self.move_id.company_id.l10n_ec_wihhold_agent_number)])
         self.create_TreeElements(infoTributaria, infoTribElements)
         # CREACION INFO Retencion
         infoCompRetencion = etree.SubElement(withhold, 'infoCompRetencion')
@@ -126,15 +132,10 @@ class AccountEdiDocument(models.Model):
             detalle_data.append(('numDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_number.replace('-','')))
             detalle_data.append(('fechaEmisionDocSustento', datetime.strftime(line.move_id.l10n_ec_withhold_origin_ids[0].invoice_date,'%d/%m/%Y')))
             self.create_TreeElements(impuesto, detalle_data)
-        if self.move_id.company_id.l10n_ec_regime == 'micro' or self.move_id.company_id.l10n_ec_withhold_agent  == 'designated_withhold_agent'\
-           or get_invoice_partner_data['invoice_email'] or get_invoice_partner_data['invoice_address']\
+        if get_invoice_partner_data['invoice_email'] or get_invoice_partner_data['invoice_address']\
            or get_invoice_partner_data['invoice_phone']:
             #dentro del if para asegurar que no quede huerfano el label
             infoAdicional = self.create_SubElement(withhold, 'infoAdicional')
-        if self.move_id.company_id.l10n_ec_regime == 'micro':
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'Regimen'}, text=_MICROCOMPANY_REGIME_LABEL)
-        if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'Agente de Retencion'}, text=''.join([u'Resolución Nro. ', self.move_id.company_id.l10n_ec_wihhold_agent_number]))
         if get_invoice_partner_data['invoice_email']:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'email'}, text=get_invoice_partner_data['invoice_email'])
         if get_invoice_partner_data['invoice_address']:
@@ -149,10 +150,6 @@ class AccountEdiDocument(models.Model):
         if self.move_id.is_withholding():
             additional_info = []
             get_invoice_partner_data = self.move_id.partner_id.get_invoice_partner_data()
-            if self.move_id.company_id.l10n_ec_regime == 'micro':
-                additional_info.append('Regimen: %s' % _MICROCOMPANY_REGIME_LABEL)
-            if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
-                additional_info.append('Agente de Retencion: %s' % ''.join([u'Resolución Nro. ', self.move_id.company_id.l10n_ec_wihhold_agent_number]))
             if get_invoice_partner_data['invoice_email']:
                 additional_info.append('Email: %s' % get_invoice_partner_data['invoice_email'])
             if get_invoice_partner_data['invoice_address']:
