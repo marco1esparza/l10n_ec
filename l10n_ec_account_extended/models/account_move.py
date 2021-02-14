@@ -248,8 +248,8 @@ class AccountMove(models.Model):
         - Validate access_key integrity against invoice number, date, ruc, etc
         '''
         auth_len = len(self.l10n_ec_authorization)
-        if auth_len in (10,42):
-            return True #no podemos aplicar ninguna validacion
+        if auth_len in (10, 42):
+            return True  # no podemos aplicar ninguna validacion
         if auth_len != 49:
             raise UserError(_("El número de Autorización es incorrecto, presenta %s dígitos") % auth_len)
         #la siguiente seccion es solo para el caso de 49 digitos, osea claves de acceso

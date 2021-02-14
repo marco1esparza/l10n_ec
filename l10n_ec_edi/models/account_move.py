@@ -106,6 +106,14 @@ class AccountMove(models.Model):
     def is_withholding(self):
         return False
 
+    def action_invoice_sent(self):
+        # Se hereda el Metodo para permitir modificar la plantilla y usar las de Documentos Electronicos
+        res = super(AccountMove, self).action_invoice_sent()
+        if self.country_code == 'EC' and self.journal_id.l10n_latam_use_documents:
+            template = self.env.ref('l10n_ec_edi.l10n_ec_email_template_edi_document')
+            res['context']['default_template_id'] = template.id
+        return res
+
     @api.onchange('partner_id', 'l10n_latam_document_type_id', 'l10n_ec_available_sri_tax_support_ids')
     def _onchange_l10n_ec_available_sri_tax_support_ids(self):
         '''

@@ -26,7 +26,6 @@
     'data': [
         #Data
         'data/account_journal_data.xml',
-        'data/mail_template_data.xml',
         #Security
         'security/ir.model.access.csv',
         #Views
