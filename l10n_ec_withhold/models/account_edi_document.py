@@ -158,7 +158,4 @@ class AccountEdiDocument(models.Model):
                 additional_info.append('Telefono: %s' % get_invoice_partner_data['invoice_phone'])
         return additional_info
 
-    def _prepare_jobs(self):
-        #make withholds is_withhold() look like invoice is_invoice() for account_edi to process it
-        to_process = super(AccountEdiDocument, self.with_context(l10n_ec_send_email_others_docs=True))._prepare_jobs()
-        return to_process
+

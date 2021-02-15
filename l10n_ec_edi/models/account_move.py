@@ -105,9 +105,12 @@ class AccountMove(models.Model):
 
     def is_withholding(self):
         return False
+    
+    def is_waybill(self):
+        return False
 
     def action_invoice_sent(self):
-        # Se hereda el Metodo para permitir modificar la plantilla y usar las de Documentos Electronicos
+        #Reemplazamos la plantilla de account_edi por la nuestra, con tipo de documento, portal, y mejoras
         res = super(AccountMove, self).action_invoice_sent()
         if self.country_code == 'EC' and self.journal_id.l10n_latam_use_documents:
             template = self.env.ref('l10n_ec_edi.l10n_ec_email_template_edi_document')
@@ -145,7 +148,10 @@ class AccountMove(models.Model):
         res = super(AccountMove, self)._post(soft)
         self.generate_withhold_edis() #antes de ejecutar nuestras validaciones, por eso no puede estar en l10n_ec_withhold
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
-            if not invoice.is_invoice() and not invoice.is_withholding():
+            if not invoice.is_invoice():
+                # ideally we should call a line like
+                # if not invoice.is_invoice() and not invoice.is_withholding()
+                # but for v14 we don't consider is_invoice to include all edis
                 raise ValidationError(u'Para Ecuador por favor desactivar la opcion Usa Documentos del Diario %s.' % invoice.journal_id.name)
             if invoice.l10n_latam_document_type_id.l10n_ec_require_vat:
                 if not invoice.partner_id.l10n_latam_identification_type_id:
@@ -480,7 +486,10 @@ class AccountMove(models.Model):
             show_l10n_ec_authorization = False
             edit_l10n_ec_authorization = False
             if res.country_code == 'EC':
-                if res.is_invoice() or res.is_withholding():
+                # ideally we should call a line like
+                # if res.is_invoice(): or res.is_withholding()
+                # but for v14 we don't consider is_invoice to include all edis
+                if res.is_invoice():
                     if res.l10n_ec_authorization_type == 'third':
                         show_l10n_ec_authorization = True
                         edit_l10n_ec_authorization = True
