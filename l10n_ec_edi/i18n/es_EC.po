@@ -101,10 +101,6 @@ msgid ""
 "</div>\n"
 "            "
 msgstr ""
-
-
-
-
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
 "        Estimado \n"
