@@ -74,6 +74,9 @@ class ResPartner(models.Model):
     country_id = fields.Many2one(
         default=lambda self: self.env.user.company_id.country_id.id
         )
+    #adds tracking to know when user changes configuration
+    vat = fields.Char(track_visibility='onchange')
+    l10n_latam_identification_type_id = fields.Many2one(track_visibility='onchange')
     
     @api.model
     def _commercial_fields(self):

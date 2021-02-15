@@ -46,10 +46,6 @@ msgid ""
 "* The 'Canceled' state is used when the key is not more used by any reason, except expiration.\n"
 "* The 'Expiration state is showed when the signature is expired"
 msgstr ""
-"* El estado 'Borrador' se usa cuando un usuario está creando una nueva clave. Advertencia: todos pueden ver la clave.\n"
-"* El estado 'Confirmado' se usa cuando la clave se completa y se guarda en el sistema\n"
-"* El estado 'Cancelado' se usa cuando la clave no se usa más por ningún motivo, excepto el vencimiento.\n"
-"* El estado de 'Caducidad' se muestra cuando la firma caduca"
 
 #. module: l10n_ec_edi
 #: model:mail.template,body_html:l10n_ec_edi.l10n_ec_email_template_edi_document
@@ -102,56 +98,6 @@ msgid ""
 "            "
 msgstr ""
 
-
-
-
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Estimado \n"
-"        % if object.partner_id.parent_id:\n"
-"            ${object.partner_id.name} (${object.partner_id.parent_id.name}),\n"
-"        % else:\n"
-"            ${object.partner_id.name},\n"
-"        % endif\n"
-"        <br/><br/>\n"
-"        Por favor encuentre adjunta su \n"
-"        % if object.name and object.l10n_latam_document_type_id:\n"
-"            ${object.l10n_latam_document_type_id.report_name or object.l10n_latam_document_type_id.name} <strong>${object.name}</strong>\n"
-"        % elif object.name:\n"
-"            Documento <strong>${object.name}</strong>\n"
-"        % else:\n"
-"            documento\n"
-"        % endif\n"
-"        % if object.invoice_origin:\n"
-"            (con referencia: ${object.invoice_origin})\n"
-"        % endif\n"
-"        % if object.is_withholding():\n"
-"            por un monto de <strong>${format_amount(object.l10n_ec_total, object.currency_id)}</strong>.\n"
-"        % elif object.is_waybill():\n"
-"            .\n"
-"        % else:\n"
-"            por un monto de <strong>${format_amount(object.amount_total, object.currency_id)}</strong>.\n"
-"        % endif\n"
-"        % if object.move_type == 'out_invoice':\n"
-"        \tGracias por su compra.\n"
-"        % endif\n"
-"        <br/>\n"
-"        % if object.get_portal_url():\n"
-"         <div style=\"margin: 16px 0px 16px 0px;\">\n"
-"            <a href=\"/my/invoices/${object.id}?access_token=${object.access_token}\" style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\" target=\"_blank\">\n"
-"                Ver Documento\n"
-"            </a>\n"
-"         </div>\n"
-"        % endif\n"
-"        <br/>\n"
-"        No dude en contactarnos si tiene alguna consulta.\n"
-"        <br/> \n"
-"        Un saludo de ${object.company_id.name}\n"
-"        <br/><br/>\n"
-"    </p>\n"
-"</div>\n"
-"            "
-
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Agente de Retención Resolución No.:</strong>"
@@ -160,62 +106,62 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Branch Office address:</strong>"
-msgstr "<strong>Dirección Sucursal:</strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Company Name / Name and Surname: </strong>"
-msgstr "<strong>Razón Social / Nombres y Apellidos: </strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Document that is modified: </strong>"
-msgstr "<strong>Documento que se modifica: </strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Due Date: </strong>"
-msgstr "<strong>Fecha de vencimiento: </strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Headquarters Address:</strong>"
-msgstr "<strong>Dirección Matriz:</strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Identification: </strong>"
-msgstr "<strong>Identificación: </strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Invoice Date: </strong>"
-msgstr "<strong>Fecha de emisión: </strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Issue Date (Document to be modified): </strong>"
-msgstr "<strong>Fecha de emisión (documento a modificar): </strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Method of payment</strong>"
-msgstr "<strong>Forma de Pago</strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Obliged to keep accounting:</strong>"
-msgstr "<strong>Obligado a llevar contabilidad:</strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Reason for Modification: </strong>"
-msgstr "<strong>Motivo de la modificación: </strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<strong>Special Taxpayer Number:</strong>"
-msgstr "<strong>Contribuyente Especial Nro:</strong>"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
@@ -230,12 +176,12 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_edi_document__l10n_ec_access_key
 msgid "Access Key"
-msgstr "Clave de acceso"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "Access Key:"
-msgstr "Clave de acceso:"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_needaction
@@ -243,7 +189,7 @@ msgstr "Clave de acceso:"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_needaction
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_needaction
 msgid "Action Needed"
-msgstr "Accion necesaria"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__active
@@ -251,7 +197,7 @@ msgstr "Accion necesaria"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__active
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_payment_method_filter
 msgid "Active"
-msgstr "Activo"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__allow_electronic_document
@@ -276,7 +222,7 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__amount
 msgid "Amount"
-msgstr "Monto"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_attachment_count
@@ -284,19 +230,19 @@ msgstr "Monto"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_attachment_count
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_attachment_count
 msgid "Attachment Count"
-msgstr "Cantidad adjuntos"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_authorization_type
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_authorization_type
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_authorization_type
 msgid "Authorization"
-msgstr "Autorización"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "Authorization No.:"
-msgstr "No. Autorización:"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_authorization
@@ -306,8 +252,6 @@ msgid ""
 "Authorization number for issuing the tributary document, assigned by SRI, "
 "can be 10 numbers long, 41, or 49."
 msgstr ""
-"Número de autorización para la emisión del documento tributario, asignado "
-"por el SRI, puede tener 10 números, 41 o 49"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_authorization
@@ -321,14 +265,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_base_tax_free
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_base_tax_free
 msgid "Base Exempt VAT"
-msgstr "Base IVA exento"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_base_not_subject_to_vat
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_base_not_subject_to_vat
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_base_not_subject_to_vat
 msgid "Base Not Object VAT"
-msgstr "Base no sujeto a IVA"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
@@ -339,12 +283,12 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_form
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields.selection,name:l10n_ec_edi.selection__l10n_ec_digital_signature__state__cancel
 msgid "Cancelled"
-msgstr "Cancelado"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_card_method
@@ -352,7 +296,7 @@ msgstr "Cancelado"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_card_method
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "Card Credit / Debit"
-msgstr "Tarjeta de crédito / débito"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
@@ -362,31 +306,31 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_edi.action_view_printer_point
 msgid "Click to define a new printer point."
-msgstr "Haga clic para definir un nuevo punto de emisión."
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__code
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__code
 msgid "Code"
-msgstr "Código"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_partner__l10n_ec_commercial_name
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_users__l10n_ec_commercial_name
 msgid "Commercial Name"
-msgstr "Nombre comercial"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_res_company
 msgid "Companies"
-msgstr "Compañías"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__company_id
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__company_id
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
 msgid "Company"
-msgstr "Compañía"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_company_electronic_form
@@ -396,18 +340,18 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_form
 msgid "Confirm"
-msgstr "Confirmar"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields.selection,name:l10n_ec_edi.selection__l10n_ec_digital_signature__state__confirmed
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
 msgid "Confirmed"
-msgstr "Confirmado"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_res_partner
 msgid "Contact"
-msgstr "Contacto"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__create_uid
@@ -416,7 +360,7 @@ msgstr "Contacto"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__create_uid
 msgid "Created by"
-msgstr "Creado por"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__create_date
@@ -425,17 +369,17 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__create_date
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__create_date
 msgid "Created on"
-msgstr "Creado el"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__days_payment_term
 msgid "Days Payment Term"
-msgstr "Días de plazo de pago"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_edi.action_view_printer_point
 msgid "Define the printing points used by your company."
-msgstr "Defina los puntos de emisión que utiliza su empresa."
+msgstr ""
 
 #. module: l10n_ec_edi
 #: code:addons/l10n_ec_edi/models/account_edi_format.py:0
@@ -446,7 +390,7 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model.fields.selection,name:l10n_ec_edi.selection__res_company__l10n_ec_environment_type__0
 msgid "Demo Environment"
-msgstr "Entorno Demo"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
@@ -458,13 +402,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_form
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_tree
 msgid "Digital Signature"
-msgstr "Firma Digital"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.actions.act_window,name:l10n_ec_edi.action_digital_signature
 #: model:ir.ui.menu,name:l10n_ec_edi.menu_digital_signature
 msgid "Digital Signatures"
-msgstr "Firmas Digitales"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_edi_document__display_name
@@ -482,7 +426,7 @@ msgstr "Firmas Digitales"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__display_name
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_partner__display_name
 msgid "Display Name"
-msgstr "Nombre mostrado"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__l10n_latam_document_type_ids
@@ -493,29 +437,29 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_ec_edi.selection__l10n_ec_digital_signature__state__draft
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
 msgid "Draft"
-msgstr "Borrador"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_account_edi_format
 msgid "EDI format"
-msgstr "Formato EDI"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_partner__l10n_ec_code
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_users__l10n_ec_code
 msgid "Ecuadorian Identification Type"
-msgstr "Tipo de identificación ecuatoriana"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_l10n_ec_invoice_payment_method
 msgid "Ecuadorian Invoice Payment Method Detail"
-msgstr "Detalle del método de pago de facturas ecuatorianas"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: code:addons/l10n_ec_edi/models/account_edi_format.py:0
 #, python-format
 msgid "Ecuadorian electronic document for the %s document."
-msgstr "Documento electrónico ecuatoriano para el documento %s."
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_authorization_type
@@ -524,8 +468,6 @@ msgstr "Documento electrónico ecuatoriano para el documento %s."
 msgid ""
 "Ecuadorian tax authority requires an authorization for certain documents"
 msgstr ""
-"La autoridad fiscal ecuatoriana requiere una autorización para ciertos "
-"documentos"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_effective_method
@@ -533,7 +475,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_effective_method
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "Effective"
-msgstr "Efectivo"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_edi_document__l10n_ec_request_xml_file
@@ -571,7 +513,7 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_account_edi_document
 msgid "Electronic Document for an account.move"
-msgstr "Documento electrónico para un account.move"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_electronic_method
@@ -579,7 +521,7 @@ msgstr "Documento electrónico para un account.move"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_electronic_method
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "Electronic Money"
-msgstr "Dinero electrónico"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__allow_electronic_document
@@ -590,19 +532,19 @@ msgstr ""
 #: code:addons/l10n_ec_edi/models/account_move.py:0
 #, python-format
 msgid "Enter an identification number for the provider \"%s\"."
-msgstr "Indique un número de identificación para el proveedor \"%s\"."
+msgstr ""
 
 #. module: l10n_ec_edi
 #: code:addons/l10n_ec_edi/models/account_edi_format.py:0
 #, python-format
 msgid "Error on cancellation"
-msgstr "Error en la cancelación"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: code:addons/l10n_ec_edi/models/account_edi_format.py:0
 #, python-format
 msgid "Errors reported by Tax Authority:"
-msgstr "Errores reportados por la Autoridad Tributaria:"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_effective_method
@@ -648,7 +590,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_ec_edi.selection__l10n_ec_digital_signature__state__expired
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
 msgid "Expired"
-msgstr "Caducado"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_company_electronic_form
@@ -659,7 +601,6 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__code
 msgid "Field of two digits that indicate the code for this tax support"
 msgstr ""
-"Campo de dos digitos que corresponde al codigo para este sustento tributario"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_follower_ids
@@ -667,7 +608,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_follower_ids
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_follower_ids
 msgid "Followers"
-msgstr "Seguidores"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_channel_ids
@@ -675,7 +616,7 @@ msgstr "Seguidores"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_channel_ids
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_channel_ids
 msgid "Followers (Channels)"
-msgstr "Seguidores (Canales)"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_partner_ids
@@ -683,7 +624,7 @@ msgstr "Seguidores (Canales)"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_partner_ids
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_partner_ids
 msgid "Followers (Partners)"
-msgstr "Seguidores (Partners)"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_res_company__l10n_ec_digital_cert_id
@@ -691,13 +632,11 @@ msgid ""
 "For signing SRI electronic documents, configure one in Accounting / "
 "Configuration / Digital Signatures"
 msgstr ""
-"Para firmar documentos electrónicos SRI, configure uno en Contabilidad "
-"/Configuración / Firmas digitales"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__l10n_ec_forced_accounting
 msgid "Forced to Keep Accounting Books"
-msgstr "Obligado a llevar libros de contabilidad"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.actions.act_window,name:l10n_ec_edi.action_view_payment_method
@@ -713,12 +652,12 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_vat_doce_subtotal
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_payment__l10n_ec_vat_doce_subtotal
 msgid "Generated VAT"
-msgstr "IVA generado"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
 msgid "Group By"
-msgstr "Agrupar por"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_edi_document__id
@@ -736,7 +675,7 @@ msgstr "Agrupar por"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__id
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_partner__id
 msgid "ID"
-msgstr "ID (identificación)"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_total_irbpnr
@@ -762,7 +701,7 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_needaction
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_unread
 msgid "If checked, new messages require your attention."
-msgstr "Si está marcado, los mensajes nuevos requieren su atención."
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_has_error
@@ -774,7 +713,7 @@ msgstr "Si está marcado, los mensajes nuevos requieren su atención."
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_has_error
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
-msgstr "Si está marcado, algunos mensajes tienen un error de entrega."
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_res_company__l10n_ec_forced_accounting
@@ -782,8 +721,6 @@ msgid ""
 "If set you are obligated to keep accounting, it will be used for printing "
 "electronic invoices and reports"
 msgstr ""
-"Si se establece, está obligado a llevar la contabilidad, se utilizará para "
-"imprimir facturas e informes electrónicos"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_res_company__l10n_ec_special_contributor_number
@@ -791,8 +728,6 @@ msgid ""
 "If set, your company is considered a Special Tax Contributor, this number "
 "will be printed in electronic invoices and reports"
 msgstr ""
-"Si se establece, su empresa se considera un contribuyente fiscal especial, "
-"este número se imprimirá en facturas e informes electrónicos"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_total_irbpnr
@@ -804,13 +739,13 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_payment_method_filter
 msgid "Inactive"
-msgstr "Inactivo"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: code:addons/l10n_ec_edi/models/account_move.py:0
 #, python-format
 msgid "Indicate a type of identification for the provider \"%s\"."
-msgstr "Indique un tipo de identificación para el proveedor \"%s\"."
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_transaction_type
@@ -821,29 +756,25 @@ msgid ""
 "[01-RUC,02-CEDULA,03-PASAPORTE],Customer Invoice "
 "[04-RUC,05-CEDULA,06-PASAPORTE, 07-CONSUMIDOR FINAL, 0-OTROS]."
 msgstr ""
-"Indica el tipo de transacción que ejecuta la empresa. Factura de Compra "
-"[01-RUC,02-CEDULA,03-PASAPORTE],Customer Invoice "
-"[04-RUC,05-CEDULA,06-PASAPORTE, 07-CONSUMIDOR FINAL, 0-OTROS]."
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_move_line__l10n_ec_total_discount
 msgid "Indicates the monetary discount applied to the total invoice line."
 msgstr ""
-"Indica el descuento monetario aplicado a la línea total de la factura."
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_sri_tax_support_id
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_sri_tax_support_id
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_payment__l10n_ec_sri_tax_support_id
 msgid "Indicates the tax support for this document"
-msgstr "Indica el sustento tributario para este documento"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_res_partner__l10n_ec_code
 #: model:ir.model.fields,help:l10n_ec_edi.field_res_users__l10n_ec_code
 msgid ""
 "Indicates the type of identification of the partner, is used for the ATS"
-msgstr "Indica el tipo de identificación del socio, se utiliza para el ATS"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
@@ -858,7 +789,7 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__move_id
 msgid "Invoice"
-msgstr "Factura"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_is_follower
@@ -866,22 +797,22 @@ msgstr "Factura"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_is_follower
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_is_follower
 msgid "Is Follower"
-msgstr "Es seguidor"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_invoice_payment_method__amount
 msgid "Is the pay value for this payment method"
-msgstr "Es el valor de pago de este método de pago"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_account_move
 msgid "Journal Entry"
-msgstr "Asiento contable"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_account_move_line
 msgid "Journal Item"
-msgstr "Apunte contable"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_available_sri_tax_support_ids
@@ -906,7 +837,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company____last_update
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_partner____last_update
 msgid "Last Modified on"
-msgstr "Última modificación el"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__write_uid
@@ -915,7 +846,7 @@ msgstr "Última modificación el"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__write_uid
 msgid "Last Updated by"
-msgstr "Última modificación por"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__write_date
@@ -924,12 +855,12 @@ msgstr "Última modificación por"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__write_date
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__write_date
 msgid "Last Updated on"
-msgstr "Ultima actualización en"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_l10n_latam_document_type
 msgid "Latam Document Type"
-msgstr "Tipo de Documento Latam"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
@@ -942,7 +873,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_main_attachment_id
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_main_attachment_id
 msgid "Main Attachment"
-msgstr "Adjunto principal"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_has_error
@@ -950,7 +881,7 @@ msgstr "Adjunto principal"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_has_error
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_has_error
 msgid "Message Delivery error"
-msgstr "Error de entrega de mensaje"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_ids
@@ -958,7 +889,7 @@ msgstr "Error de entrega de mensaje"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_ids
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_ids
 msgid "Messages"
-msgstr "Mensajes"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__edit_l10n_ec_authorization
@@ -988,12 +919,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__name
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__name
 msgid "Name"
-msgstr "Nombre"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__name
 msgid "Name of tax support"
-msgstr "Nombre del sustento tributario"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
@@ -1008,12 +939,12 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__not_valid_after
 msgid "Not valid after Date of signature"
-msgstr "No es válido después de la fecha de firma"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__not_valid_before
 msgid "Not valid before Date of signature"
-msgstr "No es válido antes de la fecha de firma"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_needaction_counter
@@ -1021,7 +952,7 @@ msgstr "No es válido antes de la fecha de firma"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_needaction_counter
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_needaction_counter
 msgid "Number of Actions"
-msgstr "Numero de acciones"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_has_error_counter
@@ -1029,7 +960,7 @@ msgstr "Numero de acciones"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_has_error_counter
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_has_error_counter
 msgid "Number of errors"
-msgstr "Numero de errores"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_needaction_counter
@@ -1037,7 +968,7 @@ msgstr "Numero de errores"
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_needaction_counter
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_needaction_counter
 msgid "Number of messages which requires an action"
-msgstr "Número de mensajes que requieren una acción"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_has_error_counter
@@ -1045,7 +976,7 @@ msgstr "Número de mensajes que requieren una acción"
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_has_error_counter
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_has_error_counter
 msgid "Number of messages with delivery error"
-msgstr "Número de mensajes con error de entrega"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__message_unread_counter
@@ -1053,7 +984,7 @@ msgstr "Número de mensajes con error de entrega"
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_unread_counter
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_unread_counter
 msgid "Number of unread messages"
-msgstr "Número de mensajes no leídos"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_company_electronic_form
@@ -1063,7 +994,7 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__cert_encripted
 msgid "Original encripted signature"
-msgstr "Firma original encriptada"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_other_method
@@ -1071,7 +1002,7 @@ msgstr "Firma original encriptada"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_other_method
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "Others"
-msgstr "Otros"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_company_electronic_form
@@ -1081,26 +1012,26 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__password_p12
 msgid "Password file .p12"
-msgstr "Archivo de contraseña .p12"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__password_p12
 msgid "Password to desencrypt .p12 file"
-msgstr "Contraseña para desencriptar el archivo .p12"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_payment_method_form
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_payment_method_tree
 msgid "Payment Method"
-msgstr "Método de pago"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_invoice_payment_method_ids
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_invoice_payment_method_ids
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_invoice_payment_method_ids
 msgid "Payment Methods"
-msgstr "Métodos de pago"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_payment_method_id
@@ -1110,23 +1041,21 @@ msgid ""
 "Payment method to report to tax authority, if unknown select the most likely"
 " option"
 msgstr ""
-"Método de pago para informar a la autoridad fiscal; si no se conoce, "
-"seleccione la opción más probable"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_invoice_payment_method__days_payment_term
 msgid "Payment term in days"
-msgstr "Días de plazo de pago"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__percentage
 msgid "Percentage"
-msgstr "Porcentaje"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_invoice_payment_method__percentage
 msgid "Percentage of the amount of the payment"
-msgstr "Porcentaje del monto del pago"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_edi_document__l10n_ec_request_xml_file
@@ -1140,20 +1069,18 @@ msgid ""
 "Please setup the printer point address, in Accounting / Settings / Printer "
 "Points"
 msgstr ""
-"Configure su dirección de punto de venta en Contabilidad / Ajustes / Punto "
-"de Ventas"
 
 #. module: l10n_ec_edi
 #: code:addons/l10n_ec_edi/models/account_move.py:0
 #, python-format
 msgid "Please setup the your company address in the company form"
-msgstr "Configure su dirección en el formulario de Compañía"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: code:addons/l10n_ec_edi/models/account_move.py:0
 #, python-format
 msgid "Please setup your VAT number in the company form"
-msgstr "Configure su número de identificación en el formulario de Compañía"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_l10n_ec_sri_printer_point
@@ -1161,32 +1088,32 @@ msgstr "Configure su número de identificación en el formulario de Compañía"
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_printer_point_form
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_printer_point_tree
 msgid "Printer Point"
-msgstr "Punto de emisión"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__printer_point_address
 msgid "Printer Point Address"
-msgstr "Dirección del Punto de emisión"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__priority
 msgid "Priority"
-msgstr "Prioridad"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__priority
 msgid "Priority of tax support"
-msgstr "Prioridad del sustento tributario"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__private_key
 msgid "Private Key"
-msgstr "Llave privada"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields.selection,name:l10n_ec_edi.selection__res_company__l10n_ec_environment_type__2
 msgid "Production Environment"
-msgstr "Ambiente de producción"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.actions.act_window,name:l10n_ec_edi.action_view_printer_point
@@ -1203,12 +1130,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__refund_count
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__refund_count
 msgid "Refund Count"
-msgstr "Cuenta de devoluciones"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
 msgid "Refund invoice"
-msgstr "Nota de Crédito"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__l10n_ec_regime
@@ -1223,12 +1150,12 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_ir_actions_report
 msgid "Report Action"
-msgstr "Acción de informe"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_edi_document__l10n_ec_request_xml_file_name
 msgid "Request File Name"
-msgstr "Nombre del archivo de petición"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
@@ -1243,7 +1170,7 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_total_with_tax
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_payment__l10n_ec_total_with_tax
 msgid "Result of the sum of taxable amount plus the Value of VAT"
-msgstr "Resultado de la suma de la base imponible más el Valor del IVA"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_company_electronic_form
@@ -1261,7 +1188,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_has_sms_error
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_has_sms_error
 msgid "SMS Delivery error"
-msgstr "Mensaje Error de entrega"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.ui.menu,name:l10n_ec_edi.action_sri_menu
@@ -1271,39 +1198,39 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_l10n_ec_payment_method
 msgid "SRI Payment Method"
-msgstr "Método de pago SRI"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
 msgid "Search Digital Signature"
-msgstr "Buscar firma digital"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_payment_method_filter
 msgid "Search Payment Method"
-msgstr "Buscar método de pago"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_sri_tax_support_filter
 msgid "Search Tax Support"
-msgstr "Buscar Sustento Tributario"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_form
 msgid "Send to Draft"
-msgstr "Enviar a borrador"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_ir_sequence
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_payment_method__sequence
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__sequence
 msgid "Sequence"
-msgstr "Secuencia"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__name
 msgid "Serial Number of Digital Signature"
-msgstr "Número de serie de la firma digital"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__active
@@ -1314,42 +1241,41 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__active
 msgid "Set active to false to hide the SRI Printer Point without removing it."
 msgstr ""
-"Establezca activo en falso para ocultar el método de pago sin eliminarlo."
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_payment_method_filter
 msgid "Show active taxes"
-msgstr "Mostrar impuestos activos"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_payment_method_filter
 msgid "Show inactive taxes"
-msgstr "Mostrar impuestos inactivos"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__not_valid_after
 msgid "Show the Date after the signature is not valid"
-msgstr "Muestre la fecha después de que la firma no sea válida"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__not_valid_before
 msgid "Show the Date before the signature is not valid"
-msgstr "Muestre la fecha antes de que la firma no sea válida"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__company_id
 msgid "Show the company asociated to this document"
-msgstr "Mostrar la compañía asociada a este documento"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__name
 msgid "Show the unique serial number of signature"
-msgstr "Muestra el número de serie único de la firma."
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__signature
 msgid "Signature"
-msgstr "Firma"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields.selection,name:l10n_ec_edi.selection__res_company__l10n_ec_withhold_agent__not_designated
@@ -1359,32 +1285,32 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__l10n_ec_special_contributor_number
 msgid "Special Tax Contributor Number"
-msgstr "Nro Contribuyente Especial"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__state
 msgid "State"
-msgstr "Estado"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
 msgid "Status"
-msgstr "Estado"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__signature
 msgid "Store the certficate obtain from the encripted file"
-msgstr "Almacene el certificado obtenido del archivo encriptado"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__cert_encripted
 msgid "Store the original signatured encripted"
-msgstr "Almacene la firma original encriptada"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__private_key
 msgid "Store the private key obtain from the encripted file"
-msgstr "Almacene la clave privada obtenida del archivo encriptado"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_base_tax_free
@@ -1392,7 +1318,6 @@ msgstr "Almacene la clave privada obtenida del archivo encriptado"
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_payment__l10n_ec_base_tax_free
 msgid "Sum of total prices included discount of products exempt from VAT"
 msgstr ""
-"Suma de precios totales incluido descuento de productos exentos de IVA"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_base_not_subject_to_vat
@@ -1400,7 +1325,6 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_payment__l10n_ec_base_not_subject_to_vat
 msgid "Sum of total prices included discount of products not subject to VAT"
 msgstr ""
-"Suma de precios totales incluido descuento de productos no sujetos a IVA"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_base_cero_iva
@@ -1408,7 +1332,6 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_payment__l10n_ec_base_cero_iva
 msgid "Sum of total prices included discount of products that tax VAT 0%"
 msgstr ""
-"Suma de precios totales incluido descuento de productos que gravan el IVA 0%"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_total_to_withhold
@@ -1424,13 +1347,12 @@ msgstr ""
 msgid ""
 "Summation of total prices included discount of products that tax VAT 12%"
 msgstr ""
-"Suma de precios totales incluye descuento de productos que gravan el IVA 12%"
 
 #. module: l10n_ec_edi
 #: model:ir.actions.act_window,name:l10n_ec_edi.action_sri_tax_support
 #: model:ir.ui.menu,name:l10n_ec_edi.menu_sri_tax_support
 msgid "Sustentos Tributarios"
-msgstr "Sustento Tributario"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
@@ -1449,23 +1371,23 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_sri_tax_support_form
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_sri_tax_support_tree
 msgid "Tax Support"
-msgstr "Sustento Tributario"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_latam_document_type__l10n_ec_sri_tax_support_ids
 msgid "Tax support lines"
-msgstr "Líneas de sustento tributario"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields.selection,name:l10n_ec_edi.selection__res_company__l10n_ec_environment_type__1
 msgid "Testing Environment"
-msgstr "Ambiente de Prueba"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: code:addons/l10n_ec_edi/models/account_edi_format.py:0
 #, python-format
 msgid "The ecuadorian electronic document was successfully voided"
-msgstr "El documento electrónico ecuatoriano fue anulado exitosamente"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: code:addons/l10n_ec_edi/models/account_edi_format.py:0
@@ -1477,8 +1399,6 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_payment_method__sequence
 msgid "The first Payment Method is used by default when creating new invoices"
 msgstr ""
-"El primer método de pago se utiliza de forma predeterminada al crear nuevas "
-"facturas"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__sequence
@@ -1486,8 +1406,6 @@ msgid ""
 "The first printer is used by default when creating new invoices, unless "
 "specified otherwise in user profile"
 msgstr ""
-"El primer punto de emisión es utilizado por defecto al crear nuevas "
-"facturas, a menos que se especifique de otra forma en el perfil del usuario"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_printer_id
@@ -1497,31 +1415,26 @@ msgid ""
 "The tax authority authorized printer point from where to send or receive "
 "invoices"
 msgstr ""
-"El primer punto de emisión se utiliza de forma predeterminada al crear "
-"nuevas facturas, a menos que especifique de otro modo en el perfil de "
-"usuario"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__active
 msgid "This field determines whether the tax support is active or not"
-msgstr "Este campo determina si el sustento tributario esta activo o no"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_invoice_payment_method__move_id
 msgid "This field help to relate to account invoice object"
-msgstr "Este campo ayuda a relacionarse con el objeto de factura de cuenta"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__printer_point_address
 msgid "This is the address used for invoice reports of this Printer Point"
 msgstr ""
-"Esta es la dirección utilizada para los informes de facturas de este Punto "
-"de emisión"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__name
 msgid "This number is assigned by the SRI"
-msgstr "Este número lo asigna el SRI"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_total_discount
@@ -1529,50 +1442,50 @@ msgstr "Este número lo asigna el SRI"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move_line__l10n_ec_total_discount
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_total_discount
 msgid "Total Discount"
-msgstr "Descuento total"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
 msgid "Total Percentage"
-msgstr "Porcentaje total"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_total_with_tax
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_total_with_tax
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_total_with_tax
 msgid "Total With Taxes"
-msgstr "Total con impuestos"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
 msgid "Total amount"
-msgstr "Monto total"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_total_discount
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_move__l10n_ec_total_discount
 #: model:ir.model.fields,help:l10n_ec_edi.field_account_payment__l10n_ec_total_discount
 msgid "Total sum of the discount granted"
-msgstr "Suma total del descuento concedido"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_total_to_withhold
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_total_to_withhold
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_total_to_withhold
 msgid "Total to Withhold"
-msgstr "Total a Retener"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_transaction_type
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_transaction_type
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_transaction_type
 msgid "Transaction Type"
-msgstr "Tipo de Transacción"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_res_company__l10n_ec_environment_type
 msgid "Type of Environment"
-msgstr "Tipo de entorno"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
@@ -1592,8 +1505,6 @@ msgid ""
 "Unique code to identify this document, is generated based on date, vat code,"
 " serial number, and other related fields"
 msgstr ""
-"El código único para identificar este documento se genera en función de la "
-"fecha, el código de IVA, número de serie y otros campos relacionados"
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_unread
@@ -1601,7 +1512,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_unread
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_unread
 msgid "Unread Messages"
-msgstr "Mensajes no leídos"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__message_unread_counter
@@ -1609,45 +1520,45 @@ msgstr "Mensajes no leídos"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__message_unread_counter
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__message_unread_counter
 msgid "Unread Messages Counter"
-msgstr "Contador de mensajes no leídos"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_base_cero_iva
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_base_cero_iva
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_base_cero_iva
 msgid "VAT 0 Base"
-msgstr "Base IVA 0%"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_base_doce_iva
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_base_doce_iva
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_base_doce_iva
 msgid "VAT 12 Base"
-msgstr "Base IVA 12%"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_vat_cero_subtotal
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_vat_cero_subtotal
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_vat_cero_subtotal
 msgid "VAT Value 0"
-msgstr "Valor IVA 0%"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_bank_statement_line__l10n_ec_vat_doce_subtotal
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_move__l10n_ec_vat_doce_subtotal
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_account_payment__l10n_ec_vat_doce_subtotal
 msgid "VAT Value 12"
-msgstr "Valor IVA 12%"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_invoice_payment_method__payment_method_id
 msgid "Way of payment of the SRI"
-msgstr "Forma de pago del SRI"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_invoice_payment_method__payment_method_id
 msgid "Way to Pay"
-msgstr "Forma de pago"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__website_message_ids
@@ -1655,7 +1566,7 @@ msgstr "Forma de pago"
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__website_message_ids
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_tax_support__website_message_ids
 msgid "Website Messages"
-msgstr "Mensajes del sitio web"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_digital_signature__website_message_ids
@@ -1663,12 +1574,12 @@ msgstr "Mensajes del sitio web"
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_printer_point__website_message_ids
 #: model:ir.model.fields,help:l10n_ec_edi.field_l10n_ec_sri_tax_support__website_message_ids
 msgid "Website communication history"
-msgstr "Historial de comunicación del sitio web"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_l10n_ec_digital_signature
 msgid "XAdES Digital Signature"
-msgstr "Firma digital XAdES"
+msgstr ""
 
 #. module: l10n_ec_edi
 #: model:ir.model,name:l10n_ec_edi.model_l10n_ec_sri_tax_support
@@ -1678,4 +1589,4 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "on"
-msgstr "en"
+msgstr ""

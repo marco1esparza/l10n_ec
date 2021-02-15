@@ -30,9 +30,6 @@ class AccountEdiDocument(models.Model):
             if document.state == 'sent':
                 action_invoice_wizard = document.move_id.action_invoice_sent()
                 ctx = action_invoice_wizard["context"]
-                if document.move_id:
-                    # simulates an invoice to re-use account_invoice_send
-                    ctx.update({'l10n_ec_send_email_others_docs': True})
                 ctx.update(
                     {
                         "active_id": document.move_id.id,

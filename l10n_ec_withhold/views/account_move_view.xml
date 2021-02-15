@@ -13,7 +13,6 @@
 				 <button name="action_invoice_sent"
                                 type="object"
                                 string="Send &amp; Print"
-						 		context="{'l10n_ec_send_email_others_docs': True}"
                                 attrs="{'invisible':[('l10n_ec_withhold_type', 'not in', ('in_withhold'))]}"
                                 groups="base.group_user"/>
 			</button>
