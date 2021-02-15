@@ -30,14 +30,14 @@
             (with reference: ${object.invoice_origin})
         % endif
         % if object.is_withholding():
-            amounting in <strong>${format_amount(object.l10n_ec_total, object.currency_id)}.</strong>
+            amounting in <strong>${format_amount(object.l10n_ec_total, object.currency_id)}</strong>.
         % elif object.is_waybill():
             .
         % else:
-            amounting in <strong>${format_amount(object.amount_total, object.currency_id)}</strong>
+            amounting in <strong>${format_amount(object.amount_total, object.currency_id)}</strong>.
         % endif
         % if object.move_type == 'out_invoice':
-            Please remit payment at your earliest convenience.
+        	Thank you for your purchase.
         % endif
         <br/>
         % if object.get_portal_url():
@@ -52,7 +52,7 @@
         <br/>
         Do not hesitate to contact us if you have any questions.
         <br/> 
-        A regard from ${object.company_id.name}.
+        A regard from ${object.company_id.name}
         <br/><br/>
     </p>
 </div>
