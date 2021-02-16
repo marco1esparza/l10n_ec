@@ -103,12 +103,53 @@ class AccountMove(models.Model):
                 new_payment_method_lines += candidate
             self.l10n_ec_invoice_payment_method_ids -= existing_payment_method_lines - new_payment_method_lines
 
+    def is_invoice(self, include_receipts=False):
+        # WARNING: For Ecuador we consider is_invoice for all edis (invoices, wihtholds, waybills, etc)
+        if self.country_code == 'EC':
+            if self.move_type in self.get_invoice_types(include_receipts):
+                return True
+            elif self.is_withholding() and self.withhold_type == 'in_withhold':
+                return True
+            elif self.is_waybill():
+                return True
+            return False
+        return super(AccountMove, self).is_invoice(include_receipts)
+        #Hack, permite enviar por mail documentos distintos de facturas
+        # is_invoice = super(AccountMove, self).is_invoice(include_receipts)
+        # if self._context.get('l10n_ec_send_email_others_docs', False):
+        #     if self.is_withholding():
+        #         is_invoice = True
+        # return is_invoice
+        #  
+        # def _compute_access_url(self):
+        #     #para que el boton ver documento permita abrir el coprobante de retención
+        #     super(AccountMove, self)._compute_access_url()
+        #     for move in self.filtered(lambda move: move.is_withholding()):
+        #         #TODO V15 agregar un controlador que reemplace invoices con withholds
+        #         move.access_url = '/my/invoices/%s' % (move.id)
+        #  
+        # def _get_report_base_filename(self):
+        #     #bypass core restriction to also print withholds and waybills
+        #     #TODO V15: Call super
+        #     if any(not move.is_invoice() and not move.is_withholding() and not move.is_waybill() for move in self):
+        #         raise UserError(_("Only invoices, withholds and waybills could be printed."))
+        #     return self._get_move_display_name()
+        
     def is_withholding(self):
         return False
     
     def is_waybill(self):
         return False
 
+    def _creation_message(self):
+        # OVERRIDE, waybill and withholds have different types than an invoice
+        if self.is_withholding():
+            return _('Withhold Created')
+        elif self.is_waybill():
+            return _('Waybill Created')
+        else:
+            return super()._creation_message()
+        
     def action_invoice_sent(self):
         #Reemplazamos la plantilla de account_edi por la nuestra, con tipo de documento, portal, y mejoras
         res = super(AccountMove, self).action_invoice_sent()
@@ -146,7 +187,8 @@ class AccountMove(models.Model):
         cuando se usan documentos(opcion del diario) las secuencias del diario no se ocupan
         '''
         res = super(AccountMove, self)._post(soft)
-        self.generate_withhold_edis() #antes de ejecutar nuestras validaciones, por eso no puede estar en l10n_ec_withhold
+        #Comentado pues ahora la opción is_invoice() retorna True para retenciones y guías
+        #self.generate_other_documents_edi() #antes de ejecutar nuestras validaciones, por eso no puede estar en l10n_ec_withhold
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents):
             if not invoice.is_invoice():
                 # ideally we should call a line like
@@ -177,27 +219,28 @@ class AccountMove(models.Model):
                 edi_ec._l10n_ec_generate_request_xml_file() #useful for troubleshooting
         return res
     
-    def generate_withhold_edis(self):
-        #como la opcion is_invoice es False para las retenciones, repetimos el codigo que genera los EDIs, extraido de account_edi
-        edi_document_vals_list = []
-        for move in self:
-            for edi_format in move.journal_id.edi_format_ids:
-                is_edi_needed = move.is_withholding() and edi_format._is_required_for_invoice(move)
-                if is_edi_needed:
-                    existing_edi_document = move.edi_document_ids.filtered(lambda x: x.edi_format_id == edi_format)
-                    if existing_edi_document:
-                        existing_edi_document.write({
-                            'state': 'to_send',
-                            'attachment_id': False,
-                        })
-                    else:
-                        edi_document_vals_list.append({
-                            'edi_format_id': edi_format.id,
-                            'move_id': move.id,
-                            'state': 'to_send',
-                        })
-        self.env['account.edi.document'].create(edi_document_vals_list)
-        self.edi_document_ids._process_documents_no_web_services()
+    #comentado pues ahora el is_invoice() incluye retenciones y guías
+    # def generate_other_documents_edi(self):
+    #     #como la opcion is_invoice es False para las retenciones, repetimos el codigo que genera los EDIs, extraido de account_edi
+    #     edi_document_vals_list = []
+    #     for move in self:
+    #         for edi_format in move.journal_id.edi_format_ids:
+    #             is_edi_needed = (move.is_withholding() or move.is_waybill()) and edi_format._is_required_for_invoice(move)
+    #             if is_edi_needed:
+    #                 existing_edi_document = move.edi_document_ids.filtered(lambda x: x.edi_format_id == edi_format)
+    #                 if existing_edi_document:
+    #                     existing_edi_document.write({
+    #                         'state': 'to_send',
+    #                         'attachment_id': False,
+    #                     })
+    #                 else:
+    #                     edi_document_vals_list.append({
+    #                         'edi_format_id': edi_format.id,
+    #                         'move_id': move.id,
+    #                         'state': 'to_send',
+    #                     })
+    #     self.env['account.edi.document'].create(edi_document_vals_list)
+    #     self.edi_document_ids._process_documents_no_web_services()
 
     def _is_manual_document_number(self, journal):
         #overriden in l10n_ec_account_extended
@@ -221,14 +264,12 @@ class AccountMove(models.Model):
     @api.model
     def _default_l10n_ec_printer_id(self):
         #Gets the first printer point by its sequence as default value, usually 001-001
-        if self._context.get('default_l10n_ec_printer_id'):
-            printer_id = self.env['l10n_ec.printer.id'].browse(self._context['default_l10n_ec_printer_id'])
-            return printer_id
+        #Overriden with extended features in l10n_ec_account_extended
         printer_id = False
         company_id = self.env.company #self.country_code is still empty
         if company_id.country_code == 'EC':
-            move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
-            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
+            move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) or self._context.get('default_waybill_type', False) #self.type is not yet populated
+            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold', 'out_waybill']:
                 #regular account.move doesn't need a printer point
                 printer_id = self.env['l10n_ec.sri.printer.point'].search([('company_id', '=', company_id.id)], order="sequence asc", limit=1)
         return printer_id
@@ -274,7 +315,7 @@ class AccountMove(models.Model):
             invoice.l10n_ec_electronic_method = electronic_method
             invoice.l10n_ec_card_method = card_method
             invoice.l10n_ec_other_method = other_method
-
+    
     def _get_name_invoice_report(self):
         self.ensure_one()
         if self.l10n_latam_use_documents and self.country_code == 'EC' \

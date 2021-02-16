@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="view_waybill_carrier_form" model="ir.ui.view">
+		<field name="name">view.waybill.carrier.form</field>
+		<field name="model">l10n_ec.waybill.carrier</field>
+		<field name="type">form</field>
+		<field name="arch" type="xml">
+            <form string="Stock Carrier">
+	    		<sheet>
+					<group>
+						<group name="group_left" string="Stock Carrier">
+							<field name="name"/>
+							 <label for="l10n_latam_identification_type_id" string="Identification Number"/>
+							<div>
+                    			<field name="allowed_identification_type_ids" invisible="1"/>
+                    			<field name="l10n_latam_identification_type_id" 
+                    			       options="{'no_open': True, 'no_create': True}"
+                    			       placeholder="RUC/Ced/Pasaporte"
+                    			       class="oe_inline"
+                    			       domain="[('id', 'in', allowed_identification_type_ids)]"
+                    			       />
+                    			<span class="oe_read_only"> - </span>
+                    			<field name="vat" placeholder="Number" class="oe_inline"/>
+                			</div>
+						</group>
+					</group>
+				</sheet>
+				<div class="oe_chatter">
+                	<field name="message_follower_ids" widget="mail_followers"/>
+                  	<field name="message_ids" widget="mail_thread"/>
+				</div>
+			</form>
+		</field>
+	</record>
+
+	<record id="view_waybill_carrier_tree" model="ir.ui.view">
+		<field name="name">view.waybill.carrier.tree</field>
+		<field name="model">l10n_ec.waybill.carrier</field>
+		<field name="type">tree</field>
+		<field name="arch" type="xml">
+			<tree string="Stock Carrier">
+				<field name="name"/>
+			    <field name="l10n_latam_identification_type_id"/>
+			    <field name="vat"/>
+			</tree>
+		</field>
+	</record>
+
+	<record id="action_view_stock_carrier" model="ir.actions.act_window">
+		<field name="name">Waybill Carrier</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">l10n_ec.waybill.carrier</field>
+		<field name="view_mode">tree,form</field>
+		<field name="help" type="html">
+	      <p class="oe_view_nocontent_create">
+	        Click to define a new stock carrier.
+	      </p><p>
+	        Define the waybill carrier used for your shipments.
+	      </p>
+	    </field>
+	</record>
+
+	<menuitem id="menu_view_stock_carrier" action="action_view_stock_carrier" parent="l10n_ec_edi.action_sri_menu" sequence="20"/>
+
+</odoo>

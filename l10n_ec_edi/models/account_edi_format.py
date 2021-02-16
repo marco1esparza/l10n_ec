@@ -48,6 +48,8 @@ class AccountEdiFormat(models.Model):
             #Retenciones compra
             elif invoice.is_withholding() and invoice.l10n_ec_withhold_type == 'in_withhold':
                 is_required_for_invoice = True
+            elif invoice.is_waybill():
+                is_required_for_invoice = True
             return is_required_for_invoice
         return super()._is_required_for_invoice(invoice)
 
@@ -69,6 +71,8 @@ class AccountEdiFormat(models.Model):
                 return True #useful for "Liquidaciónn de Compra"
             elif journal.code == 'RCMPR':
                 return True #useful for purchase withholds
+            elif journal.code == 'GRMSN':
+                return True #useful for waybills
         return super()._is_compatible_with_journal(journal) #includes sales
 
     def _is_embedding_to_invoice_pdf_needed(self):

@@ -18,7 +18,6 @@ class AccountEdiDocument(models.Model):
         '''
         Escribe el archivo xml request en el campo designado para ello
         '''
-        res = super(AccountEdiDocument, self)._l10n_ec_generate_request_xml_file()
         #generamos y validamos el documento
         if self.move_id.move_type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']:
             etree_content = self._l10n_ec_get_xml_request_for_withhold()
@@ -30,7 +29,8 @@ class AccountEdiDocument(models.Model):
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
             self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
             self.l10n_ec_request_xml_file = base64.encodestring(xml_content)
-        return res
+            return True
+        return super(AccountEdiDocument, self)._l10n_ec_generate_request_xml_file()
     
     @api.model
     def _l10n_ec_get_xml_request_for_withhold(self):

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+	<record id="view_move_form_shipment" model="ir.ui.view">
+		<field name="name">account.move.form.shipment</field>
+		<field name="model">account.move</field>
+		<field name="inherit_id" ref="l10n_ec_edi.view_move_invoice_customization_form"/>
+		<field name="arch" type="xml">
+            <xpath expr="//field[@name='restrict_mode_hash_table']" position="after">
+				<field name="l10n_ec_is_waybill" invisible="1"/>
+			</xpath>
+			<xpath expr="//field[@name='reversed_entry_id']" position="attributes">
+				<field name="invoice_origin" readonly="1"/>
+			</xpath>
+			<xpath expr="//field[@name='ref']" position="after">
+				<field name="invoice_origin" readonly="1" attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)]}"/>
+			</xpath>
+			<xpath expr="//form/sheet/div/h1" position="inside">
+				<span attrs="{'invisible': ['|', '|', ('l10n_ec_is_waybill', '=', False), ('state', '!=', 'draft'), ('name', '!=', '/')]}">Draft Electronic Shipment</span>
+			</xpath>
+			<xpath expr="//field[@name='ref']" position="before">
+				<field name="partner_id" widget="res_partner_many2one" force_save="1"
+					context="{'show_address': 1, 'default_is_company': True, 'show_vat': True}"
+					options='{"always_reload": True, "no_quick_create": True}'
+					attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)]}"/>
+				<field name="l10n_ec_waybill_carrier_id"
+					   attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)], 'required': [('l10n_ec_is_waybill', '=', True)]}"/>
+				<field name="l10n_ec_license_plate" 
+				       attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)], 'required': [('l10n_ec_is_waybill', '=', True)]}"
+				       placeholder="PDA-0123"
+				       />
+				<field name="l10n_ec_waybill_loc_dest_address" attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)]}"/>
+				<field name="l10n_ec_waybill_move_reason" attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)]}"/>
+			</xpath>
+			<xpath expr="//field[@name='invoice_date']" position="after">
+				<field name="invoice_date" string="Shipment Date" options="{'datepicker': {'warn_future': true}}"
+					   attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)], 'required': [('l10n_ec_is_waybill', '!=', False)]}"/>
+				<field name="invoice_date_due"
+				       attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)], 'required': [('l10n_ec_is_waybill', '!=', False)]}"/>
+			</xpath>
+			<xpath expr="//field[@name='l10n_latam_document_type_id']" position="after">
+           		<field name="l10n_ec_printer_id"
+					attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)], 'required': [('country_code', '=', 'EC'), ('l10n_ec_is_waybill', '!=', False)]}"
+					options="{'no_create': True, 'no_open': True}"/>
+           	</xpath>
+			<xpath expr="//page[@id='aml_tab']" position="before">
+				<page id="picking_tab" string="Picking Lines" attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)]}">
+					<field name="l10n_ec_stock_picking_id" invisible="1"/>
+					<field name="l10n_ec_waybill_line_ids" nolabel="0" readonly="1"/>
+					<!-- Internal note -->
+					<field name="narration" placeholder="Add an internal note..." nolabel="1" height="50"/>
+				</page>
+			</xpath>
+		</field>
+	</record>
+
+</odoo>

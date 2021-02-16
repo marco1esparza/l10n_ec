@@ -80,7 +80,7 @@ class ResCompany(models.Model):
         _SOURCE,
         string='Origen',
         track_visibility='onchange',
-        default='trescloud_v13',
+        default='trescloud_v14',
         help='Campo informativo del origen de la base de datos del cual se migro la información, permite ejecutar ciertos script de migración.'
     ) #TODO V15, moverlo a la tabla de parametros
     l10n_ec_refund_value_control = fields.Selection(

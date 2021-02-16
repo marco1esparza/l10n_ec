@@ -186,6 +186,7 @@ class AccountEdiDocument(models.Model):
             raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
         self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
         self.l10n_ec_request_xml_file = base64.encodestring(xml_content)
+        return True
     
     @api.model
     def _l10n_ec_get_xml_request_for_sale_invoice(self):

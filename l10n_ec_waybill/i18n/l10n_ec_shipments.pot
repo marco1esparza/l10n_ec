@@ -1,0 +1,540 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_shipments
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-01-18 06:50+0000\n"
+"PO-Revision-Date: 2021-01-18 06:50+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_move_form_shipment
+msgid ""
+"<span attrs=\"{'invisible': ['|', '|', ('l10n_ec_is_shipment', '=', False), "
+"('state', '!=', 'draft'), ('name', '!=', '/')]}\">Draft Electronic "
+"Shipment</span>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_picking_customization_form
+msgid "<span class=\"o_stat_text\">EDI Shipments</span>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<span>Auxiliar Code</span>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<span>Code</span>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<span>Description</span>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<span>Qty</span>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Authorization No.: </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Branch Office address:</strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Company Name / Name and Surname (Carrier): </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Company Name / Name and Surname: </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Destination waybill address: </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Headquarters Address:</strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Identification (Carrier): </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Identification: </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Init Address: </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Invoice Date: </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Invoice No.: </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>License Plate: </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Move reason: </strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Obliged to keep accounting:</strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "<strong>Special Taxpayer Number:</strong>"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "Access Key:"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_res_company__l10n_ec_edi_shipments_account_id
+msgid "Account EDI Shipments"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_stock_picking__l10n_ec_edi_shipment_ids
+msgid "Account Move"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_picking_customization_form
+msgid "Add EDI Shipment"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_move_form_shipment
+msgid "Add an internal note..."
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_stock_picking__l10n_ec_allow_edi_shipments
+msgid "Allow EDI Shipments"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "Authorization No.:"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.actions.act_window,help:l10n_ec_shipments.action_view_stock_carrier
+msgid "Click to define a new stock carrier."
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model,name:l10n_ec_shipments.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: code:addons/l10n_ec_shipments/models/stock_picking.py:0
+#, python-format
+msgid "Debe asignar una cuenta para Guías de Remisión en la compañía."
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.actions.act_window,help:l10n_ec_shipments.action_view_stock_carrier
+msgid "Define the stock carrier used by your shipments."
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_bank_statement_line__l10n_ec_waybill_loc_dest_address
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_move__l10n_ec_waybill_loc_dest_address
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_payment__l10n_ec_waybill_loc_dest_address
+msgid "Destination waybill address"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_account_bank_statement_line__l10n_ec_waybill_loc_dest_address
+#: model:ir.model.fields,help:l10n_ec_shipments.field_account_move__l10n_ec_waybill_loc_dest_address
+#: model:ir.model.fields,help:l10n_ec_shipments.field_account_payment__l10n_ec_waybill_loc_dest_address
+msgid ""
+"Destination waybill address as in VAT document, saved in picking orders only"
+" not in partner"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_edi_document__display_name
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__display_name
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_stock_picking__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_picking_customization_form
+msgid "Edi Documents"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model,name:l10n_ec_shipments.model_account_edi_document
+msgid "Electronic Document for an account.move"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_channel_ids
+msgid "Followers (Channels)"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_company_shipment_form
+msgid "Guias de Remision"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_edi_document__id
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__id
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_stock_picking__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__vat
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_stock_carrier_form
+msgid "Identification Number"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_l10n_ec_stock_carrier__vat
+msgid "Identification Number for selected type"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__l10n_latam_identification_type_id
+msgid "Identification Type"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_needaction
+#: model:ir.model.fields,help:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_unread
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_has_error
+#: model:ir.model.fields,help:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "Información Adicional:"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_bank_statement_line__l10n_ec_is_shipment
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_move__l10n_ec_is_shipment
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_payment__l10n_ec_is_shipment
+msgid "Is Shipment"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model,name:l10n_ec_shipments.model_account_move
+msgid "Journal Entry"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_bank_statement_line__l10n_ec_stock_carrier_id
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_move__l10n_ec_stock_carrier_id
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_payment__l10n_ec_stock_carrier_id
+msgid "L10N Ec Stock Carrier"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_edi_document____last_update
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_move____last_update
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier____last_update
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_res_company____last_update
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_stock_picking____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_stock_picking__l10n_ec_edi_shipment_ids
+msgid "Link to account move edi related to this shipment"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_account_bank_statement_line__l10n_ec_stock_picking_id
+#: model:ir.model.fields,help:l10n_ec_shipments.field_account_move__l10n_ec_stock_picking_id
+#: model:ir.model.fields,help:l10n_ec_shipments.field_account_payment__l10n_ec_stock_picking_id
+msgid "Link to stock picking related to this shipment"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "Logo"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_bank_statement_line__l10n_ec_move_reason
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_move__l10n_ec_move_reason
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_payment__l10n_ec_move_reason
+msgid "Move reason"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__name
+msgid "Name"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "No"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_stock_carrier_form
+msgid "Number"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_stock_picking__l10n_ec_edi_shipment_count
+msgid "Number of EDI Shipments"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_res_company__days_for_valid_waybill
+msgid "Number of days of validity of the waybill."
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_needaction_counter
+msgid "Number of messages which requires an action"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_unread_counter
+msgid "Number of unread messages"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_bank_statement_line__l10n_ec_move_line_ids
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_move__l10n_ec_move_line_ids
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_payment__l10n_ec_move_line_ids
+msgid "Operations without package"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_move_form_shipment
+msgid "Picking Lines"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_move_form_shipment
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_picking_customization_form
+msgid "Shipment Date"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: code:addons/l10n_ec_shipments/models/stock_picking.py:0
+#, python-format
+msgid "Shipment documents are only aplicable for Ecuador"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: code:addons/l10n_ec_shipments/models/stock_picking.py:0
+#, python-format
+msgid "Shipments"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.actions.act_window,name:l10n_ec_shipments.action_view_stock_carrier
+#: model:ir.model,name:l10n_ec_shipments.model_l10n_ec_stock_carrier
+#: model:ir.ui.menu,name:l10n_ec_shipments.menu_view_stock_carrier
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_stock_carrier_form
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_stock_carrier_tree
+msgid "Stock Carrier"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_bank_statement_line__l10n_ec_stock_picking_id
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_move__l10n_ec_stock_picking_id
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_account_payment__l10n_ec_stock_picking_id
+msgid "Stock Pickings"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "Tax ID"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_stock_picking__l10n_ec_allow_edi_shipments
+msgid "Technical field to show/hide \"ADD EDI SHIPMENTS\" button"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_l10n_ec_stock_carrier__l10n_latam_identification_type_id
+msgid "The type of identification"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model,name:l10n_ec_shipments.model_stock_picking
+msgid "Transfer"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.view_stock_carrier_form
+msgid "Type"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_unread
+msgid "Unread Messages"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__message_unread_counter
+msgid "Unread Messages Counter"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_res_company__days_for_valid_waybill
+msgid "Valid days of a waybill"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__license_plate
+msgid "Vehicle Plate"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,field_description:l10n_ec_shipments.field_l10n_ec_stock_carrier__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model:ir.model.fields,help:l10n_ec_shipments.field_l10n_ec_stock_carrier__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: l10n_ec_shipments
+#: model_terms:ir.ui.view,arch_db:l10n_ec_shipments.report_invoice_document
+msgid "Yes"
+msgstr ""

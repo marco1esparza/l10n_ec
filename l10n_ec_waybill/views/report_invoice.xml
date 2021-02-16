@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document" inherit_id="account.report_invoice_document" primary="True">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+            <attribute name="t-call">web.basic_layout</attribute>
+        </xpath>
+
+        <xpath expr="//h2" position="attributes">
+            <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
+        </xpath>
+
+        <xpath expr="//h2" position="before">
+            <table class="table table-borderless w-100 m-1" style="font-size:11px;">
+                <tr>
+                    <td class="pr-1" style="width: 30%">
+                        <div class="col-md-12 text-center pb-1">
+                            <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" class="float-left pt-3" alt="Logo" style="max-width: 300px;"/>
+                        </div>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="text-center p-1">
+                                    <strong><span t-field="o.company_id.l10n_ec_legal_name"/></strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center p-1">
+                                    <strong>Headquarters Address:</strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/>
+                                </td>
+                            </tr>
+                            <tr t-if="o.l10n_ec_printer_id.printer_point_address">
+                                <td class="text-center p-1">
+                                    <strong>Branch Office address:</strong> <span t-esc="o.l10n_ec_printer_id.printer_point_address"/>
+                                </td>
+                            </tr>
+                            <tr t-if="o.company_id.l10n_ec_special_contributor_number">
+                                <td class="text-center p-1">
+                                    <strong>Special Taxpayer Number:</strong>
+                                    <span t-field="o.company_id.l10n_ec_special_contributor_number"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center p-1">
+                                    <strong>Obliged to keep accounting:</strong>
+                                    <t t-if="o.company_id.l10n_ec_forced_accounting">Yes</t>
+                                    <t t-else="">No</t>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="p-1" style="width: 70%">
+                        <table class="table table-condensed m-1">
+                            <tr>
+                                <td class="text-center border-top-0 p-1" >
+                                    <strong>
+                                        <t t-if="o.company_id.country_id.vat_label" t-esc="o.company_id.country_id.vat_label" id="inv_tax_id_label"/>
+                                        <t t-else="">Tax ID</t>:
+                                    </strong> <span t-field="o.company_id.partner_id.vat"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center border-top-0 p-2" style="font-size:15px; letter-spacing: 2px;">
+                                    <h3>
+                                        <t t-if="o.l10n_latam_document_type_id" t-esc="o.l10n_latam_document_type_id.report_name or o.l10n_latam_document_type_id.name" /> <br/> <span t-esc="o.l10n_latam_document_number or o.name"/>
+                                    </h3>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-center border-top-0 p-1">
+                                    <strong>Authorization No.: <span t-field="o.l10n_ec_authorization"/></strong>
+                                </td>
+                            </tr>
+                            <!-- Los RIDE que se descarguen del portal web del SRI contendrán hora y fecha de autorización, dicha información no es
+								 obligatoria registrarla en el RIDE generado por los emisores de comprobantes electrónicos.
+                            <tr>
+                                <td class="border-top-0 p-1">
+                                    <strong>Date and time of Authorization:</strong>
+                                </td>
+                            </tr>-->
+                            <tr>
+                                <td class="border-top-0 p-1">
+                                    <div class="text-justify">
+                                        <img style="width:100%; height:15.5mm;"
+                                             t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.l10n_ec_authorization, 1600, 400)"
+                                        />
+                                    </div>
+                                    <div class="text-center">
+                                        <strong>Access Key: <span t-field="o.l10n_ec_authorization"/></strong>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+            <table name="carrier_info" class="table table-condensed w-100" style="font-size:10px;">
+                <tr>
+                    <td class="p-1 text-left w-50"><strong>Company Name / Name and Surname (Carrier): </strong><span t-field="o.l10n_ec_waybill_carrier_id.name"/></td>
+                    <td class="p-1 text-left w-50"><strong>Identification (Carrier): </strong><span t-field="o.l10n_ec_waybill_carrier_id.vat"/></td>
+                </tr>
+                <tr>
+                    <td class="p-1 text-left w-50"><strong>License Plate: </strong><span t-field="o.l10n_ec_license_plate"/></td>
+                    <td class="p-1"></td>
+                </tr>
+                <tr>
+                    <td class="p-1 text-left w-50"><strong>Init Address: </strong><span t-field="o.l10n_ec_printer_id.printer_point_address"/></td>
+                    <td class="p-1"></td>
+                </tr>
+            </table>
+
+            <table name="invoice_info" class="table table-condensed w-100" style="font-size:10px;">
+                <tr>
+                    <td class="p-1 text-left w-50"><strong>Invoice No.: </strong></td>
+                    <td class="p-1 text-left w-50"><strong>Invoice Date: </strong></td>
+                </tr>
+                <tr>
+                    <td class="p-1 text-left w-50" colspan="2"><strong>Authorization No.: </strong></td>
+                </tr>
+                <tr>
+                    <td class="p-1 text-left w-50" colspan="2"><strong>Move reason: </strong><span t-field="o.l10n_ec_waybill_move_reason"/></td>
+                </tr>
+                <tr>
+                    <td class="p-1 text-left w-50" colspan="2"><strong>Destination waybill address: </strong><span t-field="o.l10n_ec_waybill_loc_dest_address"/></td>
+                </tr>
+                <tr>
+                    <td class="p-1 text-left w-50"><strong>Company Name / Name and Surname: </strong><span t-esc="o.commercial_partner_id._get_complete_name()"/></td>
+                    <td class="p-1 text-left w-50"><strong>Identification: </strong><span t-field="o.commercial_partner_id.vat"/></td>
+                </tr>
+            </table>
+        </xpath>
+
+        <xpath expr="//div[@id='informations']" position="attributes">
+            <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
+        </xpath>
+
+        <xpath expr="//div[hasclass('clearfix')]" position="attributes">
+            <attribute name="invisible">1</attribute>
+        </xpath>
+
+        <xpath expr="//div[hasclass('page')]/p[1]" position="attributes">
+            <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']" position="replace">
+            <table class="table table-sm o_main_table" style="font-size:11px;" name="invoice_line_table">
+                <thead>
+                    <tr>
+                        <t t-set="colspan" t-value="6"/>
+                        <th name="th_qty" class="text-left"><span>Qty</span></th>
+                        <th name="th_description" class="text-left"><span>Description</span></th>
+                        <th name="th_code" class="text-left"><span>Code</span></th>
+                        <th name="th_auxcode" class="text-left"><span>Auxiliar Code</span></th>
+                    </tr>
+                </thead>
+                <tbody class="invoice_tbody">
+                    <t t-set="lines" t-value="o.l10n_ec_waybill_line_ids.sorted(key=lambda l: l.id)"/>
+
+                    <t t-foreach="lines" t-as="line">
+                        <tr>
+                            <td><span t-field="line.qty_done"/></td>
+                            <td><span t-field="line.product_id.name" t-options="{'widget': 'text'}"/></td>
+                            <td><span t-esc="line.product_id.code and line.product_id.code or line.product_id.barcode"/></td>
+                            <td></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </xpath>
+
+        <xpath expr="//div[@id='total']/div[1]" position="replace">
+            <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ml-auto">
+
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='total']" position="after">
+            <t t-set="additional_info" t-value="o._get_additional_info()"/>
+            <t t-if="additional_info">
+                <div class="row">
+                    <div class="col-6 mt-5">
+                        <table name="social_reason" class="table table-condensed w-100" style="font-size:10px;">
+                            <tr>
+                                <th class="text-center">Información Adicional:</th>
+                            </tr>
+                            <t t-foreach="additional_info" t-as="info">
+                                <tr>
+                                    <td class="p-1 text-left w-50">
+                                        <span t-esc="info"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- FIXME: Temp fix to allow fetching invoice_documemt in Studio Reports with localisation -->
+    <template id="report_invoice" inherit_id="account.report_invoice">
+        <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
+            <t t-if="o._get_name_invoice_report() == 'l10n_ec_waybill.report_invoice_document'"
+                t-call="l10n_ec_waybill.report_invoice_document" t-lang="lang"/>
+        </xpath>
+    </template>
+
+    <template id="report_invoice_with_payments" inherit_id="account.report_invoice_with_payments">
+        <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
+            <t t-if="o._get_name_invoice_report() == 'l10n_ec_waybill.report_invoice_document'"
+                t-call="l10n_ec_waybill.report_invoice_document" t-lang="lang"/>
+        </xpath>
+    </template>
+</odoo>
