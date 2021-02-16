@@ -10,39 +10,39 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     @api.onchange('invoice_date')
-    def onchange_invoice_date_edi_shipments(self):
-        if self.is_shipment() and self.invoice_date and self.company_id.days_for_valid_waybill:
+    def onchange_invoice_date_out_waybill(self):
+        if self.is_waybill() and self.invoice_date and self.company_id.days_for_valid_waybill:
             self.invoice_date_due = self.invoice_date + datetime.timedelta(days=self.company_id.days_for_valid_waybill)
         
     def copy_data(self, default=None):
         #avoid duplicating withholds, it has not been tested
         res = super(AccountMove, self).copy_data(default=default)
-        if self.is_shipment():
+        if self.is_waybill():
             raise ValidationError(u'No se permite duplicar las guias de remisiones, si necesita crear una debe hacerlo desde la entrega de cliente correspondiente.')
         return res
 
-    def is_shipment(self):
-        is_shipment = False
-        if self.country_code == 'EC' and self.move_type in ('entry') and self.l10n_ec_is_shipment and self.l10n_latam_document_type_id.code in ['06']:
-            is_shipment = True
-        return is_shipment
+    def is_waybill(self):
+        is_waybill = False
+        if self.country_code == 'EC' and self.move_type in ('entry') and self.l10n_ec_is_waybill and self.l10n_latam_document_type_id.code in ['06']:
+            is_waybill = True
+        return is_waybill
 
     def is_invoice(self, include_receipts=False):
         #Hack, permite enviar por mail documentos distintos de facturas
         is_invoice = super(AccountMove, self).is_invoice(include_receipts)
         if self._context.get('l10n_ec_send_email_others_docs', False):
-            if self.is_shipment():
+            if self.is_waybill():
                 is_invoice = True
         return is_invoice
 
     def _get_name_invoice_report(self):
         self.ensure_one()
-        if self.is_shipment():
+        if self.is_waybill():
             return 'l10n_ec_shipments.report_invoice_document'
         return super()._get_name_invoice_report()
 
     #Columns
-    l10n_ec_is_shipment = fields.Boolean(string='Is Shipment', copy=False)
+    l10n_ec_is_waybill = fields.Boolean(string='Is Waybill', copy=False)
     l10n_ec_stock_picking_id = fields.Many2one(
         'stock.picking',
         string='Stock Pickings',

@@ -8,24 +8,24 @@ from odoo.exceptions import UserError, ValidationError
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    def _l10n_ec_allow_edi_shipments(self):
+    def _l10n_ec_allow_edi_waybills(self):
         #shows/hide "ADD EDI SHIPMENT" button on picking
         for picking in self:
             result = False
             if picking.company_id.country_code == 'EC' and picking.state == 'done':
                 if picking.location_id.usage == 'internal':
                     result = True
-            picking.l10n_ec_allow_edi_shipments = result
+            picking.l10n_ec_allow_edi_waybill = result
 
-    @api.depends('l10n_ec_edi_shipment_ids')
-    def _compute_l10n_ec_edi_shipment_count(self):
+    @api.depends('l10n_ec_edi_waybill_ids')
+    def _compute_l10n_ec_edi_waybill_count(self):
         for picking in self:
-            count = len(self.l10n_ec_edi_shipment_ids)
-            picking.l10n_ec_edi_shipment_count = count
+            count = len(self.l10n_ec_edi_waybill_ids)
+            picking.l10n_ec_edi_waybill_count = count
 
     def _l10n_ec_prepare_shipment_default_values(self):
         # Compras
-        if not self.company_id.l10n_ec_edi_shipments_account_id:
+        if not self.company_id.l10n_ec_edi_waybill_account_id:
             raise ValidationError(_('Debe asignar una cuenta para Guías de Remisión en la compañía.'))
         move_type = 'entry'
         l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
@@ -53,7 +53,7 @@ class StockPicking(models.Model):
             'l10n_ec_waybill_loc_dest_address': ' '.join([value for value in [self.partner_id.street, self.partner_id.street2] if value]),
             'l10n_ec_authorization': False,
             'l10n_ec_stock_picking_id': self.id,
-            'l10n_ec_is_shipment': True,
+            'l10n_ec_is_waybill': True,
             'partner_id': self.partner_id.id,
             'l10n_ec_move_reason': l10n_ec_move_reason,
             'invoice_line_ids': [(0, 0, {
@@ -61,20 +61,20 @@ class StockPicking(models.Model):
                 'price_unit': 0.0,
                 'quantity': 1,
                 'tax_ids': [],
-                'account_id': self.company_id.l10n_ec_edi_shipments_account_id.id,
+                'account_id': self.company_id.l10n_ec_edi_waybill_account_id.id,
                 })]
         }
 
         return default_values
 
-    def l10n_ec_add_edi_shipment(self):
+    def l10n_ec_add_edi_waybill(self):
         for picking in self:
             if not picking.company_id.country_code == 'EC':
                 raise ValidationError(_('Shipment documents are only aplicable for Ecuador'))
 
         default_values = self._l10n_ec_prepare_shipment_default_values()
-        new_move = self.env['account.move'].with_context(default_shipment_type='edi_shipment').create(default_values)
-        new_move.onchange_invoice_date_edi_shipments()
+        new_move = self.env['account.move'].with_context(default_waybill_type='out_waybill').create(default_values)
+        new_move.onchange_invoice_date_edi_waybill()
         return self.l10n_ec_action_view_shipments()
 
     def l10n_ec_action_view_shipments(self):
@@ -85,30 +85,30 @@ class StockPicking(models.Model):
         action = self.env.ref(action)
         result = action.read()[0]
         result['name'] = _('Shipments')
-        l10n_ec_edi_shipment_ids = self.l10n_ec_edi_shipment_ids.ids
-        if len(l10n_ec_edi_shipment_ids) > 1:
-            result['domain'] = "[('id', 'in', " + str(l10n_ec_edi_shipment_ids) + ")]"
+        l10n_ec_edi_waybill_ids = self.l10n_ec_edi_waybill_ids.ids
+        if len(l10n_ec_edi_waybill_ids) > 1:
+            result['domain'] = "[('id', 'in', " + str(l10n_ec_edi_waybill_ids) + ")]"
         else:
             res = self.env.ref(view)
             result['views'] = [(res and res.id or False, 'form')]
-            result['res_id'] = l10n_ec_edi_shipment_ids and l10n_ec_edi_shipment_ids[0] or False
+            result['res_id'] = l10n_ec_edi_waybill_ids and l10n_ec_edi_waybill_ids[0] or False
         return result
 
     #Columns
-    l10n_ec_edi_shipment_ids = fields.One2many(
+    l10n_ec_edi_waybill_ids = fields.One2many(
         'account.move',
         'l10n_ec_stock_picking_id',
         string='Account Move',
         copy=False,
         help='Link to account move edi related to this shipment'
         )
-    l10n_ec_allow_edi_shipments = fields.Boolean(
-        compute='_l10n_ec_allow_edi_shipments',
+    l10n_ec_allow_edi_waybill = fields.Boolean(
+        compute='_l10n_ec_allow_edi_waybill',
         string='Allow EDI Shipments',
         method=True,
         help='Technical field to show/hide "ADD EDI SHIPMENTS" button'
     )
-    l10n_ec_edi_shipment_count = fields.Integer(
-        compute='_compute_l10n_ec_edi_shipment_count',
+    l10n_ec_edi_waybill_count = fields.Integer(
+        compute='_compute_l10n_ec_edi_waybill_count',
         string='Number of EDI Shipments',
     )

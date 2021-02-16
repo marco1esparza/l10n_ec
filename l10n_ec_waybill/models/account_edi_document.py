@@ -20,11 +20,11 @@ class AccountEdiDocument(models.Model):
         '''
         res = super(AccountEdiDocument, self)._l10n_ec_generate_request_xml_file()
         #generamos y validamos el documento
-        if self.move_id.is_shipment():
+        if self.move_id.is_waybill():
             etree_content = self._l10n_ec_get_xml_request_for_shipment()
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
-                if self.move_id.is_shipment():
+                if self.move_id.is_waybill():
                     validate_xml_vs_xsd(xml_content, XSD_SRI_110_GUIA_REMISION)
             except ValueError: 
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
@@ -126,7 +126,7 @@ class AccountEdiDocument(models.Model):
     def _get_additional_info(self):
         self.ensure_one()
         additional_info = super()._get_additional_info()
-        if self.move_id.is_shipment():
+        if self.move_id.is_waybill():
             additional_info = []
             get_invoice_partner_data = self.move_id.partner_id.get_invoice_partner_data()
             if self.move_id.company_id.l10n_ec_regime == 'micro':

@@ -9,7 +9,7 @@
 				<group colspan="4" col="4">
 						<group name="shipment_information" string="Guias de Remision" colspan="2" col="2">
 							<field name="days_for_valid_waybill"/>
-							<field name="l10n_ec_edi_shipments_account_id" />
+							<field name="l10n_ec_edi_waybill_account_id" />
 						</group>
 				</group>
 	   		</xpath>

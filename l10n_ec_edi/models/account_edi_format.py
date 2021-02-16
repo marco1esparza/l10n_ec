@@ -48,7 +48,7 @@ class AccountEdiFormat(models.Model):
             #Retenciones compra
             elif invoice.is_withholding() and invoice.l10n_ec_withhold_type == 'in_withhold':
                 is_required_for_invoice = True
-            elif invoice.is_shipment():
+            elif invoice.is_waybill():
                 is_required_for_invoice = True
             return is_required_for_invoice
         return super()._is_required_for_invoice(invoice)

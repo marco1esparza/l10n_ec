@@ -6,26 +6,26 @@
             <field name="inherit_id" ref="stock.view_picking_form"/>
             <field name="arch" type="xml">
                 <xpath expr="/form/header/button[last()]" position="after">
-                    <button name="l10n_ec_add_edi_shipment" string="Add EDI Shipment" type="object"
+                    <button name="l10n_ec_add_edi_waybill" string="Add EDI Shipment" type="object"
                     groups="account.group_account_invoice"
-					attrs="{'invisible':[('l10n_ec_allow_edi_shipments','!=',True)]}"/>
+					attrs="{'invisible':[('l10n_ec_allow_edi_waybill','!=',True)]}"/>
                 </xpath>
                 <div class="oe_button_box" position="inside">
                 <button type="object" class="oe_stat_button" name="l10n_ec_action_view_shipments" icon="fa-list-alt"
-                	attrs="{'invisible': [('l10n_ec_edi_shipment_count', '=', 0)]}">
+                	attrs="{'invisible': [('l10n_ec_edi_waybill_count', '=', 0)]}">
                     <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_value"><field name="l10n_ec_edi_shipment_count"/></span>
+                        <span class="o_stat_value"><field name="l10n_ec_edi_waybill_count"/></span>
                         <span class="o_stat_text">EDI Shipments</span>
                     </div>
                 </button>
             </div>
                 <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="l10n_ec_allow_edi_shipments" invisible="1"/>
+                    <field name="l10n_ec_allow_edi_waybill" invisible="1"/>
                 </xpath>
                 <xpath expr="//page[@name='note']" position="after">
-                    <page string="Edi Documents" name="edi_shipment" attrs="{'invisible':[('l10n_ec_allow_edi_shipments','!=',True)]}">
+                    <page string="Edi Documents" name="edi_waybill" attrs="{'invisible':[('l10n_ec_allow_edi_waybill','!=',True)]}">
                         <group col="4" colspan="4">
-			 				<field name="l10n_ec_edi_shipment_ids" nolabel="1" readonly="1">
+			 				<field name="l10n_ec_edi_waybill_ids" nolabel="1" readonly="1">
 			                	<tree>
 			                        <field name="name"/>
 			                        <field name="invoice_date" readonly="1" string="Shipment Date"/>

@@ -447,39 +447,6 @@ class AccountMove(models.Model):
             return 'l10n_ec_withhold.report_invoice_document'
         return super()._get_name_invoice_report()
 
-    def is_invoice(self, include_receipts=False):
-        # WARNING: For Ecuador we consider is_invoice for all edis (invoices, wihtholds, waybills, etc)
-        if self.country_code == 'EC':
-            if self.move_type in self.get_invoice_types(include_receipts):
-                return True
-            elif self.is_withholding():
-                return True
-            elif self.is_waybill():
-                return True
-            return False
-        return super(AccountMove, self).is_invoice(include_receipts)
-        #Hack, permite enviar por mail documentos distintos de facturas
-        # is_invoice = super(AccountMove, self).is_invoice(include_receipts)
-        # if self._context.get('l10n_ec_send_email_others_docs', False):
-        #     if self.is_withholding():
-        #         is_invoice = True
-        # return is_invoice
-        #  
-        # def _compute_access_url(self):
-        #     #para que el boton ver documento permita abrir el coprobante de retención
-        #     super(AccountMove, self)._compute_access_url()
-        #     for move in self.filtered(lambda move: move.is_withholding()):
-        #         #TODO V15 agregar un controlador que reemplace invoices con withholds
-        #         move.access_url = '/my/invoices/%s' % (move.id)
-        #  
-        # def _get_report_base_filename(self):
-        #     #bypass core restriction to also print withholds and waybills
-        #     #TODO V15: Call super
-        #     if any(not move.is_invoice() and not move.is_withholding() and not move.is_waybill() for move in self):
-        #         raise UserError(_("Only invoices, withholds and waybills could be printed."))
-        #     return self._get_move_display_name()
-
-
     def is_withholding(self):
         is_withholding = False
         if self.country_code == 'EC' and self.move_type in ('entry') and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold') and self.l10n_latam_document_type_id.code in ['07']:

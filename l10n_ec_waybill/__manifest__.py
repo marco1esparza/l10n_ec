@@ -35,7 +35,7 @@
     ],
     'installable': True,
     'auto_install': False,
-    # Se hace uso del post_init_hook para al finalizar la instalacion del modulo, se ejecute el metodo _assign_default_edi_shipment_account_id
+    # Se hace uso del post_init_hook para al finalizar la instalacion del modulo, se ejecute el metodo _assign_default_edi_waybill_account_id
     # para que asigne la cuenta transitoria para Guias de Remisiones en las compañias existentes (Metodo existente en __init__.py)
-    'post_init_hook': '_assign_default_edi_shipment_account_id',
+    'post_init_hook': '_assign_default_edi_waybill_account_id',
 }

@@ -485,8 +485,10 @@ class AccountMove(models.Model):
         printer_id = False
         company_id = self.env.company #self.country_code is still empty
         if company_id.country_code == 'EC':
-            move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
-            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
+            move_type = self._context.get('default_move_type',False) or \
+                        self._context.get('default_withhold_type',False) or \
+                        self._context.get('default_waybill_type', False) #self.type is not yet populated
+            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold', 'out_waybill']:
                 #regular account.move doesn't need a printer point
                 printer_id = self.env.user.property_l10n_ec_printer_id.id
                 if not printer_id: #search first printer point
