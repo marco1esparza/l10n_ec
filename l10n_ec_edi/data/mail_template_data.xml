@@ -3,7 +3,7 @@
     <data noupdate="0">
 
         <record id="l10n_ec_email_template_edi_document" model="mail.template">
-            <field name="name">EDI: Send by email</field>
+            <field name="name">EDI (Ecuador): Enviar por Email</field>
             <field name="model_id" ref="account.model_account_move"/>
             <field name="email_from">${(object.invoice_user_id.email_formatted or user.email_formatted) |safe}</field>
             <field name="partner_to">${object.partner_id.id}</field>
@@ -17,27 +17,43 @@
         % else:
             ${object.partner_id.name},
         % endif
-        <br /><br />
-        Here is your
+        <br/><br/>
+        Please find attached 
         % if object.name and object.l10n_latam_document_type_id:
             ${object.l10n_latam_document_type_id.report_name or object.l10n_latam_document_type_id.name} <strong>${object.name}</strong>
         % elif object.name:
             Invoice <strong>${object.name}</strong>
         % else:
             invoice
-        %endif
-        <br /><br />
+        % endif
+        % if object.invoice_origin:
+            (with reference: ${object.invoice_origin})
+        % endif
+        % if object.is_withholding():
+            amounting in <strong>${format_amount(object.l10n_ec_total, object.currency_id)}</strong>.
+        % elif object.is_waybill():
+            .
+        % else:
+            amounting in <strong>${format_amount(object.amount_total, object.currency_id)}</strong>.
+        % endif
+        % if object.move_type == 'out_invoice':
+        	Thank you for your purchase.
+        % endif
+        <br/>
         % if object.get_portal_url():
          <div style="margin: 16px 0px 16px 0px;">
             <a href="/my/invoices/${object.id}?access_token=${object.access_token}"
-               style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">
+               style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;"
+               target="_blank">
                 View Document
             </a>
          </div>
         % endif
-        <br /><br />
-        A regard from ${object.company_id.name}.
-        <br /><br />
+        <br/>
+        Do not hesitate to contact us if you have any questions.
+        <br/> 
+        A regard from ${object.company_id.name}
+        <br/><br/>
     </p>
 </div>
             </field>

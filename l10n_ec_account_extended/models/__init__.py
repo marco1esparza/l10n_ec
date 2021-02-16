@@ -12,4 +12,3 @@ from . import account_account
 from . import account_payment
 from . import res_users
 from . import l10n_ec_sri_printer_point
-from . import res_partner_bank

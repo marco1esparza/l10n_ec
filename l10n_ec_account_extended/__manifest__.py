@@ -31,7 +31,6 @@
         'views/menu_view.xml',
         'views/res_users_view.xml',
         'views/l10n_ec_sri_printer_point_view.xml',
-        'views/res_partner_bank_views.xml',
         #wizard
         'wizard/account_move_reversal_view.xml',
     ],
