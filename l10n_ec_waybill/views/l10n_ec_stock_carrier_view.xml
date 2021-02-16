@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-	<record id="view_stock_carrier_form" model="ir.ui.view">
-		<field name="name">view.stock.carrier.form</field>
-		<field name="model">l10n_ec.stock.carrier</field>
+	<record id="view_waybill_carrier_form" model="ir.ui.view">
+		<field name="name">view.waybill.carrier.form</field>
+		<field name="model">l10n_ec.waybill.carrier</field>
 		<field name="type">form</field>
 		<field name="arch" type="xml">
             <form string="Stock Carrier">
@@ -17,7 +17,6 @@
                     			<span class="oe_read_only"> - </span>
                     			<field name="vat" placeholder="Number" class="oe_inline"/>
                 			</div>
-							<field name="license_plate"/>
 						</group>
 					</group>
 				</sheet>
@@ -29,30 +28,29 @@
 		</field>
 	</record>
 
-	<record id="view_stock_carrier_tree" model="ir.ui.view">
-		<field name="name">view.stock.carrier.tree</field>
-		<field name="model">l10n_ec.stock.carrier</field>
+	<record id="view_waybill_carrier_tree" model="ir.ui.view">
+		<field name="name">view.waybill.carrier.tree</field>
+		<field name="model">l10n_ec.waybill.carrier</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
 			<tree string="Stock Carrier">
 				<field name="name"/>
 			    <field name="l10n_latam_identification_type_id"/>
 			    <field name="vat"/>
-				<field name="license_plate"/>
 			</tree>
 		</field>
 	</record>
 
 	<record id="action_view_stock_carrier" model="ir.actions.act_window">
-		<field name="name">Stock Carrier</field>
+		<field name="name">Waybill Carrier</field>
 		<field name="type">ir.actions.act_window</field>
-		<field name="res_model">l10n_ec.stock.carrier</field>
+		<field name="res_model">l10n_ec.waybill.carrier</field>
 		<field name="view_mode">tree,form</field>
 		<field name="help" type="html">
 	      <p class="oe_view_nocontent_create">
 	        Click to define a new stock carrier.
 	      </p><p>
-	        Define the stock carrier used by your shipments.
+	        Define the waybill carrier used for your shipments.
 	      </p>
 	    </field>
 	</record>

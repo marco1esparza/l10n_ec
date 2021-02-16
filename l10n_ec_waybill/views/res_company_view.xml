@@ -5,13 +5,9 @@
 		<field name="model">res.company</field>
 		<field name="inherit_id" ref="l10n_ec_edi.view_company_electronic_form"/>
 		<field name="arch" type="xml">
-			<xpath expr="//page[@name='ecuadorian_configuration']" position="inside">
-				<group colspan="4" col="4">
-						<group name="shipment_information" string="Guias de Remision" colspan="2" col="2">
-							<field name="days_for_valid_waybill"/>
-							<field name="l10n_ec_edi_waybill_account_id" />
-						</group>
-				</group>
+			<xpath expr="//field[@name='l10n_ec_digital_cert_id']" position="before">
+				<field name="days_for_valid_waybill"/>
+				<field name="l10n_ec_edi_waybill_account_id" groups="base.group_no_one"/>
 	   		</xpath>
 		</field>
    	 </record>

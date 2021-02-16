@@ -5,7 +5,7 @@
     'name': 'Guia de Remision ecuatorianas',
     'version': '1.0',
     'category': 'Localization',
-    'summary': 'SRI electronic shipments',
+    'summary': 'SRI electronic waybills',
     'description': '''
         Característica:
             Agrega las características básicas para la emisión de Guias de Remision.
@@ -26,6 +26,7 @@
         'data/account_journal_data.xml',
         #Security
         'security/ir.model.access.csv',
+        'security/l10n_ec_multicompany_security.xml',
         #Views
         'views/l10n_ec_stock_carrier_view.xml',
         'views/res_company_view.xml',
@@ -34,8 +35,7 @@
         'views/report_invoice.xml',
     ],
     'installable': True,
+    'application': True,
     'auto_install': False,
-    # Se hace uso del post_init_hook para al finalizar la instalacion del modulo, se ejecute el metodo _assign_default_edi_waybill_account_id
-    # para que asigne la cuenta transitoria para Guias de Remisiones en las compañias existentes (Metodo existente en __init__.py)
     'post_init_hook': '_assign_default_edi_waybill_account_id',
 }

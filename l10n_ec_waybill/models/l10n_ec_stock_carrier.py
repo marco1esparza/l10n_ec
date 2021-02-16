@@ -4,10 +4,10 @@
 from odoo import fields, models, _
 
 
-class L10nEcStockCarrier(models.Model):
-    _name = 'l10n_ec.stock.carrier'
+class L10nEcWaybillCarrier(models.Model):
+    _name = 'l10n_ec.waybill.carrier'
     _inherit = ['mail.thread']
-    _description = "Stock Carrier"
+    _description = "Waybill Carrier"
 
     def get_ident_type(self):
         '''
@@ -24,12 +24,31 @@ class L10nEcStockCarrier(models.Model):
         elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
             code = '08'
         return code
-
-    name = fields.Char(string='Name', required=True)
-    l10n_latam_identification_type_id = fields.Many2one('l10n_latam.identification.type',
-                                                        string="Identification Type",
-                                                        default=lambda self: self.env.ref('l10n_latam_base.it_vat',
-                                                                                          raise_if_not_found=False),
-                                                        help="The type of identification", required=True)
-    vat = fields.Char(string='Identification Number', help="Identification Number for selected type", required=True)
-    license_plate = fields.Char(string='Vehicle Plate', size=15, required=True)
+    
+    
+    
+    name = fields.Char(
+        string='Name',
+        required=True,
+        tracking=True
+        )
+    l10n_latam_identification_type_id = fields.Many2one(
+        'l10n_latam.identification.type',
+        string="Identification Type",
+        default=lambda self: self.env.ref('l10n_ec.ec_dni',raise_if_not_found=False),
+        tracking=True,
+        required=True,
+        help="The type of identification"
+        )
+    vat = fields.Char(
+        string='Identification Number',
+        help="Identification Number for selected type",
+        required=True,
+        tracking=True,
+        )
+    active = fields.Boolean(
+        default=True,
+        help="Set active to false to hide the SRI Printer Point without removing it.",
+        tracking=True
+        )
+    company_id = fields.Many2one('res.company', string='Company', required=True, index=True, default=lambda self: self.env.company)

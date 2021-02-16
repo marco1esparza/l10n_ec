@@ -141,6 +141,15 @@ class AccountMove(models.Model):
     def is_waybill(self):
         return False
 
+    def _creation_message(self):
+        # OVERRIDE, waybill and withholds have different types than an invoice
+        if self.is_withholding():
+            return _('Withhold Created')
+        elif self.is_waybill():
+            return _('Waybill Created')
+        else:
+            return super()._creation_message()
+        
     def action_invoice_sent(self):
         #Reemplazamos la plantilla de account_edi por la nuestra, con tipo de documento, portal, y mejoras
         res = super(AccountMove, self).action_invoice_sent()

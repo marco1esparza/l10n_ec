@@ -15,11 +15,7 @@ class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
 
     def _l10n_ec_generate_request_xml_file(self):
-        '''
-        Escribe el archivo xml request en el campo designado para ello
-        '''
-        res = super(AccountEdiDocument, self)._l10n_ec_generate_request_xml_file()
-        #generamos y validamos el documento
+        #Escribe el archivo xml request en el campo designado para ello
         if self.move_id.is_waybill():
             etree_content = self._l10n_ec_get_xml_request_for_shipment()
             xml_content = clean_xml(etree_content)
@@ -30,7 +26,9 @@ class AccountEdiDocument(models.Model):
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
             self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
             self.l10n_ec_request_xml_file = base64.encodestring(xml_content)
-        return res
+            return True
+        return super(AccountEdiDocument, self)._l10n_ec_generate_request_xml_file()
+        
     
     @api.model
     def _l10n_ec_get_xml_request_for_shipment(self):
@@ -62,9 +60,9 @@ class AccountEdiDocument(models.Model):
         infoGuiaRemisionElements = [
             ('dirEstablecimiento', self.move_id.l10n_ec_printer_id.printer_point_address),
             ('dirPartida', self.move_id.l10n_ec_printer_id.printer_point_address),
-            ('razonSocialTransportista', self.move_id.l10n_ec_stock_carrier_id.name),
-            ('tipoIdentificacionTransportista', self.move_id.l10n_ec_stock_carrier_id.get_ident_type()),
-            ('rucTransportista', self.move_id.l10n_ec_stock_carrier_id.vat),
+            ('razonSocialTransportista', self.move_id.l10n_ec_waybill_carrier_id.name),
+            ('tipoIdentificacionTransportista', self.move_id.l10n_ec_waybill_carrier_id.get_ident_type()),
+            ('rucTransportista', self.move_id.l10n_ec_waybill_carrier_id.vat),
             ('obligadoContabilidad', 'SI' if self.move_id.company_id.l10n_ec_forced_accounting else 'NO'),
         ]
         if self.move_id.company_id.l10n_ec_special_contributor_number:
@@ -73,10 +71,9 @@ class AccountEdiDocument(models.Model):
         infoGuiaRemisionElements.extend([
             ('fechaIniTransporte', self.move_id.invoice_date.strftime('%d/%m/%Y')),
             ('fechaFinTransporte', self.move_id.invoice_date_due.strftime('%d/%m/%Y')),
-            ('placa', self.move_id.l10n_ec_stock_carrier_id.license_plate),
+            ('placa', self.move_id.l10n_ec_license_plate.replace('-','')),
         ])
         self.create_TreeElements(infoGuiaRemision, infoGuiaRemisionElements)
-        # CREACION DE LOS DETALLES
         # DETALLES DE LA GUIA DE REMISION
         destinatarios = etree.SubElement(guiaRemision, 'destinatarios')
         destinatario = self.create_SubElement(destinatarios, 'destinatario')
@@ -85,24 +82,25 @@ class AccountEdiDocument(models.Model):
             ('identificacionDestinatario', get_invoice_partner_data['invoice_vat']),
             ('razonSocialDestinatario', get_invoice_partner_data['invoice_name']),
             ('dirDestinatario', self.move_id.l10n_ec_waybill_loc_dest_address),
-            ('motivoTraslado', self.move_id.l10n_ec_move_reason),
-        ]
-        invoice_ids = self.move_id.l10n_ec_stock_picking_id.sale_id and self.move_id.l10n_ec_stock_picking_id.sale_id.invoice_ids.filtered(
-            lambda x: x.state in ['posted'] and x.amount_total > 0)
-        if invoice_ids:
-            if invoice_ids[0].l10n_latam_document_type_id.code == '18':
-                destinatario_data.append(('codDocSustento', '01'))
-            else:
-                destinatario_data.append(('codDocSustento', invoice_ids[0].l10n_latam_document_type_id.code))
-            destinatario_data.append(('numDocSustento', invoice_ids[0].name))
-            destinatario_data.append(('numAutDocSustento', invoice_ids[0].l10n_ec_authorization))
-            destinatario_data.append(('fechaEmisionDocSustento', invoice_ids[0].date_invoice))
+            ('motivoTraslado', self.move_id.l10n_ec_waybill_move_reason),
+            ]
+        #TODO V16: Incorporar datos de factura en la guía de remisión
+        # invoice_ids = self.move_id.l10n_ec_stock_picking_id.sale_id and self.move_id.l10n_ec_stock_picking_id.sale_id.invoice_ids.filtered(
+        #     lambda x: x.state in ['posted'] and x.amount_total > 0)
+        # if invoice_ids:
+        #     if invoice_ids[0].l10n_latam_document_type_id.code == '18':
+        #         destinatario_data.append(('codDocSustento', '01'))
+        #     else:
+        #         destinatario_data.append(('codDocSustento', invoice_ids[0].l10n_latam_document_type_id.code))
+        #     destinatario_data.append(('numDocSustento', invoice_ids[0].name))
+        #     destinatario_data.append(('numAutDocSustento', invoice_ids[0].l10n_ec_authorization))
+        #     destinatario_data.append(('fechaEmisionDocSustento', invoice_ids[0].invoice_date))
         self.create_TreeElements(destinatario, destinatario_data)
         detalles = self.create_SubElement(destinatario, 'detalles')
-        for each in self.move_id.l10n_ec_move_line_ids:
+        for each in self.move_id.l10n_ec_waybill_line_ids:
             detalle_data = []
             detalle = self.create_SubElement(detalles, 'detalle')
-            product_code = each.product_id.default_code and each.product_id.default_code or each.product_id.barcode
+            product_code = each.product_id.barcode or each.product_id.default_code or ''
             if product_code:
                 detalle_data.append(('codigoInterno', product_code))
             detalle_data.append(('descripcion', each.product_id.name))
@@ -124,15 +122,12 @@ class AccountEdiDocument(models.Model):
         return guiaRemision
 
     def _get_additional_info(self):
+        #TODO V15, unificar con el _get_additional_info de retenciones y facturas
         self.ensure_one()
         additional_info = super()._get_additional_info()
         if self.move_id.is_waybill():
             additional_info = []
             get_invoice_partner_data = self.move_id.partner_id.get_invoice_partner_data()
-            if self.move_id.company_id.l10n_ec_regime == 'micro':
-                additional_info.append('Regimen: %s' % _MICROCOMPANY_REGIME_LABEL)
-            if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
-                additional_info.append('Agente de Retencion: %s' % ''.join([u'Resolución Nro. ', self.move_id.company_id.l10n_ec_wihhold_agent_number]))
             if get_invoice_partner_data['invoice_email']:
                 additional_info.append('Email: %s' % get_invoice_partner_data['invoice_email'])
             if get_invoice_partner_data['invoice_address']:
@@ -140,8 +135,4 @@ class AccountEdiDocument(models.Model):
             if get_invoice_partner_data['invoice_phone']:
                 additional_info.append('Telefono: %s' % get_invoice_partner_data['invoice_phone'])
         return additional_info
-
-    def _prepare_jobs(self):
-        #make withholds is_withhold() look like invoice is_invoice() for account_edi to process it
-        to_process = super(AccountEdiDocument, self.with_context(l10n_ec_send_email_others_docs=True))._prepare_jobs()
-        return to_process
+    

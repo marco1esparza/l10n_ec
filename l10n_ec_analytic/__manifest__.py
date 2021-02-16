@@ -22,6 +22,7 @@
         'views/account_account_view.xml'
     ],
     'installable': True,
+    'application': True,
     #Post Init para establecer politica analitica en las cuentas contables
     #al momento de instalar el modulo
     'post_init_hook': '_set_account_analytic_policy'

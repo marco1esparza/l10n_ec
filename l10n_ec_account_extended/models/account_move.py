@@ -117,8 +117,14 @@ class AccountMove(models.Model):
         
     @api.depends('l10n_latam_document_type_id', 'journal_id', 'l10n_ec_printer_id')
     def _compute_l10n_latam_manual_document_number(self):
-        #trigger computation depending on l10n_ec_printer_id
-        return super()._compute_l10n_latam_manual_document_number()
+        # trigger computation depending on l10n_ec_printer_id
+        # return super()._compute_l10n_latam_manual_document_number()
+        # until bug https://github.com/odoo/odoo/pull/65673 is merged we include fix here:
+        recs_with_journal_id = self.filtered(lambda x: x.journal_id and x.journal_id.l10n_latam_use_documents)
+        for rec in recs_with_journal_id:
+            rec.l10n_latam_manual_document_number = rec._is_manual_document_number(rec.journal_id)
+        remaining = self - recs_with_journal_id
+        remaining.l10n_latam_manual_document_number = False
     
     def _l10n_ec_validations_to_draft(self):
         #Validaciones para cuando se mueve un asiento a draft o a cancel

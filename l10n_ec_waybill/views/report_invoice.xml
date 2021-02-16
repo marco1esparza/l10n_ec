@@ -95,11 +95,11 @@
 
             <table name="carrier_info" class="table table-condensed w-100" style="font-size:10px;">
                 <tr>
-                    <td class="p-1 text-left w-50"><strong>Company Name / Name and Surname (Carrier): </strong><span t-field="o.l10n_ec_stock_carrier_id.name"/></td>
-                    <td class="p-1 text-left w-50"><strong>Identification (Carrier): </strong><span t-field="o.l10n_ec_stock_carrier_id.vat"/></td>
+                    <td class="p-1 text-left w-50"><strong>Company Name / Name and Surname (Carrier): </strong><span t-field="o.l10n_ec_waybill_carrier_id.name"/></td>
+                    <td class="p-1 text-left w-50"><strong>Identification (Carrier): </strong><span t-field="o.l10n_ec_waybill_carrier_id.vat"/></td>
                 </tr>
                 <tr>
-                    <td class="p-1 text-left w-50"><strong>License Plate: </strong><span t-field="o.l10n_ec_stock_carrier_id.license_plate"/></td>
+                    <td class="p-1 text-left w-50"><strong>License Plate: </strong><span t-field="o.l10n_ec_license_plate"/></td>
                     <td class="p-1"></td>
                 </tr>
                 <tr>
@@ -117,7 +117,7 @@
                     <td class="p-1 text-left w-50" colspan="2"><strong>Authorization No.: </strong></td>
                 </tr>
                 <tr>
-                    <td class="p-1 text-left w-50" colspan="2"><strong>Move reason: </strong><span t-field="o.l10n_ec_move_reason"/></td>
+                    <td class="p-1 text-left w-50" colspan="2"><strong>Move reason: </strong><span t-field="o.l10n_ec_waybill_move_reason"/></td>
                 </tr>
                 <tr>
                     <td class="p-1 text-left w-50" colspan="2"><strong>Destination waybill address: </strong><span t-field="o.l10n_ec_waybill_loc_dest_address"/></td>
@@ -153,7 +153,7 @@
                     </tr>
                 </thead>
                 <tbody class="invoice_tbody">
-                    <t t-set="lines" t-value="o.l10n_ec_move_line_ids.sorted(key=lambda l: l.id)"/>
+                    <t t-set="lines" t-value="o.l10n_ec_waybill_line_ids.sorted(key=lambda l: l.id)"/>
 
                     <t t-foreach="lines" t-as="line">
                         <tr>
@@ -198,15 +198,15 @@
     <!-- FIXME: Temp fix to allow fetching invoice_documemt in Studio Reports with localisation -->
     <template id="report_invoice" inherit_id="account.report_invoice">
         <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
-            <t t-if="o._get_name_invoice_report() == 'l10n_ec_shipments.report_invoice_document'"
-                t-call="l10n_ec_shipments.report_invoice_document" t-lang="lang"/>
+            <t t-if="o._get_name_invoice_report() == 'l10n_ec_waybill.report_invoice_document'"
+                t-call="l10n_ec_waybill.report_invoice_document" t-lang="lang"/>
         </xpath>
     </template>
 
     <template id="report_invoice_with_payments" inherit_id="account.report_invoice_with_payments">
         <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
-            <t t-if="o._get_name_invoice_report() == 'l10n_ec_shipments.report_invoice_document'"
-                t-call="l10n_ec_shipments.report_invoice_document" t-lang="lang"/>
+            <t t-if="o._get_name_invoice_report() == 'l10n_ec_waybill.report_invoice_document'"
+                t-call="l10n_ec_waybill.report_invoice_document" t-lang="lang"/>
         </xpath>
     </template>
 </odoo>

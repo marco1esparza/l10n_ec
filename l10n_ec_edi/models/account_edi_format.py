@@ -72,7 +72,7 @@ class AccountEdiFormat(models.Model):
             elif journal.code == 'RCMPR':
                 return True #useful for purchase withholds
             elif journal.code == 'GURMN':
-                return True #useful for shipments
+                return True #useful for waybills
         return super()._is_compatible_with_journal(journal) #includes sales
 
     def _is_embedding_to_invoice_pdf_needed(self):
