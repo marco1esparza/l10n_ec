@@ -71,7 +71,7 @@ class AccountEdiFormat(models.Model):
                 return True #useful for "Liquidaciónn de Compra"
             elif journal.code == 'RCMPR':
                 return True #useful for purchase withholds
-            elif journal.code == 'GURMN':
+            elif journal.code == 'GRMSN':
                 return True #useful for waybills
         return super()._is_compatible_with_journal(journal) #includes sales
 

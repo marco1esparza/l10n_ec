@@ -33,7 +33,7 @@ class StockPicking(models.Model):
              ('code', '=', '06'),
              ('l10n_ec_type', '=', 'out_waybill'),
              ], order="sequence asc", limit=1)
-        waybill_journal = self.env['account.journal'].search([('code', '=', 'GURMN')])
+        waybill_journal = self.env['account.journal'].search([('code', '=', 'GRMSN')])
         #computamos la razón de movimiento
         destination_usage = self.location_dest_id.usage
         if destination_usage in ['customer']:
@@ -44,13 +44,17 @@ class StockPicking(models.Model):
             l10n_ec_waybill_move_reason = 'Transferencia Interna'
         else:
             l10n_ec_waybill_move_reason = 'Otros'
+        origin = []
+        self.origin and origin.append(self.origin)
+        self.name and origin.append(self.name)
+        origin = ";".join(origin)
         default_values = {
             'invoice_date': fields.Date.today(),
             'journal_id': waybill_journal.id,
             'invoice_payment_term_id': None,
             'move_type': move_type,
             'line_ids': [(5, 0, 0)],
-            'invoice_origin': self.origin + ' ; ' + self.name,
+            'invoice_origin': origin,
             'l10n_latam_document_type_id': l10n_latam_document_type_id.id,
             'l10n_ec_invoice_payment_method_ids': [(5, 0, 0)],
             'l10n_ec_waybill_loc_dest_address': ' '.join([value for value in [self.partner_id.street, self.partner_id.street2] if value]),

@@ -6,7 +6,7 @@
 			<field name="name">Guía de Remisión</field>
 			<field name="l10n_latam_use_documents">True</field>
 			<field name="type">general</field>
-			<field name="code">GURMN</field>
+			<field name="code">GRMSN</field>
 			<field name="show_on_dashboard">False</field>
 		</record>
 

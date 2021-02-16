@@ -83,7 +83,7 @@ class AccountMove(models.Model):
                     account_move_line_obj.with_context(check_move_validity=False).create(vals)
     
     #Columns
-    l10n_ec_is_waybill = fields.Boolean(string='Is Waybill', copy=False) #para facilitar la creación de la vista?
+    l10n_ec_is_waybill = fields.Boolean(string='Is Waybill', copy=False) #para facilitar la creación de las vistas
     l10n_ec_stock_picking_id = fields.Many2one(
         'stock.picking',
         string='Stock Pickings',
@@ -115,6 +115,7 @@ class AccountMove(models.Model):
         string='Vehicle Plate',
         size=8,
         tracking=True,
+        states = {'draft': [('readonly', False)]}
         )
     
     @api.constrains('l10n_ec_license_plate')
