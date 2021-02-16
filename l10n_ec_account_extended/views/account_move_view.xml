@@ -7,7 +7,7 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="l10n_ec_edi.view_move_invoice_customization_form"/>
             <field name="arch" type="xml">
-            	<xpath expr="//field[@name='fiscal_position_id']" position="before">
+            	<xpath expr="//field[@name='to_check']" position="after">
             		<field name="l10n_ec_bypass_validations" groups="account.group_account_user"/>
             	</xpath>
                 <xpath expr="//field[@name='ref']" position="after">
@@ -24,6 +24,18 @@
                 </xpath>
             </field>
         </record>
+        
+    	<record id="view_move_withhold_extended_form" model="ir.ui.view">
+            <field name="name">view.move.withhold.extended.form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="l10n_ec_withhold.view_move_form_withhold"/>
+            <field name="arch" type="xml">
+            	<xpath expr="//page[@id='other_tab_entry']//field[@name='company_id']" position="after">
+            	   <field name="l10n_ec_bypass_validations" />
+            	</xpath>
+            </field>
+        </record>
+
 
         <record id="view_account_invoice_filter" model="ir.ui.view">
         <field name="name">account.invoice.select</field>

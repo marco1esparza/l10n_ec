@@ -13,6 +13,14 @@
 		  				<field name="name" required="1"/>
 		  			    <field name="priority" required="1"/>
 		  			    <field name="active"/>
+						<field name="l10n_latam_document_type_ids" colspan="2">
+								<tree editable="top">
+									<field name="code"/>
+									<field name="name"/>
+									<field name="internal_type"/>
+									<field name="l10n_ec_type"/>
+								</tree>
+							</field>
 				    </group>
 	    		</sheet>
               	<div class="oe_chatter">

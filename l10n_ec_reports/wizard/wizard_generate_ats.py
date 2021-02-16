@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models, _
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 from xml.dom.minidom import Document
 from lxml import etree
 from datetime import date, datetime
 from time import time as tm
+import dateutil.relativedelta
 import time
 import calendar
 import base64
@@ -17,38 +18,86 @@ import logging
 _logger = logging.getLogger(__name__)
 
 from odoo.addons.l10n_ec_reports.models.l10n_ec_auxiliar_function import get_name_only_characters
- 
-ATS_FILENAME = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'ats_29_08_2016.xsd')
+
+ATS_FILENAME = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'ats_2020_12_02.xsd')
 ATS_CONTENT = open(ATS_FILENAME, 'rb').read().strip()
- 
+
 #Documentos a reportar al SRI
 _LOCAL_PURCHASE_DOCUMENT_CODES = ['01', '02', '03', '04', '05', '09', '11', '12', '19', '20', '21','41', '43', '45', '47', '48']
 _FOREIGN_PURCHASE_DOCUMENT_CODES = ['15']
 _SALE_DOCUMENT_CODES = ['02', '04', '05', '18', '41']
 _WITHHOLD_CODES = ['07']
-
+    
 class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
     _name = 'l10n_ec.simplified.transactional.annex'
-
+    
+    #Fechas y periodos
+    _YEARS = [
+        ('y2017', '2017'),
+        ('y2018', '2018'),
+        ('y2019', '2019'),
+        ('y2020', '2020'),
+        ('y2021', '2021'),
+        ('y2022', '2022'),
+        ('y2023', '2023'),
+        ('y2024', '2024'),
+        ('y2025', '2025'),
+        ('y2026', '2026'),
+        ]
+    _PERIODS = [
+        ('jan', 'Enero'),
+        ('feb', 'Febrero'),
+        ('mar', 'Marzo'),
+        ('apr', 'Abril'),
+        ('may', 'Mayo'),
+        ('jun', 'Junio'),
+        ('first_semester', 'Primer Semestre (Enero a Junio)'),
+        ('jul', 'Julio'),
+        ('aug', 'Agosto'),
+        ('sep', 'Septiembre'),
+        ('oct', 'Octubre'),
+        ('nov', 'Noviembre'),
+        ('dec', 'Diciembre'),
+        ('second_semester', 'Segundo Semestre (Julio a Diciembre)'),
+        ]
+    
     @api.model
     def default_get(self, fields):
-        '''
-        Invocamos el default_get para popular un valor de la compania
-        '''
+        #Indicate if electronic documents are included in ATS
+        #Sets the dates for previous month
         res = super(L10nEcSimplifiedTransactionalAannex, self).default_get(fields)
-        res.update({'include_electronic_document_in_ats': self.env.user.company_id.include_electronic_document_in_ats})
+        current_date = date.today() #fields.Date.context_today(self)
+        report_date = current_date - dateutil.relativedelta.relativedelta(months=1) 
+        year = 'y'+str(report_date.year)
+        month = report_date.strftime("%b").lower() #dec
+        res.update({
+            'include_electronic_document_in_ats': self.env.user.company_id.include_electronic_document_in_ats,
+            'year': year,
+            'period': month,
+            })
         return res
- 
-    @api.onchange('date_start')
-    def onchange_start_date(self):
-        '''
-        Setea la fecha de inicio y fin
-        '''
-        if not self.date_start:
-            today = datetime.now()
-            self.date_start = datetime.strptime('%s-%s-01' % (today.year,today.month), DF)
-        self.date_finish = datetime.strptime('%s-%s-%s' % (self.date_start.year, self.date_start.month, calendar.monthrange(self.date_start.year, self.date_start.month)[1]), DF)
- 
+    
+    @api.onchange('year','period')
+    def onchange_period(self):
+        #sets start and end date depending on year and period
+        date_start = date_end = False
+        if self.year and self.period:
+            if self.period == 'first_semester':
+                date_start = '01/jan/'+self.year[1:]
+                date_end = '30/jun/'+self.year[1:]
+            elif self.period == 'second_semester':
+                date_start = '01/jul/'+self.year[1:]
+                date_end = '31/dec/'+self.year[1:]
+            else: #meses
+                date_start = '01/'+self.period+'/'+self.year[1:]
+                date_start_datetime = datetime.strptime(date_start, '%d/%b/%Y')
+                last_day = calendar.monthrange(date_start_datetime.year, date_start_datetime.month)[1]
+                date_end = str(last_day)+'/'+self.period+'/'+self.year[1:]
+        if date_start:
+            self.date_start = datetime.strptime(date_start, '%d/%b/%Y')
+        if date_end:
+            self.date_finish = datetime.strptime(date_end, '%d/%b/%Y')        
+  
     def act_generate_ats(self):
         '''
         Este método acumula los errores que saltaron en la validación del ATS y levanta un segundo wizard
@@ -69,7 +118,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                     report_status.append(u'Ocurrieron los siguientes errores durante la validación del reporte ATS. '
                                          u'Contáctese con el administrador del servicio o el soporte técnico '
                                          u'indicándoles con exactitud los siguientes errores ocurridos: \n'
-                                         u'>>> Inicio de errores <<<\n' + schema.error_log +
+                                         u'>>> Inicio de errores <<<\n' + str(schema.error_log) +
                                          u'\n>>> Fin de errores <<<')
                     ctx.update({'report_errors': True})
             except Exception as e:
@@ -83,17 +132,34 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                                  u'Los detalles del error son los siguientes: ' + str(e))
             ctx.update({'report_errors': True})
         view = self.env.ref('l10n_ec_reports.view_wizard_ats_form')
-        anio, mes, dia = str(self.date_start).split('-')
-        ats_filename = 'ATS' + str(mes) + str(anio) + '.xml'
+        #set a nice name for file
+        map_periods = {
+                    'jan': '01', 
+                    'feb': '02', 
+                    'mar': '03', 
+                    'apr': '04', 
+                    'may': '05', 
+                    'jun': '06',
+                    'first_semester': 'SEMESTRE1', 
+                    'jul': '07', 
+                    'aug': '08', 
+                    'sep': '09', 
+                    'oct': '10', 
+                    'nov': '11', 
+                    'dec': '12',
+                    'second_semester': 'SEMESTRE2',
+                    }
+        ats_filename = 'ATS_' + self.company_id.vat + '_' + self.year[1:] + '_' + map_periods[self.period]
         if self.include_electronic_document_in_ats:
-            ats_filename = 'ATS' + str(mes) + str(anio) + '_con_rets_electrónicas.xml'
+            ats_filename += '_RETS'
+        ats_filename += '.xml'
         self.write({
             'report_errors': self.with_context(ctx)._report_errors(),
             'wizard2': True,
             'date_start': self.date_start,
             'date_finish': self.date_finish,
             'ats_filename': ats_filename,
-            'errors_filename': 'errores.txt' ,
+            'errors_filename': 'Errores.txt' ,
             # Contenido de los reportes
             'ats_file': base64.encodestring(report_data.toprettyxml(encoding='utf-8')),
             'errors_file': base64.encodestring((u'\n'.join(report_status) or u'').encode('utf-8'))
@@ -116,7 +182,24 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         #2.1 IDENTIFICACION DEL INFORMANTE
         init_total_time = tm()
         company = self.env.user.company_id
-        anio, mes, dia = str(self.date_start).split('-')
+        map_periods = {
+                    'jan': '01', 
+                    'feb': '02', 
+                    'mar': '03', 
+                    'apr': '04', 
+                    'may': '05', 
+                    'jun': '06',
+                    'first_semester': '06', #se reporta como junio
+                    'jul': '07', 
+                    'aug': '08', 
+                    'sep': '09', 
+                    'oct': '10', 
+                    'nov': '11', 
+                    'dec': '12',
+                    'second_semester': '12', #se reporta como diciembre
+                    }
+        anio = self.year[1:]
+        mes = map_periods[self.period]
         doc = Document()
         if not company.vat:
             report_status.append(u'Ingrese el CI/RUC/PASS de la compañía.')
@@ -126,8 +209,11 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
  
         ruc = doc.createElement('TipoIDInformante')
         main.appendChild(ruc)
-        ruc.appendChild(doc.createTextNode(company.partner_id.l10n_ec_code))
- 
+        code = company.partner_id.l10n_ec_code
+        ruc.appendChild(doc.createTextNode(code))
+        if not company.partner_id.l10n_latam_identification_type_id == self.env.ref('l10n_ec.ec_ruc'): #RUC
+            report_status.append(u'El tipo de identificación de su compañía debería ser "RUC"')
+        
         IdInformante = doc.createElement('IdInformante')
         main.appendChild(IdInformante)
         IdInformante.appendChild(doc.createTextNode(company.vat or ''))
@@ -143,7 +229,12 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         atsmes = doc.createElement('Mes')
         main.appendChild(atsmes)
         atsmes.appendChild(doc.createTextNode(mes))
-
+        
+        if self.period in ['first_semester','second_semester']:
+            regimenMicroempresa = doc.createElement('regimenMicroempresa')
+            main.appendChild(regimenMicroempresa)
+            regimenMicroempresa.appendChild(doc.createTextNode('SI'))
+        
         suc = []
         printers = self.env['l10n_ec.sri.printer.point'].sudo().search([('company_id','=',self.env.user.company_id.id)])
         for printer in printers:
@@ -285,10 +376,16 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 fechaEmision = doc.createElement('fechaEmision')
                 detallecompras.appendChild(fechaEmision)
                 fechaEmision.appendChild(doc.createTextNode(self._getFormatDates(in_inv.invoice_date)))
-                
+                                
                 autorizacion = doc.createElement('autorizacion')
                 detallecompras.appendChild(autorizacion)
-                autorizacion.appendChild(doc.createTextNode(in_inv.l10n_ec_authorization or ''))
+                authorization_number = in_inv.l10n_ec_authorization or ''
+                if not authorization_number and in_inv.l10n_ec_authorization_type == 'none':
+                    authorization_number = '9999999999' #facturas del exterior no requieren autorizacion, van con nueves
+                autorizacion.appendChild(doc.createTextNode(authorization_number))
+                #en v14 la autorización es opcional, por tanto controlamos que esté lleanda
+                if not authorization_number:
+                    report_status.append(in_inv.name + u' no tiene número de autorización o clave de acceso')
      
                 baseNoGraIva = doc.createElement('baseNoGraIva')
                 detallecompras.appendChild(baseNoGraIva)
@@ -526,6 +623,12 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 autRetencion1 = doc.createElement('autRetencion1')
                 detallecompras.appendChild(autRetencion1)
                 autRetencion1.appendChild(doc.createTextNode(str(withhold.l10n_ec_authorization or '').strip()))
+                #en v14 la autorización es opcional, por tanto controlamos que esté lleanda
+                if not withhold.l10n_ec_authorization:
+                    report_status.append(in_inv.name + u' no tiene número de autorización o clave de acceso')
+
+                
+                
  
                 fechaEmiRet1 = doc.createElement('fechaEmiRet1')
                 detallecompras.appendChild(fechaEmiRet1)
@@ -1082,7 +1185,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 if invoice.l10n_ec_transaction_type == '06':
                     values.update({
                         'tipoCliente': invoice.partner_id.get_invoice_ident_type(), 
-                        'denoCli': get_name_only_characters(invoice.partner_id.get_complete_name())
+                        'denoCli': get_name_only_characters(invoice.partner_id._get_complete_name())
                     })
                 group_sales[id_partner] = values
         return group_sales
@@ -1169,14 +1272,28 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         string='Errors File',
         help='Errors file content'
         )
+    
     #Campos básicos
+    year = fields.Selection(
+        _YEARS,
+        string='Año',
+        required=True,
+        help='Año sobre el que se reporta',
+        )
+    period = fields.Selection(
+        _PERIODS,
+        string='Periodo',
+        required=True,
+        help='Periodo sobre el que se reporta',
+        )
+     
     date_start = fields.Date(
         string='Fecha Desde',
-        help=''
+        help='Campo técnico utilizado para filtrar los documentos a mostrar'
         )
     date_finish = fields.Date(
         string='Fecha Hasta',
-        help=''
+        help='Campo técnico utilizado para filtrar los documentos a mostrar'
         )
     report_status = fields.Text(
         string='Report status',
@@ -1194,3 +1311,5 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         string=u'Incluir retenciones electrónicas emitidas a proveedores en el ATS',
         help=u'Active esta opción si desea incluir las retenciones electrónicas emitidas a proveedores en el ATS.'
         )
+    company_id = fields.Many2one('res.company', string='Company', required=True, readonly=True, default=lambda self: self.env.company,
+        help="Company related to this report")

@@ -255,6 +255,8 @@ class AccountMove(models.Model):
         for invoice in self:
             if not invoice.country_code == 'EC':
                 raise ValidationError(u'Withhold documents are only aplicable for Ecuador')
+            if invoice.state != 'posted':
+                raise ValidationError(u'No se puede registrar la retención, el documento %s no está aprobado' %invoice.name)
             if not invoice.l10n_ec_allow_withhold:
                 raise ValidationError(u'The selected document type does not support withholds')
             if len(self) > 1 and invoice.move_type != 'out_invoice':
@@ -415,7 +417,7 @@ class AccountMove(models.Model):
         for invoice in self:
             result = False
             if invoice.country_code == 'EC' and invoice.state == 'posted':
-                if invoice.l10n_latam_document_type_id.code in ['01','03','18']: #TODO ANDRES añadir codigos, revisar proyecto X
+                if invoice.l10n_latam_document_type_id.code in ['01','02','03','18']: #TODO ANDRES añadir codigos, revisar proyecto X
                     result = True
             invoice.l10n_ec_allow_withhold = result
     
@@ -451,15 +453,6 @@ class AccountMove(models.Model):
         if self.country_code == 'EC' and self.move_type in ('entry') and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold') and self.l10n_latam_document_type_id.code in ['07']:
             is_withholding = True
         return is_withholding
-
-    def action_invoice_sent(self):
-        # OVERRIDE
-        res = super(AccountMove, self).action_invoice_sent()
-
-        if self.is_withholding():
-            template = self.env.ref('l10n_ec_withhold.l10n_ec_email_template_edi_document')
-            res['context']['default_template_id'] = template.id
-        return res
 
     @api.constrains('name', 'journal_id', 'state')
     def _check_unique_sequence_number(self):

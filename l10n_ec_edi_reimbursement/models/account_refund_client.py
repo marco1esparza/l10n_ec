@@ -15,33 +15,9 @@ class AccountRefundClient(models.Model):
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
-        '''
-        When the partner changed need recalculate the transaction type.
-        '''
+        #In sale reimbursements auto-fill related puchases
         res = {'value': {},'warning': {},'domain': {}}
         if self.move_id.country_code == 'EC':
-            res['value']['l10n_latam_document_type_id'] = False
-            res['value']['authorization'] = False
-            if not self.partner_id:
-                return res
-            commercial_partner = self.partner_id.commercial_partner_id
-            refund_type = self.move_id.move_type
-            code = commercial_partner._l10n_ec_get_code_by_vat()
-            if refund_type in ['in_invoice', 'in_refund']: #COMPRAS
-                if code == 'R': #RUC
-                    res['value']['transaction_type'] = '01'
-                elif code == 'C': #CEDULA
-                    res['value']['transaction_type'] = '02'
-                elif code == 'P': #PERS. JURÍDICA EXTRANJERA, PERS. NATURAL EXTRANJERA
-                    res['value']['transaction_type'] = '03' 
-                else: 
-                    #cubre el caso de code == 'O': #OTROS
-                    #cubre otros casos no determinados
-                    res['value']['transaction_type'] = 'Proveedor en reembolso no tiene asignado una identificacion correcta (CEDULA/RUC/PASAPORTE).'
-                    res['value']['transaction_type'] += ' Documento ' + str(self.move_id.l10n_latam_document_number or '')
-                    res['value']['transaction_type'] += ' Proveedor ' + commercial_partner._get_complete_name()
-            else: #VENTAS
-                res['value']['transaction_type'] = 'No Aplica Para Ventas'
             if self.move_id.move_type == 'out_invoice':
                 #rellenamos los datos de la factura de compra
                 vals = self._fill_purchase_invoice()
@@ -104,17 +80,22 @@ class AccountRefundClient(models.Model):
             res['value']['number'] = '001-001-'
         return res
 
-    @api.onchange('base_tax_free', 'no_vat_amount', 'base_vat_0', 'base_vat_no0', 'vat_amount_no0', 'ice_amount')
-    def onchange_total(self):
+    @api.depends('base_vat_no0')
+    def _compute_vat_amount_no0(self):
+        for refund in self:
+            if refund._context.get('calc_vat'):
+                refund.vat_amount_no0 = refund.base_vat_no0 * 12.0 / 100.0
+                if refund.creation_date and refund.creation_date >= datetime.strptime('2016-06-01', '%Y-%m-%d').date() and refund.creation_date <= datetime.strptime('2017-05-31', '%Y-%m-%d').date():
+                    refund.vat_amount_no0 = refund.base_vat_no0 * 14.0 / 100.0
+
+    @api.depends('base_tax_free', 'no_vat_amount', 'base_vat_0', 'base_vat_no0', 'vat_amount_no0', 'ice_amount')
+    def _compute_total(self):
         '''
         Calculate the total and the vat value depending the field using
         calc_vat = True -> show the value of vat using the base
         '''
-        if self._context.get('calc_vat'):
-            self.vat_amount_no0 = self.base_vat_no0 * 12.0 / 100.0
-            if self.creation_date >= datetime.strptime('2016-06-01', '%Y-%m-%d').date() and self.creation_date <= datetime.strptime('2017-05-31', '%Y-%m-%d').date():
-                self.vat_amount_no0 = self.base_vat_no0 * 14.0 / 100.0
-        self.total = self.base_tax_free + self.no_vat_amount + self.base_vat_0 + self.base_vat_no0 + self.vat_amount_no0 + self.ice_amount
+        for line in self:
+            line.total = line.base_tax_free + line.no_vat_amount + line.base_vat_0 + line.base_vat_no0 + line.vat_amount_no0 + line.ice_amount
 
     def _fill_purchase_invoice(self):
         '''
@@ -130,7 +111,6 @@ class AccountRefundClient(models.Model):
         -type
         '''
         vals = {
-            'authorization': '',
             'creation_date': fields.Date.context_today(self),
             'base_tax_free': 0.0,
             'no_vat_amount': 0.0,
@@ -138,7 +118,6 @@ class AccountRefundClient(models.Model):
             'base_vat_no0': 0.0,
             'vat_amount_no0': 0.0,
             'ice_amount': 0.0,
-            'total': 0.0
             }
         has_number = False
         if self.number and len(self.number) == 17:
@@ -149,7 +128,7 @@ class AccountRefundClient(models.Model):
                 select 
                     id 
                 from account_move
-                where commercial_partner_id=%s and l10n_latam_document_type_id=%s and name ilike %s and type='in_invoice'
+                where commercial_partner_id=%s and l10n_latam_document_type_id=%s and name ilike %s and move_type='in_invoice'
             ''', (self.partner_id.commercial_partner_id.id, self.l10n_latam_document_type_id.id, '%' + self.number + '%'))
             purchases = self.env.cr.fetchall()
             if purchases:
@@ -166,7 +145,6 @@ class AccountRefundClient(models.Model):
                         'base_vat_no0': purchase.l10n_ec_base_doce_iva,
                         'vat_amount_no0': purchase.l10n_ec_vat_doce_subtotal,
                         'ice_amount': 0.0,
-                        'total': purchase.amount_total
                         }
         return vals
 
@@ -176,25 +154,24 @@ class AccountRefundClient(models.Model):
         que sera usado en la generacion del ATS
         '''
         for refund in self:
-            commercial_partner = refund.partner_id.commercial_partner_id
             refund_type = refund.move_id.move_type
-            code = commercial_partner._l10n_ec_get_code_by_vat()
             if refund_type in ['in_invoice', 'in_refund']: #COMPRAS
-                if code == 'R': #RUC
-                    refund.transaction_type = '01'
-                elif code == 'C': #CEDULA
-                    refund.transaction_type = '02'
-                elif code == 'P': #PERS. JURÍDICA EXTRANJERA, PERS. NATURAL EXTRANJERA
-                    refund.transaction_type = '03' 
-                else: 
-                    #cubre el caso de code == 'O': #OTROS
-                    #cubre otros casos no determinados
-                    refund.transaction_type = 'Proveedor en reembolso no tiene asignado una identificacion correcta (CEDULA/RUC/PASAPORTE).'
-                    refund.transaction_type += ' Documento ' + str(refund.move_id.l10n_latam_document_number or '')
-                    refund.transaction_type += ' Proveedor ' + commercial_partner._get_complete_name()
+                commercial_partner = refund.partner_id.commercial_partner_id
+                transaction_type = 'En la %s corrija el RUC/Ced/Pasaporte del proveedor %s' % (refund.number, commercial_partner.name)
+                #if self.vat == '9999999999999': #CONSUMIDOR FINAL
+                #    transaction_type = '01'*
+                if commercial_partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_dni').id: #CEDULA
+                    transaction_type = '02'
+                elif commercial_partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_ec.ec_ruc').id: #RUC
+                    transaction_type = '01'
+                elif commercial_partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_pass').id: #PERS. NATURAL EXTRANJERA
+                    transaction_type = '03'
+                elif commercial_partner.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
+                    transaction_type = '03'
             else: #caso de ventas
-                refund.transaction_type = 'No Aplica Para Ventas'
-
+                transaction_type = 'No Aplica Para Ventas'
+            refund.transaction_type = transaction_type
+    
     # Columns
     partner_id = fields.Many2one(
         'res.partner',
@@ -244,6 +221,9 @@ class AccountRefundClient(models.Model):
         )
     vat_amount_no0 = fields.Float(
         string='Valor IVA',
+        compute='_compute_vat_amount_no0',
+        store=True,
+        readonly=False,
         help='El valor del IVA (usualmente el total de la factura multiplicado por 0.12), la puede encontrar en el subtotal del documento de compra'
         )
     ice_amount = fields.Float(
@@ -252,6 +232,8 @@ class AccountRefundClient(models.Model):
         )
     total = fields.Float(
         string='Total',
+        compute='_compute_total',
+        store=True,
         help='El valor total del documento de compra'
         )
     move_id = fields.Many2one(

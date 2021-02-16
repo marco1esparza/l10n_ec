@@ -10,7 +10,7 @@
 				<page name="ecuadorian_configuration" string="Configuración Ecuatoriana">
 					<group colspan="4" col="4">
 						<group name="tributary_information" string="Información Tributaria" colspan="2" col="2">
-							<field name="l10n_ec_legal_name"/>
+							<!--<field name="l10n_ec_legal_name"/>-->
 							<field name="vat" string="Número RUC"/>
 							<field name="l10n_ec_special_contributor_number"/>
 							<field name="l10n_ec_forced_accounting" widget="boolean_toggle"/>

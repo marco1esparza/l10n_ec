@@ -19,10 +19,10 @@
     'depends': [
         'base',
         'l10n_ec_edi',
+        'l10n_ec_withhold',
     ],   
     'data': [
         #Data
-        #wizard
         #Views
         'views/account_move_view.xml',
         'views/account_fiscal_position_view.xml',        
@@ -31,8 +31,13 @@
         'views/menu_view.xml',
         'views/res_users_view.xml',
         'views/l10n_ec_sri_printer_point_view.xml',
+        'views/res_partner_bank_views.xml',
+        #wizard
+        'wizard/account_move_reversal_view.xml',
     ],
     'installable': True,
     'auto_install': True,
     'application': True,
+    # Post Init para asignacion de impuesto a compañia.
+    #'post_init_hook': '_assign_default_company_tax',
 }

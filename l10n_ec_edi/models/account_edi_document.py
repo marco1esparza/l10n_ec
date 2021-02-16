@@ -3,7 +3,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-from datetime import datetime, timedelta
+from datetime import datetime
 from lxml import etree
 import base64
 
@@ -20,7 +20,7 @@ ELECTRONIC_SRI_WSDL_AUTORIZATION_TEST_OFFLINE = 'https://celcer.sri.gob.ec/compr
 _IVA_CODES = ('vat12', 'vat14', 'zero_vat', 'not_charged_vat', 'exempt_vat') 
 _ICE_CODES = ('ice',) 
 _IRBPNR_CODES = ('irbpnr',)
-_MICROCOMPANY_REGIME_LABEL = 'Contribuyente Regimen Microempresas'
+_MICROCOMPANY_REGIME_LABEL = 'CONTRIBUYENTE RÉGIMEN MICROEMPRESAS'
 
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
@@ -49,26 +49,9 @@ class AccountEdiDocument(models.Model):
     
     def _process_jobs(self, to_process):
         #sends an email
-        #context to bypass _l10n_ec_validations_to_draft_when_edi validations when
-        #voiding a document
-        super(AccountEdiDocument,  self.with_context(procesing_edi_job=True))._process_jobs(to_process)
+        super(AccountEdiDocument,  self)._process_jobs(to_process)
         for key, documents in to_process:
             self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.country_code == 'EC'))
-
-    def _prepare_jobs(self):
-        #For Ecuador do not attempt again a document after 5 days (for not being blacklisted by SRI)
-        to_process = []
-        date_filter = fields.Date.context_today(self) - timedelta(days=5)
-        # if user manually sent the document with button "send now" just call super, do not limit the 5 days
-        manual = self._context.get('default_move_type', False)  # hack, if in the account.move form there will be a default_type context
-        for edi in self:
-            if not manual:
-                if edi.move_id.country_code == 'EC':
-                    if edi.move_id.invoice_date < date_filter:
-                        continue  # skip document, too old
-            to_process_one = super(AccountEdiDocument, edi)._prepare_jobs()
-            to_process.extend(to_process_one)
-        return to_process
     
     def _l10n_ec_set_access_key(self):
         #writes de access key of the document
@@ -249,7 +232,11 @@ class AccountEdiDocument(models.Model):
             ('ptoEmi', self.move_id.l10n_latam_document_number[4:7]),
             ('secuencial', self.move_id.l10n_latam_document_number[8:]),
             ('dirMatriz', self.move_id.company_id.partner_id._get_complete_address())
-        ])
+            ])
+        if self.move_id.company_id.l10n_ec_regime == 'micro':
+            infoTribElements.extend([('regimenMicroempresas',_MICROCOMPANY_REGIME_LABEL)])
+        if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
+            infoTribElements.extend([('agenteRetencion',self.move_id.company_id.l10n_ec_wihhold_agent_number)])
         self.create_TreeElements(infoTributaria, infoTribElements)
         # CREACION INFO FACTURA
         if type == 'out_invoice':
@@ -525,14 +512,8 @@ class AccountEdiDocument(models.Model):
                     self.create_TreeElements(detalleImpuesto, detalleImpuesto_data)
                     detalleImpuesto_data = []
         infoAdicional = self.create_SubElement(factura, 'infoAdicional')
-        if self.move_id.company_id.l10n_ec_regime == 'micro':
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'Regimen'}, text=_MICROCOMPANY_REGIME_LABEL)
-        if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'Agente de Retencion'}, text=''.join([u'Resolución Nro. ', self.move_id.company_id.l10n_ec_wihhold_agent_number]))
         if get_invoice_partner_data['invoice_email']:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'email'}, text=get_invoice_partner_data['invoice_email'])
-        if self.move_id.l10n_ec_printer_id.name[:3]:
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'tienda'}, text=self.move_id.l10n_ec_printer_id.name[:3])
         if self.move_id.user_id.name: 
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'vendedor'}, text=self.move_id.user_id.name)
         if self.move_id.narration:
@@ -572,15 +553,9 @@ class AccountEdiDocument(models.Model):
         self.ensure_one()
         additional_info = []
         get_invoice_partner_data = self.move_id.partner_id.get_invoice_partner_data()
-        if self.move_id.company_id.l10n_ec_regime == 'micro':
-            additional_info.append('Regimen: %s' % _MICROCOMPANY_REGIME_LABEL)
-        if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
-            additional_info.append('Agente de Retencion: %s' % ''.join([u'Resolución Nro. ', self.move_id.company_id.l10n_ec_wihhold_agent_number]))
         if get_invoice_partner_data['invoice_email']:
             additional_info.append('Email: %s' % get_invoice_partner_data['invoice_email'])
         if self.move_id.l10n_ec_printer_id.name[:3]:
-            additional_info.append('Tienda: %s' % self.move_id.l10n_ec_printer_id.name[:3])
-        if self.move_id.user_id.name:
             additional_info.append('Vendedor: %s' % self.move_id.user_id.name)
         if self.move_id.narration:
             additional_info.append('Novedades: %s' % self.move_id.narration.replace('\n', ' '))
