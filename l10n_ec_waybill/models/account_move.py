@@ -5,6 +5,7 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 
 import datetime
+import re
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -113,7 +114,6 @@ class AccountMove(models.Model):
     l10n_ec_license_plate = fields.Char(
         string='Vehicle Plate',
         size=8,
-        required=True,
         tracking=True,
         )
     
