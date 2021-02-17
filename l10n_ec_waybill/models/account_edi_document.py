@@ -118,9 +118,6 @@ class AccountEdiDocument(models.Model):
             #    self.create_SubElement(detalle_adic, 'detAdicional',
             #                           attrib={'nombre': 'UnidadDeMedida'},
             #                           text=each.product_uom_id.name or 'NO APLICA')
-        
-        
-        
         if self.move_id.narration or self.move_id.l10n_ec_stock_picking_id.origin:
             #dentro del if para asegurar que no quede huerfano el label
             infoAdicional = self.create_SubElement(guiaRemision, 'infoAdicional')
