@@ -21,16 +21,13 @@ msgid ""
 "&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;\n"
 "                                    <strong>Emission: </strong>Normal<br/>"
 msgstr ""
-"&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;\n"
-"                                    <strong>Emisión: </strong>Normal<br/>"
+
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid ""
 "<br/>\n"
 "                    \t<strong>Arrival Date: </strong>"
 msgstr ""
-"<br/>\n"
-"                    \t<strong>Fecha Fin Transporte: </strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -38,8 +35,6 @@ msgid ""
 "<br/>\n"
 "                    \t<strong>Company Name / Name and Surname: </strong>"
 msgstr ""
-"<br/>\n"
-"                    \t<strong>Razón Social / Nombres y Apellidos: </strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -47,8 +42,6 @@ msgid ""
 "<br/>\n"
 "                    \t<strong>Departure Date: </strong>"
 msgstr ""
-"<br/>\n"
-"                    \t<strong>Fecha Inicio Transporte: </strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -56,8 +49,6 @@ msgid ""
 "<br/>\n"
 "                    \t<strong>Destination (Arrival Point): </strong>"
 msgstr ""
-"<br/>\n"
-"                    \t<strong>Destino (Punto de Llegada): </strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -65,8 +56,6 @@ msgid ""
 "<br/>\n"
 "                    \t<strong>Identification (Carrier): </strong>"
 msgstr ""
-"<br/>\n"
-"                    \t<strong>Identificación (Transportista): </strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -74,8 +63,6 @@ msgid ""
 "<br/>\n"
 "                    \t<strong>Identification (Recipient): </strong>"
 msgstr ""
-"<br/>\n"
-"                    \t<strong>Identificación (Destinatario): </strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -83,8 +70,6 @@ msgid ""
 "<br/>\n"
 "                    \t<strong>License Plate: </strong>"
 msgstr ""
-"<br/>\n"
-"                    \t<strong>Placa: </strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -92,8 +77,6 @@ msgid ""
 "<br/>\n"
 "                                    <strong>Headquarters Address:</strong>"
 msgstr ""
-"<br/>\n"
-"                                    <strong>Dirección Matriz:</strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_move_form_shipment
@@ -111,7 +94,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<span>Auxiliar Code</span>"
-msgstr "<span>Código Auxiliar</span>"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -121,12 +104,12 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<span>Main Code</span>"
-msgstr "<span>Código Principal</span>"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<span>Quantity</span>"
-msgstr "<span>Cantidad</span>"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -136,52 +119,52 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<strong>Branch Office address:</strong>"
-msgstr "<strong>Dirección Sucrusal:</strong>"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<strong>Company Name / Name and Surname (Carrier): </strong>"
-msgstr "<strong>Razón Social / Nombres y Apellidos (Transportista): </strong>"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<strong>Departure Address: </strong>"
-msgstr "<strong>Punto de Partida: </strong>"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<strong>Environment: </strong>"
-msgstr "<strong>Ambiente: </strong>"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<strong>Move Reason: </strong>"
-msgstr "<strong>Motivo Traslado: </strong>"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<strong>Obliged to keep accounting:</strong>"
-msgstr "<strong>Obligado a llevar Contabilidad: </strong>"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<strong>Special Taxpayer Number:</strong>"
-msgstr "<strong>Contribuyente Especial Nro: </strong>"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "Access Key:"
-msgstr "Clave de Acceso"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model,name:l10n_ec_waybill.model_account_chart_template
 msgid "Account Chart Template"
-msgstr "Plantilla de Plan de Cuentas"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company__l10n_ec_edi_waybill_account_id
 msgid "Account EDI Waybills"
-msgstr "Cuenta Guías Remisión EDI"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking__l10n_ec_edi_waybill_ids
@@ -201,7 +184,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_picking_customization_form
 msgid "Add EDI Shipment"
-msgstr "Añadir Guía EDI"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_move_form_shipment
@@ -226,7 +209,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "Authorization No.:"
-msgstr "Autorización Nro.:"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -238,7 +221,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_waybill_carrier_id
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_waybill_carrier_id
 msgid "Carrier"
-msgstr "Transportista"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.actions.act_window,help:l10n_ec_waybill.action_view_stock_carrier
@@ -248,7 +231,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model:ir.model,name:l10n_ec_waybill.model_res_company
 msgid "Companies"
-msgstr "Compañías"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__company_id
@@ -281,7 +264,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_waybill_loc_dest_address
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_waybill_loc_dest_address
 msgid "Destination waybill address"
-msgstr "Dirección destino"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,help:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_waybill_loc_dest_address
@@ -300,23 +283,23 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company__display_name
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking__display_name
 msgid "Display Name"
-msgstr "Nombre mostrado"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: code:addons/l10n_ec_waybill/models/l10n_ec_stock_carrier.py:0
 #, python-format
 msgid "Ecuadorian VAT number must contain only numeric characters"
-msgstr "La identificación fiscal de ecuador debe contener solamente números"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_picking_customization_form
 msgid "Edi Documents"
-msgstr "Documentos Edi"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model,name:l10n_ec_waybill.model_account_edi_document
 msgid "Electronic Document for an account.move"
-msgstr "Documento Electrónico para un movimiento contable"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_follower_ids
@@ -341,7 +324,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company__id
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking__id
 msgid "ID"
-msgstr "ID (identificación)"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__vat
@@ -391,7 +374,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model:ir.model,name:l10n_ec_waybill.model_account_move
 msgid "Journal Entry"
-msgstr "Asiento contable"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_chart_template____last_update
@@ -401,7 +384,7 @@ msgstr "Asiento contable"
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company____last_update
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking____last_update
 msgid "Last Modified on"
-msgstr "Última modificación en"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__write_uid
@@ -450,12 +433,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_waybill_move_reason
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_waybill_move_reason
 msgid "Move reason"
-msgstr "Motivo Traslado"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__name
 msgid "Name"
-msgstr "Nombre"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -465,7 +448,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_form
 msgid "Number"
-msgstr "NUmero"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_needaction_counter
@@ -475,7 +458,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,help:l10n_ec_waybill.field_res_company__days_for_valid_waybill
 msgid "Number of days of validity of the waybill."
-msgstr "Número de días de validez de la guía de remisión"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_has_error_counter
@@ -550,7 +533,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_form
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_tree
 msgid "Stock Carrier"
-msgstr "Transportisas"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_stock_picking_id
@@ -587,7 +570,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model:ir.model,name:l10n_ec_waybill.model_stock_picking
 msgid "Transfer"
-msgstr "Transferir"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_unread
@@ -609,20 +592,20 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_license_plate
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_license_plate
 msgid "Vehicle Plate"
-msgstr "Placa Vehículo"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.actions.act_window,name:l10n_ec_waybill.action_view_stock_carrier
 #: model:ir.model,name:l10n_ec_waybill.model_l10n_ec_waybill_carrier
 #: model:ir.ui.menu,name:l10n_ec_waybill.menu_view_stock_carrier
 msgid "Waybill Carrier"
-msgstr "Transportista"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: code:addons/l10n_ec_waybill/models/stock_picking.py:0
 #, python-format
 msgid "Waybills"
-msgstr "Guías de Remisión"
+msgstr ""
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__website_message_ids
@@ -637,4 +620,4 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "Yes"
-msgstr "Sí"
+msgstr ""

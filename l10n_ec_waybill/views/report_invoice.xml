@@ -20,18 +20,18 @@
                             <tr>
                                 <td class="text-center p-1">
                                     <strong><span t-field="o.company_id.l10n_ec_legal_name"/></strong><br/>
-                                    <strong>Headquarters Address:</strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/><br/>
+                                    <strong>Headquarters Address: </strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/><br/>
                                     <t t-if="o.l10n_ec_printer_id.printer_point_address">
-                            			<strong>Branch Office address:</strong> <span t-esc="o.l10n_ec_printer_id.printer_point_address"/><br/>
+                            			<strong>Branch Office address: </strong> <span t-esc="o.l10n_ec_printer_id.printer_point_address"/><br/>
                             		</t>
                             		<t t-if="o.company_id.l10n_ec_special_contributor_number">
-                            			<strong>Special Taxpayer Number:</strong>
+                            			<strong>Special Taxpayer Number: </strong>
                             			<span t-field="o.company_id.l10n_ec_special_contributor_number"/><br/>
                             		</t>
-									<strong>Obliged to keep accounting:</strong><t t-if="o.company_id.l10n_ec_forced_accounting">Yes</t><t t-else="">No</t><br/>
+									<strong>Obliged to keep accounting: </strong><t t-if="o.company_id.l10n_ec_forced_accounting">Yes</t><t t-else="">No</t><br/>
 		                            <t t-if="o.company_id.l10n_ec_regime == 'micro'">CONTRIBUYENTE RÉGIMEN MICROEMPRESAS<br/></t>
 		                            <t t-if="o.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent'">
-	                                    <strong>Agente de Retención Resolución No.:</strong>
+	                                    <strong>Agente de Retención Resolución No.: </strong>
 	                                    <span t-field="o.company_id.l10n_ec_wihhold_agent_number"/><br/>
 	                        		</t>
                                 </td>
@@ -71,8 +71,8 @@
             <table name="header_info" class="table table-condensed w-100" style="font-size:10px;">
                 <tr>
                     <td class="p-1 text-left w-50">
-                    	<strong>Company Name / Name and Surname (Carrier): </strong><span t-field="o.l10n_ec_waybill_carrier_id.name"/><br/>
                     	<strong>Identification (Carrier): </strong><span t-field="o.l10n_ec_waybill_carrier_id.vat"/><br/>
+                    	<strong>Company Name / Name and Surname: </strong><span t-field="o.l10n_ec_waybill_carrier_id.name"/><br/>
                     	<strong>License Plate: </strong><span t-field="o.l10n_ec_license_plate"/>
                     </td>
                     <td class="p-1 text-left w-50">
