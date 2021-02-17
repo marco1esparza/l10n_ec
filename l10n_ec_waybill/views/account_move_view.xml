@@ -29,8 +29,10 @@
 				       attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)], 'required': [('l10n_ec_is_waybill', '=', True)]}"
 				       placeholder="PDA-0123"
 				       />
-				<field name="l10n_ec_waybill_loc_dest_address" attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)]}"/>
-				<field name="l10n_ec_waybill_move_reason" attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)]}"/>
+				<field name="l10n_ec_waybill_loc_dest_address" 
+					   attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)], 'required': [('l10n_ec_is_waybill', '=', True)]}"/>
+				<field name="l10n_ec_waybill_move_reason" 
+					   attrs="{'invisible': [('l10n_ec_is_waybill', '=', False)], 'required': [('l10n_ec_is_waybill', '=', True)]}"/>
 			</xpath>
 			<xpath expr="//field[@name='invoice_date']" position="after">
 				<field name="invoice_date" string="Shipment Date" options="{'datepicker': {'warn_future': true}}"

@@ -92,6 +92,14 @@
                                 </td>
                             </tr>-->
                             <tr>
+                                <td class="text-center p-1">
+                                    <strong>Environment: </strong>
+                                    <t t-if="o.company_id.l10n_ec_environment_type == '1'">Production  </t>
+                                    <t t-else="">Testing    </t>
+                                    <strong>Emission: </strong>Normal
+                                </td>
+                            </tr>
+                            <tr>
                                 <td class="border-top-0 p-1">
                                     <div class="text-justify">
                                         <img style="width:100%; height:15.5mm;"
@@ -108,22 +116,20 @@
                 </tr>
             </table>
 
-            <table name="carrier_info" class="table table-condensed w-100" style="font-size:10px;">
+            <table name="header_info" class="table table-condensed w-100" style="font-size:10px;">
                 <tr>
-                    <td class="p-1 text-left w-50"><strong>Company Name / Name and Surname (Carrier): </strong><span t-field="o.l10n_ec_waybill_carrier_id.name"/></td>
-                    <td class="p-1 text-left w-50"><strong>Identification (Carrier): </strong><span t-field="o.l10n_ec_waybill_carrier_id.vat"/></td>
+                    <td class="p-1 text-left w-50">
+                    	<strong>Company Name / Name and Surname (Carrier): </strong><span t-field="o.l10n_ec_waybill_carrier_id.name"/><br/>
+                    	<strong>Identification (Carrier): </strong><span t-field="o.l10n_ec_waybill_carrier_id.vat"/><br/>
+                    	<strong>License Plate: </strong><span t-field="o.l10n_ec_license_plate"/>
+                    </td>
+                    <td class="p-1 text-left w-50">
+                    	<strong>Departure Address: </strong><span t-field="o.l10n_ec_printer_id.printer_point_address"/><br/>
+                    	<strong>Departure Date: </strong><span t-field="o.invoice_date"/><br/>
+                    	<strong>Arrival Date: </strong><span t-field="o.invoice_date_due"/>
+                    </td>
                 </tr>
-                <tr>
-                    <td class="p-1 text-left w-50"><strong>License Plate: </strong><span t-field="o.l10n_ec_license_plate"/></td>
-                    <td class="p-1"></td>
-                </tr>
-                <tr>
-                    <td class="p-1 text-left w-50"><strong>Init Address: </strong><span t-field="o.l10n_ec_printer_id.printer_point_address"/></td>
-                    <td class="p-1"></td>
-                </tr>
-            </table>
-
-            <table name="invoice_info" class="table table-condensed w-100" style="font-size:10px;">
+            	<!-- Se comenta pues son campos opcionales 
                 <tr>
                     <td class="p-1 text-left w-50"><strong>Invoice No.: </strong></td>
                     <td class="p-1 text-left w-50"><strong>Invoice Date: </strong></td>
@@ -131,15 +137,14 @@
                 <tr>
                     <td class="p-1 text-left w-50" colspan="2"><strong>Authorization No.: </strong></td>
                 </tr>
+                 -->
                 <tr>
-                    <td class="p-1 text-left w-50" colspan="2"><strong>Move reason: </strong><span t-field="o.l10n_ec_waybill_move_reason"/></td>
-                </tr>
-                <tr>
-                    <td class="p-1 text-left w-50" colspan="2"><strong>Destination waybill address: </strong><span t-field="o.l10n_ec_waybill_loc_dest_address"/></td>
-                </tr>
-                <tr>
-                    <td class="p-1 text-left w-50"><strong>Company Name / Name and Surname: </strong><span t-esc="o.commercial_partner_id._get_complete_name()"/></td>
-                    <td class="p-1 text-left w-50"><strong>Identification: </strong><span t-field="o.commercial_partner_id.vat"/></td>
+                	<td class="p-1 text-left w-50" colspan="2">
+                    	<strong>Move Reason: </strong><span t-field="o.l10n_ec_waybill_move_reason"/><br/>
+                    	<strong>Destination (Arrival Point): </strong><span t-field="o.l10n_ec_waybill_loc_dest_address"/><br/>
+                    	<strong>Identification (Recipient): </strong><span t-field="o.commercial_partner_id.vat"/><br/>
+                    	<strong>Company Name / Name and Surname: </strong><span t-esc="o.commercial_partner_id._get_complete_name()"/>
+                    </td>
                 </tr>
             </table>
         </xpath>
@@ -161,9 +166,9 @@
                 <thead>
                     <tr>
                         <t t-set="colspan" t-value="6"/>
-                        <th name="th_qty" class="text-left"><span>Qty</span></th>
+                        <th name="th_qty" class="text-left"><span>Quantity</span></th>
                         <th name="th_description" class="text-left"><span>Description</span></th>
-                        <th name="th_code" class="text-left"><span>Code</span></th>
+                        <th name="th_code" class="text-left"><span>Main Code</span></th>
                         <th name="th_auxcode" class="text-left"><span>Auxiliar Code</span></th>
                     </tr>
                 </thead>
@@ -174,8 +179,8 @@
                         <tr>
                             <td><span t-field="line.qty_done"/></td>
                             <td><span t-field="line.product_id.name" t-options="{'widget': 'text'}"/></td>
-                            <td><span t-esc="line.product_id.code and line.product_id.code or line.product_id.barcode"/></td>
-                            <td></td>
+                            <td><span t-esc="line.product_id.barcode and line.product_id.barcode or line.product_id.code"/></td>
+                            <td><span t-if="line.product_id.barcode and line.product_id.code" t-esc="line.product_id.code" /></td>
                         </tr>
                     </t>
                 </tbody>

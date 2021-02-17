@@ -56,13 +56,14 @@ class AccountMove(models.Model):
                         raise ValidationError(u'La Guía de Remisión debe tener una movimiento de inventario vinculado.')
                     if not waybill.l10n_ec_waybill_line_ids:
                         raise ValidationError(u'En el movimiento de inventario debió ingresar al menos un detalle de movimiento.')
-                    other_posted_waybills = self.env['account.move'].search([
-                        ('l10n_ec_stock_picking_id','=',waybill.l10n_ec_stock_picking_id.id),
-                        ('state','=','posted'),
-                        ('id','!=',waybill.id), #exclude myself
-                        ])
-                    if other_posted_waybills:
-                        raise ValidationError(u'Solamente se puede tener una Guía de Remisión aprobada por despacho.')
+                    # En v14 queremos permitir multiples guias de remisión para el mismo despacho 
+                    # other_posted_waybills = self.env['account.move'].search([
+                    #     ('l10n_ec_stock_picking_id','=',waybill.l10n_ec_stock_picking_id.id),
+                    #     ('state','=','posted'),
+                    #     ('id','!=',waybill.id), #exclude myself
+                    #     ])
+                    # if other_posted_waybills:
+                    #     raise ValidationError(u'Solamente se puede tener una Guía de Remisión aprobada por despacho.')
                     #delete account.move.lines for re-posting scenario in sale withholds and purchase withholds
                     waybill.line_ids.unlink()
                     partner = waybill.partner_id.commercial_partner_id
@@ -81,6 +82,13 @@ class AccountMove(models.Model):
                         'is_rounding_line': False
                     }
                     account_move_line_obj.with_context(check_move_validity=False).create(vals)
+    
+    def _get_l10n_latam_documents_domain(self):
+        #Filter document types according to ecuadorian type
+        domain = super(AccountMove, self)._get_l10n_latam_documents_domain()
+        if self.l10n_ec_is_waybill:
+            domain.extend([('l10n_ec_type', '=', 'out_waybill')])
+        return domain
     
     #Columns
     l10n_ec_is_waybill = fields.Boolean(string='Is Waybill', copy=False) #para facilitar la creación de las vistas
@@ -115,6 +123,7 @@ class AccountMove(models.Model):
         string='Vehicle Plate',
         size=8,
         tracking=True,
+        readonly = True,
         states = {'draft': [('readonly', False)]}
         )
     

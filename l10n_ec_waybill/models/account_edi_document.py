@@ -104,9 +104,12 @@ class AccountEdiDocument(models.Model):
         for each in self.move_id.l10n_ec_waybill_line_ids:
             detalle_data = []
             detalle = self.create_SubElement(detalles, 'detalle')
-            product_code = each.product_id.barcode or each.product_id.default_code or ''
-            if product_code:
-                detalle_data.append(('codigoInterno', product_code))
+            main_code = each.product_id.barcode or each.product_id.code or ''
+            auxiliar_code = each.product_id.code if each.product_id.barcode else ''
+            if main_code:
+                detalle_data.append(('codigoInterno', main_code))
+            if auxiliar_code:
+                detalle_data.append(('codigoAdicional', auxiliar_code))
             detalle_data.append(('descripcion', each.product_id.name))
             detalle_data.append(('cantidad', each.qty_done))
             self.create_TreeElements(detalle, detalle_data)
@@ -115,7 +118,12 @@ class AccountEdiDocument(models.Model):
             #    self.create_SubElement(detalle_adic, 'detAdicional',
             #                           attrib={'nombre': 'UnidadDeMedida'},
             #                           text=each.product_uom_id.name or 'NO APLICA')
-        infoAdicional = self.create_SubElement(guiaRemision, 'infoAdicional')
+        
+        
+        
+        if self.move_id.narration or self.move_id.l10n_ec_stock_picking_id.origin:
+            #dentro del if para asegurar que no quede huerfano el label
+            infoAdicional = self.create_SubElement(guiaRemision, 'infoAdicional')
         if self.move_id.narration:
             self.create_SubElement(infoAdicional, 'campoAdicional',
                                    attrib={'nombre': 'Novedades'},
