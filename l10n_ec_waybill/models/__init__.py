@@ -6,3 +6,4 @@ from . import res_company
 from . import account_move
 from . import stock_picking
 from . import account_edi_document
+from . import account_chart_template
