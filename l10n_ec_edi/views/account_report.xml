@@ -16,7 +16,7 @@
 
     <record id="account.account_invoices" model="ir.actions.report">
         <field name="attachment_use">True</field>
-        <field name="paperformat_id" ref="l10n_ec.paperformat_euro_no_margin"/>
+        <field name="paperformat_id" ref="l10n_ec_edi.paperformat_euro_no_margin"/>
     </record>
 
 </odoo>
