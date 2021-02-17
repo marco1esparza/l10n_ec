@@ -23,7 +23,6 @@
     ],
     'data': [
         #Data
-        'data/account_journal_data.xml',
         #Security
         'security/ir.model.access.csv',
         'security/l10n_ec_multicompany_security.xml',
@@ -37,5 +36,5 @@
     'installable': True,
     'application': True,
     'auto_install': False,
-    'post_init_hook': '_assign_default_edi_waybill_account_id',
+    'post_init_hook': '_post_install_hook_configure_ecuadorian_waybill',
 }

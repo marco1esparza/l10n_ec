@@ -108,7 +108,7 @@ class AccountMove(models.Model):
         if self.country_code == 'EC':
             if self.move_type in self.get_invoice_types(include_receipts):
                 return True
-            elif self.is_withholding() and self.withhold_type == 'in_withhold':
+            elif self.is_withholding():
                 return True
             elif self.is_waybill():
                 return True
