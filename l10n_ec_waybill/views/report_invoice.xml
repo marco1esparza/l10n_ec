@@ -19,47 +19,23 @@
                         <table class="table table-borderless">
                             <tr>
                                 <td class="text-center p-1">
-                                    <strong><span t-field="o.company_id.l10n_ec_legal_name"/></strong>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-center p-1">
-                                    <strong>Headquarters Address:</strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/>
-                                </td>
-                            </tr>
-                            <tr t-if="o.l10n_ec_printer_id.printer_point_address">
-                                <td class="text-center p-1">
-                                    <strong>Branch Office address:</strong> <span t-esc="o.l10n_ec_printer_id.printer_point_address"/>
-                                </td>
-                            </tr>
-                            <tr t-if="o.company_id.l10n_ec_special_contributor_number">
-                                <td class="text-center p-1">
-                                    <strong>Special Taxpayer Number:</strong>
-                                    <span t-field="o.company_id.l10n_ec_special_contributor_number"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-center p-1">
-                                    <strong>Obliged to keep accounting:</strong>
-                                    <t t-if="o.company_id.l10n_ec_forced_accounting">Yes</t>
-                                    <t t-else="">No</t>
-                                </td>
-                            </tr>
-                            <t t-if="o.company_id.l10n_ec_regime == 'micro'">
-	                            <tr>
-	                                <td class="text-center p-1">
-	                                    CONTRIBUYENTE RÉGIMEN MICROEMPRESAS
-	                                </td>
-	                            </tr>
-                            </t>
-                            <t t-if="o.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent'">
-	                            <tr>
-	                                <td class="text-center p-1">
+                                    <strong><span t-field="o.company_id.l10n_ec_legal_name"/></strong><br/>
+                                    <strong>Headquarters Address:</strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/><br/>
+                                    <t t-if="o.l10n_ec_printer_id.printer_point_address">
+                            			<strong>Branch Office address:</strong> <span t-esc="o.l10n_ec_printer_id.printer_point_address"/><br/>
+                            		</t>
+                            		<t t-if="o.company_id.l10n_ec_special_contributor_number">
+                            			<strong>Special Taxpayer Number:</strong>
+                            			<span t-field="o.company_id.l10n_ec_special_contributor_number"/><br/>
+                            		</t>
+									<strong>Obliged to keep accounting:</strong><t t-if="o.company_id.l10n_ec_forced_accounting">Yes</t><t t-else="">No</t><br/>
+		                            <t t-if="o.company_id.l10n_ec_regime == 'micro'">CONTRIBUYENTE RÉGIMEN MICROEMPRESAS<br/></t>
+		                            <t t-if="o.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent'">
 	                                    <strong>Agente de Retención Resolución No.:</strong>
-	                                    <span t-field="o.company_id.l10n_ec_wihhold_agent_number"/>
-	                                </td>
-	                            </tr>
-	                        </t>
+	                                    <span t-field="o.company_id.l10n_ec_wihhold_agent_number"/><br/>
+	                        		</t>
+                                </td>
+                            </tr>
                         </table>
                     </td>
                     <td class="p-1" style="width: 70%">
@@ -70,37 +46,13 @@
                                         <t t-if="o.company_id.country_id.vat_label" t-esc="o.company_id.country_id.vat_label" id="inv_tax_id_label"/>
                                         <t t-else="">Tax ID</t>:
                                     </strong> <span t-field="o.company_id.partner_id.vat"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-center border-top-0 p-2" style="font-size:15px; letter-spacing: 2px;">
-                                    <h3>
+                                    <h4 style="letter-spacing: 2px;">
                                         <t t-if="o.l10n_latam_document_type_id" t-esc="o.l10n_latam_document_type_id.report_name or o.l10n_latam_document_type_id.name" /> <br/> <span t-esc="o.l10n_latam_document_number or o.name"/>
-                                    </h3>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-center border-top-0 p-1">
-                                    <strong>Authorization No.: <span t-field="o.l10n_ec_authorization"/></strong>
-                                </td>
-                            </tr>
-                            <!-- Los RIDE que se descarguen del portal web del SRI contendrán hora y fecha de autorización, dicha información no es
-								 obligatoria registrarla en el RIDE generado por los emisores de comprobantes electrónicos.
-                            <tr>
-                                <td class="border-top-0 p-1">
-                                    <strong>Date and time of Authorization:</strong>
-                                </td>
-                            </tr>-->
-                            <tr>
-                                <td class="text-center p-1">
-                                    <strong>Environment: </strong>
-                                    <t t-if="o.company_id.l10n_ec_environment_type == '1'">Production  </t>
-                                    <t t-else="">Testing    </t>
-                                    <strong>Emission: </strong>Normal
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="border-top-0 p-1">
+                                    </h4>
+                                    <strong>Environment: </strong><t t-if="o.company_id.l10n_ec_environment_type == '1'">Production</t><t t-else="">Testing</t>
+                                    &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+                                    <strong>Emission: </strong>Normal<br/>
+                                	<strong>Authorization No.: <span t-field="o.l10n_ec_authorization"/></strong>
                                     <div class="text-justify">
                                         <img style="width:100%; height:15.5mm;"
                                              t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.l10n_ec_authorization, 1600, 400)"
