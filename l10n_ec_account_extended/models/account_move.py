@@ -159,6 +159,8 @@ class AccountMove(models.Model):
             if document.country_code == 'EC':
                 if document.journal_id.edi_format_ids.filtered(lambda e:e.code == 'facturx_1_0_05'):
                     raise UserError(_("Por favor, debe deshabilitar primero el Documento Electrónico Factur-X (FR) del Diario %s, Contabilidad/Configuración/Diarios Contables") % self.journal_id.name)
+                #FIX ME: a veces, con puntos de emision nuevos, no se computa el perfijo de la factura en el numero
+                document._inverse_l10n_latam_document_number()
                 bypass = document.l10n_ec_bypass_validations
                 if not bypass:
                     document._l10n_ec_validations_to_posted()

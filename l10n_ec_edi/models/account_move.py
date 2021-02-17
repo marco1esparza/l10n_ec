@@ -373,7 +373,7 @@ class AccountMove(models.Model):
     def _compute_name(self):
         # Se computa tomando en cuenta tambien cambios en el Punto de Emision.
         super(AccountMove, self)._compute_name()
-
+            
     def _get_formatted_sequence(self, number=0):
         return "%s-%09d" % (self.l10n_ec_printer_id.name, number)
 
@@ -386,7 +386,7 @@ class AccountMove(models.Model):
         return super()._get_starting_sequence()
 
     def _get_last_sequence_domain(self, relaxed=False):
-        if self.company_id.country_id == self.env.ref('base.ec') and self.l10n_latam_use_documents:
+        if self.company_id.country_code == 'EC' and self.l10n_latam_use_documents:
             where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
             if self.l10n_latam_document_type_id and self.l10n_ec_printer_id:
                 l10n_latam_document_type_id = self.l10n_latam_document_type_id
