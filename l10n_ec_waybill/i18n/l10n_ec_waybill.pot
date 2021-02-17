@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-17 04:09+0000\n"
-"PO-Revision-Date: 2021-02-17 04:09+0000\n"
+"POT-Creation-Date: 2021-02-17 04:30+0000\n"
+"PO-Revision-Date: 2021-02-17 04:30+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -54,13 +54,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid ""
 "<br/>\n"
-"                    \t<strong>Identification (Carrier): </strong>"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid ""
-"<br/>\n"
 "                    \t<strong>Identification (Recipient): </strong>"
 msgstr ""
 
@@ -75,7 +68,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid ""
 "<br/>\n"
-"                                    <strong>Headquarters Address:</strong>"
+"                                    <strong>Headquarters Address: </strong>"
 msgstr ""
 
 #. module: l10n_ec_waybill
@@ -113,17 +106,12 @@ msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Agente de Retención Resolución No.:</strong>"
+msgid "<strong>Agente de Retención Resolución No.: </strong>"
 msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Branch Office address:</strong>"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Company Name / Name and Surname (Carrier): </strong>"
+msgid "<strong>Branch Office address: </strong>"
 msgstr ""
 
 #. module: l10n_ec_waybill
@@ -138,17 +126,22 @@ msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+msgid "<strong>Identification (Carrier): </strong>"
+msgstr ""
+
+#. module: l10n_ec_waybill
+#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<strong>Move Reason: </strong>"
 msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Obliged to keep accounting:</strong>"
+msgid "<strong>Obliged to keep accounting: </strong>"
 msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Special Taxpayer Number:</strong>"
+msgid "<strong>Special Taxpayer Number: </strong>"
 msgstr ""
 
 #. module: l10n_ec_waybill

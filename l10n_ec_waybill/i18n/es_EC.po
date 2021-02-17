@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-17 04:09+0000\n"
-"PO-Revision-Date: 2021-02-17 04:09+0000\n"
+"POT-Creation-Date: 2021-02-17 04:30+0000\n"
+"PO-Revision-Date: 2021-02-17 04:30+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -23,6 +23,7 @@ msgid ""
 msgstr ""
 "&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;\n"
 "                                    <strong>Emisión: </strong>Normal<br/>"
+
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid ""
@@ -63,15 +64,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid ""
 "<br/>\n"
-"                    \t<strong>Identification (Carrier): </strong>"
-msgstr ""
-"<br/>\n"
-"                    \t<strong>Identificación (Transportista): </strong>"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid ""
-"<br/>\n"
 "                    \t<strong>Identification (Recipient): </strong>"
 msgstr ""
 "<br/>\n"
@@ -90,7 +82,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid ""
 "<br/>\n"
-"                                    <strong>Headquarters Address:</strong>"
+"                                    <strong>Headquarters Address: </strong>"
 msgstr ""
 "<br/>\n"
 "                                    <strong>Dirección Matriz:</strong>"
@@ -116,7 +108,7 @@ msgstr "<span>Código Auxiliar</span>"
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<span>Description</span>"
-msgstr ""
+msgstr "<span>Descripción</span>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -130,18 +122,13 @@ msgstr "<span>Cantidad</span>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Agente de Retención Resolución No.:</strong>"
+msgid "<strong>Agente de Retención Resolución No.: </strong>"
 msgstr ""
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Branch Office address:</strong>"
-msgstr "<strong>Dirección Sucrusal:</strong>"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Company Name / Name and Surname (Carrier): </strong>"
-msgstr "<strong>Razón Social / Nombres y Apellidos (Transportista): </strong>"
+msgid "<strong>Branch Office address: </strong>"
+msgstr "<strong>Dirección Sucursal:</strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
@@ -155,17 +142,22 @@ msgstr "<strong>Ambiente: </strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+msgid "<strong>Identification (Carrier): </strong>"
+msgstr ""
+
+#. module: l10n_ec_waybill
+#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "<strong>Move Reason: </strong>"
 msgstr "<strong>Motivo Traslado: </strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Obliged to keep accounting:</strong>"
+msgid "<strong>Obliged to keep accounting: </strong>"
 msgstr "<strong>Obligado a llevar Contabilidad: </strong>"
 
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Special Taxpayer Number:</strong>"
+msgid "<strong>Special Taxpayer Number: </strong>"
 msgstr "<strong>Contribuyente Especial Nro: </strong>"
 
 #. module: l10n_ec_waybill
@@ -300,7 +292,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company__display_name
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking__display_name
 msgid "Display Name"
-msgstr "Nombre mostrado"
+msgstr "Nombre a Mostrar"
 
 #. module: l10n_ec_waybill
 #: code:addons/l10n_ec_waybill/models/l10n_ec_stock_carrier.py:0
@@ -347,7 +339,7 @@ msgstr "ID (identificación)"
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__vat
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_form
 msgid "Identification Number"
-msgstr ""
+msgstr "Número Identificación"
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__vat
@@ -401,7 +393,7 @@ msgstr "Asiento contable"
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company____last_update
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking____last_update
 msgid "Last Modified on"
-msgstr "Última modificación en"
+msgstr "Fecha de modificación"
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__write_uid
@@ -465,7 +457,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_form
 msgid "Number"
-msgstr "NUmero"
+msgstr "Número"
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_needaction_counter
@@ -550,7 +542,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_form
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_tree
 msgid "Stock Carrier"
-msgstr "Transportisas"
+msgstr "Transportistas"
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_stock_picking_id
@@ -577,7 +569,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "Testing"
-msgstr ""
+msgstr "Pruebas"
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__l10n_latam_identification_type_id
@@ -587,7 +579,7 @@ msgstr ""
 #. module: l10n_ec_waybill
 #: model:ir.model,name:l10n_ec_waybill.model_stock_picking
 msgid "Transfer"
-msgstr "Transferir"
+msgstr "Albarán"
 
 #. module: l10n_ec_waybill
 #: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_unread
