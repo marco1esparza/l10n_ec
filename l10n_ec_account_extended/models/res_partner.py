@@ -85,14 +85,18 @@ class ResPartner(models.Model):
     
     @api.constrains('vat', 'country_id','l10n_latam_identification_type_id','bypass_vat_validation')
     def check_vat(self):
-        #just include bypass_vat_validation field in the constraint
-        return super(ResPartner, self).check_vat()
+        # just include bypass_vat_validation field in the constraint
+        # bugfix #17584: Validate only main partner, exclude contacts, to avoid expected singleton error, seems like a bug in v14
+        main_partner = self.mapped('commercial_partner_id')
+        return super(ResPartner, main_partner).check_vat()
     
     def check_vat_ec(self, vat):
         if self._context.get('bypass_check_vat',False):
             #usefull for migrations from previous versions or integrations
             return True
-        if self.bypass_vat_validation:
+        if self and self[0].bypass_vat_validation:
+            # se usa self[0] pues cuando hay varios contactos en el partner da error de singleton
+            # y de todas maneras no hace falta evaluar todos pues el bypass es un campo commercial sincronizado
             return True
         return super(ResPartner, self).check_vat_ec(vat)
     
