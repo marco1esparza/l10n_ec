@@ -71,7 +71,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         year = 'y'+str(report_date.year)
         month = report_date.strftime("%b").lower() #dec
         res.update({
-            'include_electronic_document_in_ats': self.env.user.company_id.include_electronic_document_in_ats,
+            'include_electronic_document_in_ats': self.env.company.include_electronic_document_in_ats,
             'year': year,
             'period': month,
             })
@@ -181,7 +181,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         '''
         #2.1 IDENTIFICACION DEL INFORMANTE
         init_total_time = tm()
-        company = self.env.user.company_id
+        company = self.company_id
         map_periods = {
                     'jan': '01', 
                     'feb': '02', 
@@ -220,7 +220,9 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
  
         razonSocial = doc.createElement('razonSocial')
         main.appendChild(razonSocial)
-        razonSocial.appendChild(doc.createTextNode(get_name_only_characters(company.l10n_ec_legal_name)))
+        razonSocial.appendChild(doc.createTextNode(get_name_only_characters(company.l10n_ec_legal_name or '')))
+        if not company.l10n_ec_legal_name:
+            report_status.append(u'En la configuración de la compañía debe digitar el "Nombre Legal" de la compañía.')
  
         atsanio = doc.createElement('Anio')
         main.appendChild(atsanio)
@@ -236,7 +238,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             regimenMicroempresa.appendChild(doc.createTextNode('SI'))
         
         suc = []
-        printers = self.env['l10n_ec.sri.printer.point'].sudo().search([('company_id','=',self.env.user.company_id.id)])
+        printers = self.env['l10n_ec.sri.printer.point'].sudo().search([('company_id','=',self.company_id.id)])
         for printer in printers:
             suc.append(printer.name.split('-')[0])
         suc = list(set(suc))
@@ -922,7 +924,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             main.appendChild(ventasEstablecimiento)
             
             shops = []
-            printers = self.env['l10n_ec.sri.printer.point'].sudo().search([('company_id','=',self.env.user.company_id.id)])
+            printers = self.env['l10n_ec.sri.printer.point'].sudo().search([('company_id','=',self.company_id.id)])
             for printer in printers:
                 shops.append(printer.name.split('-')[0])
             shops = list(set(shops))
