@@ -72,7 +72,7 @@ class ResPartner(models.Model):
              u' permite ignorar la validación hecha al campo CI/RUC/Pass.'
         )
     country_id = fields.Many2one(
-        default=lambda self: self.env.user.company_id.country_id.id
+        default=lambda self: self.env.company.country_id.id
         )
     #adds tracking to know when user changes configuration
     vat = fields.Char(track_visibility='onchange')

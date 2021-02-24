@@ -120,7 +120,7 @@ class AccountMove(models.Model):
                             vat_lines = self.env['l10n_ec.account.withhold.line'].search([('move_id','=',withhold.id), ('invoice_id','=',invoice.id), ('tax_id.tax_group_id.l10n_ec_type','=','withhold_vat')])
                             for vat_line in vat_lines:
                                 total_base_vat += vat_line.base
-                            precision = self.env.user.company_id.currency_id.decimal_places
+                            precision = invoice.company_id.currency_id.decimal_places
                             diff_base_vat = float_compare(total_base_vat, invoice.l10n_ec_vat_doce_subtotal, precision_digits=precision)
                             if diff_base_vat > 0:
                                 raise ValidationError(u'La base imponible de la retención de iva es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)

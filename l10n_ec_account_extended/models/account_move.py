@@ -428,7 +428,7 @@ class AccountMove(models.Model):
         Bypass las retenciones tarjetas de Credito
         '''
         validate = True
-        credit_card = self.env.user.company_id.default_profit_withhold_tax_corporate_credit_card
+        credit_card = self.company_id.default_profit_withhold_tax_corporate_credit_card
         if self.tax_line_ids.mapped('tax_id').filtered(lambda x : x.type_ec in ['withhold_vat','withhold_income_tax'] and
                                                               x.id == credit_card.id):
             validate = False
