@@ -94,7 +94,7 @@ class ResPartner(models.Model):
         if self._context.get('bypass_check_vat',False):
             #usefull for migrations from previous versions or integrations
             return True
-        if self and self[0].bypass_vat_validation:
+        if self.bypass_vat_validation:
             # se usa self[0] pues cuando hay varios contactos en el partner da error de singleton
             # y de todas maneras no hace falta evaluar todos pues el bypass es un campo commercial sincronizado
             return True
