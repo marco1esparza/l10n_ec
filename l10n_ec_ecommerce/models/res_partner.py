@@ -27,7 +27,7 @@ class ResPartner(models.Model):
      
     def _l10n_ec_ecommerce_autoselect_vat_type(self, vals):
         #smart detect vat type, usefull for ecommerce
-        if not self.env.user.company_id.country_code == 'EC':
+        if not self.env.company.country_code == 'EC':
             return True #when company is not ecuadorian then do nothing, 
         new_vat = vals.get('vat',self.vat) 
         #when identification_type not provided attempt to guess the type
