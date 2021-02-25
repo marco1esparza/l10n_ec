@@ -40,7 +40,7 @@
 			<xsd:maxLength value="300"/>
 			<xsd:pattern value="[^\n]*"/>
 		</xsd:restriction>
-	</xsd:simpleType>	
+	</xsd:simpleType>
 	
 	<xsd:simpleType name="nombreComercial">
 		<xsd:restriction base="xsd:string">
