@@ -14,5 +14,3 @@ from . import l10n_ec_payment_method
 from . import account_move
 from . import account_edi_document
 from . import account_edi_format
-from . import mail_template
-

@@ -13,3 +13,5 @@ class IrActionsReport(models.Model):
         if self.env.company.country_code == 'EC' and self.report_name in ('account.report_invoice') and not self.paperformat_id:
             paperformat_id = self.env.ref('l10n_ec_edi.paperformat_euro_no_margin')
         return paperformat_id
+    
+

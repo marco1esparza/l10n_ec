@@ -25,8 +25,6 @@
     ],
     'data': [
         #Data
-        'data/account_journal_data.xml',
-        'data/mail_template_data.xml',
         #Security
         'security/ir.model.access.csv',
         #Views
@@ -36,4 +34,5 @@
     ],
     'installable': True,
     'auto_install': True,
+    'post_init_hook': '_post_install_hook_configure_ecuadorian_withhold',
 }

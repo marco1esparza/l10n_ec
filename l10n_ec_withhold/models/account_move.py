@@ -120,7 +120,7 @@ class AccountMove(models.Model):
                             vat_lines = self.env['l10n_ec.account.withhold.line'].search([('move_id','=',withhold.id), ('invoice_id','=',invoice.id), ('tax_id.tax_group_id.l10n_ec_type','=','withhold_vat')])
                             for vat_line in vat_lines:
                                 total_base_vat += vat_line.base
-                            precision = self.env.user.company_id.currency_id.decimal_places
+                            precision = invoice.company_id.currency_id.decimal_places
                             diff_base_vat = float_compare(total_base_vat, invoice.l10n_ec_vat_doce_subtotal, precision_digits=precision)
                             if diff_base_vat > 0:
                                 raise ValidationError(u'La base imponible de la retención de iva es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
@@ -255,6 +255,8 @@ class AccountMove(models.Model):
         for invoice in self:
             if not invoice.country_code == 'EC':
                 raise ValidationError(u'Withhold documents are only aplicable for Ecuador')
+            if invoice.state != 'posted':
+                raise ValidationError(u'No se puede registrar la retención, el documento %s no está aprobado' %invoice.name)
             if not invoice.l10n_ec_allow_withhold:
                 raise ValidationError(u'The selected document type does not support withholds')
             if len(self) > 1 and invoice.move_type != 'out_invoice':
@@ -415,7 +417,7 @@ class AccountMove(models.Model):
         for invoice in self:
             result = False
             if invoice.country_code == 'EC' and invoice.state == 'posted':
-                if invoice.l10n_latam_document_type_id.code in ['01','03','18']: #TODO ANDRES añadir codigos, revisar proyecto X
+                if invoice.l10n_latam_document_type_id.code in ['01','02','03','18']: #TODO ANDRES añadir codigos, revisar proyecto X
                     result = True
             invoice.l10n_ec_allow_withhold = result
     
@@ -445,36 +447,11 @@ class AccountMove(models.Model):
             return 'l10n_ec_withhold.report_invoice_document'
         return super()._get_name_invoice_report()
 
-    def _get_report_base_filename(self):
-        if any(not move.is_invoice() and (not move.l10n_latam_document_type_id) for move in self):
-            raise UserError(_("Only invoices could be printed."))
-        elif any(not move.is_invoice() and move.l10n_latam_document_type_id.code not in ['07']
-                 and move.country_code == 'EC' for move in self):
-            raise UserError(_("Only invoices could be printed."))
-        return self._get_move_display_name()
-
-    def is_invoice(self, include_receipts=False):
-        #Hack, permite enviar por mail documentos distintos de facturas
-        is_invoice = super(AccountMove, self).is_invoice(include_receipts)
-        if self._context.get('l10n_ec_send_email_others_docs', False):
-            if self.is_withholding():
-                is_invoice = True
-        return is_invoice
-
     def is_withholding(self):
         is_withholding = False
         if self.country_code == 'EC' and self.move_type in ('entry') and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold') and self.l10n_latam_document_type_id.code in ['07']:
             is_withholding = True
         return is_withholding
-
-    def action_invoice_sent(self):
-        # OVERRIDE
-        res = super(AccountMove, self).action_invoice_sent()
-
-        if self.is_withholding():
-            template = self.env.ref('l10n_ec_withhold.l10n_ec_email_template_edi_document')
-            res['context']['default_template_id'] = template.id
-        return res
 
     @api.constrains('name', 'journal_id', 'state')
     def _check_unique_sequence_number(self):

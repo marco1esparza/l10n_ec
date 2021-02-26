@@ -25,6 +25,23 @@
 			<xsd:pattern value="[^\n]*"/>
 		</xsd:restriction>
 	</xsd:simpleType>
+	
+	<!-- Agregado  temporalmente por trescloud -->
+	<xsd:simpleType name="regimenMicroempresas">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="300"/>
+			<xsd:pattern value="[^\n]*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="agenteRetencion">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="300"/>
+			<xsd:pattern value="[^\n]*"/>
+		</xsd:restriction>
+	</xsd:simpleType>	
+	
 	<xsd:simpleType name="nombreComercial">
 		<xsd:restriction base="xsd:string">
 			<xsd:minLength value="1"/>
@@ -48,6 +65,8 @@
 			<xsd:element name="ptoEmi" type="puntoEmision"/>
 			<xsd:element name="secuencial" type="secuencial"/>
 			<xsd:element name="dirMatriz" type="dirMatriz"/>
+			<xsd:element name="regimenMicroempresas" minOccurs="0" type="regimenMicroempresas"/>
+			<xsd:element name="agenteRetencion" minOccurs="0" type="agenteRetencion"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:simpleType name="numeroRuc">

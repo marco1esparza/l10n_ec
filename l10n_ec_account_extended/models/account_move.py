@@ -58,6 +58,10 @@ class AccountMove(models.Model):
             taxes = line._get_computed_taxes()
             #line.tax_ids = [(6, 0, taxes.ids)]
             line.tax_ids = taxes
+        # Se manda a ejecutar el _onchange_mark_recompute_taxes, que verifica si la linea tiene creada la tabla de impuestos
+        # sino tiene creada la tabla de impuestos las marca para que estas sean creadas en el _recompute_dynamic_lines.
+        self.line_ids._onchange_mark_recompute_taxes()
+        self._recompute_dynamic_lines()
         return res
 
     def write(self, vals):
@@ -105,7 +109,7 @@ class AccountMove(models.Model):
             if not self.l10n_ec_printer_id.automatic_numbering:
                 if journal.type == 'sale':
                     return True
-                elif journal.type == 'purchase' and doc_code in ['03']:
+                elif journal.type == 'purchase' and doc_code in ['03', '41']:
                     return True
                 elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['in_withhold']:
                     return True
@@ -113,8 +117,14 @@ class AccountMove(models.Model):
         
     @api.depends('l10n_latam_document_type_id', 'journal_id', 'l10n_ec_printer_id')
     def _compute_l10n_latam_manual_document_number(self):
-        #trigger computation depending on l10n_ec_printer_id
-        return super()._compute_l10n_latam_manual_document_number()
+        # trigger computation depending on l10n_ec_printer_id
+        # return super()._compute_l10n_latam_manual_document_number()
+        # until bug https://github.com/odoo/odoo/pull/65673 is merged we include fix here:
+        recs_with_journal_id = self.filtered(lambda x: x.journal_id and x.journal_id.l10n_latam_use_documents)
+        for rec in recs_with_journal_id:
+            rec.l10n_latam_manual_document_number = rec._is_manual_document_number(rec.journal_id)
+        remaining = self - recs_with_journal_id
+        remaining.l10n_latam_manual_document_number = False
     
     def _l10n_ec_validations_to_draft(self):
         #Validaciones para cuando se mueve un asiento a draft o a cancel
@@ -133,19 +143,15 @@ class AccountMove(models.Model):
         #if self.state in ['cancel']:
         ec_edi = self.edi_document_ids.filtered(lambda x: x.edi_format_id.code == 'l10n_ec_tax_authority')
         procesing_edi_job = self._context.get('procesing_edi_job',False)
-        if ec_edi:
-            if self.state == 'posted' and self.edi_state == 'to_cancel' and procesing_edi_job:
-                #cuando he requerido la anulación del documento todavía me encuentro en estado posted
-                #en este caso obvio la validación
-                return
-            if self.state == 'posted' and self.edi_state == 'cancelled' and procesing_edi_job:
-                #la anulación edi de account_edi obliga a pasar temporalmente por draft, mediante el
-                #contexto procesing_edi_job bypaseamos la restricción cuando es una anulación del proceso edi
-                return
+        if ec_edi and not procesing_edi_job:
+            #la anulación edi de account_edi obliga a pasar temporalmente por draft, mediante el
+            #contexto procesing_edi_job bypaseamos la restricción cuando es una anulación del proceso edi
             raise UserError(_(
                 "You can't set to draft the journal entry %s because an electronic document has already been requested. "
                 "Instead you can cancel this document (Request EDI Cancellation button) and then create a new one"
-            ) % self.display_name)
+                "|n|n"
+                "DebugData:ID%s,S%s,C%s"
+            ) % (self.display_name,str(self.id),self.state,str(procesing_edi_job)))
     
     def _post(self, soft=True):
         #Execute ecuadorian validations with bypass option
@@ -153,6 +159,8 @@ class AccountMove(models.Model):
             if document.country_code == 'EC':
                 if document.journal_id.edi_format_ids.filtered(lambda e:e.code == 'facturx_1_0_05'):
                     raise UserError(_("Por favor, debe deshabilitar primero el Documento Electrónico Factur-X (FR) del Diario %s, Contabilidad/Configuración/Diarios Contables") % self.journal_id.name)
+                #FIX ME: a veces, con puntos de emision nuevos, no se computa el perfijo de la factura en el numero
+                document._inverse_l10n_latam_document_number()
                 bypass = document.l10n_ec_bypass_validations
                 if not bypass:
                     document._l10n_ec_validations_to_posted()
@@ -236,6 +244,11 @@ class AccountMove(models.Model):
             if l10n_ec_require_withhold_tax:
                 if len(profit_withhold_taxes) != 1:
                     raise UserError(_("Please select one and only one profit withhold type (312, 332, 322, etc) for product:\n\n%s") % line.name)
+                if len(vat_withhold_taxes) not in [0,1]:
+                    raise UserError(_("Please select no more than one vat withhold tax for product:\n\n%s") % line.name)
+            else:
+                if len(profit_withhold_taxes) + len(vat_withhold_taxes):
+                    raise UserError(_("This document doesn't needs a withholding tax, please remove it for product:\n\n%s") % line.name)
     
     def _l10n_ec_validate_authorization(self):
         '''
@@ -243,8 +256,8 @@ class AccountMove(models.Model):
         - Validate access_key integrity against invoice number, date, ruc, etc
         '''
         auth_len = len(self.l10n_ec_authorization)
-        if auth_len in (10,42):
-            return True #no podemos aplicar ninguna validacion
+        if auth_len in (10, 42):
+            return True  # no podemos aplicar ninguna validacion
         if auth_len != 49:
             raise UserError(_("El número de Autorización es incorrecto, presenta %s dígitos") % auth_len)
         #la siguiente seccion es solo para el caso de 49 digitos, osea claves de acceso
@@ -341,6 +354,11 @@ class AccountMove(models.Model):
             }
         
     def _update_document_header_from_access_key(self):
+        auth_len = len(self.l10n_ec_authorization)
+        if auth_len in (10,42):
+            return True #no podemos aplicar ninguna validacion
+        if auth_len != 49:
+            raise UserError(_("El número de Autorización es incorrecto, presenta %s dígitos, debe ser de 10 o 42 digitos") % auth_len)
         access_key_data = self._extract_data_from_access_key()
         self.invoice_date = access_key_data['document_date']
         self.l10n_latam_document_type_id = access_key_data['l10n_latam_document_type_id']
@@ -379,7 +397,7 @@ class AccountMove(models.Model):
                         result = True
             move.l10n_ec_require_vat_tax = result
             
-    @api.depends('l10n_latam_document_type_id')
+    @api.depends('l10n_latam_document_type_id','l10n_ec_sri_tax_support_id')
     def _l10n_ec_compute_require_withhold_tax(self):
         #Indicates if the invoice requires a withhold or not
         for move in self:
@@ -389,6 +407,7 @@ class AccountMove(models.Model):
                 if move.move_type == 'in_invoice' and move.company_id.l10n_ec_issue_withholds:
                     if move.l10n_latam_document_type_id.code in [
                                         '01', # factura compra
+                                        '02', # Nota de venta
                                         '03', # liquidacion compra
                                         '08', # Entradas a espectaculos
                                         '09', # Tiquetes
@@ -396,20 +415,20 @@ class AccountMove(models.Model):
                                         '12', # Inst FInancieras
                                         '20', # Estado
                                         '21', # Carta porte aereo
-                                        '41', # Reembolsos de gastos compras y ventas, liquidaciones, facturas
+                                        #'41', # Reembolso de gastos como cliente final, no requiere retención
                                         '47', # Nota de crédito de reembolso
                                         '48', # Nota de débito de reembolso
                                         ]:
+                        #if move.l10n_ec_sri_tax_support_id.code not in ['08']: #compras por reembolso como intermediario
                         result = True
             move.l10n_ec_require_withhold_tax = result
-
     
     def _validate_require_withhold(self):
         '''
         Bypass las retenciones tarjetas de Credito
         '''
         validate = True
-        credit_card = self.env.user.company_id.default_profit_withhold_tax_corporate_credit_card
+        credit_card = self.company_id.default_profit_withhold_tax_corporate_credit_card
         if self.tax_line_ids.mapped('tax_id').filtered(lambda x : x.type_ec in ['withhold_vat','withhold_income_tax'] and
                                                               x.id == credit_card.id):
             validate = False
@@ -474,8 +493,10 @@ class AccountMove(models.Model):
         printer_id = False
         company_id = self.env.company #self.country_code is still empty
         if company_id.country_code == 'EC':
-            move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) #self.type is not yet populated
-            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold']:
+            move_type = self._context.get('default_move_type',False) or \
+                        self._context.get('default_withhold_type',False) or \
+                        self._context.get('default_waybill_type', False) #self.type is not yet populated
+            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold', 'out_waybill']:
                 #regular account.move doesn't need a printer point
                 printer_id = self.env.user.property_l10n_ec_printer_id.id
                 if not printer_id: #search first printer point
@@ -526,7 +547,7 @@ class AccountMoveLine(models.Model):
 
                         #compute vat withhold
                         if 'vat12' in tax_groups or 'vat14' in tax_groups:
-                            if not self.product_id or self.product_id.type in ['consu']:
+                            if not self.product_id or self.product_id.type in ['consu','product']:
                                 vat_withhold_tax = fiscal_postition_id.l10n_ec_vat_withhold_goods
                             else: #services
                                 vat_withhold_tax = fiscal_postition_id.l10n_ec_vat_withhold_services

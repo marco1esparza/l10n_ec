@@ -62,10 +62,16 @@
 			<field name="priority">100</field>
 		</record>
 		
+		<record id="CONS_PROP_Y_SERV_DIG" model="l10n_ec.sri.tax.support">
+			<field name="code">15</field>
+			<field name="name">Pagos efectuados por consumos propios y de terceros de servicios digitales</field>
+			<field name="priority">110</field>
+		</record>		
+		
 		<record id="CAS_ESP" model="l10n_ec.sri.tax.support">
 			<field name="code">00</field>
 			<field name="name">Casos especiales cuyo sustento no aplica en las opciones anteriores</field>
-			<field name="priority">110</field>
+			<field name="priority">120</field>
 		</record>
 		
     </data>

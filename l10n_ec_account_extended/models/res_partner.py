@@ -72,8 +72,11 @@ class ResPartner(models.Model):
              u' permite ignorar la validación hecha al campo CI/RUC/Pass.'
         )
     country_id = fields.Many2one(
-        default=lambda self: self.env.user.company_id.country_id.id
+        default=lambda self: self.env.company.country_id.id
         )
+    #adds tracking to know when user changes configuration
+    vat = fields.Char(track_visibility='onchange')
+    l10n_latam_identification_type_id = fields.Many2one(track_visibility='onchange')
     
     @api.model
     def _commercial_fields(self):
@@ -82,8 +85,10 @@ class ResPartner(models.Model):
     
     @api.constrains('vat', 'country_id','l10n_latam_identification_type_id','bypass_vat_validation')
     def check_vat(self):
-        #just include bypass_vat_validation field in the constraint
-        return super(ResPartner, self).check_vat()
+        # just include bypass_vat_validation field in the constraint
+        # bugfix #17584: Validate only main partner, exclude contacts, to avoid expected singleton error, seems like a bug in v14
+        main_partner = self.mapped('commercial_partner_id')
+        return super(ResPartner, main_partner).check_vat()
     
     def check_vat_ec(self, vat):
         if self._context.get('bypass_check_vat',False):
