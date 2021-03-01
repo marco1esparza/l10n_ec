@@ -30,17 +30,13 @@ class AccountJournal(models.Model):
         string='Bank Check Format',
     )
     l10n_ec_check_margin_top = fields.Float(
-        string='Margin top',
-        related='company_id.account_check_printing_margin_top',
-        readonly=False,
-        track_visibility='onchange',
-        help='Este campo permite modificar el margen superior del reporte, ingrese valores positivos en milimetros.'
+        string='Check Top Margin',
+        default=0.25,
+        help="Adjust the margins of generated checks to make it fit your printer's settings.",
         )
     l10n_ec_check_margin_left = fields.Float(
-        string='Margin left',
-        related='company_id.account_check_printing_margin_left',
-        readonly=False,
-        track_visibility='onchange',
-        help='Este campo permite modificar el margen izquierdo del reporte, ingrese valores positivos en milimetros.'
+        string='Check Left Margin',
+        default=0.25,
+        help="Adjust the margins of generated checks to make it fit your printer's settings.",
         )
     

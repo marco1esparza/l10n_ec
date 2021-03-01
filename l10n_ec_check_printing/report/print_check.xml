@@ -8,10 +8,17 @@
                 <link rel="stylesheet" type="text/scss" href="/l10n_ec_check_printing/static/src/scss/report_check_pichincha.scss"/>
             </xpath>
         </template>
-
         <template id="ckec_check">
-            <div class="ckec_check">
-                <div class="row line_1">
+        	<div class="ckec_check">
+	        	<t t-set="l10n_ec_margin_top" t-value="o.journal_id.l10n_ec_check_margin_top"/>
+	        	<t t-set="l10n_ec_margin_left" t-value="o.journal_id.l10n_ec_check_margin_left"/>
+	        	<style type="text/css">
+	        		.ckec_page {
+	        			padding-top: <t t-esc="l10n_ec_margin_top"/>px;
+	        			margin-left: <t t-esc="l10n_ec_margin_left"/>px;
+	        		}
+	        	</style>
+                <div class="row ckec_line_1">
                     <div class="col-9 text-left">
                         <span class="ckec_payee_name" t-esc="page['partner_name']"/>
                     </div>

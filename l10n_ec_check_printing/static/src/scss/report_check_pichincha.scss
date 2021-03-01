@@ -1,14 +1,31 @@
 .ckec_page_pichincha {
-    .ckec_check {
-        top: 0in;
-        font-family: Courier New;
-        font-size: 11pt;
+	.ckec_line_1 {
+		padding-top: 50px;
+	}
+	.line_2 {
+		padding-top: 3px; /*se summa al padding de la ckec_line_1 y al height de la linea 2*/
     }
-
-    .line_1 {
-        margin-bottom:10px;
-        margin-top:10px;
-        height: 10px;
+	.line_3 {
+		padding-top: 5px; /*se summa al padding de la ckec_line_1 y al height de la linea 2*/
+    }
+}
+.ckec_page_pichinchasda {
+    .ckec_check {
+        /*top: 0in;
+        font-family: Courier New !important;
+        font-size: 11pt;
+        height: 50px;
+        */
+    }
+    .ckec_payee_name {
+    	left: 1.0in;
+    	width: 2.0in;
+    	font-stretch: ultra-condensed;
+    	/*
+        top: 1.67in;
+        
+        text-align: left;
+        */
     }
     .line_2 {
         margin-left: 30px;
@@ -39,7 +56,6 @@
         text-align: center;
         font-size: 0.8em;
     }
-
     .ckec_amount_in_word {
         top: 1.17in;
         left: 0.25in;
@@ -48,15 +64,16 @@
         font-weight: bold;
         overflow: hidden;
     }
-    .ckec_payee_name {
-        top: 1.67in;
-        left: 0.5in;
-        width: 4.0in;
-        text-align: left;
-    }
     .ckec_city {
         left: 6.77in;
         width: 1.08in;
         text-align: left;
+    }
+    .ckec_line_1 {
+    	/* linea del cliente y del monto en numeros
+        margin-bottom:10px;
+        margin-top:10px;
+        height: 50px;
+        */
     }
 }
