@@ -58,7 +58,7 @@ def get_style(bold=False, font_name='Calibri', height=12, font_color='black',
 
 def GET_LETTER(index):
     COLUMNS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    aux = index / len(COLUMNS)
+    aux = int(index / len(COLUMNS))
     aux2 = index - (aux * len(COLUMNS))
     return (aux and COLUMNS[aux-1] or '') + COLUMNS[aux2]
 
