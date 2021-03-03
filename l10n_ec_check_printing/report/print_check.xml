@@ -22,7 +22,7 @@
 	        	<style type="text/css">
 	        		<t t-esc="o.journal_id.l10n_ec_check_css"/>
 	        	</style>
-	        	texto de prueba
+	        	<!-- 
                 <div class="row ckec_line_supplier_and_amount">
                     <div class="col-9 text-left">
                         <span class="ckec_payee_name" t-esc="page['partner_name']"/>
@@ -31,6 +31,16 @@
                         <span class="ckec_amount" t-esc="page['amount']"/>
                     </div>
                 </div>
+                 -->
+                <div class="row ckec_line_supplier_and_amount">
+                    <div class="col-9 text-left">
+                        <span class="ckec_payee_name" t-esc="page['partner_name']"/>
+                    </div>
+                </div>
+                <div class="row text-righ">
+                	<span class="ckec_amount" t-esc="page['amount']"/>
+                </div>
+
                 <div class="row ckec_line_amount_in_words">
                     <div class="col-10 text-left">
                         <span class="ckec_amount_in_word" t-esc="page['amount_in_word']"/>
