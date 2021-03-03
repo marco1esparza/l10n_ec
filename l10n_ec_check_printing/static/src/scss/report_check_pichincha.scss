@@ -1,79 +1,19 @@
 .ckec_page_pichincha {
-	.ckec_line_1 {
-		padding-top: 50px;
+	.ckec_line_supplier_and_amount {
+		padding-top: 30px;
+		left: 0px;
 	}
-	.line_2 {
-		padding-top: 3px; /*se summa al padding de la ckec_line_1 y al height de la linea 2*/
+	/*se suman al padding de la ckec_line_supplier_and_amount y al height de la ckec_line_amount_in_words*/
+	.ckec_line_amount_in_words {
+		top: 30px;
+		left: 0px;
+		/*line-height: 100%;*/
+		position: fixed;
     }
-	.line_3 {
-		padding-top: 5px; /*se summa al padding de la ckec_line_1 y al height de la linea 2*/
+	.ckec_line_city_and_date {
+		top: 30px;
+		left: 10px;
+		position: fixed;
     }
 }
-.ckec_page_pichinchasda {
-    .ckec_check {
-        /*top: 0in;
-        font-family: Courier New !important;
-        font-size: 11pt;
-        height: 50px;
-        */
-    }
-    .ckec_payee_name {
-    	left: 1.0in;
-    	width: 2.0in;
-    	font-stretch: ultra-condensed;
-    	/*
-        top: 1.67in;
-        
-        text-align: left;
-        */
-    }
-    .line_2 {
-        margin-left: 30px;
-        margin-bottom:12px;
-        height: 30px;
-    }
-    .line_3 {
-        margin-left: 30px;
-        height: 10px;
-    }
 
-    .ckec_amount {
-        top: 1.17in;
-        left: 6.77in;
-        width: 1.08in;
-        text-align: left;
-    }
-    .ckec_date {
-        top: 0.55in;
-        left: 6.37in;
-        width: 1.47in;
-        text-align: center;
-    }
-    .ckec_date_format {
-        top: 0.75in;
-        left: 6.37in;
-        width: 1.47in;
-        text-align: center;
-        font-size: 0.8em;
-    }
-    .ckec_amount_in_word {
-        top: 1.17in;
-        left: 0.25in;
-        width: 6in;
-        text-align: left;
-        font-weight: bold;
-        overflow: hidden;
-    }
-    .ckec_city {
-        left: 6.77in;
-        width: 1.08in;
-        text-align: left;
-    }
-    .ckec_line_1 {
-    	/* linea del cliente y del monto en numeros
-        margin-bottom:10px;
-        margin-top:10px;
-        height: 50px;
-        */
-    }
-}

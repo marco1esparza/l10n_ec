@@ -12,13 +12,18 @@
         	<div class="ckec_check">
 	        	<t t-set="l10n_ec_margin_top" t-value="o.journal_id.l10n_ec_check_margin_top"/>
 	        	<t t-set="l10n_ec_margin_left" t-value="o.journal_id.l10n_ec_check_margin_left"/>
+	        	<!-- permitimos personalización global de los margenes -->
 	        	<style type="text/css">
 	        		.ckec_page {
 	        			padding-top: <t t-esc="l10n_ec_margin_top"/>px;
 	        			margin-left: <t t-esc="l10n_ec_margin_left"/>px;
 	        		}
 	        	</style>
-                <div class="row ckec_line_1">
+	        	<style type="text/css">
+	        		<t t-esc="o.journal_id.l10n_ec_check_css"/>
+	        	</style>
+	        	texto de prueba
+                <div class="row ckec_line_supplier_and_amount">
                     <div class="col-9 text-left">
                         <span class="ckec_payee_name" t-esc="page['partner_name']"/>
                     </div>
@@ -26,12 +31,12 @@
                         <span class="ckec_amount" t-esc="page['amount']"/>
                     </div>
                 </div>
-                <div class="row line_2">
+                <div class="row ckec_line_amount_in_words">
                     <div class="col-10 text-left">
                         <span class="ckec_amount_in_word" t-esc="page['amount_in_word']"/>
                     </div>
                 </div>
-                <div class="row line_3">
+                <div class="row ckec_line_city_and_date">
                     <div class="col-11 text-left">
                         <span class="ckec_city" t-esc="page['city']"></span><span class="ckec_date" t-esc="page['payment_date_ecuador']"/>
                     </div>

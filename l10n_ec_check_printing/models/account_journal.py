@@ -18,7 +18,11 @@ class AccountJournal(models.Model):
         ('ckec_page_produbanco', 'Produbanco'),
         ('ckec_page_ruminaui', 'Rumiñahui'),
     ]
-
+    
+    @api.model
+    def default_l10n_ec_check_css(self):
+        return ''
+    
     @api.constrains('check_manual_sequencing')
     def _constrains_check_manual_sequencing(self):
         #In Ecuador never set to true the field check_manual_sequencing
@@ -38,5 +42,10 @@ class AccountJournal(models.Model):
         string='Check Left Margin',
         default=0.25,
         help="Adjust the margins of generated checks to make it fit your printer's settings.",
+        )
+    l10n_ec_check_css = fields.Text(
+        string='Check Format',
+        default=default_l10n_ec_check_css,
+        help="CSS to customize check layout printing",
         )
     

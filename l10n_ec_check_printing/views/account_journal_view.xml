@@ -10,6 +10,7 @@
 				<field name="l10n_ec_bank_check_format"/>
 				<field name="l10n_ec_check_margin_top"/>
 				<field name="l10n_ec_check_margin_left"/>
+				<field name="l10n_ec_check_css"/>
 			</xpath>
 		</field>
 	</record>

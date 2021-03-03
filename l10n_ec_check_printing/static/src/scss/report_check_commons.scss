@@ -4,37 +4,6 @@
  *  (eg. left: 7.5in; width: 2in;) all the dimensions will be scaled down.
 */
 .ckec_page {
-	font-stretch: ultra-condensed;
-	font-weight: lighter;
+	/* TRESCLOUD, por agregar estilos */
 }
-.ckca_page {
-    position: relative;
-    font-size: 10pt;
-    width: 8in!important;
-    zoom: 1.25;
-    /*
-    margin-left: -15px;
-    margin-right: -15px;
-    */
 
-    &:before {
-        display: block;
-        content: "";
-        width: 8.25in;
-    }
-
-    .ckec_check, .ckec_stub_1, .ckec_stub_2 {
-        position: absolute;
-        height: 3.25in;
-    }
-
-    .ckec_check > * {
-        position: absolute;
-        white-space: nowrap;
-    }
-
-    .sequence_number {
-        text-align: right;
-        font-size: 1.3em;
-    }
-}

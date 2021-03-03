@@ -22,7 +22,10 @@ class AccountPayment(models.Model):
                 pay.check_amount_in_words = False
 
     def _check_fill_line(self, amount_str):
-        return amount_str and (amount_str + ' ').ljust(94, '*') or ''
+        #overwrite odoo core for Ecuador
+        if self.country_code == 'EC':
+            return amount_str and (amount_str + ' ').ljust(120, '*') or ''
+        super(AccountPayment, self)._check_fill_line(amount_str)
     
     def do_print_checks(self):
         #Overwrite Odoo core because validations should be by journal not by company
