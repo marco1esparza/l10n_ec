@@ -22,31 +22,21 @@
 	        	<style type="text/css">
 	        		<t t-esc="o.journal_id.l10n_ec_check_css"/>
 	        	</style>
-	        	<!-- 
-                <div class="row ckec_line_supplier_and_amount">
-                    <div class="col-9 text-left">
-                        <span class="ckec_payee_name" t-esc="page['partner_name']"/>
-                    </div>
-                    <div class="col-3 text-right">
-                        <span class="ckec_amount" t-esc="page['amount']"/>
-                    </div>
-                </div>
-                 -->
-                <div class="row ckec_line_supplier_and_amount">
+                <div class="row paguese_a">
                     <div class="col-9 text-left">
                         <span class="ckec_payee_name" t-esc="page['partner_name']"/>
                     </div>
                 </div>
                 <div class="row text-righ">
-                	<span class="ckec_amount" t-esc="page['amount']"/>
+                	<span class="valor_en_numeros" t-esc="page['amount']"/>
                 </div>
 
-                <div class="row ckec_line_amount_in_words">
+                <div class="row valor_en_letras">
                     <div class="col-10 text-left">
-                        <span class="ckec_amount_in_word" t-esc="page['amount_in_word']"/>
+                    	<span class="ckec_amount_in_word" t-esc="page['amount_in_word']"/>
                     </div>
                 </div>
-                <div class="row ckec_line_city_and_date">
+                <div class="row ciudad_y_fecha">
                     <div class="col-11 text-left">
                         <span class="ckec_city" t-esc="page['city']"></span><span class="ckec_date" t-esc="page['payment_date_ecuador']"/>
                     </div>
