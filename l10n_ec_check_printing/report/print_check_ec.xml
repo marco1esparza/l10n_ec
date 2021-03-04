@@ -9,8 +9,8 @@
                  t-att-data-oe-id="o.id" 
                  t-foreach="o._check_get_pages()" 
                  t-as="page" 
-                 t-attf-class="page article ckec_page {{ o.journal_id.l10n_ec_bank_check_format }}" 
-                 t-attf-style="top: {{ o.journal_id.l10n_ec_check_margin_top }}in; left: {{ o.journal_id.l10n_ec_check_margin_left }}in;">
+                 t-attf-class="page article ckec_page" 
+                 t-attf-style="top: 0in; left: 0in;">
                 <t t-call="l10n_ec_check_printing.ckec_check" />
             </div>
         </t>

@@ -5,21 +5,14 @@
         <template id="assets_common" name="l10n_ec_check_printing pdf assets" inherit_id="web.report_assets_common">
             <xpath expr="." position="inside">
                 <link rel="stylesheet" type="text/scss" href="/l10n_ec_check_printing/static/src/scss/report_check_commons.scss"/>
-                <link rel="stylesheet" type="text/scss" href="/l10n_ec_check_printing/static/src/scss/report_check_pichincha.scss"/>
             </xpath>
         </template>
         <template id="ckec_check">
         	<div class="ckec_check">
-	        	<t t-set="l10n_ec_margin_top" t-value="o.journal_id.l10n_ec_check_margin_top"/>
-	        	<t t-set="l10n_ec_margin_left" t-value="o.journal_id.l10n_ec_check_margin_left"/>
-	        	<!-- permitimos personalización global de los margenes -->
 	        	<style type="text/css">
-	        		.ckec_page {
-	        			padding-top: <t t-esc="l10n_ec_margin_top"/>px;
-	        			margin-left: <t t-esc="l10n_ec_margin_left"/>px;
-	        		}
-	        	</style>
-	        	<style type="text/css">
+					.valor_en_numeros {position: fixed;}
+					.valor_en_letras {position: fixed;}
+					.ciudad_y_fecha {position: fixed;}
 	        		<t t-esc="o.journal_id.l10n_ec_check_css"/>
 	        	</style>
                 <div class="row paguese_a">

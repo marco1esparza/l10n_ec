@@ -33,8 +33,6 @@ class AccountPayment(models.Model):
             return super(AccountPayment, self).do_print_checks()
         if not self.company_id.city:
             raise ValidationError(_("You have to setup a city in your company form, it is needed to print the issuing city on the check."))
-        if not self.journal_id.l10n_ec_bank_check_format:
-            raise ValidationError(_("No exite formato de cheque."))
         return super(AccountPayment, self).do_print_checks()
     
     @api.constrains('check_number', 'journal_id')
