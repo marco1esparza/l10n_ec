@@ -7,7 +7,7 @@
 		<field name="inherit_id" ref="account_check_printing.view_account_journal_form_inherited"/>
 		<field name="arch" type="xml">
 			<xpath expr="//field[@name='check_next_number']" position="after">
-				<field name="l10n_ec_check_css"/>
+				<field name="l10n_ec_check_css" widget="ace"/>
 			</xpath>
 		</field>
 	</record>
