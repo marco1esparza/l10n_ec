@@ -104,7 +104,10 @@ class AccountPayment(models.Model):
     
     l10n_ec_check_beneficiary_name = fields.Char(
         string='Check Beneficiary',
+        tracking=True,
         help='Supplier name to print in check, usefull as sometimes it is required to issue the check to other supplier or to a third party'
         )
-    
+    check_number = fields.Char(
+        tracking=True,
+        )
     
