@@ -1,0 +1,8 @@
+/*
+ *  WARNING : wkhtml2pdf will interpret measurement units according to the total
+ *  width of the document. That means that if an element overflows from the page
+ *  (eg. left: 7.5in; width: 2in;) all the dimensions will be scaled down.
+*/
+.ckec_page {
+	/* TRESCLOUD, por agregar estilos */
+}

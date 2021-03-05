@@ -17,7 +17,8 @@ class AccountChartTemplate(models.Model):
         return res
 
     def _l10n_ec_configure_ecuadorian_withhold(self, companies):
-        for company in companies:
+        ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
+        for company in ecuadorian_companies:
             self = self.with_company(company)
             #Create withhold journals
             new_journals = [

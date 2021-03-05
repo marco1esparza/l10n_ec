@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="l10n_ec_print_pre_numbered_checks_view" model="ir.ui.view">
+		<field name="name">l10n_ec.print.pre.numbered.checks.view</field>
+		<field name="model">print.prenumbered.checks</field>
+		<field name="inherit_id" ref="account_check_printing.print_pre_numbered_checks_view"/>
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='next_check_number']" position="after">
+				<field name="l10n_ec_check_beneficiary_name" attrs="{'invisible': [('l10n_ec_singlepayment', '=', False)]}"/>
+				<field name="l10n_ec_singlepayment" invisible="1"/>
+				
+			</xpath>
+		</field>
+	</record>
+	
+</odoo>

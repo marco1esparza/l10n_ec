@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="l10n_ec_account_payment_form_check" model="ir.ui.view">
+            <field name="name">l10n_ec.account.payment.form.check</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='ref']" position="after">
+                    <field name="l10n_ec_check_beneficiary_name" attrs="{'invisible': ['|', ('payment_method_code', '!=', 'check_printing'), ('check_number', '=', False)]}"/>
+                </xpath>
+            </field>
+        </record>
+
+</odoo>

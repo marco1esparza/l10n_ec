@@ -3,9 +3,13 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.misc import format_date
 
 from odoo.addons.l10n_ec_edi.models.amount_to_words import l10n_ec_amount_to_words
 
+import textwrap
+
+AMOUNT_IN_WORDS_LENGHT = 180 #numero de caracteres a usar para imprimir el monto en palabras en el cheque
 
 class AccountPayment(models.Model):
     _inherit = "account.payment"
@@ -20,18 +24,28 @@ class AccountPayment(models.Model):
                 pay.check_amount_in_words = l10n_ec_amount_to_words(pay.amount)
             else:
                 pay.check_amount_in_words = False
+
+    def _check_fill_line(self, amount_str):
+        #overwrite odoo core for Ecuador
+        if self.country_code == 'EC':
+            #parametros
+            amount_str = amount_str or ''
+            length = AMOUNT_IN_WORDS_LENGHT #maximum number of characters to print
+            #relleno con " *"
+            amount_str = amount_str.ljust(length, '*')
+            amount_str = amount_str.replace("**", " *")
+            amount_str = amount_str.replace("**", " *") #a veces queda un ultimo **
+            return amount_str
+        super(AccountPayment, self)._check_fill_line(amount_str)
     
     def do_print_checks(self):
-        #Overwrite Odoo core because validations should be by journal not by company
-        if not self.country_code == 'EC':
+        #Overwrite Odoo core because validations should be by journal not by company 
+        if not self[0].country_code == 'EC':
+            #odoo core ya valida q sean del mismo diario, asi que todas son de la misma compañia y por ende del mismo pais
             return super(AccountPayment, self).do_print_checks()
-        if not self.company_id.city:
+        if not self[0].company_id.city:
             raise ValidationError(_("You have to setup a city in your company form, it is needed to print the issuing city on the check."))
-        check_layout = self.journal_id.l10n_ec_check_printing_layout_id
-        if not check_layout:
-            raise ValidationError(_("Something went wrong with Check Layout, please select another layout in Invoicing/Configuration/Journals and try again."))
-        self.write({'is_move_sent': True})
-        return check_layout.report_action(self)
+        return super(AccountPayment, self).do_print_checks()
     
     @api.constrains('check_number', 'journal_id')
     def _constrains_check_number(self):
@@ -47,4 +61,53 @@ class AccountPayment(models.Model):
                 if not pay.check_number.isnumeric():
                     raise ValidationError(_('Ecuadorian check numbers must be a positive number'))
         return super(AccountPayment, self)._constrains_check_number()
+
+    def print_checks(self):
+        #ask the user for the check beneficiary name
+        res = super(AccountPayment, self).print_checks()
+        if not self[0].journal_id.check_manual_sequencing:
+            if len(self) == 1:
+                #solo cuando es un cheque individual pregunto por el beneficiario
+                res['context']['default_l10n_ec_check_beneficiary_name'] = self.partner_id.commercial_partner_id.name
+            
+            #FIX until Odoo one beautifull day accepts PR https://github.com/odoo/odoo/pull/67303/files
+            self.env.cr.execute("""
+                  SELECT payment.id
+                    FROM account_payment payment
+                    JOIN account_move move ON movE.id = payment.move_id
+                   WHERE journal_id = %(journal_id)s
+                     AND check_number IS NOT NULL
+                ORDER BY check_number::INTEGER DESC
+                   LIMIT 1
+            """, {
+                'journal_id': self.journal_id.id,
+            })
+            last_printed_check = self.browse(self.env.cr.fetchone())
+            number_len = len(last_printed_check.check_number or "")
+            next_check_number = '%0{}d'.format(number_len) % (int(last_printed_check.check_number) + 1)
+            res['context']['default_next_check_number'] = next_check_number
+            #END OF FIX
+            
+        return res
+
+    def _check_build_page_info(self, i, p):
+        page = super(AccountPayment, self)._check_build_page_info(i, p)
+        amount_in_word = page['amount_in_word']
+        lines = textwrap.wrap(amount_in_word, int(AMOUNT_IN_WORDS_LENGHT/2))
+        page.update({
+            'city_and_date': self.company_id.city + ', ' + format_date(self.env, self.date, date_format='yyyy-MM-dd'),
+            'partner_name': self.l10n_ec_check_beneficiary_name or self.commercial_partner_id.name,
+            'amount_line1': lines[0],
+            'amount_line2': lines[1],
+        })
+        return page
+    
+    l10n_ec_check_beneficiary_name = fields.Char(
+        string='Check Beneficiary',
+        tracking=True,
+        help='Supplier name to print in check, usefull as sometimes it is required to issue the check to other supplier or to a third party'
+        )
+    check_number = fields.Char(
+        tracking=True,
+        )
     

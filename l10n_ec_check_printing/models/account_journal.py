@@ -7,29 +7,44 @@ from odoo.exceptions import ValidationError
 
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
-
+        
+    @api.model
+    def default_l10n_ec_check_css(self):
+        s = (
+            "/* INDIQUE LAS CORDENADAS \n"
+            "DE LOS ELEMENTOS DEL CHEQUE */\n"
+            ".paguese_a {\n"
+            "    top: 1.7cm;\n"
+            "    left: 2.3cm;\n"
+            "}\n"
+            ".valor_en_numeros {\n"
+            "    top: 1.7cm;\n"
+            "    right: 1.0cm;\n"
+            "}\n"
+            ".valor_en_letras_linea1 {\n"
+            "    top: 2.6cm;\n"
+            "    left: 2.3cm;\n"
+            "}\n"
+            ".valor_en_letras_linea2 {\n"
+            "    top: 3.3cm;\n"
+            "    left: 1.0cm;\n"
+            "}\n"
+            ".ciudad_y_fecha {\n"
+            "    top: 3.9cm;\n"
+            "    left: 1.0cm;\n"
+            "}\n"
+            )
+        return s
+    
     @api.constrains('check_manual_sequencing')
     def _constrains_check_manual_sequencing(self):
         #In Ecuador never set to true the field check_manual_sequencing
         if self.check_manual_sequencing:
             raise ValidationError(_('Ecuador check numbers are pre-printed, you should uncheck the manual numbering checkbox'))
     
-    l10n_ec_check_printing_layout_id = fields.Many2one(
-        'ir.actions.report',
-        string='Name Report',
-        domain="[('model','=','account.payment')]",
-        help='Report to use when printing checks.'
-        )
-    l10n_ec_check_margin_top = fields.Float(
-        related='l10n_ec_check_printing_layout_id.paperformat_id.margin_top',
-        readonly=False,
-        track_visibility='onchange',
-        help='Este campo permite modificar el margen superior del reporte, ingrese valores positivos en milimetros.'
-        )
-    l10n_ec_check_margin_left = fields.Float(
-        related='l10n_ec_check_printing_layout_id.paperformat_id.margin_left',
-        readonly=False,
-        track_visibility='onchange',
-        help='Este campo permite modificar el margen izquierdo del reporte, ingrese valores positivos en milimetros.'
+    l10n_ec_check_css = fields.Text(
+        string='Check Format',
+        default=default_l10n_ec_check_css,
+        help="CSS to customize check layout printing",
         )
     
