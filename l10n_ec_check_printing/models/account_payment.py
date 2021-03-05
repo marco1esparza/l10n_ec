@@ -3,9 +3,13 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.misc import format_date
 
 from odoo.addons.l10n_ec_edi.models.amount_to_words import l10n_ec_amount_to_words
 
+import textwrap
+
+AMOUNT_IN_WORDS_LENGHT = 180 #numero de caracteres a usar para imprimir el monto en palabras en el cheque
 
 class AccountPayment(models.Model):
     _inherit = "account.payment"
@@ -26,7 +30,7 @@ class AccountPayment(models.Model):
         if self.country_code == 'EC':
             #parametros
             amount_str = amount_str or ''
-            length = 150 #maximum number of characters to print
+            length = AMOUNT_IN_WORDS_LENGHT #maximum number of characters to print
             #relleno con " *"
             amount_str = amount_str.ljust(length, '*')
             amount_str = amount_str.replace("**", " *")
@@ -86,6 +90,18 @@ class AccountPayment(models.Model):
             
         return res
 
+    def _check_build_page_info(self, i, p):
+        page = super(AccountPayment, self)._check_build_page_info(i, p)
+        amount_in_word = page['amount_in_word']
+        lines = textwrap.wrap(amount_in_word, int(AMOUNT_IN_WORDS_LENGHT/2))
+        page.update({
+            'city_and_date': self.company_id.city + ', ' + format_date(self.env, self.date, date_format='yyyy-MM-dd'),
+            'partner_name': self.l10n_ec_check_beneficiary_name or self.commercial_partner_id.name,
+            'amount_line1': lines[0],
+            'amount_line2': lines[1],
+        })
+        return page
+    
     l10n_ec_check_beneficiary_name = fields.Char(
         string='Check Beneficiary',
         help='Supplier name to print in check, usefull as sometimes it is required to issue the check to other supplier or to a third party'

@@ -11,13 +11,15 @@
 	        	<style type="text/css">
 					.paguese_a {position: absolute;}
 					.valor_en_numeros {position: fixed;}
-					.valor_en_letras {position: fixed;}
+					.valor_en_letras_linea1 {position: fixed;}
+					.valor_en_letras_linea2 {position: fixed;}
 					.ciudad_y_fecha {position: fixed;}
 	        		<t t-esc="o.journal_id.l10n_ec_check_css"/>
 	        	</style>
 		        <div class="paguese_a" t-esc="page['partner_name']"/>
 		        <div class="valor_en_numeros" t-esc="page['amount']"/>
-		        <div class="valor_en_letras" t-esc="page['amount_in_word']"/>
+		        <div class="valor_en_letras_linea1" t-esc="page['amount_line1']"/>
+		        <div class="valor_en_letras_linea2" t-esc="page['amount_line2']"/>
 		        <div class="ciudad_y_fecha" t-esc="page['city_and_date']"/>
             </div>
         </template>
