@@ -10,8 +10,7 @@ class report_print_check(models.Model):
     def _check_build_page_info(self, i, p):
         page = super(report_print_check, self)._check_build_page_info(i, p)
         page.update({
-            'payment_date_ecuador': format_date(self.env, self.date, date_format='yyyy-MM-dd'),
-            'city': self.company_id.city + ', ',
+            'city_and_date': self.company_id.city + ', ' + format_date(self.env, self.date, date_format='yyyy-MM-dd'),
             'partner_name': self.l10n_ec_check_beneficiary_name or self.commercial_partner_id.name,
         })
         return page

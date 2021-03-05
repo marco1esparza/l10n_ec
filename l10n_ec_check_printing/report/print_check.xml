@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <template id="assets_common" name="l10n_ec_check_printing pdf assets" inherit_id="web.report_assets_common">
             <xpath expr="." position="inside">
                 <link rel="stylesheet" type="text/scss" href="/l10n_ec_check_printing/static/src/scss/report_check_commons.scss"/>
@@ -16,21 +15,10 @@
 					.ciudad_y_fecha {position: fixed;}
 	        		<t t-esc="o.journal_id.l10n_ec_check_css"/>
 	        	</style>
-                <div class="row paguese_a">
-                	<span class="ckec_payee_name" t-esc="page['partner_name']"/>
-                </div>
-                <div class="row text-righ">
-                	<span class="valor_en_numeros" t-esc="page['amount']"/>
-                </div>
-
-                <div class="row valor_en_letras">
-                    <div class="col-10 text-left">
-                    	<span class="ckec_amount_in_word" t-esc="page['amount_in_word']"/>
-                    </div>
-                </div>
-                <div class="row ciudad_y_fecha">
-                	<span class="ckec_city" t-esc="page['city']"></span><span class="ckec_date" t-esc="page['payment_date_ecuador']"/>
-                </div>
+		        <div class="paguese_a" t-esc="page['partner_name']"/>
+		        <div class="valor_en_numeros" t-esc="page['amount']"/>
+		        <div class="valor_en_letras" t-esc="page['amount_in_word']"/>
+		        <div class="ciudad_y_fecha" t-esc="page['city_and_date']"/>
             </div>
         </template>
 
