@@ -65,6 +65,25 @@ class AccountPayment(models.Model):
             if len(self) == 1:
                 #solo cuando es un cheque individual pregunto por el beneficiario
                 res['context']['default_l10n_ec_check_beneficiary_name'] = self.partner_id.commercial_partner_id.name
+            
+            #FIX until Odoo one beautifull day accepts PR https://github.com/odoo/odoo/pull/67303/files
+            self.env.cr.execute("""
+                  SELECT payment.id
+                    FROM account_payment payment
+                    JOIN account_move move ON movE.id = payment.move_id
+                   WHERE journal_id = %(journal_id)s
+                     AND check_number IS NOT NULL
+                ORDER BY check_number::INTEGER DESC
+                   LIMIT 1
+            """, {
+                'journal_id': self.journal_id.id,
+            })
+            last_printed_check = self.browse(self.env.cr.fetchone())
+            number_len = len(last_printed_check.check_number or "")
+            next_check_number = '%0{}d'.format(number_len) % (int(last_printed_check.check_number) + 1)
+            res['context']['default_next_check_number'] = next_check_number
+            #END OF FIX
+            
         return res
 
     l10n_ec_check_beneficiary_name = fields.Char(
