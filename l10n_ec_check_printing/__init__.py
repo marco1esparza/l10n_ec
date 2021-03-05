@@ -5,7 +5,6 @@ from . import wizard
 from . import report
 
 from odoo import api, SUPERUSER_ID
-from lxml.html.builder import TR
 
 def _post_install_hook_configure_ecuadorian_checks(cr, registry):
     '''

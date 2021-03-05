@@ -14,7 +14,7 @@ class AccountJournal(models.Model):
             "/* INDIQUE LAS CORDENADAS \n"
             "DE LOS ELEMENTOS DEL CHEQUE */\n"
             ".paguese_a {\n"
-            "    padding-top: 30px;\n"
+            "    top: 30px;\n"
             "    left: 0px;\n"
             "}\n"
             ".valor_en_numeros {\n"

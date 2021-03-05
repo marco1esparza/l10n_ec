@@ -22,4 +22,7 @@ def setup_account_check_beneficiary_name(env):
     #asume que el numero de cheque esta correctamente llenado
     for payment in env['account.payment'].search([('check_number','!=',False)]):
         payment.l10n_ec_check_beneficiary_name = payment.partner_id.commercial_partner_id.name
-    
+
+
+
+
