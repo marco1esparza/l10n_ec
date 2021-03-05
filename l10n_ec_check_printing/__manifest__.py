@@ -13,10 +13,15 @@ can specify the location of each field for other banks, in this way it fits all 
     'website': 'https://www.trescloud.com',
     'depends': ['account_check_printing', 'l10n_ec_edi'],
     'data': [
+        #data
         'data/ec_check_printing.xml',
+        #reports
         'report/print_check.xml',
         'report/print_check_ec.xml',
+        #views
         'views/account_journal_view.xml',
+        'views/account_payment_views.xml',
+        'wizard/print_prenumbered_checks_view.xml',
     ],
     'installable': True,
     'auto_install': True,

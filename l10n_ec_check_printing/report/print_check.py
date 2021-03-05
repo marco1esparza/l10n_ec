@@ -12,6 +12,6 @@ class report_print_check(models.Model):
         page.update({
             'payment_date_ecuador': format_date(self.env, self.date, date_format='yyyy-MM-dd'),
             'city': self.company_id.city + ', ',
-            'partner_name': self.commercial_partner_id.name,
+            'partner_name': self.l10n_ec_check_beneficiary_name or self.commercial_partner_id.name,
         })
         return page
