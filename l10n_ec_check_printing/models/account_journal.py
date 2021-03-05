@@ -12,7 +12,7 @@ class AccountJournal(models.Model):
     def default_l10n_ec_check_css(self):
         s = (
             "/* INDIQUE LAS CORDENADAS \n"
-            "DE LOS ELEMENTOS DEL CHEQUE */ \n"
+            "DE LOS ELEMENTOS DEL CHEQUE */\n"
             ".paguese_a {\n"
             "    padding-top: 30px;\n"
             "    left: 0px;\n"
@@ -20,18 +20,15 @@ class AccountJournal(models.Model):
             ".valor_en_numeros {\n"
             "    top: 20px !important;\n"
             "    right: 30px;\n"
-            "    position: fixed;\n"
             "}\n"
             ".valor_en_letras {\n"
             "    top: 50px;\n"
             "    left: 0px;\n"
-            "    /*line-height: 100%;*/ \n"
-            "    position: fixed;\n"
+            "    /*line-height: 100%;*/\n"
             "}\n"
             ".ciudad_y_fecha {\n"
             "    top: 90px;\n"
             "    left: 10px;\n"
-            "    position: fixed;\n"
             "}\n"
             )
         return s

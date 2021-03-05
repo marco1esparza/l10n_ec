@@ -24,7 +24,14 @@ class AccountPayment(models.Model):
     def _check_fill_line(self, amount_str):
         #overwrite odoo core for Ecuador
         if self.country_code == 'EC':
-            return amount_str and (amount_str + ' ').ljust(120, '*') or ''
+            #parametros
+            amount_str = amount_str or ''
+            length = 150 #maximum number of characters to print
+            #relleno con " *"
+            amount_str = amount_str.ljust(length, '*')
+            amount_str = amount_str.replace("**", " *")
+            amount_str = amount_str.replace("**", " *") #a veces queda un ultimo **
+            return amount_str
         super(AccountPayment, self)._check_fill_line(amount_str)
     
     def do_print_checks(self):

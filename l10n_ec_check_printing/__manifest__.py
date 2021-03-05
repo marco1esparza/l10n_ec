@@ -1,22 +1,14 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Ecuadorian Checks Layout',
-    'version': '1.0',
+    'version': '1.1',
     'author': 'TRESCLOUD',
     'category': 'Accounting/Localizations/Check',
     'summary': 'Print EC Checks',
     'description': """
-This module allows to print your payments on pre-printed checks.
-You can configure the output (specific bank paper format, etc.) in each bank journal, and manage the
-checks numbering (if you use pre-printed checks without numbers) in journal settings.
-
-Supported formats
------------------
-- Banco Pichincha #1
-- Banco Pichincha #1
-- Banco Produbanco
-- Banco Internacional
-- Banco Pacifico
+This module allows to print your payments on pre-printed checks for all banks of Ecuador
+A sample check layout is included that fits most Banco del Pinchincha checks, and the user
+can specify the location of each field for other banks, in this way it fits all banks of Ecuador
     """,
     'website': 'https://www.trescloud.com',
     'depends': ['account_check_printing', 'l10n_ec_edi'],
@@ -29,4 +21,5 @@ Supported formats
     'installable': True,
     'auto_install': True,
     'license': 'OEEL-1',
+    'post_init_hook': '_post_install_hook_configure_ecuadorian_checks',
 }

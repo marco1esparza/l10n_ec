@@ -10,15 +10,14 @@
         <template id="ckec_check">
         	<div class="ckec_check">
 	        	<style type="text/css">
+					.paguese_a {position: absolute;}
 					.valor_en_numeros {position: fixed;}
 					.valor_en_letras {position: fixed;}
 					.ciudad_y_fecha {position: fixed;}
 	        		<t t-esc="o.journal_id.l10n_ec_check_css"/>
 	        	</style>
                 <div class="row paguese_a">
-                    <div class="col-9 text-left">
-                        <span class="ckec_payee_name" t-esc="page['partner_name']"/>
-                    </div>
+                	<span class="ckec_payee_name" t-esc="page['partner_name']"/>
                 </div>
                 <div class="row text-righ">
                 	<span class="valor_en_numeros" t-esc="page['amount']"/>
@@ -30,9 +29,7 @@
                     </div>
                 </div>
                 <div class="row ciudad_y_fecha">
-                    <div class="col-11 text-left">
-                        <span class="ckec_city" t-esc="page['city']"></span><span class="ckec_date" t-esc="page['payment_date_ecuador']"/>
-                    </div>
+                	<span class="ckec_city" t-esc="page['city']"></span><span class="ckec_date" t-esc="page['payment_date_ecuador']"/>
                 </div>
             </div>
         </template>

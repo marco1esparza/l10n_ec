@@ -13,12 +13,13 @@ class AccountChartTemplate(models.Model):
         Override to configure ecuadorian waybill data.
         """
         res = super()._load(sale_tax_rate, purchase_tax_rate, company)
-        self._l10n_ec_configure_ecuadorian_withhold(company)
+        self._l10n_ec_configure_ecuadorian_checks(company)
         return res
 
-    def _l10n_ec_configure_ecuadorian_withhold(self, companies):
+    def _l10n_ec_configure_ecuadorian_checks(self, companies):
         ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
         for company in ecuadorian_companies:
+            
             self = self.with_company(company)
             #Create withhold journals
             new_journals = [
