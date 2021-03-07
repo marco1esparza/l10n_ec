@@ -33,6 +33,9 @@
         'views/l10n_ec_sri_printer_point_view.xml',
         #wizard
         'wizard/account_move_reversal_view.xml',
+        #Reports
+        'reports/report_account_move_templates.xml',
+        'reports/report_payment_receipt_templates.xml',
     ],
     'installable': True,
     'auto_install': True,

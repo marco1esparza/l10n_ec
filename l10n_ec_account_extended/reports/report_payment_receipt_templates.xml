@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<template id="account.report_payment_receipt_document">
+	    <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context(lang=lang)"/>
+            <div class="page">
+                <h3><strong>Recibo de Pago: <span t-field="o.name"/></strong></h3>
+                <div class="row mt64">
+                    <div class="col-6" t-if="o.date">
+                        <strong>Payment Date: </strong> <span t-field="o.date"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6" t-if="o.partner_type">
+                        <t t-if="o.partner_type == 'customer'">
+                            <strong>Customer: </strong>
+                        </t>
+                        <t t-if="o.partner_type == 'supplier'">
+                            <strong>Vendor: </strong>
+                        </t><span t-field="o.partner_id"/>
+                    </div>
+                    <div class="col-6" t-if="o.payment_method_id">
+                        <strong>Payment Method: </strong><span t-field="o.payment_method_id.name"/>
+                    </div>
+                </div>
+                <div class="row mb64">
+                    <div class="col-6" t-if="o.amount">
+                        <strong>Payment Amount: </strong><span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                     </div>
+                    <div class="col-6" t-if="o.ref">
+                        <strong>Memo: </strong><span t-field="o.ref"/>
+                     </div>
+                </div>
+               	<t t-if="o.payment_method_id.code == 'check_printing'">
+					<div class="row mb64">
+	                    <div class="col-6" t-if="o.check_number">
+	                        <strong>Nro cheque: </strong><span t-field="o.check_number"/>
+	                     </div>
+	                    <div class="col-6" t-if="o.l10n_ec_check_beneficiary_name">
+	                        <strong>Beneficiario: </strong><span t-field="o.l10n_ec_check_beneficiary_name"/>
+	                     </div>
+                	</div>
+                </t>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th><span>Invoice Date</span></th>
+                            <th><span>Invoice Number</span></th>
+                            <th><span>Reference</span></th>
+                            <th class="text-right"><span>Original Amount</span></th>
+                            <th class="text-right"><span>Amount Paid</span></th>
+                            <th class="text-right"><span>Balance</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="o.move_id._get_reconciled_invoices_partials()" t-as="rec">
+                            <t t-set="amount" t-value="rec[1]"/>
+                            <t t-set="inv" t-value="rec[2].move_id"/>
+                            <td><span t-field="inv.invoice_date"/></td>
+                            <td><span t-field="inv.name"/></td>
+                            <td><span t-field="inv.ref"/></td>
+                            <td class="text-right"><span t-field="inv.amount_total"/></td>
+                            <td class="text-right"><span t-esc="amount" t-options="{'widget': 'monetary', 'display_currency': inv.currency_id}"/></td>
+                            <td class="text-right"><span t-field="inv.amount_residual"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table style="width:100%;">
+                	<tr class="text-left">
+                    	<td style="width:33%;"><br/><br/>_______________________________</td>
+                    	<td style="width:33%;"><br/><br/>_______________________________</td>
+                    	<td style="width:33%;"><br/><br/>_______________________________</td>
+                    </tr>
+                    <tr class="text-left">
+                    	<td>Contabilizado por</td>
+                    	<td>Revisado por</td>
+                    	<td>Autorizado por</td>
+                    </tr>
+                    <tr class="text-left">
+                    	<td>Nombre:</td>
+                    	<td>Nombre:</td>
+                    	<td>Nombre:</td>
+                    </tr>
+                    <tr class="text-left">
+                    	<td>Identificación:</td>
+                    	<td>Identificación:</td>
+                    	<td>Identificación:</td>
+                    </tr>
+                </table>
+            </div>
+        </t>
+	</template>
+	
+    <template id="report_payment_account_move">
+        <t t-call="web.html_container">
+            <t t-foreach="docs.move_id" t-as="o">
+                <t t-call="l10n_ec_account_extended.report_account_move_document" t-lang="o.write_uid.lang"/>
+            </t>
+        </t>
+    </template>
+    
+    <report id="action_payment_account_move_report"
+	    string="Comprobante de asiento"
+	    model="account.payment"
+	    report_type="qweb-pdf"
+	    name="l10n_ec_account_extended.report_payment_account_move"
+	    file="l10n_ec_account_extended.report_payment_account_move"/>    
+
+</odoo>
