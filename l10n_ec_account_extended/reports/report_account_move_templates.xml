@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_account_move_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context({'lang':o.write_uid.lang})"/>
+       		<div class="page">
+            	<table style="width:100%;margin-top:-5px;border: None;">
+                    <tr>
+                        <th class="text-left"><strong><h4><span t-field="o.name"/></h4></strong></th>
+                    </tr>
+                </table>
+                <table style="width:100%">
+                    <tr>
+                        <th class="text-left"><strong><h4>COMPROBANTE DE ASIENTO</h4></strong></th>
+                    </tr>
+                </table>
+                <table class="table table-sm mb32" style="font-size:12px;">
+                    <tr>
+                        <td style="width:20%;"><strong>Cliente/Proveedor:</strong></td>
+                        <td><span t-field="o.partner_id.name"/></td>
+                        <td style="width:20%;"><strong>Fecha:</strong></td>
+                        <td><span t-field="o.date"/></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Referencia:</strong></td>
+                        <td><span t-field="o.ref"/></td>
+                        <td><strong>Fecha de vencimiento:</strong></td>
+                        <td><span t-if="o.line_ids"><span t-field="o.line_ids[0].date_maturity"/></span></td>
+                    </tr>
+                    <t t-if="o.payment_id">
+                    	<t t-if="o.payment_id.payment_method_id.code == 'check_printing'">
+					        <tr>
+		                        <td><strong>Nro cheque:</strong></td>
+		                        <td><span t-field="o.payment_id.check_number"/></td>
+		                        <td><strong>Beneficiario:</strong></td>
+		                        <td><span t-field="o.payment_id.l10n_ec_check_beneficiary_name"/></td>
+		                    </tr>
+	                    </t>
+				    </t>
+                </table>
+                <table class="table table-sm mb32" style="font-size:12px;">
+                    <thead>
+                    	<tr class="text-left">
+                            <th style="width:30%;">Cuenta</th>
+                            <th style="width:15%;">Empresa</th>
+                            <th style="width:15%;">Descripción</th>
+                            <th style="width:10%;">Cuenta analítica</th>
+                            <th style="width:5%;">Debe</th>
+                            <th style="width:5%;">Haber</th>
+                            <th style="width:5%;" groups="base.group_multi_currency">Monto moneda</th>
+						    <th style="width:15%;">Producto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+						<tr class="text-left" t-foreach="o.line_ids" t-as="line">
+							<td><span t-esc="line.account_id.name_get()[0][1]"/></td>
+							<td><span t-field="line.partner_id.name"/></td>
+							<td><span t-field="line.name"/></td>
+							<td><span t-field="line.analytic_account_id.name"/></td>
+							<td class="text-right"><span t-esc="line.debit" t-options='{"widget":"monetary", "display_currency":o.company_id.currency_id}'/></td>
+			                <td class="text-right"><span t-esc="line.credit" t-options='{"widget":"monetary", "display_currency":o.company_id.currency_id}'/></td> 
+			                <td class="text-right" groups="base.group_multi_currency"><span t-esc="line.amount_currency" t-options='{"widget":"monetary", "display_currency":o.company_id.currency_id}'/></td>
+			                <td><span t-if="line.product_id"><span t-field="line.quantity"/> - <span t-esc="line.product_id.name_get()[0][1]"/></span></td>
+			            </tr>
+	                    <tr class="text-left">
+                        	<td></td>
+                        	<td></td>
+                        	<td></td>
+                        	<td><strong>TOTAL:</strong></td>
+                        	<td class="text-right"><strong><span t-esc="sum(line.debit for line in o.line_ids)"
+								t-options='{"widget":"monetary", "display_currency":o.company_id.currency_id}'/></strong></td>
+							<td class="text-right"><strong><span t-esc="sum(line.credit for line in o.line_ids)"
+								t-options='{"widget":"monetary", "display_currency":o.company_id.currency_id}'/></strong></td>
+							<td class="text-right" groups="base.group_multi_currency"><strong><span t-esc="sum(line.amount_currency for line in o.line_ids)"
+								t-options='{"widget":"monetary", "display_currency":o.company_id.currency_id}'/></strong></td>
+							<td></td>
+			            </tr>
+                    </tbody>
+                </table>
+                <table style="width:100%; font-size:12px;">
+                	<tr class="text-left">
+                    	<td style="width:33%;"><br/><br/>_______________________________</td>
+                    	<td style="width:33%;"><br/><br/>_______________________________</td>
+                    	<td style="width:33%;"><br/><br/>_______________________________</td>
+                    </tr>
+                    <tr class="text-left">
+                    	<td>Contabilizado por</td>
+                    	<td>Revisado por</td>
+                    	<td>Autorizado por</td>
+                    </tr>
+                    <tr class="text-left">
+                    	<td>Nombre:</td>
+                    	<td>Nombre:</td>
+                    	<td>Nombre:</td>
+                    </tr>
+                    <tr class="text-left">
+                    	<td>Identificación:</td>
+                    	<td>Identificación:</td>
+                    	<td>Identificación:</td>
+                    </tr>
+                </table>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_account_move">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="l10n_ec_account_extended.report_account_move_document" t-lang="o.write_uid.lang"/>
+            </t>
+        </t>
+    </template>
+    
+    <report id="action_account_move_report"
+	    string="Comprobante de asiento"
+	    model="account.move"
+	    report_type="qweb-pdf"
+	    name="l10n_ec_account_extended.report_account_move"
+	    file="l10n_ec_account_extended.report_account_move"/>
+    
+</odoo>
