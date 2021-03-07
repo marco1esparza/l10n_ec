@@ -15,7 +15,7 @@
                         <th class="text-left"><strong><h4>COMPROBANTE DE ASIENTO</h4></strong></th>
                     </tr>
                 </table>
-                <table class="table table-sm mb32" style="font-size:12px;">
+                <table class="table table-sm mb32" style="font-size:10px;">
                     <tr>
                         <td style="width:20%;"><strong>Cliente/Proveedor:</strong></td>
                         <td><span t-field="o.partner_id.name"/></td>
@@ -39,12 +39,12 @@
 	                    </t>
 				    </t>
                 </table>
-                <table class="table table-sm mb32" style="font-size:12px;">
+                <table class="table table-sm mb32" style="font-size:10px;">
                     <thead>
                     	<tr class="text-left">
-                            <th style="width:30%;">Cuenta</th>
+                            <th style="width:15%;">Cuenta</th>
                             <th style="width:15%;">Empresa</th>
-                            <th style="width:15%;">Descripción</th>
+                            <th style="width:30%;">Descripción</th>
                             <th style="width:10%;">Cuenta analítica</th>
                             <th style="width:5%;">Debe</th>
                             <th style="width:5%;">Haber</th>
@@ -78,7 +78,7 @@
 			            </tr>
                     </tbody>
                 </table>
-                <table style="width:100%; font-size:12px;">
+                <table style="width:100%; font-size:10px;">
                 	<tr class="text-left">
                     	<td style="width:33%;"><br/><br/>_______________________________</td>
                     	<td style="width:33%;"><br/><br/>_______________________________</td>
