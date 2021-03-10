@@ -284,7 +284,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             ('state', '=', 'posted'),
             ('l10n_latam_document_type_id.code', 'in', _LOCAL_PURCHASE_DOCUMENT_CODES),
             ('invoice_date','>=', self.date_start),
-            ('invoice_date','<=', self.date_finish)
+            ('invoice_date','<=', self.date_finish),
+            ('company_id','=',self.company_id.id)
         ])
         #TODO: evaluar crear otro tipo de documento para las compras de servicios al extranjero
         foreign_purchase_invoice_ids = account_move_obj.search([
@@ -293,7 +294,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             ('l10n_latam_document_type_id.code', 'in', _FOREIGN_PURCHASE_DOCUMENT_CODES),
             ('l10n_ec_sri_tax_support_id.code', 'not in', ['06','07']), #no se reportan importaciones de inventario
             ('invoice_date','>=', self.date_start),
-            ('invoice_date','<=', self.date_finish)
+            ('invoice_date','<=', self.date_finish),
+            ('company_id','=',self.company_id.id)
         ])
         purchase_invoice_ids = local_purchase_invoice_ids + foreign_purchase_invoice_ids
         last_time = tm()
@@ -789,6 +791,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             ('l10n_latam_document_type_id.code', 'in', _SALE_DOCUMENT_CODES),
             ('invoice_date','>=', self.date_start),
             ('invoice_date','<=', self.date_finish),
+            ('company_id','=',self.company_id.id),
             '|',('fiscal_position_id', 'not in', [self.env.ref('l10n_ec.fp_foreing_company_exports').id, self.env.ref('l10n_ec.fp_foreing_person_exports').id]),
             ('fiscal_position_id', '=', False)
         ], order='partner_id, l10n_latam_document_type_id, invoice_date'))        
@@ -954,7 +957,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             ('state', '=', 'cancel'),
             ('l10n_latam_document_type_id.code', 'in', _SALE_DOCUMENT_CODES),
             ('invoice_date','>=', self.date_start),
-            ('invoice_date','<=', self.date_finish)
+            ('invoice_date','<=', self.date_finish),
+            ('company_id','=',self.company_id.id)
         ])
         void_withholds = self.env['account.move'].sudo().search([
             ('move_type', 'in', ['entry']),
@@ -962,7 +966,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             ('l10n_latam_document_type_id.code', 'in', _WITHHOLD_CODES),
             ('l10n_ec_withhold_type', 'in', ['in_withhold']),
             ('invoice_date','>=', self.date_start),
-            ('invoice_date','<=', self.date_finish)
+            ('invoice_date','<=', self.date_finish),
+            ('company_id','=',self.company_id.id)
         ])
 #         #TODO jm: implementar guias de remision en v15
 #         void_deliveries = self.env['stock.picking'].sudo().search([
@@ -1218,7 +1223,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             ('state', '=', 'posted'),
             ('l10n_latam_document_type_id.code', 'in', _SALE_DOCUMENT_CODES),
             ('invoice_date','>=', self.date_start),
-            ('invoice_date','<=', self.date_finish)
+            ('invoice_date','<=', self.date_finish),
+            ('company_id','=',self.company_id.id)
         ])
         for invoice in invoices:
             manual = True
