@@ -12,9 +12,8 @@ def migrate(env, version):
 
 @openupgrade.logging()
 def setup_account_check_printing_layout(env):
-    #Crea el impuesto 351 como copia del 346 para microempresas, y setea valores correspondientes
-    for company in env['res.company'].search([('country_code','=','EC')]):
-        company.account_check_printing_layout = 'l10n_ec_check_printing.action_print_check_ec'
+    companies = env['res.company'].search([])
+    env['account.chart.template']._l10n_ec_configure_ecuadorian_checks(companies)
 
 @openupgrade.logging()
 def setup_account_check_beneficiary_name(env):
