@@ -315,8 +315,8 @@ class AccountMove(models.Model):
         #l10n_latam_document_type_id
         if self.move_type in ['out_invoice','out_refund','in_invoice','in_refund']:
             l10n_ec_type_filter = self.move_type
-        elif self.withhold_type:
-            l10n_ec_type_filter = self.withhold_type
+        elif self.l10n_ec_withhold_type:
+            l10n_ec_type_filter = self.l10n_ec_withhold_type
         else:
             raise #nunca deberia caer aquí, problema con tipos de documentos
         l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
