@@ -54,8 +54,14 @@ class AccountTaxReportWizard(models.TransientModel):
                 t.id as tax_id,
                 t.tax_group_id,
                 t.name as taxname,
-                abs(ait.tax_base_amount) as base,
-                abs(ait.balance) as amount,
+                case
+                    when move_type='in_refund' then ait.tax_base_amount *-1
+                    when move_type!='in_refund' then abs(ait.tax_base_amount)
+                end as base,
+                case
+                    when move_type='in_refund' then ait.balance
+                    when move_type!='in_refund' then abs(ait.balance)
+                end as amount,
                 ait.account_id,
                 abs(t.amount) as perc
             from account_move ai
