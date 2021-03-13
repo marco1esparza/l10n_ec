@@ -9,7 +9,7 @@ from odoo.addons.l10n_ec_edi.models.amount_to_words import l10n_ec_amount_to_wor
 
 import textwrap
 
-AMOUNT_IN_WORDS_LENGHT = 152 #numero de caracteres a usar para imprimir el monto en palabras en el cheque
+AMOUNT_IN_WORDS_LENGHT = 150 #numero de caracteres a usar para imprimir el monto en palabras en el cheque
 
 class AccountPayment(models.Model):
     _inherit = "account.payment"
