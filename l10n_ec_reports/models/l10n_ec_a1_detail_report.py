@@ -5,7 +5,7 @@ from odoo import models, fields, api
 import base64
 import io
 from odoo.tools.misc import xlsxwriter
-from datetime import datetime
+
 
 class L10nECA1DetailReport(models.TransientModel):
     _name = 'l10n_ec.a1.detail.report'
