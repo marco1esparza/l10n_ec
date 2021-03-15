@@ -1,371 +1,479 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-#	* ecua_ats
+# 	* l10n_ec_reports
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 10.0\n"
+"Project-Id-Version: Odoo Server 14.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 18:13+0000\n"
-"PO-Revision-Date: 2018-03-08 18:13+0000\n"
-"Last-Translator: <>\n"
+"POT-Creation-Date: 2021-03-15 05:14+0000\n"
+"PO-Revision-Date: 2021-03-15 05:14+0000\n"
+"Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
-#. module: ecua_ats
-#: model:ir.ui.menu,name:ecua_ats.menu_sales_detail_wizard
-msgid "A1 - Sales Detail"
-msgstr "A1 - Detalle Ventas"
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__year__y2017
+msgid "2017"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.actions.act_window,name:ecua_ats.action_wizard_ecua_ats
-msgid "ANEXO TRANSACCIONAL SIMPLIFICADO (ATS)"
-msgstr "ANEXO TRANSACCIONAL SIMPLIFICADO (ATS)"
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__year__y2018
+msgid "2018"
+msgstr ""
 
-#. module: ecua_ats
-#: code:addons/ecua_ats/reports/sales_detail_report.py:36
-#: code:addons/odoo-ecuador-contabilidad-avanzada/ecua_ats/reports/sales_detail_report.py:36
-#, python-format
-msgid "ANNEX 1 - SALES DETAIL"
-msgstr "ANEXO 1 - DETALLE DE VENTAS"
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__year__y2019
+msgid "2019"
+msgstr ""
 
-#. module: ecua_ats
-#: code:addons/ecua_ats/reports/purchase_deduction_report.py:50
-#: code:addons/odoo-ecuador-contabilidad-avanzada/ecua_ats/reports/purchase_deduction_report.py:50
-#, python-format
-msgid "ANNEX 2 - WITHHOLD TAX RENT DETAILS BY CODE"
-msgstr "ANEXO 2 - DETALLE DE RETENCIONES IMPUESTO A LA RENTA POR CÓDIGO"
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__year__y2020
+msgid "2020"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.ui.menu,name:ecua_ats.menu_ecua_ats
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__year__y2021
+msgid "2021"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__year__y2022
+msgid "2022"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__year__y2023
+msgid "2023"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__year__y2024
+msgid "2024"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__year__y2025
+msgid "2025"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__year__y2026
+msgid "2026"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.actions.act_window,name:l10n_ec_reports.action_detail_report_wizard_A1
+#: model:ir.ui.menu,name:l10n_ec_reports.menu_action_form_detail_report_A1
+msgid "A1 - Detalle de Ventas"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.actions.act_window,name:l10n_ec_reports.action_detail_report_wizard_A2
+#: model:ir.ui.menu,name:l10n_ec_reports.menu_action_form_detail_report_A2
+msgid "A2 - Retenciones Renta por Código"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.ui.menu,name:l10n_ec_reports.menu_a3_canceled
+msgid "A3 - Documentos Anulados"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.actions.act_window,name:l10n_ec_reports.action_ats_xml
+#: model:ir.ui.menu,name:l10n_ec_reports.menu_ats_xml
 msgid "ATS (XML)"
-msgstr "ATS (XML)"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_wizard_ats_form
 msgid "ATS - XML File Generator"
 msgstr "ATS - Generar Archivo XML"
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_ats_file
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__ats_file
 msgid "ATS File"
 msgstr "Archivo ATS"
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_ats_filename
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__ats_filename
 msgid "ATS Filename"
 msgstr "Archivo ATS"
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
-msgid "ATS Generation"
-msgstr "Generar ATS"
-
-#. module: ecua_ats
-#: model:ir.model.fields,help:ecua_ats.field_simplified_transactional_annex_ats_file
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__ats_file
 msgid "ATS file content"
 msgstr "ATS"
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
-msgid "Asistente que genera automáticamente la información\n"
-"										del ANEXO TRANSACCIONAL SIMPLIFICADO - ATS."
-msgstr "Asistente que genera automáticamente la información\n"
-"										del ANEXO TRANSACCIONAL SIMPLIFICADO - ATS."
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__apr
+msgid "Abril"
+msgstr ""
 
-#. module: ecua_ats
-#: code:addons/ecua_ats/reports/sales_detail_report.py:37
-#: code:addons/odoo-ecuador-contabilidad-avanzada/ecua_ats/reports/sales_detail_report.py:37
-#, python-format
-msgid "Auxiliar report for ATS and Form 101"
-msgstr "Reporte auxiliar para el ATS y para el Formulario 101"
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__include_electronic_document_in_ats
+#: model:ir.model.fields,help:l10n_ec_reports.field_res_company__include_electronic_document_in_ats
+msgid ""
+"Active esta opción si desea incluir las retenciones electrónicas emitidas a "
+"proveedores en el ATS."
+msgstr ""
 
-#. module: ecua_ats
-#: code:addons/ecua_ats/reports/purchase_deduction_report.py:51
-#: code:addons/odoo-ecuador-contabilidad-avanzada/ecua_ats/reports/purchase_deduction_report.py:51
-#, python-format
-msgid "Auxiliar report for ATS and Form 103"
-msgstr "Reporte auxiliar para el ATS y para el Formulario 103"
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__aug
+msgid "Agosto"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__file
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__filename
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.base_file_report_form_view
+msgid "Archivo generado"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__year
+msgid "Año"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__year
+msgid "Año sobre el que se reporta"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__date_finish
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__date_start
+msgid "Campo técnico utilizado para filtrar los documentos a mostrar"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.account_tax_report_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_detail_report_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.ats_reports_wizard_form_view
-msgid "Cancelar"
-msgstr "Cancelar"
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.base_file_report_form_view
+msgid "Cerrar"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.ats_reports_wizard_form_view
-msgid "Close"
-msgstr "Cerrar"
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_res_company
+msgid "Companies"
+msgstr "Compañías"
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_ats_reports_wizard_create_uid
-#: model:ir.model.fields,field_description:ecua_ats.field_common_ats_report_create_uid
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_create_uid
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__company_id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__company_id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__company_id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__company_id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__company_id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_ats_reports_wizard_create_date
-#: model:ir.model.fields,field_description:ecua_ats.field_common_ats_report_create_date
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_create_date
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__create_date
 msgid "Created on"
 msgstr "Creado el"
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
-msgid "Description"
-msgstr "Descripción"
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__currency_id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__currency_id
+msgid "Currency"
+msgstr "Moneda"
 
-#. module: ecua_ats
-#: model:ir.actions.act_window,name:ecua_ats.action_sales_detail_report_wizard
-msgid "Detail Ret. x Code"
-msgstr "Detalle de Ventas"
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__date_from
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__date_from
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__date_from
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__date_from
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__date_from
+msgid "Date From"
+msgstr "Desde"
 
-#. module: ecua_ats
-#: code:addons/ecua_ats/reports/sales_detail_report.py:38
-#: code:addons/odoo-ecuador-contabilidad-avanzada/ecua_ats/reports/sales_detail_report.py:38
-#, python-format
-msgid "Detailed report of sales invoices, with applied witholds and payment form"
-msgstr "Reporte detallado de facturas de venta, con retenciones aplicadas y forma de pago prevista"
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__invoice_date
+msgid "Date Invoice"
+msgstr "Fecha"
 
-#. module: ecua_ats
-#: code:addons/ecua_ats/reports/purchase_deduction_report.py:52
-#: code:addons/odoo-ecuador-contabilidad-avanzada/ecua_ats/reports/purchase_deduction_report.py:52
-#, python-format
-msgid "Detailed report of tax withholds, applied to purchases, grouped and subtotaled by code. Include details of wittholds and matching purchase "
-msgstr "Reporte detallado de códigos de retención del impuesto a la renta aplicados a las compras, agrupados y subtotalizados por código. Incluye detalle de la retención y de la compra correspondiente."
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__date_to
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__date_to
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__date_to
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__date_to
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__date_to
+msgid "Date To"
+msgstr "Hasta"
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_ats_reports_wizard_display_name
-#: model:ir.model.fields,field_description:ecua_ats.field_common_ats_report_display_name
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_display_name
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_wizard_ats_form
+msgid "Descartar"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__dec
+msgid "Diciembre"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_res_partner__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__display_name
 msgid "Display Name"
-msgstr "Nombre a mostrar"
+msgstr "Nombre a Mostrar"
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_errors_file
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__jan
+msgid "Enero"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__errors_file
 msgid "Errors File"
 msgstr "Archivo de errores"
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_errors_filename
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__errors_filename
 msgid "Errors Filename"
 msgstr "Archivo de errores"
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
-msgid "Esta información podrá enviarse a través de Internet\n"
-"										hasta el\n"
-"										último día del mes subsiguiente al que corresponde\n"
-"										la\n"
-"										misma (28, 29, 30 ó 31)."
-msgstr "Esta información podrá enviarse a través de Internet\n"
-"										hasta el\n"
-"										último día del mes subsiguiente al que corresponde\n"
-"										la\n"
-"										misma (28, 29, 30 ó 31)."
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__errors_file
+msgid "Errors file content"
+msgstr "Archivo de errores"
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
-msgid "Este documento lo deberá generar los Contribuyentes\n"
-"										Especiales,\n"
-"										las Entidades del Sector Público, los\n"
-"										Contribuyentes que poseen\n"
-"										autorización de impresión de comprobantes de venta y quienes de acuerdo a\n"
-"										la\n"
-"										Ley de Régimen Tributario Interno, tienen derecho y\n"
-"										solicitan la\n"
-"										devolución de Impuesto al Valor Agregado."
-msgstr "Este documento lo deberá generar los Contribuyentes\n"
-"										Especiales,\n"
-"										las Entidades del Sector Público, los\n"
-"										Contribuyentes que poseen\n"
-"										autorización de impresión de comprobantes de venta y quienes de acuerdo a\n"
-"										la\n"
-"										Ley de Régimen Tributario Interno, tienen derecho y\n"
-"										solicitan la\n"
-"										devolución de Impuesto al Valor Agregado."
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__feb
+msgid "Febrero"
+msgstr ""
 
-#. module: ecua_ats
-#: code:addons/ecua_ats/reports/commons_report.py:136
-#: code:addons/odoo-ecuador-contabilidad-avanzada/ecua_ats/reports/commons_report.py:136
-#, python-format
-msgid "FROM: %s - TO: %s"
-msgstr "DESDE: %s - HASTA: %s"
-
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_date_start
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__date_start
 msgid "Fecha Desde"
-msgstr "Fecha Desde"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_date_finish
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__date_finish
 msgid "Fecha Hasta"
-msgstr "Fecha Hasta"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_ats_reports_wizard_from_date
-#: model:ir.model.fields,field_description:ecua_ats.field_common_ats_report_from_date
-msgid "From date"
-msgstr "Desde"
+#. module: l10n_ec_reports
+#: model:ir.ui.menu,name:l10n_ec_reports.menu_form_107
+msgid "Formulario 107 (RDEP)"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
-msgid "Generate ATS"
-msgstr "Generar ATS"
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_wizard_ats_form
+msgid "Generar ATS"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
-msgid "Help"
-msgstr "Ayuda"
-
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_ats_reports_wizard_id
-#: model:ir.model.fields,field_description:ecua_ats.field_common_ats_report_id
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_id
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_res_partner__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
-#. module: ecua_ats
-#: code:addons/ecua_ats/reports/commons_report.py:134
-#: code:addons/odoo-ecuador-contabilidad-avanzada/ecua_ats/reports/commons_report.py:134
-#, python-format
-msgid "IMPRESSION DATE: %s"
-msgstr "FECHA DE IMPRESIÓN: %s"
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__include_electronic_document_in_ats
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_res_company__include_electronic_document_in_ats
+msgid "Incluir retenciones electrónicas emitidas a proveedores en el ATS"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_ats_reports_wizard___last_update
-#: model:ir.model.fields,field_description:ecua_ats.field_common_ats_report___last_update
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex___last_update
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__jul
+msgid "Julio"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__jun
+msgid "Junio"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_res_company____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_res_partner____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools____last_update
 msgid "Last Modified on"
-msgstr "Última modificación en"
+msgstr "Fecha de modificación"
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_ats_reports_wizard_write_uid
-#: model:ir.model.fields,field_description:ecua_ats.field_common_ats_report_write_uid
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_write_uid
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_ats_reports_wizard_write_date
-#: model:ir.model.fields,field_description:ecua_ats.field_common_ats_report_write_date
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_write_date
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__write_date
 msgid "Last Updated on"
 msgstr "Última actualización el"
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
-msgid "Los siguientes casos especiales aún no se encuentran implementados, se solicita contactarse con TRESCLOUD para su habilitación:\n"
-"										- Pagos desde el Extranjero, si bien el sistema los detecta para el reporte ATS los reescribe como nacionales.\n"
-"										- Retenciones de Dividendos\n"
-"										- Retenciones por Banano\n"
-"										<br/>\n"
-"										En todos estos casos el usuario podrá editar los datos faltantes en el programa DIMM Formularios."
-msgstr "Los siguientes casos especiales aún no se encuentran implementados, se solicita contactarse con TRESCLOUD para su habilitación:\n"
-"										- Pagos desde el Extranjero, si bien el sistema los detecta para el reporte ATS los reescribe como nacionales.\n"
-"										- Retenciones de Dividendos\n"
-"										- Retenciones por Banano\n"
-"										<br/>\n"
-"										En todos estos casos el usuario podrá editar los datos faltantes en el programa DIMM Formularios."
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__mar
+msgid "Marzo"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.ats_reports_wizard_form_view
-msgid "Print"
-msgstr "Imprimir"
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__may
+msgid "Mayo"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.actions.act_window,name:ecua_ats.action_purchase_deduction_report_wizard
-#: model:ir.ui.menu,name:ecua_ats.menu_purchase_deduction_wizard
-msgid "Purchases/Deductions list"
-msgstr "A2 - Retenciones Renta por Código"
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__nov
+msgid "Noviembre"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_simplified_transactional_annex_report_errors
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__oct
+msgid "Octubre"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__perc
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__perc
+msgid "Percentage"
+msgstr "Porcentaje"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__period
+msgid "Periodo"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__period
+msgid "Periodo sobre el que se reporta"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__first_semester
+msgid "Primer Semestre (Enero a Junio)"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_account_tax_form_header_form
+msgid "Print XLS"
+msgstr "Imprimir XLS"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__report_errors
 msgid "Report Errors"
 msgstr "Reporte de errores"
 
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_ats_reports_wizard_report_type
-msgid "Report type"
-msgstr "Tipo de informe"
-
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_wizard_ats_form
 msgid "Reporte ATS"
-msgstr "Reporte ATS"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.ui.menu,name:ecua_ats.menu_sri_reports
-msgid "SRI Reports"
-msgstr "Informes SRI"
+#. module: l10n_ec_reports
+#: model:ir.actions.act_window,name:l10n_ec_reports.action_account_tax_report_wizard_103
+#: model:ir.ui.menu,name:l10n_ec_reports.menu_action_form_account_tax_103
+msgid "Reporte de impuesto 103"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
-msgid "Si desea más información haga clic en el siguiente\n"
-"								link:"
-msgstr "Si desea más información haga clic en el siguiente\n"
-"								link:"
+#. module: l10n_ec_reports
+#: model:ir.actions.act_window,name:l10n_ec_reports.action_account_tax_report_wizard_104
+#: model:ir.ui.menu,name:l10n_ec_reports.menu_action_form_account_tax_104
+msgid "Reporte de impuesto 104"
+msgstr ""
 
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.account_tax_report_wizard_form
+msgid "Reporte de impuestos"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__second_semester
+msgid "Segundo Semestre (Julio a Diciembre)"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__sep
+msgid "Septiembre"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.account_tax_report_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_detail_report_wizard_form
+msgid "Show Report"
+msgstr "Mostrar"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_wizard_ats_form
 msgid "Sumario ATS"
-msgstr "Sumario ATS"
-
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_ats_reports_wizard_to_date
-#: model:ir.model.fields,field_description:ecua_ats.field_common_ats_report_to_date
-msgid "To date"
-msgstr "Hasta"
-
-#. module: ecua_ats
-#: model:ir.model.fields,field_description:ecua_ats.field_common_ats_report_type
-msgid "Type"
-msgstr "Tipo"
-
-#. module: ecua_ats
-#: model:ir.model,name:ecua_ats.model_ats_reports_wizard
-msgid "ats.reports.wizard"
-msgstr "ats.reports.wizard"
-
-#. module: ecua_ats
-#: code:addons/ecua_ats/reports/commons_report.py:193
-#: code:addons/odoo-ecuador-contabilidad-avanzada/ecua_ats/reports/commons_report.py:193
-#, python-format
-msgid "ats_report"
-msgstr "Reporte ATS"
-
-#. module: ecua_ats
-#: code:addons/ecua_ats/reports/commons_report.py:193
-#: code:addons/odoo-ecuador-contabilidad-avanzada/ecua_ats/reports/commons_report.py:193
-#, python-format
-msgid "ats_report_subtitle"
-msgstr "Subtitulo de reporte ATS"
-
-#. module: ecua_ats
-#: model:ir.model,name:ecua_ats.model_common_ats_report
-msgid "common.ats.report"
-msgstr "common.ats.report"
-
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.view_wizard_ecua_ats
-msgid "http://ayuda.facturadeuna.com/hc/es/articles/210510817-Descarga-del-ATS-Version-2015"
-msgstr "http://ayuda.facturadeuna.com/hc/es/articles/210510817-Descarga-del-ATS-Version-2015"
-
-#. module: ecua_ats
-#: model:ir.ui.view,arch_db:ecua_ats.ats_reports_wizard_form_view
-msgid "or"
-msgstr "o"
-
-#. module: ecua_ats
-#: model:ir.model,name:ecua_ats.model_simplified_transactional_annex
-msgid "simplified.transactional.annex"
-msgstr "simplified.transactional.annex"
+msgstr ""
