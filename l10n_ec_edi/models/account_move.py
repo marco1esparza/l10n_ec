@@ -529,7 +529,7 @@ class AccountMove(models.Model):
             if res.country_code == 'EC':
                 # ideally we should call a line like
                 # if res.is_invoice(): or res.is_withholding()
-                # but for v14 we don't consider is_invoice to include all edis
+                # but for v14 we consider is_invoice to include all edis
                 if res.is_invoice():
                     if res.l10n_ec_authorization_type == 'third':
                         show_l10n_ec_authorization = True

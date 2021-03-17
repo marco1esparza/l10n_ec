@@ -361,9 +361,10 @@ class AccountMove(models.Model):
             raise UserError(_("El número de Autorización es incorrecto, presenta %s dígitos, debe ser de 10 o 42 digitos") % auth_len)
         access_key_data = self._extract_data_from_access_key()
         self.invoice_date = access_key_data['document_date']
-        self.l10n_latam_document_type_id = access_key_data['l10n_latam_document_type_id']
         if access_key_data['partner_id']:
             self.partner_id = access_key_data['partner_id']
+        if access_key_data['l10n_latam_document_type_id']:
+            self.l10n_latam_document_type_id = access_key_data['l10n_latam_document_type_id']
         else:
             #TODO V15, deberíamos poder popup el form del partner prellenada su RUC
             self.partner_id = False
