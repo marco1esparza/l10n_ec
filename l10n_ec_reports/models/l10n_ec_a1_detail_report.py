@@ -148,7 +148,7 @@ class L10nECA1DetailReport(models.TransientModel):
                             sheet.write(row, col, value or 0.0, style)
         if invoices:
             row += 1
-            sheet.merge_range(row, 0, row, 8, 'TOTAL REGISTROS: ' + len(invoices), footer)
+            sheet.merge_range(row, 0, row, 8, 'TOTAL REGISTROS: %s' % len(invoices), footer)
             sheet.write(row, 9, l10n_ec_base_not_subject_to_vat, num_footer)
             sheet.write(row, 10, l10n_ec_base_cero_iva, num_footer)
             sheet.write(row, 11, l10n_ec_base_doce_iva, num_footer)
