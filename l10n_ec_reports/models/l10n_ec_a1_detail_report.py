@@ -9,6 +9,7 @@ from odoo.tools.misc import xlsxwriter
 
 class L10nECA1DetailReport(models.TransientModel):
     _name = 'l10n_ec.a1.detail.report'
+    _description = 'l10n_ec.a1.detail.report'
 
     def _get_sales_detail_report_invoice_domain(self):
         """

@@ -30,6 +30,7 @@ _WITHHOLD_CODES = ['07']
     
 class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
     _name = 'l10n_ec.simplified.transactional.annex'
+    _description = 'l10n_ec.simplified.transactional.annex'
     
     #Fechas y periodos
     _YEARS = [
@@ -969,15 +970,15 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             ('invoice_date','<=', self.date_finish),
             ('company_id','=',self.company_id.id)
         ])
-#         #TODO jm: implementar guias de remision en v15
-#         void_deliveries = self.env['stock.picking'].sudo().search([
-#             ('date','<=', self.date_finish),
-#             ('date','>=',self.date_start),
-#             ('is_waybill','=',True), #identifica las guias de remision emitidas
-#             ('state','=','cancel')
-#         ])
+
+        void_deliveries = self.env['account.move'].sudo().search([
+             ('date','<=', self.date_finish),
+             ('date','>=',self.date_start),
+             ('l10n_ec_is_waybill','=',True), #identifica las guias de remision emitidas
+             ('state','=','cancel')
+         ])
          
-        if void_invoices or void_withholds: #or void_deliveries:
+        if void_invoices or void_withholds or void_deliveries:
             anulados_form = doc.createElement('anulados')
             main.appendChild(anulados_form)
          
@@ -1051,40 +1052,41 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 #si no es un codigo sino un texto, agregamos el texto del error
                 report_status.append(u'La retencion ANULADA ' + void_withhold.l10n_latam_document_number + \
                                      u' no tiene autorizacion.')
-#         for void_delivery in void_deliveries:
-#             detalle_anuladas_form = doc.createElement('detalleAnulados')
-#             anulados_form.appendChild(detalle_anuladas_form)
-#  
-#             tipoComprobante = doc.createElement('tipoComprobante')
-#             detalle_anuladas_form.appendChild(tipoComprobante)
-#             ptipoComprobante = doc.createTextNode('06')
-#             tipoComprobante.appendChild(ptipoComprobante)
-#  
-#             establecimiento = doc.createElement('establecimiento')
-#             detalle_anuladas_form.appendChild(establecimiento)
-#             pestablecimiento = doc.createTextNode(void_delivery.waybill_number[0:3])
-#             establecimiento.appendChild(pestablecimiento)
-#  
-#             puntoEmision = doc.createElement('puntoEmision')
-#             detalle_anuladas_form.appendChild(puntoEmision)
-#             ppuntoEmision = doc.createTextNode(void_delivery.waybill_number[4:7])
-#             puntoEmision.appendChild(ppuntoEmision)
-#  
-#             secuencialInicio = doc.createElement('secuencialInicio')
-#             detalle_anuladas_form.appendChild(secuencialInicio)
-#             psecuencialInicio = doc.createTextNode(void_delivery.waybill_number[8:])
-#             secuencialInicio.appendChild(psecuencialInicio)
-#  
-#             secuencialFin = doc.createElement('secuencialFin')
-#             detalle_anuladas_form.appendChild(secuencialFin)
-#             psecuencialFin = doc.createTextNode(void_delivery.waybill_number[8:])
-#             secuencialFin.appendChild(psecuencialFin)
-#  
-#             autorizacion = doc.createElement('autorizacion')
-#             detalle_anuladas_form.appendChild(autorizacion)
-#             cancelauth = doc.createTextNode(str(void_delivery.l10n_ec_authorization).strip())
-#             autorizacion.appendChild(cancelauth)
-        
+
+        for void_delivery in void_deliveries:
+             detalle_anuladas_form = doc.createElement('detalleAnulados')
+             anulados_form.appendChild(detalle_anuladas_form)
+
+             tipoComprobante = doc.createElement('tipoComprobante')
+             detalle_anuladas_form.appendChild(tipoComprobante)
+             ptipoComprobante = doc.createTextNode('06')
+             tipoComprobante.appendChild(ptipoComprobante)
+
+             establecimiento = doc.createElement('establecimiento')
+             detalle_anuladas_form.appendChild(establecimiento)
+             pestablecimiento = doc.createTextNode(void_delivery.waybill_number[0:3])
+             establecimiento.appendChild(pestablecimiento)
+
+             puntoEmision = doc.createElement('puntoEmision')
+             detalle_anuladas_form.appendChild(puntoEmision)
+             ppuntoEmision = doc.createTextNode(void_delivery.waybill_number[4:7])
+             puntoEmision.appendChild(ppuntoEmision)
+
+             secuencialInicio = doc.createElement('secuencialInicio')
+             detalle_anuladas_form.appendChild(secuencialInicio)
+             psecuencialInicio = doc.createTextNode(void_delivery.waybill_number[8:])
+             secuencialInicio.appendChild(psecuencialInicio)
+
+             secuencialFin = doc.createElement('secuencialFin')
+             detalle_anuladas_form.appendChild(secuencialFin)
+             psecuencialFin = doc.createTextNode(void_delivery.waybill_number[8:])
+             secuencialFin.appendChild(psecuencialFin)
+
+             autorizacion = doc.createElement('autorizacion')
+             detalle_anuladas_form.appendChild(autorizacion)
+             cancelauth = doc.createTextNode(str(void_delivery.l10n_ec_authorization).strip())
+             autorizacion.appendChild(cancelauth)
+
         last_time = tm()
         ejecution_time = last_time - init_time
         _logger.info(u'Tiempo ejecucion seccion anulados %s seg.', str(ejecution_time))

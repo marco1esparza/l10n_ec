@@ -10,6 +10,7 @@ from datetime import datetime
 
 class L10nECA2DetailReport(models.TransientModel):
     _name = 'l10n_ec.a2.detail.report'
+    _description = 'l10n_ec.a2.detail.report'
 
     def _get_purchase_deduction_report_invoice_tax_domain(self):
         """

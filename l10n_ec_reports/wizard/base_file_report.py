@@ -8,10 +8,10 @@ class base_file_report(models.TransientModel):
     """Modelo en memoria para almacenar temporalmente los archivos generados al cargar un reporte.
     Todos los asistentes que generen un archivo (xls, xml, etc.) deben devolver la función show()"""
     _name = 'base.file.report'
+    _description = 'base.file.report'
 
     file = fields.Binary('Archivo generado', readonly=True, required=True)
-
-    filename = fields.Char('Archivo generado', required=True)
+    filename = fields.Char('Nombre Archivo generado', required=True)
     
     def show_excel(self, book, filename):    
         buf = io.BytesIO()

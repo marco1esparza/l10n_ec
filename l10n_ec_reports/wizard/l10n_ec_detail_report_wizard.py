@@ -9,6 +9,7 @@ from datetime import datetime
 
 class L10nECDetailReportWizard(models.TransientModel):
     _name = 'l10n_ec.detail.report.wizard'
+    _description = 'l10n_ec.detail.report.wizard'
 
     def show_detail_report(self):
         report = False

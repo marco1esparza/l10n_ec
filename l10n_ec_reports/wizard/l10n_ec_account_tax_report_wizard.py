@@ -10,6 +10,7 @@ import calendar
 
 class AccountTaxReportWizard(models.TransientModel):
     _name = 'l10n_ec.account.tax.report.wizard'
+    _description = 'l10n_ec.account.tax.report.wizard'
 
     @api.model
     def _get_group_taxes(self):
