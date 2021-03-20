@@ -79,7 +79,6 @@ class ResCompany(models.Model):
     db_source = fields.Selection(
         _SOURCE,
         string='Origen',
-        track_visibility='onchange',
         default='trescloud_v14',
         help='Campo informativo del origen de la base de datos del cual se migro la información, permite ejecutar ciertos script de migración.'
     ) #TODO V15, moverlo a la tabla de parametros

@@ -498,7 +498,7 @@ class AccountMove(models.Model):
     l10n_ec_allow_withhold = fields.Boolean(
         compute='_l10n_ec_allow_withhold',
         string='Allow Withhold', 
-        method=True,  
+        tracking=True,
         help='Technical field to show/hide "ADD WITHHOLD" button'
         )
     l10n_ec_withhold_count = fields.Integer(
@@ -533,7 +533,7 @@ class AccountMove(models.Model):
     l10n_ec_vat_withhold = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total IVA',  
-        method=True, 
+        tracking=True,
         store=False, 
         readonly=True, 
         help='Total IVA value of withhold'
@@ -541,7 +541,7 @@ class AccountMove(models.Model):
     l10n_ec_profit_withhold = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total RENTA', 
-        method=True, 
+        tracking=True,
         store=False, 
         readonly=True, 
         help='Total renta value of withhold'
@@ -549,7 +549,7 @@ class AccountMove(models.Model):
     l10n_ec_total_base_vat = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total Base IVA',  
-        method=True, 
+        tracking=True,
         store=False, 
         readonly=True, 
         help='Total base IVA of withhold'
@@ -557,7 +557,7 @@ class AccountMove(models.Model):
     l10n_ec_total_base_profit = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total Base RENTA', 
-        method=True, 
+        tracking=True,
         store=False, 
         readonly=True, 
         help='Total base renta of withhold'
@@ -565,7 +565,7 @@ class AccountMove(models.Model):
     l10n_ec_total = fields.Monetary(
         string='Total Withhold', 
         compute='_compute_total_invoice_ec', 
-        method=True, 
+        tracking=True,
         store=False, 
         readonly=True, 
         help='Total value of withhold'
@@ -573,7 +573,7 @@ class AccountMove(models.Model):
     l10n_ec_invoice_amount_untaxed = fields.Monetary(
         string='Base Sugerida Ret. Renta',
         compute='_l10n_ec_compute_total_invoices',
-        method=True, 
+        tracking=True,
         store=False, 
         readonly=True, 
         help='Base imponible sugerida (no obligatoria) para retención del Impuesto a la Renta'
@@ -581,7 +581,7 @@ class AccountMove(models.Model):
     l10n_ec_invoice_vat_doce_subtotal = fields.Monetary(
         string='Base Sugerida Ret. IVA', 
         compute='_l10n_ec_compute_total_invoices',
-        method=True, 
+        tracking=True,
         store=False, 
         readonly=True, 
         help='Base imponible sugerida (no obligatoria) para retención del IVA'

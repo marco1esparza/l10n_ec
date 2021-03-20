@@ -7,7 +7,7 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="l10n_latam_invoice_document.view_move_form"/>
             <field name="arch" type="xml">
-            	<xpath expr="//h1[@class='mt0']" position="after">
+            	<xpath expr="//h1[hasclass('mt0')]" position="after">
 					<field name="show_l10n_ec_authorization" invisible="1"/>
 					<field name="edit_l10n_ec_authorization" invisible="1"/>
 					<field name="l10n_ec_authorization"

@@ -556,7 +556,7 @@ class AccountMove(models.Model):
         ondelete='restrict',
         index=True,
         check_company=True,
-        track_visibility='onchange',
+        tracking=True,
         help='The tax authority authorized printer point from where to send or receive invoices'
         )
     l10n_ec_authorization = fields.Char(
@@ -585,94 +585,94 @@ class AccountMove(models.Model):
     l10n_ec_effective_method = fields.Monetary(
         compute='compute_payment_method',
         string='Effective', 
-        method=True,
+        tracking=True,
         help='Es la sumatoria de las formas de pago con código 01.'
         )
     l10n_ec_electronic_method = fields.Monetary(
         compute='compute_payment_method',
         string='Electronic Money',
-        method=True,
+        tracking=True,
         help='Es la sumatoria de las formas de pago con código 17.'
         )
     l10n_ec_card_method = fields.Monetary(
         compute='compute_payment_method',
         string='Card Credit / Debit',
-        method=True,
+        tracking=True,
         help='Es la sumatoria de las formas de pago con códigos 10, 11, 16, 18, 19.'
         )
     l10n_ec_other_method = fields.Monetary(
         compute='compute_payment_method',
         string='Others', 
-        method=True,
+        tracking=True,
         help='Es la sumatoria de las formas de pago con códigos 02, 03, 04, 05, 06, 08, 09, 12, 13, 14, 15, 20, 21.'
         )
     l10n_ec_total_discount = fields.Monetary(
         compute='_compute_total_invoice_ec',
         string='Total Discount',
-        method=True,
+        tracking=True,
         readonly=True,
         help='Total sum of the discount granted'
         )
     l10n_ec_base_doce_iva = fields.Monetary(
         string='VAT 12 Base',
         compute='_compute_total_invoice_ec',
-        method=True, 
+        tracking=True,
         readonly=True, 
         help='Summation of total prices included discount of products that tax VAT 12%'
         )
     l10n_ec_vat_doce_subtotal = fields.Monetary(
         string='VAT Value 12', 
         compute='_compute_total_invoice_ec', 
-        method=True, 
+        tracking=True,
         readonly=True, 
         help='Generated VAT'
         )
     l10n_ec_base_cero_iva = fields.Monetary(
         string='VAT 0 Base', 
         compute='_compute_total_invoice_ec', 
-        method=True,
+        tracking=True,
         readonly=True,
         help='Sum of total prices included discount of products that tax VAT 0%'
         )
     l10n_ec_vat_cero_subtotal = fields.Monetary(
         string='VAT Value 0',
         compute='_compute_total_invoice_ec',
-        method=True,
+        tracking=True,
         readonly=True,
         help=''
         )
     l10n_ec_base_tax_free = fields.Monetary(
         string='Base Exempt VAT',
         compute='_compute_total_invoice_ec',
-        method=True,
+        tracking=True,
         readonly=True,
         help='Sum of total prices included discount of products exempt from VAT'
         )    
     l10n_ec_base_not_subject_to_vat = fields.Monetary(
         string='Base Not Object VAT',
         compute='_compute_total_invoice_ec',
-        method=True,
+        tracking=True,
         readonly=True, 
         help='Sum of total prices included discount of products not subject to VAT'
         )
     l10n_ec_total_irbpnr = fields.Monetary(
         string='IRBPNR',
         compute='_compute_total_invoice_ec',
-        method=True,
+        tracking=True,
         readonly=True,
         help='Impuesto redimible a las botellas plásticas no retornables PET',
         )
     l10n_ec_total_with_tax = fields.Monetary(
         string='Total With Taxes', 
         compute='_compute_total_invoice_ec',
-        method=True,
+        tracking=True,
         readonly=True,
         help='Result of the sum of taxable amount plus the Value of VAT'
         )
     l10n_ec_total_to_withhold = fields.Monetary(
         string='Total to Withhold', 
         compute='_compute_total_invoice_ec',
-        method=True,
+        tracking=True,
         readonly=True,
         help='Sum of values to be retained'
         )
@@ -691,8 +691,8 @@ class AccountMove(models.Model):
         )
     l10n_ec_transaction_type = fields.Char(
         compute='_compute_l10n_ec_transaction_type',
-        string='Transaction Type',
-        method=True,
+        string='Transaction Type EC',
+        tracking=True,
         store=False,
         help='Indicate the transaction type that performer the partner. Supplier Invoice '
              '[01-RUC,02-CEDULA,03-PASAPORTE],Customer Invoice [04-RUC,05-CEDULA,06-PASAPORTE, '
@@ -703,7 +703,7 @@ class AccountMove(models.Model):
         compute='_show_edit_l10n_ec_authorization',
     )
     edit_l10n_ec_authorization = fields.Boolean(
-        string='Mostrar Autorizacion',
+        string='Editar Autorizacion',
         compute='_show_edit_l10n_ec_authorization',
     )
 
@@ -731,7 +731,7 @@ class AccountMoveLine(models.Model):
     l10n_ec_total_discount = fields.Monetary(
         string='Total Discount', 
         compute='_compute_total_invoice_line_ec', 
-        method=True,
+        tracking=True,
         store=False,
         readonly=True,                                     
         help='Indicates the monetary discount applied to the total invoice line.'
