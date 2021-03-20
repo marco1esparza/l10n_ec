@@ -146,7 +146,7 @@ class AccountTaxFormHeader(models.TransientModel):
         output.seek(0)
         generated_file = base64.b64encode(output.read())
         output.close()
-        return self.env['base.file.report'].show(generated_file, 'Impuestos.xls')
+        return self.env['l10n_ec.reports.base.file.report'].show(generated_file, 'Impuestos.xls')
 
     #Columns
     company_id = fields.Many2one('res.company', 'Company',

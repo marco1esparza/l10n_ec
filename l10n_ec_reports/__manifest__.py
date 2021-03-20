@@ -28,10 +28,10 @@
         'views/res_partner_view.xml',
         'views/l10n_ec_account_tax_form_header_view.xml',
         #Wizard
-        'wizard/base_file_report.xml',
+        'wizard/l10n_ec_reports_base_file_report.xml',
         'wizard/wizard_generate_ats_view.xml',
         'wizard/l10n_ec_account_tax_report_wizard_view.xml',
-        'wizard/l10n_ec_detail_report_wizard_view.xml',
+        'wizard/l10n_ec_show_a_tax_report_wizard_view.xml',
     ],
     'installable': True,
     'auto_install': True,

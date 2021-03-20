@@ -127,8 +127,7 @@ msgid "Agosto"
 msgstr ""
 
 #. module: l10n_ec_reports
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__file
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__filename
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_reports_base_file_report__file
 #: model_terms:ir.ui.view,arch_db:l10n_ec_reports.base_file_report_form_view
 msgid "Archivo generado"
 msgstr ""
@@ -151,7 +150,7 @@ msgstr ""
 
 #. module: l10n_ec_reports
 #: model_terms:ir.ui.view,arch_db:l10n_ec_reports.account_tax_report_wizard_form
-#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_detail_report_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_show_a_tax_report_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -170,7 +169,7 @@ msgstr "Compañías"
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__company_id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__company_id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__company_id
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__company_id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__company_id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__company_id
 msgid "Company"
 msgstr "Compañía"
@@ -181,30 +180,28 @@ msgid "Contact"
 msgstr "Contacto"
 
 #. module: l10n_ec_reports
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__create_uid
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_reports_base_file_report__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__create_uid
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
 #. module: l10n_ec_reports
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__create_date
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_reports_base_file_report__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__create_date
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -219,7 +216,7 @@ msgstr "Moneda"
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__date_from
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__date_from
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__date_from
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__date_from
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__date_from
 msgid "Date From"
 msgstr "Desde"
 
@@ -233,7 +230,7 @@ msgstr "Fecha"
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__date_to
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__date_to
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__date_to
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__date_to
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__date_to
 msgid "Date To"
 msgstr "Hasta"
 
@@ -248,18 +245,17 @@ msgid "Diciembre"
 msgstr ""
 
 #. module: l10n_ec_reports
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__display_name
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_reports_base_file_report__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_res_company__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_res_partner__display_name
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__display_name
 msgid "Display Name"
 msgstr "Nombre a Mostrar"
 
@@ -309,18 +305,17 @@ msgid "Generar ATS"
 msgstr ""
 
 #. module: l10n_ec_reports
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__id
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_reports_base_file_report__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_res_company__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_res_partner__id
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__id
 msgid "ID"
 msgstr ""
 
@@ -341,46 +336,43 @@ msgid "Junio"
 msgstr ""
 
 #. module: l10n_ec_reports
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard____last_update
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_reports_base_file_report____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_res_company____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_res_partner____last_update
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools____last_update
 msgid "Last Modified on"
 msgstr "Fecha de modificación"
 
 #. module: l10n_ec_reports
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__write_uid
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_reports_base_file_report__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__write_uid
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
 #. module: l10n_ec_reports
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_base_file_report__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__write_date
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_detail_report_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_reports_base_file_report__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__write_date
-#: model:ir.model.fields,field_description:l10n_ec_reports.field_xls_tools__write_date
 msgid "Last Updated on"
 msgstr "Última actualización el"
 
@@ -469,7 +461,7 @@ msgstr ""
 
 #. module: l10n_ec_reports
 #: model_terms:ir.ui.view,arch_db:l10n_ec_reports.account_tax_report_wizard_form
-#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_detail_report_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_show_a_tax_report_wizard_form
 msgid "Show Report"
 msgstr "Mostrar"
 

@@ -8,11 +8,10 @@ from datetime import datetime
 
 
 class L10nECDetailReportWizard(models.TransientModel):
-    _name = 'l10n_ec.detail.report.wizard'
-    _description = 'l10n_ec.detail.report.wizard'
+    _name = 'l10n_ec.show.a.tax.report.wizard'
+    _description = 'l10n_ec.show.a.tax.report.wizard'
 
-    def show_detail_report(self):
-        report = False
+    def show_a_tax_report(self):
         if self.env.context.get('show_report', False) == 'report_A1':
             report = self.env['l10n_ec.a1.detail.report'].create({'date_from': self.date_from,
                                                                   'date_to': self.date_to,
