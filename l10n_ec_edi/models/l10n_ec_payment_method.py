@@ -19,18 +19,18 @@ class L10NECPaymentMethod(models.Model):
         string='Code',
         size=2,
         required=True,
-        track_visibility='onchange',
+        tracking=True,
         )
     name = fields.Char(
         string='Name',
         size=255,
         required=True,
-        track_visibility='onchange',
+        tracking=True,
         )
     active = fields.Boolean(
         default=True,
         help="Set active to false to hide the Payment Method without removing it.",
-        track_visibility = 'onchange',
+        tracking=True,
         )
     
     

@@ -7,6 +7,7 @@ from odoo.osv import expression
 
 class L10nEcSRITaxSupport(models.Model):
     _name = 'l10n_ec.sri.tax.support'
+    _description = 'l10n_ec.sri.tax.support'
     _order = 'priority'
     _inherit = ['mail.thread']
 
@@ -38,24 +39,24 @@ class L10nEcSRITaxSupport(models.Model):
     code = fields.Char(
         string='Code', 
         size=2, 
-        track_visibility='onchange',
+        tracking=True,
         help='Field of two digits that indicate the code for this tax support'
         )
     name = fields.Char(
         string='Name',
         size=255,
-        track_visibility='onchange',
+        tracking=True,
         help='Name of tax support'
         )
     priority = fields.Integer(
         string='Priority',
-        track_visibility='onchange',
+        tracking=True,
         help='Priority of tax support'
         )
     active = fields.Boolean(
         string='Active',
         default=True,
-        track_visibility='onchange',
+        tracking=True,
         help='This field determines whether the tax support is active or not'
         )
     l10n_latam_document_type_ids = fields.Many2many(

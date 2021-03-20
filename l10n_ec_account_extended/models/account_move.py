@@ -510,7 +510,7 @@ class AccountMove(models.Model):
         string='Bypass Validaciones',
         readonly=True,
         copy=False,
-        track_visibility='onchange',
+        tracking=True,
         states={'posted': [('readonly', False)], 'draft': [('readonly', False)]},
         help='Bypass para ciertas validaciones ecuatorianas:\n'
         '- Permite anular facturas con retenciones ya emitidas\n'

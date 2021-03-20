@@ -12,6 +12,7 @@ class AccountRefundClient(models.Model):
     This class allow to store the purchase invoice related with refunds in client scenario
     '''
     _name = 'account.refund.client'
+    _description = 'account.refund.client'
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
@@ -199,7 +200,6 @@ class AccountRefundClient(models.Model):
     transaction_type = fields.Char(
         compute='_get_transaction_type',
         string='Transaction type',
-        method=True,
         store=False,
         help='Technical field to compute the performed transaction type'
         )

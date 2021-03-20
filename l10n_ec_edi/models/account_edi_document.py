@@ -420,13 +420,14 @@ class AccountEdiDocument(models.Model):
         for each in move_lines:
             detalle = self.create_SubElement(detalles, 'detalle')
             detalle_data = []
-            code =  self.getXMLProductCode(move_line = each)
-            if type == 'out_invoice':
-                detalle_data.append(('codigoPrincipal', code))
-            elif type == 'out_refund':
-                detalle_data.append(('codigoInterno', code))
-            elif type == 'in_invoice': #Liq de compras
-                detalle_data.append(('codigoPrincipal', code))
+            code = self.getXMLProductCode(move_line = each)
+            if code:
+                if type == 'out_invoice':
+                    detalle_data.append(('codigoPrincipal', code))
+                elif type == 'out_refund':
+                    detalle_data.append(('codigoInterno', code))
+                elif type == 'in_invoice': #Liq de compras
+                    detalle_data.append(('codigoPrincipal', code))
             detalle_data.append(('descripcion', get_SRI_normalized_text(each.name[:300])))
             detalle_data.append(('cantidad', '{0:.6f}'.format(each.quantity)))
             #TODO: usar algo similar al price_unit-final que deberia ser este l10n_latam_price_net o algo parecido
@@ -681,7 +682,6 @@ class AccountEdiDocument(models.Model):
     l10n_ec_access_key = fields.Char(
         string='Access Key', 
         readonly=True,
-        track_visibility='onchange',
         help='Unique code to identify this document, is generated based on date, vat code, serial number, and other related fields',
         ) 
     l10n_ec_request_xml_file = fields.Binary(

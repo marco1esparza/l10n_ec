@@ -77,7 +77,7 @@ class ResPartner(models.Model):
     l10n_ec_code = fields.Char(
         string='Ecuadorian Identification Type',
         compute='_compute_l10n_ec_code', 
-        method=True,
+        tracking=True,
         store=False,  
         help='Indicates the type of identification of the partner, is used for the ATS'
         )

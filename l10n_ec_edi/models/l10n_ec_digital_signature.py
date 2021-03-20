@@ -118,25 +118,25 @@ class L10NECDigitalSignature(models.Model):
     name = fields.Char(
         string='Serial Number of Digital Signature',
         readonly=True,
-        track_visibility='onchange',
+        tracking=True,
         help='Show the unique serial number of signature'
         )
     cert_encripted = fields.Binary(
         string='Original encripted signature',
-        track_visibility='onchange',
+        tracking=True,
         attachment = True,
         help='Store the original signatured encripted'
         )
     not_valid_after = fields.Datetime(
         string='Not valid after Date of signature',
         readonly=True,
-        track_visibility='onchange',
+        tracking=True,
         help='Show the Date after the signature is not valid'
         )
     not_valid_before = fields.Datetime(
         string='Not valid before Date of signature',
         readonly=True,
-        track_visibility='onchange',
+        tracking=True,
         help='Show the Date before the signature is not valid'
         )
     private_key = fields.Text(
@@ -160,14 +160,14 @@ class L10NECDigitalSignature(models.Model):
         required=True,
         index=True, 
         default=lambda self: self.env.company,
-        track_visibility='onchange',
+        tracking=True,
         help='Show the company asociated to this document'
         )
     state = fields.Selection(
         EC_STATE_SIGNATURE,
         string='State',
         default='draft',
-        track_visibility='always',
+        tracking=True,
         help="* The 'Draft' state is used when a user is creating a new pair key. Warning: everybody can see the key."
         "\n* The 'Confirmed' state is used when the key is completed and save in the system"
         "\n* The 'Canceled' state is used when the key is not more used by any reason, except expiration."

@@ -43,7 +43,7 @@ class L10nEcWaybillCarrier(models.Model):
     name = fields.Char(
         string='Name',
         required=True,
-        tracking=True
+        tracking=True,
         )
     l10n_latam_identification_type_id = fields.Many2one(
         'l10n_latam.identification.type',
@@ -67,7 +67,7 @@ class L10nEcWaybillCarrier(models.Model):
     active = fields.Boolean(
         default=True,
         help="Set active to false to hide the SRI Printer Point without removing it.",
-        tracking=True
+        tracking=True,
         )
     company_id = fields.Many2one('res.company', string='Company', required=True, index=True, default=lambda self: self.env.company)
 

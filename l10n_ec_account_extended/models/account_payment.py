@@ -18,7 +18,7 @@ class AccountPayment(models.Model):
     l10n_ec_payee_name = fields.Char(
         string='Payee Name',
         readonly=True, #editable from print check wizard
-        track_visibility='onchange',
+        tracking=True,
         help='The name that will be printed on the check, a few times the check is cashed by an intermediary'
         )
     
@@ -162,7 +162,7 @@ class AccountPayment(models.Model):
     #         return vals
     #     check_date = fields.Date(
     #         string=u'Fecha del cheque',
-    #         track_visibility='onchange',
+    #         tracking=True,
     #         help=u'Fecha que el cheque tiene registrado'
     #         )
     

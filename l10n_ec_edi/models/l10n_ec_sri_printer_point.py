@@ -18,7 +18,7 @@ class L10nEcSRIPrinterPoint(models.Model):
         string='Printer Point',
         size=7, copy=False,
         help='This number is assigned by the SRI',
-        track_visibility='onchange',
+        tracking=True,
     )
 
     sequence = fields.Integer(default=10,help="The first printer is used by default when creating new invoices, unless specified otherwise in user profile",)
@@ -29,7 +29,7 @@ class L10nEcSRIPrinterPoint(models.Model):
         string=u'Emitir documentos electrónicos',
         default=True,
         help=u'Active esta opción para habilitar la emisión de doc electrónicos',
-        track_visibility='onchange',
+        tracking=True,
     )
     
     printer_point_address = fields.Char(string='Printer Point Address', help='This is the address used for invoice reports of this Printer Point')
@@ -37,7 +37,7 @@ class L10nEcSRIPrinterPoint(models.Model):
     active = fields.Boolean(
         default=True,
         help="Set active to false to hide the SRI Printer Point without removing it.",
-        track_visibility='onchange',
+        tracking=True,
     )
 
     @api.constrains('name')

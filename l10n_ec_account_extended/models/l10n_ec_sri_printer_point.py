@@ -11,7 +11,7 @@ class L10nEcSRIPrinterPoint(models.Model):
         default=True,
         help=u'Desactivela para "igualarse" facturas digitados en su anterior sistema ' 
              u'(aplica para documentos emitidos por mi empresa tales como facturas, notas de crédito, liquidaciones de compra',
-        track_visibility='onchange',
+        tracking=True,
     )
     
     @api.onchange('automatic_numbering')

@@ -20,5 +20,5 @@ class AccountTaxGroup(models.Model):
         ('other', 'Others'),
     ]
     
-    l10n_ec_type = fields.Selection(_TYPE_EC, string='Type Ecuadorian Tax', track_visibility='onchange',
+    l10n_ec_type = fields.Selection(_TYPE_EC, string='Type Ecuadorian Tax',
                                     help='Ecuadorian taxes subtype')
