@@ -3,7 +3,7 @@
     <data>
         <record model="ir.ui.view" id="base_file_report_form_view">
 			<field name="name">base.file.report.form</field>
-			<field name="model">base.file.report</field>
+			<field name="model">l10n_ec.reports.base.file.report</field>
 			<field name="type">form</field>
 			<field name="arch" type="xml">
 				<form string="Archivo generado">

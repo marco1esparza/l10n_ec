@@ -10,6 +10,7 @@ from datetime import datetime
 
 class AccountTaxFormHeader(models.TransientModel):
     _name = 'l10n_ec.account.tax.form.header'
+    _description = 'l10n_ec.account.tax.form.header'
 
     def name_get(self):
         result = []
@@ -145,7 +146,7 @@ class AccountTaxFormHeader(models.TransientModel):
         output.seek(0)
         generated_file = base64.b64encode(output.read())
         output.close()
-        return self.env['base.file.report'].show(generated_file, 'Impuestos.xls')
+        return self.env['l10n_ec.reports.base.file.report'].show(generated_file, 'Impuestos.xls')
 
     #Columns
     company_id = fields.Many2one('res.company', 'Company',
@@ -159,6 +160,7 @@ class AccountTaxFormHeader(models.TransientModel):
 
 class AccountTaxFormGroup(models.TransientModel):
     _name = 'l10n_ec.account.tax.form.group'
+    _description = 'l10n_ec.account.tax.form.group'
     _order = 'tax_code'
 
     def action_view_tax_form_lines(self):
@@ -190,11 +192,12 @@ class AccountTaxFormGroup(models.TransientModel):
     currency_id = fields.Many2one('res.currency', string='Currency', help='')
     tax_group_id = fields.Many2one('account.tax.group', string='Tax Group', help='')
     group_name = fields.Char(related='tax_group_id.name', store=True, help='')
-    account_tax_line_ids = fields.One2many('l10n_ec.account.tax.form.line', 'account_tax_group_id', string='Tax Group', help='')
+    account_tax_line_ids = fields.One2many('l10n_ec.account.tax.form.line', 'account_tax_group_id', string='Tax Group Lines', help='')
 
 
 class AccountTaxFormGroup(models.TransientModel):
     _name = 'l10n_ec.account.tax.form.line'
+    _description = 'l10n_ec.account.tax.form.line'
 
     @api.depends('invoice_id')
     def _get_withholding_number(self):
@@ -227,7 +230,7 @@ class AccountTaxFormGroup(models.TransientModel):
         return action
 
     # Columns
-    account_tax_group_id = fields.Many2one('l10n_ec.account.tax.form.group', string='Tax Group', required=True, help='')
+    account_tax_group_id = fields.Many2one('l10n_ec.account.tax.form.group', string='Account Tax Group', required=True, help='')
     invoice_id = fields.Many2one('account.move', string='Invoice', help='')
     internal_number = fields.Char(related='invoice_id.name', string='Internal Number', help='')
     invoice_date = fields.Date(related='invoice_id.invoice_date', string='Date Invoice', help='')

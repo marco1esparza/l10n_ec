@@ -10,11 +10,7 @@
 		
 		<menuitem id="menu_form_107" name="Formulario 107 (RDEP)" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="52"/>
 		
-		<menuitem id="menu_a1_sale" name="A1 - Detalle Ventas" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="54"/>
-		
-		<menuitem id="menu_a2_withhold" name="A2 - Retenciones Renta por Código" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="55"/>
-		
-		<menuitem id="menu_a3_canceled" name="A3 - Documentos Anulados" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="56"/>
+		<menuitem id="menu_a3_canceled" name="A3 - Documentos Anulados" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="58"/>
 
     </data>
 </odoo>

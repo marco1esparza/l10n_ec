@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record model="ir.ui.view" id="l10n_ec_show_a_tax_report_wizard_form">
+        <field name="name">l10n_ec.show.a.tax.report.wizard.form</field>
+        <field name="model">l10n_ec.show.a.tax.report.wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Show A Tax Reports">
+                <group>
+                    <group>
+                        <field name="company_id" invisible="1"/>
+                        <field name="date_from"/>
+                    </group>
+                    <group>
+                        <field name="date_to"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="show_a_tax_report" string="Show Report" class="oe_highlight" type="object"/>
+                    <button special="cancel" string="Cancel" class="oe_link"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_detail_report_wizard_A1" model="ir.actions.act_window">
+        <field name="name">A1 - Detalle de Ventas</field>
+        <field name="res_model">l10n_ec.show.a.tax.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'show_report': 'report_A1'}</field>
+    </record>
+
+    <menuitem action="action_detail_report_wizard_A1"
+              id="menu_action_form_detail_report_A1"
+              parent="account_reports.account_reports_audit_reports_menu"
+              sequence="54"/>
+
+    <record id="action_detail_report_wizard_A2" model="ir.actions.act_window">
+        <field name="name">A2 - Retenciones Renta por Código</field>
+        <field name="res_model">l10n_ec.show.a.tax.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'show_report': 'report_A2'}</field>
+    </record>
+
+    <menuitem action="action_detail_report_wizard_A2"
+              id="menu_action_form_detail_report_A2"
+              parent="account_reports.account_reports_audit_reports_menu"
+              sequence="56"/>
+
+</odoo>
