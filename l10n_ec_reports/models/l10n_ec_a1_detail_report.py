@@ -76,30 +76,30 @@ class L10nECA1DetailReport(models.TransientModel):
         ]
 
         titleheader = book.add_format(
-            {'font_name': 'Arial', 'bold': True, 'font_size': 11, 'valign': 'vjustify', 'align': 'center'})
+            {'font_name': 'Arial', 'bold': True, 'font_size': 10, 'align': 'left'})
         titlesubheader = book.add_format(
-            {'font_name': 'Arial', 'font_size': 10, 'valign': 'vjustify', 'align': 'center'})
-        bold = book.add_format({'font_name': 'Arial', 'bold': True, 'font_size': 11, 'valign': 'vjustify'})
-        std = book.add_format({'font_name': 'Arial', 'font_size': 10, 'valign': 'vjustify'})
-        std_short = book.add_format({'font_name': 'Arial', 'font_size': 8, 'valign': 'vjustify'})
+            {'font_name': 'Arial', 'font_size': 9, 'align': 'left'})
+        bold = book.add_format({'font_name': 'Arial', 'bold': True, 'font_size': 10})
+        std = book.add_format({'font_name': 'Arial', 'font_size': 9})
+        std_short = book.add_format({'font_name': 'Arial', 'font_size': 8})
         title = book.add_format(
-            {'font_name': 'Arial', 'bold': True, 'bg_color': '#C3CDE6', 'font_size': 11,
-             'align': 'center', 'valign': 'vjustify'})
+            {'font_name': 'Arial', 'bold': True, 'bg_color': '#C3CDE6', 'font_size': 10,
+             'align': 'center'})
         footer = book.add_format(
-            {'font_name': 'Arial', 'bold': True, 'bg_color': '#C3CDE6', 'font_size': 11,
-             'align': 'left', 'valign': 'vjustify'})
-        perc = book.add_format({'font_name': 'Arial', 'font_size': 10, 'num_format': '0.00%', 'valign': 'vjustify'})
+            {'font_name': 'Arial', 'bold': True, 'bg_color': '#C3CDE6', 'font_size': 10,
+             'align': 'left'})
+        perc = book.add_format({'font_name': 'Arial', 'font_size': 9, 'num_format': '0.00%'})
         datef = book.add_format(
-            {'font_name': 'Arial', 'font_size': 10, 'num_format': 'YYYY/mm/dd', 'valign': 'vjustify'})
+            {'font_name': 'Arial', 'font_size': 9, 'num_format': 'YYYY/mm/dd'})
         num = book.add_format(
-            {'font_name': 'Arial', 'font_size': 10, 'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00',
-             'align': 'right', 'valign': 'vjustify'})
+            {'font_name': 'Arial', 'font_size': 9, 'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00',
+             'align': 'right'})
         num_footer = book.add_format(
-            {'font_name': 'Arial', 'bold': True, 'bg_color': '#C3CDE6', 'font_size': 11,
-             'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00', 'align': 'left', 'valign': 'vjustify'})
+            {'font_name': 'Arial', 'bold': True, 'bg_color': '#C3CDE6', 'font_size': 10,
+             'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00', 'align': 'right'})
         num_bold = book.add_format(
-            {'font_name': 'Arial', 'bold': True, 'font_size': 10, 'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00',
-             'align': 'right', 'valign': 'vjustify'})
+            {'font_name': 'Arial', 'bold': True, 'font_size': 9, 'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00',
+             'align': 'right'})
 
         l10n_ec_base_not_subject_to_vat = 0.0
         l10n_ec_base_cero_iva = 0.0
@@ -108,11 +108,11 @@ class L10nECA1DetailReport(models.TransientModel):
 
         report_name = 'ANEXO 1 - DETALLE DE VENTAS'
         sheet = book.add_worksheet(report_name)
-        sheet.merge_range(0, 0, 0, 4, report_name, titleheader)
-        sheet.merge_range(1, 0, 1, 4, 'Reporte detallado de facturas de venta, con retenciones aplicadas y forma de pago prevista', titlesubheader)
-        sheet.merge_range(2, 0, 2, 4, 'Reporte auxiliar para el ATS y para el Formulario 101', titlesubheader)
-        sheet.merge_range(3, 0, 3, 4, self.company_id.l10n_ec_legal_name or self.company_id.name, bold)
-        sheet.merge_range(4, 0, 4, 4, "Desde el %s al %s" % (obj.date_from, obj.date_to), bold)
+        sheet.write(0, 0, report_name, titleheader)
+        sheet.write(1, 0, 'Reporte detallado de facturas de venta, con retenciones aplicadas y forma de pago prevista', titlesubheader)
+        sheet.write(2, 0, 'Reporte auxiliar para el ATS y para el Formulario 101', titlesubheader)
+        sheet.write(3, 0, self.company_id.l10n_ec_legal_name or self.company_id.name, bold)
+        sheet.write(4, 0, "Desde el %s al %s" % (obj.date_from, obj.date_to), bold)
         row = 5
         for col, field in enumerate(FIELDS, 0):
             sheet.set_column(col, col, field[4])
@@ -148,7 +148,15 @@ class L10nECA1DetailReport(models.TransientModel):
                             sheet.write(row, col, value or 0.0, style)
         if invoices:
             row += 1
-            sheet.merge_range(row, 0, row, 8, 'TOTAL REGISTROS: %s' % len(invoices), footer)
+            sheet.write(row, 0, 'TOTAL REGISTROS: %s' % len(invoices), footer)
+            sheet.write(row, 1, '', footer)
+            sheet.write(row, 2, '', footer)
+            sheet.write(row, 3, '', footer)
+            sheet.write(row, 4, '', footer)
+            sheet.write(row, 5, '', footer)
+            sheet.write(row, 6, '', footer)
+            sheet.write(row, 7, '', footer)
+            sheet.write(row, 8, '', footer)
             sheet.write(row, 9, l10n_ec_base_not_subject_to_vat, num_footer)
             sheet.write(row, 10, l10n_ec_base_cero_iva, num_footer)
             sheet.write(row, 11, l10n_ec_base_doce_iva, num_footer)
