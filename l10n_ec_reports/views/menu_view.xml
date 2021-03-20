@@ -9,8 +9,6 @@
         </record>
 		
 		<menuitem id="menu_form_107" name="Formulario 107 (RDEP)" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="52"/>
-		
-		<menuitem id="menu_a3_canceled" name="A3 - Documentos Anulados" action="TODO_action_implementar_para_cada_menu" parent="account_reports.account_reports_audit_reports_menu" sequence="58"/>
 
     </data>
 </odoo>
