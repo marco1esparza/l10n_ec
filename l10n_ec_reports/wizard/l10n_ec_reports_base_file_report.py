@@ -4,7 +4,7 @@ import io
 import time, base64
 
 
-class base_file_report(models.TransientModel):
+class L10nECReportsBaseFileReport(models.TransientModel):
     """Modelo en memoria para almacenar temporalmente los archivos generados al cargar un reporte.
     Todos los asistentes que generen un archivo (xls, xml, etc.) deben devolver la función show()"""
     _name = 'l10n_ec.reports.base.file.report'
