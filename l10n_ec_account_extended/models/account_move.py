@@ -88,9 +88,9 @@ class AccountMove(models.Model):
                     document._l10n_ec_validations_to_draft()
                     document._l10n_ec_validations_to_draft_when_edi()
             #hack: send the context to later bypass account_edi restrictions
-            res = super(AccountMove, document.with_context(l10n_ec_bypass_validations=bypass)).button_draft()
+            super(AccountMove, document.with_context(l10n_ec_bypass_validations=bypass)).button_draft()
             document.l10n_ec_bypass_validations = False #Reset bypass to default value
-        return res
+            #there is no return res or any return for button_draft()
     
     @api.depends('state','edi_document_ids.state','edi_document_ids.attachment_id')
     def _compute_edi_show_cancel_button(self):
