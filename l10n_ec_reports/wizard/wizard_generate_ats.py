@@ -199,6 +199,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                     'dec': '12',
                     'second_semester': '12', #se reporta como diciembre
                     }
+        self = self.sudo() #to traverse all tables for computation
         anio = self.year[1:]
         mes = map_periods[self.period]
         doc = Document()
@@ -970,13 +971,15 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             ('invoice_date','<=', self.date_finish),
             ('company_id','=',self.company_id.id)
         ])
-
-        void_deliveries = self.env['account.move'].sudo().search([
-             ('date','<=', self.date_finish),
-             ('date','>=',self.date_start),
-             ('l10n_ec_is_waybill','=',True), #identifica las guias de remision emitidas
-             ('state','=','cancel')
-         ])
+        
+        void_deliveries = self.env['account.move'] #empty recordset        
+        if self.env['ir.module.module'].search([('name','=','l10n_ec_waybill'),('state','=','installed')]):
+            void_deliveries = self.env['account.move'].sudo().search([
+                 ('date','<=', self.date_finish),
+                 ('date','>=',self.date_start),
+                 ('l10n_ec_is_waybill','=',True), #identifica las guias de remision emitidas
+                 ('state','=','cancel')
+             ])
          
         if void_invoices or void_withholds or void_deliveries:
             anulados_form = doc.createElement('anulados')
