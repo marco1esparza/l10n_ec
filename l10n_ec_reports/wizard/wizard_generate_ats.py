@@ -72,7 +72,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         year = 'y'+str(report_date.year)
         month = report_date.strftime("%b").lower() #dec
         res.update({
-            'include_electronic_document_in_ats': self.env.company.include_electronic_document_in_ats,
+            'include_electronic_document_in_ats': self.company_id.include_electronic_document_in_ats,
             'year': year,
             'period': month,
             })
@@ -1318,5 +1318,11 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         string=u'Incluir retenciones electrónicas emitidas a proveedores en el ATS',
         help=u'Active esta opción si desea incluir las retenciones electrónicas emitidas a proveedores en el ATS.'
         )
-    company_id = fields.Many2one('res.company', string='Company', required=True, readonly=True, default=lambda self: self.env.company,
-        help="Company related to this report")
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        required=True,
+        readonly=True,
+        default=lambda self: self.env.company,
+        help='Company related to this report'
+        )
