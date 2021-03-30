@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+        <record id="l10n_ec_account_payment_tree_check" model="ir.ui.view">
+            <field name="name">l10n_ec.account.payment.tree.check</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount']" position="after">
+                    <field name="check_number"/>
+                </xpath>
+            </field>
+        </record>
+
         <record id="l10n_ec_account_payment_form_check" model="ir.ui.view">
             <field name="name">l10n_ec.account.payment.form.check</field>
             <field name="model">account.payment</field>
