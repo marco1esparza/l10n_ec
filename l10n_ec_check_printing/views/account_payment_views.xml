@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="account.view_account_payment_tree"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='amount']" position="after">
-                    <field name="check_number"/>
+                    <field name="check_number" invisible="context.get('default_payment_type') != 'outbound'"/>
                 </xpath>
             </field>
         </record>
