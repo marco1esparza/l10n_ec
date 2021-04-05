@@ -11,9 +11,9 @@
 			</xpath>
 			<div class="oe_button_box" position="inside">
                 <button type="object" class="oe_stat_button" name="l10n_ec_action_view_picking" icon="fa-truck"
-                	attrs="{'invisible': [('l10n_ec_pinking_count', '=', 0)]}">
+                	attrs="{'invisible': [('l10n_ec_picking_count', '=', 0)]}">
                     <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_value"><field name="l10n_ec_pinking_count"/></span>
+                        <span class="o_stat_value"><field name="l10n_ec_picking_count"/></span>
                         <span class="o_stat_text">Picking</span>
                     </div>
                 </button>

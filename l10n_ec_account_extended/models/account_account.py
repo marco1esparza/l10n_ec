@@ -50,3 +50,5 @@ class AccountAccount(models.Model):
     user_type_id = fields.Many2one(tracking=True)
     note = fields.Text(tracking=True)
     group_id = fields.Many2one(tracking=True)
+    deprecated = fields.Boolean(tracking=True)
+    reconcile = fields.Boolean(tracking=True)

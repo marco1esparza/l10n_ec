@@ -109,15 +109,15 @@ class AccountMove(models.Model):
         return action
 
     @api.depends('l10n_ec_stock_picking_id')
-    def _compute_l10n_ec_pinking_count(self):
+    def _compute_l10n_ec_picking_count(self):
         for move in self:
             count = len(self.l10n_ec_stock_picking_id)
-            move.l10n_ec_pinking_count = count
+            move.l10n_ec_picking_count = count
     
     #Columns
     l10n_ec_is_waybill = fields.Boolean(string='Is Waybill', copy=False) #para facilitar la creación de las vistas
-    l10n_ec_pinking_count = fields.Integer(
-        compute='_compute_l10n_ec_pinking_count',
+    l10n_ec_picking_count = fields.Integer(
+        compute='_compute_l10n_ec_picking_count',
         string='Number of Picking',
         )
     l10n_ec_stock_picking_id = fields.Many2one(

@@ -1,19 +1,8 @@
 # -*- coding:utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, models, fields, _
-from odoo.tests.common import Form
-from odoo.exceptions import UserError, ValidationError, except_orm
-from odoo.tools import float_repr
-
-import re
-from datetime import date, datetime
+from odoo import api, models
 import logging
-import base64
-
-import xml.etree.ElementTree as ElementTree
-from xml.dom import minidom
-from time import sleep
 
 _logger = logging.getLogger(__name__)
 

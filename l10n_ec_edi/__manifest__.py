@@ -52,5 +52,4 @@
     ],
     'installable': True,
     'auto_install': True,
-    #'post_init_hook': '_post_install_hook_disable_facturx',
 }
