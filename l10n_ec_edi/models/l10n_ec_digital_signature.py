@@ -32,6 +32,7 @@ class L10NECDigitalSignature(models.Model):
             name = record.name or str(record.id)
             if record.company_id:
                 name = record.company_id.name + ' ' + name
+            name = 'Firma ' + name
             res.append((record.id, name))
         return res
 
