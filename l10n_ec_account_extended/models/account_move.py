@@ -521,7 +521,8 @@ class AccountMove(models.Model):
     @api.constrains('l10n_latam_document_type_id', 'name', 'move_type')
     def _check_l10n_latam_document_number_doctype_41(self):
         for move in self:
-            if move.l10n_latam_document_type_id and move.l10n_latam_document_type_id.code == '41' and move.name and move.move_type:
+            if move.l10n_latam_document_type_id and move.l10n_latam_document_type_id.code == '41' and move.name \
+                    and move.move_type:
                 doc_code_prefix = move.l10n_latam_document_type_id.doc_code_prefix
                 name = move.name
                 if doc_code_prefix and name:

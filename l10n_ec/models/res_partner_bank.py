@@ -14,7 +14,7 @@ class ResPartnerBank(models.Model):
     l10n_ec_account_type = fields.Selection(
         _ACCOUNT_TYPE,
         string='Account Type',
-        default='checking',
+        required=True,
         help='Select here the type of account (savings or checking)'
         )
     
