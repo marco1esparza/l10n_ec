@@ -89,9 +89,37 @@ class AccountMove(models.Model):
         if self.l10n_ec_is_waybill:
             domain.extend([('l10n_ec_type', '=', 'out_waybill')])
         return domain
+
+    def l10n_ec_action_view_picking(self):
+        '''
+        Se muestra el picking asociado a la Guia de Remision.
+        '''
+        action = self.env["ir.actions.actions"]._for_xml_id("stock.action_picking_tree_all")
+
+        pickings = self.mapped('l10n_ec_stock_picking_id')
+        if len(pickings) > 1:
+            action['domain'] = [('id', 'in', pickings.ids)]
+        elif pickings:
+            form_view = [(self.env.ref('stock.view_picking_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [(state, view) for state, view in action['views'] if view != 'form']
+            else:
+                action['views'] = form_view
+            action['res_id'] = pickings.id
+        return action
+
+    @api.depends('l10n_ec_stock_picking_id')
+    def _compute_l10n_ec_pinking_count(self):
+        for move in self:
+            count = len(self.l10n_ec_stock_picking_id)
+            move.l10n_ec_pinking_count = count
     
     #Columns
     l10n_ec_is_waybill = fields.Boolean(string='Is Waybill', copy=False) #para facilitar la creación de las vistas
+    l10n_ec_pinking_count = fields.Integer(
+        compute='_compute_l10n_ec_pinking_count',
+        string='Number of Picking',
+        )
     l10n_ec_stock_picking_id = fields.Many2one(
         'stock.picking',
         string='Stock Pickings',

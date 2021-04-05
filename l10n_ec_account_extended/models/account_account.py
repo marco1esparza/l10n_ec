@@ -5,7 +5,8 @@ import re
 from odoo import models, api, fields, _
 
 class AccountAccount(models.Model):
-    _inherit = 'account.account'
+    _name = 'account.account'
+    _inherit = ['account.account', 'mail.thread', 'mail.activity.mixin']
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
@@ -43,4 +44,9 @@ class AccountAccount(models.Model):
         help=u"Campo técnico calculado y almacenado en la bbdd que contiene "
              u"el valor del código + nombre de la cuenta contable"
              )
-
+    #Se agregan tracking de seguimiento a campos relativos
+    name = fields.Char(tracking=True)
+    code = fields.Char(tracking=True)
+    user_type_id = fields.Many2one(tracking=True)
+    note = fields.Text(tracking=True)
+    group_id = fields.Many2one(tracking=True)

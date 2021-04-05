@@ -24,6 +24,7 @@
     'data': [
         #Data
         #Views
+        'views/account_account_view.xml',
         'views/account_move_view.xml',
         'views/account_fiscal_position_view.xml',        
         'views/res_company_view.xml',
