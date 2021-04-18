@@ -125,7 +125,7 @@ ec21070306,21070306,OTRAS OBLICACIONES CORRIENTES CON EL IESS,TRUE,account.data_
 ec21070401,21070401,SUELDOS Y SALARIOS POR PAGAR,TRUE,account.data_account_type_payable,l10n_ec_ifrs
 ec21070402,21070402,OTRAS OBLIGACIONES CORRIENTES POR BENEFICIOS DE LEY A EMPLEADOS,TRUE,account.data_account_type_payable,l10n_ec_ifrs
 ec21070403,21070403,DÉCIMOS POR PAGAR,TRUE,account.data_account_type_payable,l10n_ec_ifrs
-ec210705,210705,PARTICIPACION TRABAJADORES POR PAGAR DEL EJERCICIO,TRUE,account.data_account_type_payable,l10n_ec_ifrs
+ec210705,210705,PARTICIPACION TRABAJADORES POR PAGAR DEL EJERCICIO,TRUE,account.data_account_type_current_liabilities,l10n_ec_ifrs
 ec210706,210706,DIVIDENDOS POR PAGAR,TRUE,account.data_account_type_payable,l10n_ec_ifrs
 ec2108,2108,CUENTAS POR PAGAR DIVERSAS/RELACIONADAS,TRUE,account.data_account_type_payable,l10n_ec_ifrs
 ec2109,2109,OTROS PASIVOS FINANCIEROS,TRUE,account.data_account_type_payable,l10n_ec_ifrs
