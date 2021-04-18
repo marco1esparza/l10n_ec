@@ -331,8 +331,11 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
      
                 idProv = doc.createElement('idProv')
                 detallecompras.appendChild(idProv)
-                idProv.appendChild(doc.createTextNode(in_inv.partner_id.vat))
-                 
+                vidProv = in_inv.partner_id.vat or ''
+                idProv.appendChild(doc.createTextNode(vidProv))
+                if not vidProv:
+                    report_status.append(u'Documento ' + in_inv.name + u' el proveedor no tiene número de RUC o Cédula')
+                                 
                 tipoComprobante = doc.createElement('tipoComprobante')
                 detallecompras.appendChild(tipoComprobante)
                 tipoComprobante.appendChild(doc.createTextNode(in_inv.l10n_latam_document_type_id.code))
