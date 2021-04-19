@@ -3,7 +3,7 @@
 
 {
     'name': 'Extras Contables para Ecuador',
-    'version': '1.6',
+    'version': '1.7',
     'summary': 'Even easier Accounting by Trescloud',
     'category': 'Localization',
     'description': '''         
