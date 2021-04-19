@@ -14,7 +14,6 @@ class ResPartnerBank(models.Model):
     l10n_ec_account_type = fields.Selection(
         _ACCOUNT_TYPE,
         string='Account Type',
-        default='checking',
         help='Select here the type of account (savings or checking)'
         )
     
@@ -32,4 +31,3 @@ class ResPartnerBank(models.Model):
                 bank.acc_type = bank.l10n_ec_account_type
             else:
                 super(ResPartnerBank, self)._compute_acc_type()
-    

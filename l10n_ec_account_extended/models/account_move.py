@@ -157,7 +157,7 @@ class AccountMove(models.Model):
         #Execute ecuadorian validations with bypass option
         for document in self:
             if document.country_code == 'EC':
-                if document.journal_id.edi_format_ids.filtered(lambda e:e.code == 'facturx_1_0_05'):
+                if document.journal_id.compatible_edi_ids.filtered(lambda e: e.code == 'facturx_1_0_05'):
                     raise UserError(_("Por favor, debe deshabilitar primero el Documento Electrónico Factur-X (FR) del Diario %s, Contabilidad/Configuración/Diarios Contables") % self.journal_id.name)
                 #FIX ME: a veces, con puntos de emision nuevos, no se computa el perfijo de la factura en el numero
                 document._inverse_l10n_latam_document_number()
@@ -518,6 +518,21 @@ class AccountMove(models.Model):
         '- Permite aprobar facturas sin impuestos',
         )
 
+#     @api.constrains('l10n_latam_document_type_id', 'name', 'move_type')
+#     def _check_l10n_latam_document_number_doctype_41(self):
+#         for move in self:
+#             if move.l10n_latam_document_type_id and move.l10n_latam_document_type_id.code == '41' and move.name \
+#                     and move.move_type:
+#                 doc_code_prefix = move.l10n_latam_document_type_id.doc_code_prefix
+#                 name = move.name
+# #                 if doc_code_prefix and name:
+#                     name = name.split(" ", 1)[-1]
+#                 count = self.env['account.move'].search(
+#                     [('l10n_latam_document_type_id', '=', move.l10n_latam_document_type_id.id),
+#                      ('name', 'ilike', name), ('move_type', '=', 'in_invoice')])
+#                 if len(count) > 1:
+#                     raise ValidationError('No pueden existir varios documentos con el mismo numero de documento.')
+
 class AccountMoveLine(models.Model):
     _inherit='account.move.line'
 
@@ -574,5 +589,4 @@ class AccountMoveLine(models.Model):
             if profit_withhold_tax:
                 super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_income_tax'])
                 super_tax_ids += profit_withhold_tax
-        return super_tax_ids        
-        
+        return super_tax_ids

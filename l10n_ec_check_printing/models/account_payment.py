@@ -62,13 +62,23 @@ class AccountPayment(models.Model):
                     raise ValidationError(_('Ecuadorian check numbers must be a positive number'))
         return super(AccountPayment, self)._constrains_check_number()
 
+    def action_print_check(self):
+        '''
+        Action que permite imprimir el  cheque nuevamente si este ya tiene asignado un numero.
+        '''
+        if self.check_number:
+            check = self.env['print.prenumbered.checks'].create({'next_check_number': self.check_number})
+            return check.with_context(payment_ids=self.id).print_checks()
+        else:
+            raise ValidationError(u'El Pago no cuenta con un número de cheque asignado.')
+
     def print_checks(self):
         #ask the user for the check beneficiary name
         res = super(AccountPayment, self).print_checks()
         if not self[0].journal_id.check_manual_sequencing:
             if len(self) == 1:
                 #solo cuando es un cheque individual pregunto por el beneficiario
-                res['context']['default_l10n_ec_check_beneficiary_name'] = self.partner_id.commercial_partner_id.name
+                res['context']['default_l10n_ec_check_beneficiary_name'] = self.partner_id and self.partner_id.commercial_partner_id.name or self.l10n_ec_check_beneficiary_name
             
             #FIX until Odoo one beautifull day accepts PR https://github.com/odoo/odoo/pull/67303/files
             self.env.cr.execute("""
@@ -94,9 +104,10 @@ class AccountPayment(models.Model):
         page = super(AccountPayment, self)._check_build_page_info(i, p)
         amount_in_word = page['amount_in_word']
         lines = textwrap.wrap(amount_in_word, int(AMOUNT_IN_WORDS_LENGHT/2))
+        l10n_ec_check_beneficiary_name = self.l10n_ec_check_beneficiary_name or self.commercial_partner_id and self.commercial_partner_id.name or '.'
         page.update({
             'city_and_date': self.company_id.city + ', ' + format_date(self.env, self.date, date_format='yyyy-MM-dd'),
-            'partner_name': self.l10n_ec_check_beneficiary_name or self.commercial_partner_id.name,
+            'partner_name': l10n_ec_check_beneficiary_name,
             'amount_line1': lines[0],
             'amount_line2': lines[1],
         })
@@ -110,4 +121,3 @@ class AccountPayment(models.Model):
     check_number = fields.Char(
         tracking=True,
         )
-    

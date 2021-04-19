@@ -22,7 +22,7 @@ class PrintPreNumberedChecks(models.TransientModel):
         res = super(PrintPreNumberedChecks, self).print_checks()
         payments = self.env['account.payment'].browse(self.env.context['payment_ids'])
         for payment in payments:
-            payment.l10n_ec_check_beneficiary_name = self.l10n_ec_check_beneficiary_name or payment.partner_id.commercial_partner_id.name
+            payment.l10n_ec_check_beneficiary_name = self.l10n_ec_check_beneficiary_name or payment.partner_id and payment.partner_id.commercial_partner_id.name or payment.l10n_ec_check_beneficiary_name
         return res
     
     @api.depends('next_check_number')

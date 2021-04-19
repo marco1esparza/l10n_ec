@@ -25,6 +25,17 @@ class L10NECDigitalSignature(models.Model):
     _description = 'XAdES Digital Signature'
     _inherit = ['mail.thread']
 
+    @api.depends('name', 'company_id')
+    def name_get(self):
+        res = []
+        for record in self:
+            name = record.name or str(record.id)
+            if record.company_id:
+                name = record.company_id.name + ' ' + name
+            name = 'Firma ' + name
+            res.append((record.id, name))
+        return res
+
     def unlink(self):
         """
         Controla que se pueda eliminar un registro unicamente en estado borrador

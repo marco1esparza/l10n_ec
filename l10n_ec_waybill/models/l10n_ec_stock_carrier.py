@@ -24,18 +24,11 @@ class L10nEcWaybillCarrier(models.Model):
         elif self.l10n_latam_identification_type_id.id == self.env.ref('l10n_latam_base.it_fid').id: #PERS. JURIDICA EXTRANJERA
             code = '08'
         return code
-    
-    def _get_available_l10n_latam_identification_types(self):
-        #computes the possible identification types for carriers (cedula, ruc y pasaporte)
-        cedula = self.env.ref('l10n_ec.ec_dni')
-        ruc =  self.env.ref('l10n_ec.ec_ruc')
-        pasaporte = self.env.ref('l10n_latam_base.it_pass')
-        return  [cedula.id,ruc.id,pasaporte.id]
-    
-    @api.depends()
+
+    @api.depends('company_id')
     def _compute_allowed_identification_type_ids(self):
         cedula = self.env.ref('l10n_ec.ec_dni')
-        ruc =  self.env.ref('l10n_ec.ec_ruc')
+        ruc = self.env.ref('l10n_ec.ec_ruc')
         pasaporte = self.env.ref('l10n_latam_base.it_pass')
         for carrier in self:
             carrier.allowed_identification_type_ids = cedula + ruc + pasaporte
@@ -48,10 +41,10 @@ class L10nEcWaybillCarrier(models.Model):
     l10n_latam_identification_type_id = fields.Many2one(
         'l10n_latam.identification.type',
         string="Identification Type",
-        default=lambda self: self.env.ref('l10n_ec.ec_dni',raise_if_not_found=False),
+        default=lambda self: self.env.ref('l10n_ec.ec_dni', raise_if_not_found=False),
         tracking=True,
         required=True,
-        domain=[('id','in',_get_available_l10n_latam_identification_types)],
+        domain="[('id', 'in', allowed_identification_type_ids)]",
         help="The type of identification"
         )    
     allowed_identification_type_ids = fields.Many2many(
@@ -69,10 +62,9 @@ class L10nEcWaybillCarrier(models.Model):
         help="Set active to false to hide the SRI Printer Point without removing it.",
         tracking=True,
         )
-    company_id = fields.Many2one('res.company', string='Company', required=True, index=True, default=lambda self: self.env.company)
+    company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company)
 
-
-    @api.constrains('l10n_latam_identification_type_id','vat')
+    @api.constrains('l10n_latam_identification_type_id', 'vat')
     def _check_vat(self):
         cedula = self.env.ref('l10n_ec.ec_dni')
         ruc =  self.env.ref('l10n_ec.ec_ruc')
