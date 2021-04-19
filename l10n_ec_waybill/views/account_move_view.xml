@@ -6,9 +6,6 @@
 		<field name="model">account.move</field>
 		<field name="inherit_id" ref="l10n_ec_edi.view_move_invoice_customization_form"/>
 		<field name="arch" type="xml">
-			<xpath expr="//button[@name='%(account.action_view_account_move_reversal)d']" position="attributes">
-				<attribute name="attrs">{'invisible': ['|', ('l10n_ec_withhold_type', '!=', False), '|', ('l10n_ec_is_waybill', '=', True), '|', ('move_type', '!=', 'entry'), '|', ('state', '!=', 'posted'), ('payment_state', '=', 'reversed')]}</attribute>
-			</xpath>
 			<div class="oe_button_box" position="inside">
                 <button type="object" class="oe_stat_button" name="l10n_ec_action_view_picking" icon="fa-truck"
                 	attrs="{'invisible': [('l10n_ec_picking_count', '=', 0)]}">
