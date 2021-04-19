@@ -15,6 +15,8 @@
 			<field name="property_stock_account_input_categ_id" ref="ec110307"/>
 			<field name="property_stock_account_output_categ_id" ref="ec510102"/>
 			<field name="property_stock_valuation_account_id" ref="ec110306"/>
+			<field name="default_cash_difference_income_account_id" ref="ec430501"/>
+        	<field name="default_cash_difference_expense_account_id" ref="ec520304"/>
 		</record>
 
 	</data>
