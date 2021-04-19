@@ -518,21 +518,20 @@ class AccountMove(models.Model):
         '- Permite aprobar facturas sin impuestos',
         )
 
-    @api.constrains('l10n_latam_document_type_id', 'name', 'move_type')
-    def _check_l10n_latam_document_number_doctype_41(self):
-        for move in self:
-            if move.l10n_latam_document_type_id and move.l10n_latam_document_type_id.code == '41' and move.name \
-                    and move.move_type:
-                doc_code_prefix = move.l10n_latam_document_type_id.doc_code_prefix
-                name = move.name
-                if doc_code_prefix and name:
-                    name = name.split(" ", 1)[-1]
-                count = self.env['account.move'].search(
-                    [('l10n_latam_document_type_id', '=', move.l10n_latam_document_type_id.id),
-                     ('name', 'ilike', name), ('move_type', '=', 'in_invoice')])
-                if len(count) > 1:
-                    raise ValidationError('No pueden existir varios documentos con el mismo numero de documento.')
-
+#     @api.constrains('l10n_latam_document_type_id', 'name', 'move_type')
+#     def _check_l10n_latam_document_number_doctype_41(self):
+#         for move in self:
+#             if move.l10n_latam_document_type_id and move.l10n_latam_document_type_id.code == '41' and move.name \
+#                     and move.move_type:
+#                 doc_code_prefix = move.l10n_latam_document_type_id.doc_code_prefix
+#                 name = move.name
+# #                 if doc_code_prefix and name:
+#                     name = name.split(" ", 1)[-1]
+#                 count = self.env['account.move'].search(
+#                     [('l10n_latam_document_type_id', '=', move.l10n_latam_document_type_id.id),
+#                      ('name', 'ilike', name), ('move_type', '=', 'in_invoice')])
+#                 if len(count) > 1:
+#                     raise ValidationError('No pueden existir varios documentos con el mismo numero de documento.')
 
 class AccountMoveLine(models.Model):
     _inherit='account.move.line'
