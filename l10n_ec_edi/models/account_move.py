@@ -175,8 +175,12 @@ class AccountMove(models.Model):
     def button_cancel(self):
         # validate number format of void documents when voiding draft documents
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents and x.state == 'draft'):
-            if not invoice._context.get('procesing_edi_job',False) and invoice.l10n_ec_printer_id.allow_electronic_document:
-                raise ValidationError(_('%s: El punto de emisión está configurado para documentos electrónicos, debió primero aprobarlo en el SRI y luego aplastar el botón de ANULACIÓN EDI') % invoice.name)
+            if not invoice._context.get('procesing_edi_job',False): #bypass pues Odoo se da doble vuelta en la aprobación
+                is_edi_needed = False
+                for edi_format in invoice.journal_id.edi_format_ids.filtered(lambda e: e.code == 'l10n_ec_tax_authority'):
+                    is_edi_needed = edi_format._is_required_for_invoice(invoice)
+                if is_edi_needed:
+                    raise ValidationError(_('%s: El punto de emisión está configurado para documentos electrónicos, debió primero aprobarlo en el SRI y luego aplastar el botón de ANULACIÓN EDI') % invoice.name)
             invoice._l10n_ec_validate_number()
         res = super().button_cancel()
         return res
@@ -193,7 +197,7 @@ class AccountMove(models.Model):
             if not invoice.is_invoice():
                 # ideally we should call a line like
                 # if not invoice.is_invoice() and not invoice.is_withholding()
-                # but for v14 we don't consider is_invoice to include all edis
+                # but for v14 we consider is_invoice to include all edis
                 raise ValidationError(u'Para Ecuador por favor desactivar la opcion Usa Documentos del Diario %s.' % invoice.journal_id.name)
             if invoice.l10n_latam_document_type_id.l10n_ec_require_vat:
                 if not invoice.partner_id.l10n_latam_identification_type_id:
