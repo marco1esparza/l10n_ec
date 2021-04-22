@@ -12,7 +12,8 @@ def migrate(env, version):
 @openupgrade.logging()
 def remove_facturx(env):
     # remover el edi format "Factur-X", pues no lo ocupamos para Ecuador
-    companies = env['res.company'].search([('country_code','=','EC')])
+    ecuador = env['res.country'].search([('code','=','EC')])
+    companies = env['res.company'].search([('country_id','in',ecuador)])
     for company in companies:
         sales_journal = env['account.journal'].search([('type','=','sale'),('company_id','=',company.id)])
         for journal in sales_journal:
