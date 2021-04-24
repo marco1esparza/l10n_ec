@@ -44,11 +44,10 @@ class AccountEdiDocument(models.Model):
                 invoice_wizard.onchange_template_id()
                 invoice_wizard.send_and_print_action()
     
-    def _process_jobs(self, to_process):
+    def _process_job(self, documents, doc_type):
         #sends an email
-        super(AccountEdiDocument,  self)._process_jobs(to_process)
-        for key, documents in to_process:
-            self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.country_code == 'EC'))
+        super(AccountEdiDocument,  self)._process_job(documents, doc_type)
+        self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.country_code == 'EC'))
     
     def _l10n_ec_set_access_key(self):
         #writes de access key of the document
