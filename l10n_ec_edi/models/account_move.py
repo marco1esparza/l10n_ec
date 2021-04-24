@@ -524,6 +524,8 @@ class AccountMove(models.Model):
                 invoice.l10n_ec_transaction_type = 'La factura no tiene tipo... contacte a soporte tecnico.'
                 invoice.l10n_ec_transaction_type += ' Documento ' + str(invoice.l10n_latam_document_number or '')
                 invoice.l10n_ec_transaction_type += ' Empresa ' + (invoice.partner_id.name or '')
+            else:
+                invoice.l10n_ec_transaction_type = ''
 
 
     @api.depends('l10n_latam_document_type_id','l10n_ec_printer_id','state')
