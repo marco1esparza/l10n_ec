@@ -520,10 +520,11 @@ class AccountMove(models.Model):
                     invoice.l10n_ec_transaction_type = 'Cliente no tiene asignado una identificacion (CEDULA/RUC/PASAPORTE) correcta.'
                     invoice.l10n_ec_transaction_type += ' Documento de Venta ' + str(invoice.l10n_latam_document_number or '')
                     invoice.l10n_ec_transaction_type += ' Cliente ' + (invoice.partner_id.name or '')
-            else:
+            elif not invoice.is_withholding() and not invoice.is_waybill():
                 invoice.l10n_ec_transaction_type = 'La factura no tiene tipo... contacte a soporte tecnico.'
                 invoice.l10n_ec_transaction_type += ' Documento ' + str(invoice.l10n_latam_document_number or '')
                 invoice.l10n_ec_transaction_type += ' Empresa ' + (invoice.partner_id.name or '')
+
 
     @api.depends('l10n_latam_document_type_id','l10n_ec_printer_id','state')
     def _show_edit_l10n_ec_authorization(self):
