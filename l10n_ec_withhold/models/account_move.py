@@ -455,6 +455,35 @@ class AccountMove(models.Model):
             is_withholding = True
         return is_withholding
 
+    @api.depends(
+        'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
+        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual',
+        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual_currency',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.payment_id.is_matched',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual_currency',
+        'line_ids.debit',
+        'line_ids.credit',
+        'line_ids.currency_id',
+        'line_ids.amount_currency',
+        'line_ids.amount_residual',
+        'line_ids.amount_residual_currency',
+        'line_ids.payment_id.state',
+        'line_ids.full_reconcile_id')
+    def _compute_amount(self):
+        '''
+        Se computa para retenciones de ventas, para poder obtener el total registrado en lal vista lista.
+        '''
+        super()._compute_amount()
+        for move in self.filtered(lambda x: x.is_withholding() and x.l10n_ec_withhold_type == 'out_withhold'):
+            total = 0.0
+
+            for line in move.line_ids:
+                if line.debit:
+                    total += line.balance
+
+            move.amount_total_signed = abs(total) if move.move_type == 'entry' else -total
+
     @api.constrains('name', 'journal_id', 'state')
     def _check_unique_sequence_number(self):
         '''
