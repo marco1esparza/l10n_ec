@@ -108,7 +108,7 @@ class L10nECA3DetailReport(models.TransientModel):
         report_name = 'ANEXO 3 - DETALLE DE COMPRAS'
         sheet = book.add_worksheet(report_name)
         sheet.write(0, 0, report_name, titleheader)
-        sheet.write(1, 0, 'Reporte detallado de facturas de comprasa, con retenciones aplicadas y forma de pago prevista', titlesubheader)
+        sheet.write(1, 0, 'Reporte detallado de facturas de compras, con retenciones aplicadas y forma de pago prevista', titlesubheader)
         sheet.write(2, 0, 'Reporte auxiliar para el Formulario 104', titlesubheader)
         sheet.write(3, 0, self.company_id.l10n_ec_legal_name or self.company_id.name, bold)
         sheet.write(4, 0, "Desde el %s al %s" % (obj.date_from, obj.date_to), bold)
