@@ -647,12 +647,18 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         Escribe la seccion de notas de credito y notas de debito en compras en el ats
         '''
         if in_inv.l10n_latam_document_type_id.code=='04' or in_inv.l10n_latam_document_type_id.code=='05':
+            # if not in_inv.reversed_entry_id:
+            #     raise UserError(u'Documento ' + in_inv.name + u' no tiene la factura que modifica, debe crear las NCs o NDs desde la factura original')
+                
             docModificado = doc.createElement('docModificado')
             detallecompras.appendChild(docModificado)
             vdocModificado = in_inv.reversed_entry_id.l10n_latam_document_type_id.code or ''
             pdocModificado = doc.createTextNode(vdocModificado)
             docModificado.appendChild(pdocModificado)
-            if not vdocModificado:
+            if not in_inv.reversed_entry_id:
+                report_status.append(u'Documento ' + in_inv.name + u' no tiene la factura que modifica, debe crear las NCs o NDs desde la factura original')
+                return False #usamos return porque todos los otros nodos de esta sección van a fallar
+            elif not vdocModificado:
                 #si no es un codigo sino un texto, agregamos el texto del error
                 report_status.append(u'Documento ' + in_inv.reversed_entry_id.name + u' no tiene tipo de documento.')
             else:
