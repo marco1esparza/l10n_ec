@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="report_trial_balance">
+        <div class="o_account_financial_reports_page">
+            <t t-call="trescloud_financial_reports.report_buttons" />
+            <t t-call="trescloud_financial_reports.report_trial_balance_base" />
+        </div>
+    </template>
+</odoo>
