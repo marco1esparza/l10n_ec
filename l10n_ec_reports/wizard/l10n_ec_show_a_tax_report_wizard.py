@@ -20,6 +20,10 @@ class L10nECDetailReportWizard(models.TransientModel):
             report = self.env['l10n_ec.a2.detail.report'].create({'date_from': self.date_from,
                                                                   'date_to': self.date_to,
                                                                   'company_id': self.company_id.id})
+        elif self.env.context.get('show_report', False) == 'report_A3':
+            report = self.env['l10n_ec.a3.detail.report'].create({'date_from': self.date_from,
+                                                                  'date_to': self.date_to,
+                                                                  'company_id': self.company_id.id})
         else:
             raise UserError('No ha seleccionado un reporte valido.')
         if report:

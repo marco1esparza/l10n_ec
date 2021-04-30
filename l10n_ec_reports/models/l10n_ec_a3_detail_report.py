@@ -7,11 +7,11 @@ import io
 from odoo.tools.misc import xlsxwriter
 
 
-class L10nECA1DetailReport(models.TransientModel):
-    _name = 'l10n_ec.a1.detail.report'
-    _description = 'l10n_ec.a1.detail.report'
+class L10nECA3DetailReport(models.TransientModel):
+    _name = 'l10n_ec.a3.detail.report'
+    _description = 'l10n_ec.a3.detail.report'
 
-    def _get_sales_detail_report_invoice_domain(self):
+    def _get_purchase_detail_report_invoice_domain(self):
         """
         Get base domain to search invoices
         :return: domain list
@@ -21,11 +21,11 @@ class L10nECA1DetailReport(models.TransientModel):
             ('invoice_date', '>=', self.date_from),
             ('invoice_date', '<=', self.date_to)
         ]
-        type = [('move_type', 'in', ('out_invoice', 'out_refund'))]
+        type = [('move_type', 'in', ('in_invoice', 'in_refund'))]
         if self.env.context.get('only_invoice'):
-            type = [('move_type', '=', 'out_invoice')]
+            type = [('move_type', '=', 'in_invoice')]
         if self.env.context.get('only_credit_note'):
-            type = [('move_type', '=', 'out_refund')]
+            type = [('move_type', '=', 'in_refund')]
         domain.extend(type)
         return domain
 
@@ -35,7 +35,7 @@ class L10nECA1DetailReport(models.TransientModel):
         '''
         withholding_number = ''
         if invoice_id.l10n_ec_withhold_ids:
-            for withholding in invoice_id.l10n_ec_withhold_ids.filtered(lambda w:w.state == 'posted'):
+            for withholding in invoice_id.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted'):
                 if withholding_number:
                     withholding_number += ',' + withholding.name
                 else:
@@ -60,10 +60,8 @@ class L10nECA1DetailReport(models.TransientModel):
 
         FIELDS = [
             (u'ITEM', 'index', '', 'std', 6),
-            (u'TIPO ID.', 'invoice_id', 'l10n_ec_transaction_type', 'std', 7),
             (u'RUC/CI', 'invoice_id', 'partner_id.vat', 'std', 10),
-            (u'CLIENTE', 'invoice_id', 'partner_id.name', 'std', 50),
-            (u'PAR REL', 'invoice_id', 'partner_id.l10n_ec_related_part', 'std', 10),
+            (u'PROVEEDOR', 'invoice_id', 'partner_id.name', 'std', 50),
             (u'TIPO COMP.', 'invoice_id', 'l10n_latam_document_type_id.display_name', 'std', 15),
             (u'NÚMERO DE DOCUMENTO', 'invoice_id', 'l10n_latam_document_number', 'std', 20),
             (u'F. EMISIÓN', 'invoice_id', 'invoice_date', 'datef', 10),
@@ -107,11 +105,11 @@ class L10nECA1DetailReport(models.TransientModel):
         l10n_ec_base_doce_iva = 0.0
         l10n_ec_vat_doce_subtotal = 0.0
 
-        report_name = 'ANEXO 1 - DETALLE DE VENTAS'
+        report_name = 'ANEXO 3 - DETALLE DE COMPRAS'
         sheet = book.add_worksheet(report_name)
         sheet.write(0, 0, report_name, titleheader)
-        sheet.write(1, 0, 'Reporte detallado de facturas de venta, con retenciones aplicadas y forma de pago prevista', titlesubheader)
-        sheet.write(2, 0, 'Reporte auxiliar para el ATS y para el Formulario 101', titlesubheader)
+        sheet.write(1, 0, 'Reporte detallado de facturas de compras, con retenciones aplicadas y forma de pago prevista', titlesubheader)
+        sheet.write(2, 0, 'Reporte auxiliar para el Formulario 104', titlesubheader)
         sheet.write(3, 0, self.company_id.l10n_ec_legal_name or self.company_id.name, bold)
         sheet.write(4, 0, "Desde el %s al %s" % (obj.date_from, obj.date_to), bold)
         row = 5
@@ -119,7 +117,7 @@ class L10nECA1DetailReport(models.TransientModel):
             sheet.set_column(col, col, field[4])
             sheet.write(row + 1, col, field[0], title)
         row = 6
-        invoices = obj.env['account.move'].search(obj._get_sales_detail_report_invoice_domain())
+        invoices = obj.env['account.move'].search(obj._get_purchase_detail_report_invoice_domain())
         for index, invoice_id in enumerate(invoices):
             row += 1
             if invoice_id.move_type == 'in_invoice':
@@ -164,14 +162,12 @@ class L10nECA1DetailReport(models.TransientModel):
             sheet.write(row, 4, '', footer)
             sheet.write(row, 5, '', footer)
             sheet.write(row, 6, '', footer)
-            sheet.write(row, 7, '', footer)
-            sheet.write(row, 8, '', footer)
-            sheet.write(row, 9, l10n_ec_base_not_subject_to_vat, num_footer)
-            sheet.write(row, 10, l10n_ec_base_cero_iva, num_footer)
-            sheet.write(row, 11, l10n_ec_base_doce_iva, num_footer)
-            sheet.write(row, 12, l10n_ec_vat_doce_subtotal, num_footer)
-            sheet.write(row, 13, '', footer)
-            sheet.write(row, 14, '', footer)
+            sheet.write(row, 7, l10n_ec_base_not_subject_to_vat, num_footer)
+            sheet.write(row, 8, l10n_ec_base_cero_iva, num_footer)
+            sheet.write(row, 9, l10n_ec_base_doce_iva, num_footer)
+            sheet.write(row, 10, l10n_ec_vat_doce_subtotal, num_footer)
+            sheet.write(row, 11, '', footer)
+            sheet.write(row, 12, '', footer)
         book.close()
         output.seek(0)
         generated_file = base64.b64encode(output.read())
