@@ -647,41 +647,41 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         Escribe la seccion de notas de credito y notas de debito en compras en el ats
         '''
         if in_inv.l10n_latam_document_type_id.code=='04' or in_inv.l10n_latam_document_type_id.code=='05':
-            # if not in_inv.reversed_entry_id:
-            #     raise UserError(u'Documento ' + in_inv.name + u' no tiene la factura que modifica, debe crear las NCs o NDs desde la factura original')
-                
-            docModificado = doc.createElement('docModificado')
-            detallecompras.appendChild(docModificado)
-            vdocModificado = in_inv.reversed_entry_id.l10n_latam_document_type_id.code or ''
-            pdocModificado = doc.createTextNode(vdocModificado)
-            docModificado.appendChild(pdocModificado)
-            if not in_inv.reversed_entry_id:
+            modified_move = in_inv.reversed_entry_id or in_inv.debit_origin_id
+            if not modified_move:
                 report_status.append(u'Documento ' + in_inv.name + u' no tiene la factura que modifica, debe crear las NCs o NDs desde la factura original')
                 return False #usamos return porque todos los otros nodos de esta sección van a fallar
-            elif not vdocModificado:
+                        
+            docModificado = doc.createElement('docModificado')
+            detallecompras.appendChild(docModificado)
+            vdocModificado = modified_move.l10n_latam_document_type_id.code or ''
+            pdocModificado = doc.createTextNode(vdocModificado)
+            docModificado.appendChild(pdocModificado)
+            if not vdocModificado:
                 #si no es un codigo sino un texto, agregamos el texto del error
-                report_status.append(u'Documento ' + in_inv.reversed_entry_id.name + u' no tiene tipo de documento.')
+                report_status.append(u'Documento ' + modified_move.name + u' no tiene tipo de documento.')
             else:
                 pass #do nothing
+
  
             estabModificado = doc.createElement('estabModificado')
             detallecompras.appendChild(estabModificado)
-            pestabModificado = doc.createTextNode(in_inv.reversed_entry_id.l10n_latam_document_number[0:3])
+            pestabModificado = doc.createTextNode(modified_move.l10n_latam_document_number[0:3])
             estabModificado.appendChild(pestabModificado)
  
             ptoEmiModificado = doc.createElement('ptoEmiModificado')
             detallecompras.appendChild(ptoEmiModificado)
-            pptoEmiModificado = doc.createTextNode(in_inv.reversed_entry_id.l10n_latam_document_number[4:7])
+            pptoEmiModificado = doc.createTextNode(modified_move.l10n_latam_document_number[4:7])
             ptoEmiModificado.appendChild(pptoEmiModificado)
  
             secModificado = doc.createElement('secModificado')
             detallecompras.appendChild(secModificado)
-            psecModificado = doc.createTextNode(in_inv.reversed_entry_id.l10n_latam_document_number[8:])
+            psecModificado = doc.createTextNode(modified_move.l10n_latam_document_number[8:])
             secModificado.appendChild(psecModificado)
  
             autModificado = doc.createElement('autModificado')
             detallecompras.appendChild(autModificado)
-            Modificadoauth = doc.createTextNode(in_inv.reversed_entry_id.l10n_ec_authorization or '')
+            Modificadoauth = doc.createTextNode(modified_move.l10n_ec_authorization or '')
             autModificado.appendChild(Modificadoauth)
 
     @api.model
