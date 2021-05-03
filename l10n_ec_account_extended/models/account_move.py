@@ -63,7 +63,7 @@ class AccountMove(models.Model):
         self.line_ids._onchange_mark_recompute_taxes()
         self._recompute_dynamic_lines()
         return res
-
+        
     def write(self, vals):
         PROTECTED_FIELDS_TAX_LOCK_DATE = ['l10n_ec_authorization', 'l10n_ec_sri_tax_support_id']
         # Check the tax lock date.
@@ -535,7 +535,19 @@ class AccountMove(models.Model):
 
 class AccountMoveLine(models.Model):
     _inherit='account.move.line'
-
+    
+    def reconcile(self):
+        # Restrict reconciliation to SAME PARTNER
+        partner = None
+        for line in self:
+            if partner is None:
+                partner = line.partner_id
+            elif line.partner_id != partner:
+                raise UserError(_("Las entradas no son de la misma empresa: %s != %s")
+                                % (partner.display_name, line.partner_id.display_name))
+        res = super().reconcile()
+        return res
+    
     def _get_computed_taxes(self):
         '''
         For purchases adds prevalence for tax mapping to ease withholds in Ecuador, in the following order:
