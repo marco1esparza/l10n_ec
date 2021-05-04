@@ -122,7 +122,7 @@ class L10nECA1DetailReport(models.TransientModel):
         invoices = obj.env['account.move'].search(obj._get_sales_detail_report_invoice_domain())
         for index, invoice_id in enumerate(invoices):
             row += 1
-            if invoice_id.move_type == 'in_invoice':
+            if invoice_id.move_type == 'out_invoice':
                 sign = 1
             else:
                 sign = -1
