@@ -384,7 +384,7 @@ class AccountMove(models.Model):
             result = False
             if move.country_code == 'EC':
 		#TODO agregar regiment especial en un AND al siguiente if
-                if move.move_type in ['in_invoice', 'in_refund', 'out_invoice', 'out_refund'] and move.company_id.l10n_ec_issue_withholds:
+                if move.move_type in ['in_invoice', 'in_refund', 'out_invoice', 'out_refund']:
                     if move.l10n_latam_document_type_id.code in [
                                         '01', # factura compra
                                         '02', # nota de venta
