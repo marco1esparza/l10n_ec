@@ -244,9 +244,10 @@ class AccountMove(models.Model):
                 else:
                     pass #do nothin
             #check one tax type per line
-            if l10n_ec_require_vat_tax:
-                if len(vat_taxes) != 1:
-                    raise UserError(_("Please select one and only one vat type (IVA 12, IVA 0, etc) for product:\n\n%s") % line.name)
+            if l10n_ec_require_vat_tax and len(vat_taxes) != 1:
+                raise UserError(_("Please select one and only one vat type (IVA 12, IVA 0, etc) for product:\n\n%s") % line.name)
+            elif not l10n_ec_require_vat_tax and len(vat_taxes) == 1:
+                raise UserError(_("Por favor remueva el IVA del producto:\n\n%s") % line.name)
             if l10n_ec_require_withhold_tax:
                 if len(profit_withhold_taxes) != 1:
                     raise UserError(_("Please select one and only one profit withhold type (312, 332, 322, etc) for product:\n\n%s") % line.name)
