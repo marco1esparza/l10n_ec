@@ -91,7 +91,7 @@
 			<field name="l10n_ec_authorization">third</field>
 			<field name="country_id" ref="base.ec"/>
 		</record>
-
+		
 		<record id="ec_10" model="l10n_latam.document.type">
 			<field name="code">04</field>
 			<field name="name">Nota de Crédito en Ventas</field>
@@ -447,5 +447,18 @@
 			<field name="l10n_ec_authorization">none</field>
 			<field name="country_id" ref="base.ec"/>
 		</record>
+		
+		<record id="foreign_credit_note" model="l10n_latam.document.type">
+			<field name="code">110</field>
+			<field name="name">Nota de Crédito emitida en el exterior</field>
+			<field name="report_name">Nota de Crédito del Exterior</field>
+			<field name="doc_code_prefix">NotCrExt.</field>
+			<field name="sequence">920</field>
+			<field name="internal_type">credit_note</field>
+			<field name="l10n_ec_type">in_refund</field>
+			<field name="l10n_ec_authorization">none</field>
+			<field name="country_id" ref="base.ec"/>
+		</record>
+		
 	</data>	
 </odoo>
