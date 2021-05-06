@@ -217,6 +217,12 @@ class AccountMove(models.Model):
         if self.l10n_ec_authorization_type == 'third' and self.l10n_ec_authorization:
             #validamos la clave de acceso contra los datos de la cabecera de la factura
             self._l10n_ec_validate_authorization()
+        if self.move_type in ['in_refund']:
+            #las notas de credito del exterior deben usar otro tipo de documento para que no vayan al ATS y para q no requieran impuestos
+            if self.reversed_entry_id.l10n_latam_document_type_id.code == '15' and not self.l10n_latam_document_type_id.code == '110': 
+                raise UserError(_("En el documento %s debe cambiar el tipo de documento a Nota de Crédito del Extranjero (código 110)") % self.display_name)
+            elif self.reversed_entry_id.l10n_latam_document_type_id.code != '15' and self.l10n_latam_document_type_id.code == '110': 
+                raise UserError(_("En el documento %s debe cambiar el tipo de documento a Nota de Crédito (código 04)") % self.display_name)
         #validations per invoice line
         l10n_ec_require_withhold_tax = self.l10n_ec_require_withhold_tax
         l10n_ec_require_vat_tax = self.l10n_ec_require_vat_tax
