@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-15 05:14+0000\n"
-"PO-Revision-Date: 2021-03-15 05:14+0000\n"
+"POT-Creation-Date: 2021-05-07 02:05+0000\n"
+"PO-Revision-Date: 2021-05-07 02:05+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -78,8 +78,9 @@ msgid "A2 - Retenciones Renta por Código"
 msgstr ""
 
 #. module: l10n_ec_reports
-#: model:ir.ui.menu,name:l10n_ec_reports.menu_a3_canceled
-msgid "A3 - Documentos Anulados"
+#: model:ir.actions.act_window,name:l10n_ec_reports.action_detail_report_wizard_A3
+#: model:ir.ui.menu,name:l10n_ec_reports.menu_action_form_detail_report_A3
+msgid "A3 - Detalle de Compras"
 msgstr ""
 
 #. module: l10n_ec_reports
@@ -114,6 +115,28 @@ msgid "Abril"
 msgstr ""
 
 #. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_account_tax_form_header_form
+msgid "Account Tax Form"
+msgstr "Formulario de impuesto"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__account_tax_group_id
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_account_tax_form_group_tree
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_account_tax_form_header_form
+msgid "Account Tax Group"
+msgstr "Grupo de impuestos"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_account_tax_form_line_tree
+msgid "Account Tax Line"
+msgstr "Detalle de impuestos"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.account_tax_report_wizard_form
+msgid "Account Tax Report"
+msgstr "Reporte de impuestos"
+
+#. module: l10n_ec_reports
 #: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__include_electronic_document_in_ats
 #: model:ir.model.fields,help:l10n_ec_reports.field_res_company__include_electronic_document_in_ats
 msgid ""
@@ -125,6 +148,11 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__aug
 msgid "Agosto"
 msgstr ""
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_account_tax_form_group_tree
+msgid "Amout"
+msgstr "Monto"
 
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_reports_base_file_report__file
@@ -140,6 +168,13 @@ msgstr ""
 #. module: l10n_ec_reports
 #: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__year
 msgid "Año sobre el que se reporta"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__base
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__base
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_account_tax_form_group_tree
+msgid "Base"
 msgstr ""
 
 #. module: l10n_ec_reports
@@ -167,6 +202,7 @@ msgstr "Compañías"
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__company_id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__company_id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a3_detail_report__company_id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__company_id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__company_id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__company_id
@@ -182,6 +218,7 @@ msgstr "Contacto"
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a3_detail_report__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__create_uid
@@ -195,6 +232,7 @@ msgstr "Creado por"
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__create_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a3_detail_report__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__create_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__create_date
@@ -214,6 +252,7 @@ msgstr "Moneda"
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__date_from
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__date_from
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a3_detail_report__date_from
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__date_from
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__date_from
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__date_from
@@ -228,6 +267,7 @@ msgstr "Fecha"
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__date_to
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__date_to
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a3_detail_report__date_to
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__date_to
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_report_wizard__date_to
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_show_a_tax_report_wizard__date_to
@@ -247,6 +287,7 @@ msgstr ""
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a3_detail_report__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__display_name
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__display_name
@@ -295,6 +336,21 @@ msgid "Fecha Hasta"
 msgstr ""
 
 #. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__ats_filename
+msgid "Filename for the ATS report"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__errors_filename
+msgid "Filename for the errors report"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__summary_filename
+msgid "Filename for the summary report"
+msgstr ""
+
+#. module: l10n_ec_reports
 #: model:ir.ui.menu,name:l10n_ec_reports.menu_form_107
 msgid "Formulario 107 (RDEP)"
 msgstr ""
@@ -307,6 +363,7 @@ msgstr ""
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a3_detail_report__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__id
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__id
@@ -326,6 +383,16 @@ msgid "Incluir retenciones electrónicas emitidas a proveedores en el ATS"
 msgstr ""
 
 #. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__internal_number
+msgid "Internal Number"
+msgstr "Número de Factura"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__invoice_id
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: l10n_ec_reports
 #: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__jul
 msgid "Julio"
 msgstr ""
@@ -338,6 +405,7 @@ msgstr ""
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report____last_update
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a3_detail_report____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header____last_update
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line____last_update
@@ -353,6 +421,7 @@ msgstr "Fecha de modificación"
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a3_detail_report__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__write_uid
@@ -366,6 +435,7 @@ msgstr "Última actualización por"
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a1_detail_report__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a2_detail_report__write_date
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_a3_detail_report__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__write_date
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__write_date
@@ -387,6 +457,17 @@ msgid "Mayo"
 msgstr ""
 
 #. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__group_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__name
+msgid "Name"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_reports_base_file_report__filename
+msgid "Nombre Archivo generado"
+msgstr ""
+
+#. module: l10n_ec_reports
 #: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__nov
 msgid "Noviembre"
 msgstr ""
@@ -395,6 +476,11 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_ec_reports.selection__l10n_ec_simplified_transactional_annex__period__oct
 msgid "Octubre"
 msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__partner_id
+msgid "Partner"
+msgstr "Cliente/Proveedor"
 
 #. module: l10n_ec_reports
 #: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__perc
@@ -460,6 +546,11 @@ msgid "Septiembre"
 msgstr ""
 
 #. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_show_a_tax_report_wizard_form
+msgid "Show A Tax Reports"
+msgstr "Mostrar"
+
+#. module: l10n_ec_reports
 #: model_terms:ir.ui.view,arch_db:l10n_ec_reports.account_tax_report_wizard_form
 #: model_terms:ir.ui.view,arch_db:l10n_ec_reports.l10n_ec_show_a_tax_report_wizard_form
 msgid "Show Report"
@@ -468,4 +559,185 @@ msgstr "Mostrar"
 #. module: l10n_ec_reports
 #: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_wizard_ats_form
 msgid "Sumario ATS"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__summary_file
+msgid "Summary File"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__summary_filename
+msgid "Summary Filename"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__summary_file
+msgid "Summary file content"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__tax_id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__tax_id
+msgid "Tax"
+msgstr "Impuesto"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__amount
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__amount
+msgid "Tax Amount"
+msgstr "Monto impuesto"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__tax_code
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__tax_code
+msgid "Tax Code"
+msgstr "Código Aplicado"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__tax_code_ats
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__tax_code_ats
+msgid "Tax Code ATS"
+msgstr "Código ATS"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__tax_code_base
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__tax_code_base
+msgid "Tax Code Base"
+msgstr "Código base"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__account_tax_header_id
+msgid "Tax Form"
+msgstr "Formulario de impuesto"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__tax_group_id
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__tax_group_id
+msgid "Tax Group"
+msgstr "Grupo de impuestos"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__account_tax_line_ids
+msgid "Tax Group Lines"
+msgstr "Lineas de impuestos"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_account_tax_form_group__tax_code_ats
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_account_tax_form_line__tax_code_ats
+msgid "Tax Identification Code for the Simplified Transactional Annex"
+msgstr "Código de Impuesto para el Anexo Transaccional Simplificado"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_group__tax_name
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__tax_name
+msgid "Tax Name"
+msgstr "Impuesto"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_account_tax_form_group__tax_code_base
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_account_tax_form_line__tax_code_base
+msgid ""
+"Tax declaration code of the base amount prior to the calculation of the tax"
+msgstr ""
+"Código para la declaración de impuestos del monto base antes del computo del impuesto"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_account_tax_form_group__tax_code
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_account_tax_form_line__tax_code
+msgid ""
+"Tax declaration code of the resulting amount after the calculation of the "
+"tax"
+msgstr ""
+"Código para la declración de impuestos del monto resultante despues del "
+"cómputo del impuesto"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_header__tax_group_ids
+msgid "Taxes Group"
+msgstr "Grupo de impuestos"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__report_status
+msgid "This field defines el status report"
+msgstr "Este campo define el estado del informe"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__report_errors
+msgid "This field defines if there are errors in the generation of ATS"
+msgstr "Este campo define si hay errores en la generación de ATS"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,help:l10n_ec_reports.field_l10n_ec_simplified_transactional_annex__wizard2
+msgid "This field defines if you press the button to generate ats"
+msgstr "Este campo define si presiona el botón para generar ats"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__vat
+msgid "Vat"
+msgstr "Número de identificación"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_account_tax_form_line_tree
+msgid "View invoice"
+msgstr "Ver factura"
+
+#. module: l10n_ec_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports.view_account_tax_form_group_tree
+msgid "View tax form lines"
+msgstr "Ver detalle de impuestos"
+
+#. module: l10n_ec_reports
+#: model:ir.model.fields,field_description:l10n_ec_reports.field_l10n_ec_account_tax_form_line__withholding_number
+msgid "Withholding number"
+msgstr "Retención"
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_a1_detail_report
+msgid "l10n_ec.a1.detail.report"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_a2_detail_report
+msgid "l10n_ec.a2.detail.report"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_a3_detail_report
+msgid "l10n_ec.a3.detail.report"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_account_tax_form_group
+msgid "l10n_ec.account.tax.form.group"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_account_tax_form_header
+msgid "l10n_ec.account.tax.form.header"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_account_tax_form_line
+msgid "l10n_ec.account.tax.form.line"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_account_tax_report_wizard
+msgid "l10n_ec.account.tax.report.wizard"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_reports_base_file_report
+msgid "l10n_ec.reports.base.file.report"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_show_a_tax_report_wizard
+msgid "l10n_ec.show.a.tax.report.wizard"
+msgstr ""
+
+#. module: l10n_ec_reports
+#: model:ir.model,name:l10n_ec_reports.model_l10n_ec_simplified_transactional_annex
+msgid "l10n_ec.simplified.transactional.annex"
 msgstr ""

@@ -281,3 +281,24 @@ msgstr "No Objeto de IVA"
 #: model:ir.model.fields.selection,name:l10n_ec.selection__account_tax_group__l10n_ec_type__withhold_vat
 msgid "VAT Withhold"
 msgstr "Retención IVA"
+
+#. module: l10n_ec
+#: code:addons/l10n_ec/models/res_partner_bank.py:0
+#: model:ir.model.fields.selection,name:l10n_ec.selection__res_partner_bank__l10n_ec_account_type__savings
+#, python-format
+msgid "Savings Account"
+msgstr "Cuenta de ahorro"
+
+#. module: l10n_ec
+#: code:addons/l10n_ec/models/res_partner_bank.py:0
+#: model:ir.model.fields.selection,name:l10n_ec.selection__res_partner_bank__l10n_ec_account_type__checking
+#, python-format
+msgid "Checking Account"
+msgstr "Cuenta corriente"
+
+#. module: l10n_ec
+#: model:ir.model.fields,field_description:l10n_ec.field_account_setup_bank_manual_config__l10n_ec_account_type
+#: model:ir.model.fields,field_description:l10n_ec.field_res_partner_bank__l10n_ec_account_type
+msgid "Account Type"
+msgstr "Tipo de cuenta"
+

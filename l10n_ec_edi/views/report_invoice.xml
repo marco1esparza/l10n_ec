@@ -249,6 +249,13 @@
                     </div>
                 </div>
             </t>
+            <div t-attf-class="footer o_boxed_footer">
+                <div class="text-center">
+                    <div t-if="report_type == 'pdf'">
+                        Page: <span class="page"/> / <span class="topage"/>
+                    </div>
+                </div>
+            </div>
         </xpath>
         <xpath expr="//p[@name='comment']" position="attributes">
             <attribute name="t-if">not o.l10n_latam_document_type_id</attribute>

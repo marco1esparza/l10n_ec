@@ -10,6 +10,18 @@ from odoo.addons.l10n_ec_edi.models.amount_to_words import l10n_ec_amount_to_wor
 
 class AccountPayment(models.Model):
     _inherit = "account.payment"
+
+    def _synchronize_from_moves(self, changed_fields):
+        '''
+        Se hereda el metodo para corregir BUG que cambia el partner_type y la cuenta destino que es definido
+        para un pago.
+        '''
+        if self._context.get('skip_account_move_synchronization'):
+            return
+
+        for pay in self.with_context(skip_account_move_synchronization=True):
+            if pay.state != 'posted':
+                super()._synchronize_from_moves(self, changed_fields)
     
     #TODO hacer visible l10n_ec_payee_name cuando este seteado
     

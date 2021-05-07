@@ -169,7 +169,7 @@ class AccountTaxFormGroup(models.TransientModel):
         '''
         self.ensure_one()
         action = {
-            'name': 'Account Tax Form Lines',
+            'name': 'Líneas de Impuestos',
             'view_mode': 'tree',
             'res_model': 'l10n_ec.account.tax.form.line',
             'view_id': self.env.ref('l10n_ec_reports.view_account_tax_form_line_tree').id,
@@ -220,7 +220,7 @@ class AccountTaxFormGroup(models.TransientModel):
         '''
         self.ensure_one()
         action = {
-            'name': 'Invoice',
+            'name': 'Facturas',
             'view_mode': 'form',
             'res_model': 'account.move',
             'type': 'ir.actions.act_window',
@@ -233,6 +233,7 @@ class AccountTaxFormGroup(models.TransientModel):
     account_tax_group_id = fields.Many2one('l10n_ec.account.tax.form.group', string='Account Tax Group', required=True, help='')
     invoice_id = fields.Many2one('account.move', string='Invoice', help='')
     internal_number = fields.Char(related='invoice_id.name', string='Internal Number', help='')
+    l10n_latam_document_type_id = fields.Many2one(related='invoice_id.l10n_latam_document_type_id', string='Document Type', help='')
     invoice_date = fields.Date(related='invoice_id.invoice_date', string='Date Invoice', help='')
     partner_id = fields.Many2one(related='invoice_id.partner_id', string='Partner',help='')
     vat = fields.Char(related='partner_id.vat', string='Vat', help='')
