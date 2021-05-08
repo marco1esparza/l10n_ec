@@ -101,9 +101,11 @@ class StockPicking(models.Model):
         compute='_l10n_ec_allow_edi_waybill',
         string='Allow EDI Waybill',
         tracking=True,
+        compute_sudo=True,
         help='Technical field to show/hide "ADD EDI WAYBILL" button'
         )
     l10n_ec_edi_waybill_count = fields.Integer(
         compute='_compute_l10n_ec_edi_waybill_count',
+        compute_sudo=True,
         string='Technical field to compute number of EDI Waybills',
         )
