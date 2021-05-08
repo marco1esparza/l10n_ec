@@ -368,7 +368,7 @@ class AccountMove(models.Model):
             raise UserError(_("El número de Autorización es incorrecto, presenta %s dígitos, debe ser de 10 o 42 digitos") % auth_len)
         access_key_data = self._extract_data_from_access_key()
         self.invoice_date = access_key_data['document_date']
-        if access_key_data['partner_id']:
+        if access_key_data['partner_id'] and self.l10n_latam_document_type_id.l10n_ec_authorization != 'own':
             self.partner_id = access_key_data['partner_id']
         if access_key_data['l10n_latam_document_type_id']:
             self.l10n_latam_document_type_id = access_key_data['l10n_latam_document_type_id']
