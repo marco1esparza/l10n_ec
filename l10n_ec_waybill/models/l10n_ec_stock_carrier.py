@@ -49,7 +49,8 @@ class L10nEcWaybillCarrier(models.Model):
         )    
     allowed_identification_type_ids = fields.Many2many(
         'l10n_latam.identification.type',
-        compute='_compute_allowed_identification_type_ids'
+        compute='_compute_allowed_identification_type_ids',
+        compute_sudo=True
         )
     vat = fields.Char(
         string='Identification Number',

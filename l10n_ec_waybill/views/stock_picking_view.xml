@@ -11,14 +11,14 @@
 					attrs="{'invisible':[('l10n_ec_allow_edi_waybill','!=',True)]}"/>
                 </xpath>
                 <div class="oe_button_box" position="inside">
-                <button type="object" class="oe_stat_button" name="l10n_ec_action_view_waybills" icon="fa-list-alt"
-                	attrs="{'invisible': [('l10n_ec_edi_waybill_count', '=', 0)]}">
-                    <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_value"><field name="l10n_ec_edi_waybill_count"/></span>
-                        <span class="o_stat_text">EDI Waybills</span>
-                    </div>
-                </button>
-            </div>
+	                <button type="object" class="oe_stat_button" name="l10n_ec_action_view_waybills" icon="fa-list-alt"
+	                	attrs="{'invisible': [('l10n_ec_edi_waybill_count', '=', 0)]}">
+	                    <div class="o_field_widget o_stat_info">
+	                        <span class="o_stat_value"><field name="l10n_ec_edi_waybill_count"/></span>
+	                        <span class="o_stat_text">EDI Waybills</span>
+	                    </div>
+	                </button>
+	            </div>
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="l10n_ec_allow_edi_waybill" invisible="1"/>
                 </xpath>
