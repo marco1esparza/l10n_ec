@@ -56,7 +56,7 @@
 						<tr class="text-left" t-foreach="o.line_ids" t-as="line">
 							<td><span t-esc="line.account_id.name_get()[0][1]"/></td>
 							<td><span t-field="line.partner_id.name"/></td>
-							<td><span t-field="line.name"/></td>
+							<td><t t-if="line.date_maturity"><span t-field="line.name"/> (Vence <span t-field="line.date_maturity"/>)</t><t t-if="not line.date_maturity"><span t-field="line.name"/></t></td>
 							<td><span t-field="line.analytic_account_id.name"/></td>
 							<td class="text-right"><span t-esc="line.debit" t-options='{"widget":"monetary", "display_currency":o.company_id.currency_id}'/></td>
 			                <td class="text-right"><span t-esc="line.credit" t-options='{"widget":"monetary", "display_currency":o.company_id.currency_id}'/></td> 
