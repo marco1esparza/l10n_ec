@@ -58,22 +58,22 @@ class ResCompany(models.Model):
         )
     l10n_ec_fallback_profit_withhold_goods = fields.Many2one(
         'account.tax',
-        string='Withhold consumibles',
-        domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax')],
+        string='Withhold consumibles', company_dependent=True,
+        domain="[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'), ('active', '=', True), ('company_id', '=', current_company_id)]",
         help='When no profit withhold is found in partner or product, if product is a stockable or consumible'
         'the withhold fallbacks to this tax code'
         )
     l10n_ec_fallback_profit_withhold_services = fields.Many2one(
         'account.tax',
-        string='Withhold services',
-        domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax')],
+        string='Withhold services', company_dependent=True,
+        domain="[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'), ('active', '=', True), ('company_id', '=', current_company_id)]",
         help='When no profit withhold is found in partner or product, if product is a service or not set'
         'the withhold fallbacks to this tax code'
         )    
     l10n_ec_profit_withhold_tax_credit_card = fields.Many2one(
         'account.tax',
-        string='Withhold Credit Card',
-        domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax')],
+        string='Withhold Credit Card', company_dependent=True,
+        domain="[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'), ('active', '=', True), ('company_id', '=', current_company_id)]",
         help='When payment method will be credit card apply this withhold',
         )
     db_source = fields.Selection(
