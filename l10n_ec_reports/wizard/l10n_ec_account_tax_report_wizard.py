@@ -171,7 +171,7 @@ class AccountTaxReportWizard(models.TransientModel):
                                                                        'currency_id': self.company_id.currency_id.id})
 
             action = {
-                'name': 'Account Tax Form',
+                'name': 'Impuestos',
                 'view_mode': 'form',
                 'res_model': 'l10n_ec.account.tax.form.header',
                 'view_id': self.env.ref('l10n_ec_reports.view_account_tax_form_header_form').id,
