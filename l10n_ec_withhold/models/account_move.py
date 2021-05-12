@@ -377,7 +377,7 @@ class AccountMove(models.Model):
         action = 'account.action_move_journal_line'
         view = 'l10n_ec_withhold.view_move_form_withhold'
         action = self.env.ref(action)
-        result = action.read()[0]
+        result = action.sudo().read()[0]
         result['name'] = _('Withholds')
         l10n_ec_withhold_ids = self.l10n_ec_withhold_ids.ids
         if len(l10n_ec_withhold_ids) > 1:

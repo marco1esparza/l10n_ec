@@ -79,7 +79,7 @@ class StockPicking(models.Model):
         action = 'account.action_move_journal_line'
         view = 'l10n_ec_waybill.view_move_form_shipment'
         action = self.env.ref(action)
-        result = action.read()[0]
+        result = action.sudo().read()[0]
         result['name'] = _('Waybills')
         l10n_ec_edi_waybill_ids = self.l10n_ec_edi_waybill_ids.ids
         if len(l10n_ec_edi_waybill_ids) > 1:

@@ -8,15 +8,6 @@ from odoo.exceptions import UserError, ValidationError
 class L10nEcAccountWithholdLine(models.Model):
     _name = 'l10n_ec.account.withhold.line'
     _description = "Withhold Line Detail"
-
-    @api.constrains('tax_id', 'invoice_id')
-    def _check_line_withholding(self):
-        '''
-        Valida que las retenciones no contengan lineas sin impuesto y factura.
-        '''
-        for line in self:
-            if not line.tax_id and not line.invoice_id:
-                raise ValidationError('No puede registrar una línea sin asignar un impuesto o una factura.')
     
     @api.onchange('invoice_id','tax_id')
     def onchange_invoice_id(self):
