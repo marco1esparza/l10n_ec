@@ -162,7 +162,7 @@ class AccountMove(models.Model):
                 #FIX ME: a veces, con puntos de emision nuevos, no se computa el perfijo de la factura en el numero
                 document._inverse_l10n_latam_document_number()
                 bypass = document.l10n_ec_bypass_validations
-                if not bypass:
+                if not bypass: #TODO V15 poner algo como if not bypass and require_document
                     document._l10n_ec_validations_to_posted()
                     # Se inicializa el amount_total_refunds con el monto de la nota de credito actual, pues al estar
                     # en estado borrador queda excluida en la verificacion que se realiza mas adelante y evitamos que se

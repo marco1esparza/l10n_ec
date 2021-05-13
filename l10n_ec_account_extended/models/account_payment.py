@@ -21,7 +21,7 @@ class AccountPayment(models.Model):
 
         for pay in self.with_context(skip_account_move_synchronization=True):
             if pay.state != 'posted':
-                super()._synchronize_from_moves(self, changed_fields)
+                super()._synchronize_from_moves(changed_fields)
     
     #TODO hacer visible l10n_ec_payee_name cuando este seteado
     
