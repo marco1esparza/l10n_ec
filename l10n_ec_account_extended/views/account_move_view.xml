@@ -27,7 +27,7 @@
 						              '&amp;','&amp;',('posted_before', '=', True),('state', '=', 'draft'),('l10n_latam_manual_document_number', '=', False)]
                 		}</attribute>
                 </xpath>
-                <xpath expr="//field[@name='line_ids']/tree/field[@name='date_maturity']" position="after">
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='date_maturity']" position="replace">
             		<field name="date_maturity"
 						optional="hide"
 						attrs="{'invisible': [('display_type', 'in', ('line_section', 'line_note'))]}"/>
