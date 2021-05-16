@@ -78,6 +78,7 @@
 			            </tr>
                     </tbody>
                 </table>
+                <p style="width:100%; font-size:10px;" t-if="o.narration"><strong>Observaciones: </strong><span t-field="o.narration" /></p>
                 <table style="width:100%; font-size:10px;">
                 	<tr class="text-left">
                     	<td style="width:33%;"><br/><br/>_______________________________</td>
