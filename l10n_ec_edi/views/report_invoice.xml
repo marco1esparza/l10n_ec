@@ -215,7 +215,7 @@
                                     </span>
                                 </td>
                                 <td class="text-right o_price_total">
-                                    <span class="text-nowrap" t-esc="move_line.balance"/>
+                                    <span class="text-nowrap" t-esc="abs(move_line.balance)"/>
                                 </td>
                             </t>
                         </tr>
