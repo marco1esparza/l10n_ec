@@ -5,7 +5,7 @@
     'name': 'Extras de Inventario para Ecuador',
     'version': '1.0',
     'category': 'Stock',
-    'summary': 'Cuentas analíticas en inventario',
+    'summary': 'Configuración contable para valoración de inventario para Ecuador',
     'description': '''
         Autores:
             Ing. Andres Calle

@@ -462,4 +462,4 @@ ec520305,520305,OTROS GASTOS FINANCIEROS,FALSE,account.data_account_type_expense
 ec520401,520401,PERDIDA EN INVERSIONES EN ASOCIADAS / SUBSIDIARIAS Y OTRAS,FALSE,account.data_account_type_expenses,l10n_ec_ifrs
 ec52040201,52040201,Otros Gastos,FALSE,account.data_account_type_expenses,l10n_ec_ifrs
 ec51040802,51040802,FALTANTES Y SOBRANTES DE AJUSTE DE INVENTARIO,FALSE,account.data_account_type_expenses,l10n_ec_ifrs
-ec51040803,51040803,FALTANTES Y SOBRANTES DE AJUSTE DE INVENTARIO,FALSE,account.data_account_type_expenses,l10n_ec_ifrs
+ec51040803,51040803,DESPERDICIOS EN EL PROCESO PRODUCTIVO,FALSE,account.data_account_type_expenses,l10n_ec_ifrs
