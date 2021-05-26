@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--
+        Funciones que ejecutan la asignacion de cuentas cuando se instala
+        el modulo por 1ra vez
+        -->
+        <function model="res.company" name="create_missing_stock_account"/>
+    </data>
+</odoo>

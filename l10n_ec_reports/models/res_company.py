@@ -10,5 +10,6 @@ class ResCompany(models.Model):
     #Columns
     include_electronic_document_in_ats = fields.Boolean(
         string=u'Incluir retenciones electrónicas emitidas a proveedores en el ATS',
+        default = True,
         help=u'Active esta opción si desea incluir las retenciones electrónicas emitidas a proveedores en el ATS.'
         )
