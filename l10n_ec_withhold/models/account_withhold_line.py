@@ -78,4 +78,3 @@ class L10nEcAccountWithholdLine(models.Model):
         ondelete='cascade',
         help='The move of this entry line.'
         )
-    

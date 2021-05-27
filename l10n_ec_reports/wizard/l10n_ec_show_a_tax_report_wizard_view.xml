@@ -38,7 +38,7 @@
               sequence="54"/>
 
     <record id="action_detail_report_wizard_A2" model="ir.actions.act_window">
-        <field name="name">A2 - Retenciones Renta por Código</field>
+        <field name="name">A2 - Retenciones en Compras por Código</field>
         <field name="res_model">l10n_ec.show.a.tax.report.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>

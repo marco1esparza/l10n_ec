@@ -74,7 +74,7 @@ msgstr ""
 #. module: l10n_ec_reports
 #: model:ir.actions.act_window,name:l10n_ec_reports.action_detail_report_wizard_A2
 #: model:ir.ui.menu,name:l10n_ec_reports.menu_action_form_detail_report_A2
-msgid "A2 - Retenciones Renta por Código"
+msgid "A2 - Retenciones en Compras por Código"
 msgstr ""
 
 #. module: l10n_ec_reports

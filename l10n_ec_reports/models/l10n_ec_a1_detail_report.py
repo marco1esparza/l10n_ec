@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 import base64
 import io
 from odoo.tools.misc import xlsxwriter
@@ -19,7 +20,7 @@ class L10nECA1DetailReport(models.TransientModel):
         domain = [
             ('state', '=', 'posted'),
             ('invoice_date', '>=', self.date_from),
-            ('invoice_date', '<=', self.date_to)
+            ('invoice_date', '<=', self.date_to),
         ]
         type = [('move_type', 'in', ('out_invoice', 'out_refund'))]
         if self.env.context.get('only_invoice'):
@@ -29,18 +30,29 @@ class L10nECA1DetailReport(models.TransientModel):
         domain.extend(type)
         return domain
 
-    def _get_withholding_number(self, invoice_id):
-        '''
-        Se computa para obtener los numeros de retenciones.
-        '''
-        withholding_number = ''
-        if invoice_id.l10n_ec_withhold_ids:
-            for withholding in invoice_id.l10n_ec_withhold_ids.filtered(lambda w:w.state == 'posted'):
-                if withholding_number:
-                    withholding_number += ',' + withholding.name
-                else:
-                    withholding_number += withholding.name
-        return withholding_number
+    def _get_withholding_group_values(self, invoice_id):
+        values = {'max_count': 0,
+                  'withhold_vat': [],
+                  'withhold_income_tax': [],
+                  }
+        withhold_vat = len(invoice_id.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted')
+                           .l10n_ec_withhold_line_ids
+                           .tax_id.filtered(lambda l: l.l10n_ec_type == 'withhold_vat'))
+        withhold_income_tax = len(invoice_id.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted')
+                                  .l10n_ec_withhold_line_ids
+                                  .tax_id.filtered(lambda l: l.l10n_ec_type == 'withhold_income_tax'))
+
+        for line in invoice_id.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted').l10n_ec_withhold_line_ids:
+            if line.tax_id.l10n_ec_type in ('withhold_vat', 'withhold_income_tax'):
+                values[line.tax_id.l10n_ec_type] += [{'withholding_number': line.invoice_id.l10n_latam_document_number,
+                                                      'withholding_name': line.tax_id.name,
+                                                      'withholding_base': line.base,
+                                                      'withholding_amt': line.amount,
+                                                      }]
+            else:
+                raise UserError('Factura: (%s) registra una Retencion no reconocida: %s' % (line.invoice_id.name, line.tax_id.name))
+        values['max_count'] = max(withhold_vat, withhold_income_tax)
+        return values
 
     def print_xls(self):
         '''
@@ -72,7 +84,13 @@ class L10nECA1DetailReport(models.TransientModel):
             (u'BASE IVA 0%', 'invoice_id', 'l10n_ec_base_cero_iva', 'num', 15),
             (u'BASE GRAVA IVA', 'invoice_id', 'l10n_ec_base_doce_iva', 'num', 15),
             (u'VALOR IVA', 'invoice_id', 'l10n_ec_vat_doce_subtotal', 'num', 12),
-            (u'Nro. RETENCIÓN', 'withholding', '', 'std', 20),
+            (u'Nro. RETENCIÓN', 'withholding_vat_number', '', 'std', 20),
+            (u'CONCEPTO RET. IVA', 'withholding_vat_name', '', 'std', 20),
+            (u'BASE RET. IVA', 'withholding_vat_base', '', 'num', 15),
+            (u'VALOR RET. IVA', 'withholding_vat_amt', '', 'num', 15),
+            (u'CONCEPTO RET. RENTA', 'withholding_income_name', '', 'std', 20),
+            (u'BASE RET. RENTA', 'withholding_income_base', '', 'num', 15),
+            (u'VALOR RET. RENTA', 'withholding_income_amt', '', 'num', 15),
             (u'FORMA PAGO', 'invoice_id', 'l10n_ec_payment_method_id.name', 'std', 25),
         ]
 
@@ -106,6 +124,10 @@ class L10nECA1DetailReport(models.TransientModel):
         l10n_ec_base_cero_iva = 0.0
         l10n_ec_base_doce_iva = 0.0
         l10n_ec_vat_doce_subtotal = 0.0
+        l10n_ec_wth_vat_base = 0.0
+        l10n_ec_wth_vat_amt = 0.0
+        l10n_ec_wth_income_base = 0.0
+        l10n_ec_wth_income_amt = 0.0
 
         report_name = 'ANEXO 1 - DETALLE DE VENTAS'
         sheet = book.add_worksheet(report_name)
@@ -121,40 +143,103 @@ class L10nECA1DetailReport(models.TransientModel):
         row = 6
         invoices = obj.env['account.move'].search(obj._get_sales_detail_report_invoice_domain())
         for index, invoice_id in enumerate(invoices):
-            row += 1
             if invoice_id.move_type == 'out_invoice':
                 sign = 1
             else:
                 sign = -1
-            for col, (name, objt, attr, sty, width) in enumerate(FIELDS, 0):
-                if objt == 'index':
-                    sheet.write(row, col, index + 1 or '', std)
-                elif objt == 'withholding':
-                    sheet.write(row, col, obj._get_withholding_number(invoice_id), std)
-                else:
-                    style = std
-                    if sty == 'num':
-                        style = num
-                    elif sty == 'datef':
-                        style = datef
-                    if objt == 'invoice_id':
-                        value = evalobj(invoice_id, attr)
-                        if attr == 'l10n_ec_base_not_subject_to_vat':
-                            value = sign * value
-                            l10n_ec_base_not_subject_to_vat += value
-                        elif attr == 'l10n_ec_base_cero_iva':
-                            value = sign * value
-                            l10n_ec_base_cero_iva += value
-                        elif attr == 'l10n_ec_base_doce_iva':
-                            value = sign * value
-                            l10n_ec_base_doce_iva += value
-                        elif attr == 'l10n_ec_vat_doce_subtotal':
-                            value = sign * value
-                            l10n_ec_vat_doce_subtotal += value
-                        if sty != 'num':
-                            sheet.write(row, col, value or '', style)
+            wth_values = obj._get_withholding_group_values(invoice_id)
+            count = wth_values['max_count'] or 1
+            for i in range(count):
+                row += 1
+                for col, (name, objt, attr, sty, width) in enumerate(FIELDS, 0):
+                    if objt == 'index':
+                        sheet.write(row, col, index + 1 or '', std)
+                    elif objt == 'withholding_vat_number':
+                        if wth_values['max_count'] > 0:
+                            if i < len(wth_values['withhold_vat']):
+                                sheet.write(row, col, wth_values['withhold_vat'][i].get('withholding_number', ''), std)
+                            elif i < len(wth_values['withhold_income_tax']):
+                                sheet.write(row, col, wth_values['withhold_income_tax'][i].get('withholding_number', ''), std)
                         else:
-                            sheet.write(row, col, value or 0.0, style)
+                            sheet.write(row, col, '', std)
+                    elif objt == 'withholding_vat_name':
+                        if wth_values['max_count'] > 0:
+                            if i < len(wth_values['withhold_vat']):
+                                sheet.write(row, col, wth_values['withhold_vat'][i].get('withholding_name', ''), std)
+                        else:
+                            sheet.write(row, col, '', std)
+                    elif objt == 'withholding_vat_base':
+                        if wth_values['max_count'] > 0:
+                            if i < len(wth_values['withhold_vat']):
+                                value = sign * wth_values['withhold_vat'][i].get('withholding_base', 0.0)
+                                sheet.write(row, col, value, num)
+                                l10n_ec_wth_vat_base += value
+                            else:
+                                sheet.write(row, col, 0.0, num)
+                        else:
+                            sheet.write(row, col, 0.0, num)
+                    elif objt == 'withholding_vat_amt':
+                        if wth_values['max_count'] > 0:
+                            if i < len(wth_values['withhold_vat']):
+                                value = sign * wth_values['withhold_vat'][i].get('withholding_amt', 0.0)
+                                sheet.write(row, col, value, num)
+                                l10n_ec_wth_vat_amt += value
+                            else:
+                                sheet.write(row, col, 0.0, num)
+                        else:
+                            sheet.write(row, col, 0.0, num)
+                    elif objt == 'withholding_income_name':
+                        if wth_values['max_count'] > 0:
+                            if i < len(wth_values['withhold_income_tax']):
+                                sheet.write(row, col, wth_values['withhold_income_tax'][i].get('withholding_name', ''), std)
+                        else:
+                            sheet.write(row, col, '', std)
+                    elif objt == 'withholding_income_base':
+                        if wth_values['max_count'] > 0:
+                            if i < len(wth_values['withhold_income_tax']):
+                                value = sign * wth_values['withhold_income_tax'][i].get('withholding_base', 0.0)
+                                sheet.write(row, col, value, num)
+                                l10n_ec_wth_income_base += value
+                            else:
+                                sheet.write(row, col, 0.0, num)
+                        else:
+                            sheet.write(row, col, 0.0, num)
+                    elif objt == 'withholding_income_amt':
+                        if wth_values['max_count'] > 0:
+                            if i < len(wth_values['withhold_income_tax']):
+                                value = sign * wth_values['withhold_income_tax'][i].get('withholding_amt', 0.0)
+                                sheet.write(row, col, value, num)
+                                l10n_ec_wth_income_amt += value
+                            else:
+                                sheet.write(row, col, 0.0, num)
+                        else:
+                            sheet.write(row, col, 0.0, num)
+                    else:
+                        style = std
+                        if sty == 'num':
+                            style = num
+                        elif sty == 'datef':
+                            style = datef
+                        if objt == 'invoice_id':
+                            value = evalobj(invoice_id, attr)
+                            if attr == 'l10n_ec_base_not_subject_to_vat' and i == 0:
+                                value = sign * value
+                                l10n_ec_base_not_subject_to_vat += value
+                            elif attr == 'l10n_ec_base_cero_iva' and i == 0:
+                                value = sign * value
+                                l10n_ec_base_cero_iva += value
+                            elif attr == 'l10n_ec_base_doce_iva' and i == 0:
+                                value = sign * value
+                                l10n_ec_base_doce_iva += value
+                            elif attr == 'l10n_ec_vat_doce_subtotal' and i == 0:
+                                value = sign * value
+                                l10n_ec_vat_doce_subtotal += value
+                            if sty != 'num':
+                                sheet.write(row, col, value or '', style)
+                            elif sty == 'num' and i == 0:
+                                sheet.write(row, col, value or 0.0, style)
+                            else:
+                                sheet.write(row, col, 0.0, style)
         if invoices:
             row += 1
             sheet.write(row, 0, 'TOTAL REGISTROS: %s' % len(invoices), footer)
@@ -172,6 +257,12 @@ class L10nECA1DetailReport(models.TransientModel):
             sheet.write(row, 12, l10n_ec_vat_doce_subtotal, num_footer)
             sheet.write(row, 13, '', footer)
             sheet.write(row, 14, '', footer)
+            sheet.write(row, 15, l10n_ec_wth_vat_base, num_footer)
+            sheet.write(row, 16, l10n_ec_wth_vat_amt, num_footer)
+            sheet.write(row, 17, '', footer)
+            sheet.write(row, 18, l10n_ec_wth_income_base, num_footer)
+            sheet.write(row, 19, l10n_ec_wth_income_amt, num_footer)
+            sheet.write(row, 20, '', footer)
         book.close()
         output.seek(0)
         generated_file = base64.b64encode(output.read())
