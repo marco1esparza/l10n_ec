@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+        <menuitem id="l10n_ec_financial_report_menu" name="Reportes Financieros Ecuador" sequence="0"
+                  groups="account.group_account_readonly" parent="account.menu_finance_reports"/>
+
+        <record id="l10n_ec_financial_report_balance_situacion" model="account.financial.html.report">
+            <field name="name">Balance de Situación</field>
+            <field name="analytic" eval="True"/>
+            <field name="unfold_all_filter" eval="True"/>
+            <field name="show_journal_filter" eval="True"/>
+            <field name="parent_id" ref="l10n_ec_financial_report_menu"/>
+        </record>
+
+        <record id="l10n_ec_activo_balance_situacion" model="account.financial.html.report.line">
+            <field name="name">ACTIVO TOTAL</field>
+            <field name="code">ACTT</field>
+            <field name="formulas">sum</field>
+            <field name="parent_id" eval="False"/>
+            <field name="financial_report_id" ref="l10n_ec_financial_report_balance_situacion"/>
+            <field name="domain" eval="[('account_id.code', '=like', '1%')]" />
+            <field name="groupby">account_id</field>
+            <field name="sequence" eval="1"/>
+            <field name="level" eval="0" />
+        </record>
+
+        <record id="l10n_ec_pasivo_balance_situacion" model="account.financial.html.report.line">
+            <field name="name">PASIVO TOTAL</field>
+            <field name="code">PAST</field>
+            <field name="formulas">-sum</field>
+            <field name="parent_id" eval="False"/>
+            <field name="financial_report_id" ref="l10n_ec_financial_report_balance_situacion"/>
+            <field name="domain" eval="[('account_id.code', '=like', '2%')]" />
+            <field name="groupby">account_id</field>
+            <field name="sequence" eval="2"/>
+            <field name="level" eval="0" />
+        </record>
+
+        <record id="l10n_ec_capital_balance_situacion" model="account.financial.html.report.line">
+            <field name="name">CAPITAL TOTAL</field>
+            <field name="code">CAPT</field>
+            <field name="formulas">-sum</field>
+            <field name="parent_id" eval="False"/>
+            <field name="financial_report_id" ref="l10n_ec_financial_report_balance_situacion"/>
+            <field name="domain" eval="[('account_id.code', '=like', '3%')]" />
+            <field name="groupby">account_id</field>
+            <field name="sequence" eval="3"/>
+            <field name="level" eval="0" />
+        </record>
+
+        <record id="l10n_ec_pasivo_capital_perdidas_ganancias" model="account.financial.html.report.line">
+            <field name="name">PASIVOS + CAPITAL</field>
+            <field name="code">PACA</field>
+            <field name="financial_report_id" ref="l10n_ec_financial_report_balance_situacion"/>
+            <field name="formulas">PAST + CAPT</field>
+            <field name="sequence" eval="4"/>
+            <field name="level" eval="0" />
+        </record>
+
+        <record id="l10n_ec_financial_report_perdidas_ganancias" model="account.financial.html.report">
+            <field name="name">Perdidas y Ganancias</field>
+            <field name="analytic" eval="True"/>
+            <field name="unfold_all_filter" eval="True"/>
+            <field name="show_journal_filter" eval="True"/>
+            <field name="parent_id" ref="l10n_ec_financial_report_menu"/>
+        </record>
+
+        <record id="l10n_ec_ingresos_perdidas_ganancias" model="account.financial.html.report.line">
+            <field name="name">INGRESO TOTAL</field>
+            <field name="code">INGT</field>
+            <field name="formulas">-sum</field>
+            <field name="parent_id" eval="False"/>
+            <field name="financial_report_id" ref="l10n_ec_financial_report_perdidas_ganancias"/>
+            <field name="domain" eval="[('account_id.code', '=like', '4%')]" />
+            <field name="groupby">account_id</field>
+            <field name="sequence" eval="1"/>
+            <field name="level" eval="0" />
+        </record>
+
+        <record id="l10n_ec_gastos_perdidas_ganancias" model="account.financial.html.report.line">
+            <field name="name">GASTO TOTAL</field>
+            <field name="code">GAST</field>
+            <field name="formulas">sum</field>
+            <field name="parent_id" eval="False"/>
+            <field name="financial_report_id" ref="l10n_ec_financial_report_perdidas_ganancias"/>
+            <field name="domain" eval="[('account_id.code', '=like', '5%')]" />
+            <field name="groupby">account_id</field>
+            <field name="sequence" eval="2"/>
+            <field name="level" eval="0" />
+        </record>
+
+        <record id="l10n_ec_beneficio_perdidas_ganancias" model="account.financial.html.report.line">
+            <field name="name">BENEFICIO TOTAL</field>
+            <field name="code">BENT</field>
+            <field name="financial_report_id" ref="l10n_ec_financial_report_perdidas_ganancias"/>
+            <field name="formulas">INGT - GAST</field>
+            <field name="sequence" eval="3"/>
+            <field name="level" eval="0" />
+        </record>
+
+    </data>
+</odoo>
