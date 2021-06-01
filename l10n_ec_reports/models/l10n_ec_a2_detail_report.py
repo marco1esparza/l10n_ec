@@ -22,7 +22,7 @@ class L10nECA2DetailReport(models.TransientModel):
                   ('move_id.move_type', '=', 'in_invoice'),
                   ('move_id.invoice_date', '>=', self.date_from),
                   ('move_id.invoice_date', '<=', self.date_to),
-                  ('tax_line_id.l10n_ec_type', '=', 'withhold_income_tax'),
+                  ('tax_line_id.l10n_ec_type', 'in', ('withhold_vat', 'withhold_income_tax')),
                   ]
         return domain
 
@@ -73,11 +73,11 @@ class L10nECA2DetailReport(models.TransientModel):
             {'font_name': 'Arial', 'bold': True, 'font_size': 10, 'num_format': '[$$-300A]#,##0.00;[$$-300A]-#,##0.00',
              'align': 'right'})
 
-        report_name = 'ANEXO 2 - DETALLE DE RETENCIONES IMPUESTO A LA RENTA POR CÓDIGO'
+        report_name = 'ANEXO 2 - DETALLE DE RETENCIONES EN COMPRAS POR CÓDIGO'
         sheet = book.add_worksheet(report_name)
         sheet.write(0, 0, report_name, titleheader)
         sheet.write(1, 0,
-                    'Reporte detallado de códigos de retención del impuesto a la renta aplicados a las compras, agrupados y subtotalizados por código. Incluye detalle de la retención y de la compra correspondiente.',
+                    'Reporte detallado de códigos de retención aplicados a las compras, agrupados y subtotalizados por código. Incluye detalle de la retención y de la compra correspondiente.',
                     titlesubheader)
         sheet.write(2, 0, 'Reporte auxiliar para el ATS y para el Formulario 103', titlesubheader)
         sheet.write(3, 0, self.company_id.l10n_ec_legal_name or self.company_id.name, bold)
@@ -131,7 +131,7 @@ class L10nECA2DetailReport(models.TransientModel):
             sheet.write(row, 14, '', title_lightg)
             sheet.write(row, 15, '', title_lightg)
             sheet.write(row, 16, '', title_lightg)
-            sheet.write(row, 17, u'RETENCIÓN EN LA FUENTE', title_lightg)
+            sheet.write(row, 17, u'RETENCIÓN', title_lightg)
             sheet.write(row, 18, '', title_lightg)
             sheet.write(row, 19, '', title_lightg)
             sheet.write(row, 20, '', title_lightg)
@@ -157,20 +157,17 @@ class L10nECA2DetailReport(models.TransientModel):
             ats_code_list = []
             # Group invoices tax by code
             for line in move_lines:
-                if line.tax_line_id.l10n_ec_code_ats in group_by_code:
-                    group_by_code[line.tax_line_id.l10n_ec_code_ats]['line_ids'].append(line)
-                    group_by_code[line.tax_line_id.l10n_ec_code_ats][
-                        'total_base_exenta_iva'] += line.move_id.l10n_ec_base_tax_free
-                    group_by_code[line.tax_line_id.l10n_ec_code_ats][
-                        'total_no_objeto_iva'] += line.move_id.l10n_ec_base_not_subject_to_vat
-                    group_by_code[line.tax_line_id.l10n_ec_code_ats][
-                        'total_base_cero'] += line.move_id.l10n_ec_base_cero_iva
-                    group_by_code[line.tax_line_id.l10n_ec_code_ats][
-                        'total_base_doce'] += line.move_id.l10n_ec_base_doce_iva
-                    group_by_code[line.tax_line_id.l10n_ec_code_ats]['total_base'] += line.tax_base_amount
-                    group_by_code[line.tax_line_id.l10n_ec_code_ats]['total_amount'] += line.balance
+                tax_code = line.tax_line_id.display_name
+                if tax_code in group_by_code:
+                    group_by_code[tax_code]['line_ids'].append(line)
+                    group_by_code[tax_code]['total_base_exenta_iva'] += line.move_id.l10n_ec_base_tax_free
+                    group_by_code[tax_code]['total_no_objeto_iva'] += line.move_id.l10n_ec_base_not_subject_to_vat
+                    group_by_code[tax_code]['total_base_cero'] += line.move_id.l10n_ec_base_cero_iva
+                    group_by_code[tax_code]['total_base_doce'] += line.move_id.l10n_ec_base_doce_iva
+                    group_by_code[tax_code]['total_base'] += line.tax_base_amount
+                    group_by_code[tax_code]['total_amount'] += line.balance
                 else:
-                    group_by_code[line.tax_line_id.l10n_ec_code_ats] = {
+                    group_by_code[tax_code] = {
                         'line_ids': [line],
                         'total_base_exenta_iva': line.move_id.l10n_ec_base_tax_free,
                         'total_no_objeto_iva': line.move_id.l10n_ec_base_not_subject_to_vat,
@@ -179,7 +176,7 @@ class L10nECA2DetailReport(models.TransientModel):
                         'total_base': line.tax_base_amount,
                         'total_amount': line.balance
                     }
-                    ats_code_list.append(line.tax_line_id.l10n_ec_code_ats)
+                    ats_code_list.append(tax_code)
                 # Summarize base and amount
                 totals['total_base_exenta_iva'] += line.move_id.l10n_ec_base_tax_free
                 totals[
@@ -193,7 +190,7 @@ class L10nECA2DetailReport(models.TransientModel):
             for tax_code in ats_code_list:
                 grouped_values = group_by_code[tax_code]
                 grouped_invoice_tax_ids = grouped_values.get('line_ids')
-                sheet.write(row, 0, u'CÓDIGO RETENCIÓN EN LA FUENTE: %s' % tax_code, footer)
+                sheet.write(row, 0, u'RESUMEN %s' % tax_code, footer)
                 sheet.write(row, 1, '', title)
                 sheet.write(row, 2, '', title)
                 sheet.write(row, 3, '', title)
