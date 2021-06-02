@@ -21,6 +21,9 @@ class AccountTax(models.Model):
                         sign = self._context.get('force_sign', 1)
                     elif base < 0:
                         sign = -1
+                    if withhold.l10n_ec_type == 'withhold_vat':
+                        vat_percentage = 0.12
+                        tax['base'] = float_round(tax['base'] * vat_percentage, precision_rounding=currency.rounding)
                     withhold = withholds.filtered(lambda t: t.id == tax['id'])
                     tax_amount = withhold.with_context(force_price_include=False)._compute_amount(tax['base'], sign * price_unit, quantity, product, partner)
                     prec = currency.rounding * 1e-5
