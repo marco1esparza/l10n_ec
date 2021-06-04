@@ -395,6 +395,7 @@ class AccountMove(models.Model):
                                         '09', # Tiquetes
                                         '11', # Pasajes
                                         '12', # Inst FInancieras
+                                        '16', # DAU, acordamos poner IVA en los rubros fodinfa, etc, para que sea fácil
                                         '18', # Factura de venta
                                         '20', # Estado
                                         '21', # Carta porte aereo

@@ -29,7 +29,12 @@
 		<record id="l10n_ec.ec_16" model="l10n_latam.document.type">
 			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('COSTO_GASTO'),ref('ACTF_COSTGAST'),ref('LIQ_GASTDVIAJ'),ref('INV_COSTGAST'),ref('CONS_PROP_Y_SERV_DIG')])]"/>
 		</record>
-		
+
+		<!-- DAU -->
+		<record id="l10n_ec.ec_17" model="l10n_latam.document.type">
+			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('INV_CREDTRIB')])]"/>
+		</record>
+				
 		<record id="l10n_ec.ec_19" model="l10n_latam.document.type">
 			<field name="l10n_ec_sri_tax_support_ids" eval="[(6,0,[ref('COSTO_GASTO'),ref('DIST_DBU')])]"/>	
 		</record>
