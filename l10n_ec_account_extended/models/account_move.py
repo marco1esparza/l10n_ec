@@ -620,7 +620,7 @@ class AccountMoveLine(models.Model):
             if line.move_id.country_code == 'EC' and line.move_id.state == 'draft' \
                     and line.move_id.l10n_latam_document_type_id and line.tax_repartition_line_id \
                     and line.move_id.l10n_latam_document_type_id.code == '16' \
-                    and line.tax_repartition_line_id.tax_id in tax:
+                    and line.tax_repartition_line_id.tax_id in tax and line.move.move_type == 'in_invoice':
                 line.l10n_ec_edi_base_tax = True
 
     l10n_ec_edi_base_tax = fields.Boolean(compute='_compute_l10n_ec_edi_base_tax')
