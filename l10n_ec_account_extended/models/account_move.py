@@ -541,8 +541,9 @@ class AccountMove(models.Model):
 #                 if len(count) > 1:
 #                     raise ValidationError('No pueden existir varios documentos con el mismo numero de documento.')
 
+
 class AccountMoveLine(models.Model):
-    _inherit='account.move.line'
+    _inherit = 'account.move.line'
     
     def reconcile(self):
         # Restrict reconciliation to SAME PARTNER
@@ -602,7 +603,7 @@ class AccountMoveLine(models.Model):
                             else:
                                 profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_goods
                     else: #remove withholds
-                        super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat','withhold_income_tax'])
+                        super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat', 'withhold_income_tax'])
             if vat_withhold_tax:
                 super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat'])
                 super_tax_ids += vat_withhold_tax
@@ -610,3 +611,17 @@ class AccountMoveLine(models.Model):
                 super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_income_tax'])
                 super_tax_ids += profit_withhold_tax
         return super_tax_ids
+
+    @api.depends('tax_repartition_line_id', 'tax_tag_ids')
+    def _compute_l10n_ec_edi_base_tax(self):
+        tax = self.env.ref('l10n_ec.1_tax_vat_514')
+        for line in self:
+            line.l10n_ec_edi_base_tax = False
+            if line.move_id.country_code == 'EC' and line.move_id.state == 'draft' \
+                    and line.move_id.l10n_latam_document_type_id and line.tax_repartition_line_id \
+                    and line.move_id.l10n_latam_document_type_id.code == '16' \
+                    and line.tax_repartition_line_id.tax_id in tax:
+                line.l10n_ec_edi_base_tax = True
+
+    l10n_ec_edi_base_tax = fields.Boolean(compute='_compute_l10n_ec_edi_base_tax')
+    tax_base_amount = fields.Monetary(readonly=False)
