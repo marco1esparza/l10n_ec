@@ -623,5 +623,5 @@ class AccountMoveLine(models.Model):
                     and line.tax_repartition_line_id.tax_id in tax and line.move.move_type == 'in_invoice':
                 line.l10n_ec_edi_base_tax = True
 
-    l10n_ec_edi_base_tax = fields.Boolean(compute='_compute_l10n_ec_edi_base_tax')
+    l10n_ec_edi_base_tax = fields.Boolean(compute='_compute_l10n_ec_edi_base_tax',help='Permite editar la base imponible en el DAU')
     tax_base_amount = fields.Monetary(readonly=False)
