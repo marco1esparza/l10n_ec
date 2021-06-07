@@ -8,10 +8,10 @@
             <field name="inherit_id" ref="account.view_move_form" />
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='line_ids']/tree/field[@name='tax_tag_ids']" position="after">
-                    <field name="l10n_ec_edi_base_tax" invisible="1"/>
+                    <field name="l10n_ec_editable_base_tax" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='line_ids']/tree/field[@name='tax_base_amount']" position="attributes">
-                    <attribute name="attrs">{'readonly': [('l10n_ec_edi_base_tax', '=', False)]}</attribute>
+                    <attribute name="attrs">{'readonly': [('l10n_ec_editable_base_tax', '=', False)]}</attribute>
                 </xpath>
             </field>
         </record>

@@ -613,15 +613,24 @@ class AccountMoveLine(models.Model):
         return super_tax_ids
 
     @api.depends('tax_repartition_line_id', 'tax_tag_ids')
-    def _compute_l10n_ec_edi_base_tax(self):
-        tax = self.env.ref('l10n_ec.1_tax_vat_514')
+    def _compute_l10n_ec_editable_base_tax(self):
+        #TODO editar en todos los estados hasta el cierre de la fecha de impuestos
+        imports_tax_codes = ['523', #Importación servicios
+                             '524', #Importacion bienes
+                             '525', #Importación activos
+                             ]
         for line in self:
-            line.l10n_ec_edi_base_tax = False
-            if line.move_id.country_code == 'EC' and line.move_id.state == 'draft' \
-                    and line.move_id.l10n_latam_document_type_id and line.tax_repartition_line_id \
-                    and line.move_id.l10n_latam_document_type_id.code == '16' \
-                    and line.tax_repartition_line_id.tax_id in tax and line.move.move_type == 'in_invoice':
-                line.l10n_ec_edi_base_tax = True
+            line.l10n_ec_editable_base_tax = False
+            if line.move_id.country_code == 'EC' \
+               and line.move_id.l10n_latam_document_type_id \
+               and line.tax_repartition_line_id \
+               and line.move_id.l10n_latam_document_type_id.code == '16' \
+               and line.move_id.move_type == 'in_invoice'  \
+               and line.tax_repartition_line_id.tax_id.l10n_ec_code_applied in imports_tax_codes:
+                line.l10n_ec_editable_base_tax = True
 
-    l10n_ec_edi_base_tax = fields.Boolean(compute='_compute_l10n_ec_edi_base_tax',help='Permite editar la base imponible en el DAU')
-    tax_base_amount = fields.Monetary(readonly=False)
+    l10n_ec_editable_base_tax = fields.Boolean(
+        compute='_compute_l10n_ec_editable_base_tax',
+        help='Campo técnico, permite editar la base imponible en el DAU'
+        )
+    tax_base_amount = fields.Monetary(readonly=False) #redefinimos para hacer la base editable en el DAU
