@@ -68,8 +68,9 @@
         <field name="inherit_id" ref="account.view_account_invoice_filter"/>
         <field name="arch" type="xml">
                 <filter name="posted" position="after">
-                    <filter string="Approved EDI" name="approved_edi" domain="[('edi_state', '=', 'sent')]"/>
-                    <filter string="To Approve EDI" name="to_approve_edi" domain="[('edi_state', '=', 'to_send')]"/>
+                    <filter string="EDIs Autorizados" name="approved_edi" domain="[('edi_state', '=', 'sent')]"/>
+                    <filter string="EDIs Anulados" name="voided_edi" domain="[('edi_state', '=', 'cancel')]"/>
+                    <filter string="EDIs por Autorizar" name="to_approve_edi" domain="[('edi_state', 'in', ['to_send','to_cancel'])]"/>
                 </filter>
             </field>
         </record>
@@ -80,8 +81,9 @@
             <field name="inherit_id" ref="account.view_account_move_filter"/>
             <field name="arch" type="xml">
                 <filter name="posted" position="after">
-                    <filter string="Approved EDI" name="approved_edi" domain="[('edi_state', '=', 'sent')]"/>
-                    <filter string="To Approve EDI" name="to_approve_edi" domain="[('edi_state', '=', 'to_send')]"/>
+                    <filter string="EDIs Autorizados" name="approved_edi" domain="[('edi_state', '=', 'sent')]"/>
+                    <filter string="EDIs Anulados" name="voided_edi" domain="[('edi_state', '=', 'cancel')]"/>
+                    <filter string="EDIs por Autorizar" name="to_approve_edi" domain="[('edi_state', 'in', ['to_send','to_cancel'])]"/>
                 </filter>
             </field>
         </record>
