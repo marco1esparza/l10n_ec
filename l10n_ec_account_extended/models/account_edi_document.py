@@ -34,7 +34,8 @@ class AccountEdiDocument(models.Model):
     def _prepare_jobs(self):
         #For Ecuador do not attempt again a document after 5 days (for not being blacklisted by SRI)
         to_process = []
-        date_filter = fields.Date.context_today(self) - timedelta(days=5)
+        today = fields.Date.context_today(self)
+        date_filter = today - timedelta(days=5)
         # if user manually sent the document with button "send now" just call super, do not limit the 5 days
         manual = self._context.get('default_move_type', False)  # hack, if in the account.move form there will be a default_type context
         for edi in self:
@@ -42,6 +43,8 @@ class AccountEdiDocument(models.Model):
                 if edi.move_id.country_code == 'EC':
                     if edi.move_id.invoice_date < date_filter:
                         continue  # skip document, too old
+                    if edi.move_id.invoice_date > today:
+                        continue  # skip document, too new... in the future!
             to_process_one = super(AccountEdiDocument, edi)._prepare_jobs()
             to_process.extend(to_process_one)
         return to_process
