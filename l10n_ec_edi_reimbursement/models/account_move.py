@@ -359,9 +359,9 @@ class AccountMove(models.Model):
         activa el campo para que se muestre el detalle de los reembolsos
         '''
         for move in self:
+            show_reimbursements_related = False
+            show_reimbursements_detail = False
             if move.country_code == 'EC':
-                show_reimbursements_related = False
-                show_reimbursements_detail = False
                 if move.move_type in ['out_invoice'] and move.l10n_latam_document_type_id.code == '41':
                     #es una factura de venta por reembolso de gastos como INTERMEDIARIO
                     show_reimbursements_related = True
@@ -374,8 +374,8 @@ class AccountMove(models.Model):
                     #es una factura de compra por reembolso de gastos como INTERMEDIARIO
                     show_reimbursements_related = True
                     show_reimbursements_detail = False
-                move.show_reimbursements_related = show_reimbursements_related
-                move.show_reimbursements_detail = show_reimbursements_detail
+            move.show_reimbursements_related = show_reimbursements_related
+            move.show_reimbursements_detail = show_reimbursements_detail
 
     #Columns
     show_reimbursements_related = fields.Boolean(
