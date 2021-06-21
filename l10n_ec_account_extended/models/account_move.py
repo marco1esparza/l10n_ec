@@ -226,7 +226,9 @@ class AccountMove(models.Model):
         #validations per invoice line
         l10n_ec_require_withhold_tax = self.l10n_ec_require_withhold_tax
         l10n_ec_require_vat_tax = self.l10n_ec_require_vat_tax
-        for line in self.invoice_line_ids:
+        #remove sections and comments
+        move_lines = self.invoice_line_ids.filtered(lambda x:x.display_type not in ['line_section','line_note'])
+        for line in move_lines:
             if self.move_type in ('in_refund', 'out_refund'):
                 if line.tax_ids.filtered(lambda x:x.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax']):
                     raise UserError('Las notas de crédito no deben tener impuesto de retención (IVA o RENTA), verifique la línea con producto "%s".' % line.name)
