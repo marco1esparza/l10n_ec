@@ -49,7 +49,7 @@
                                     <h4 style="letter-spacing: 2px;">
                                         <t t-if="o.l10n_latam_document_type_id" t-esc="o.l10n_latam_document_type_id.report_name or o.l10n_latam_document_type_id.name" /> <br/> <span t-esc="o.l10n_latam_document_number or o.name"/>
                                     </h4>
-                                    <strong>Environment: </strong><t t-if="o.company_id.l10n_ec_environment_type == '1'">Production</t><t t-else="">Testing</t>
+                                    <strong>Environment: </strong><t t-if="o.company_id.l10n_ec_environment_type == '2'">Production</t><t t-else="">Testing</t>
                                     &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
                                     <strong>Emission: </strong>Normal<br/>
                                 	<strong>Authorization No.: <span t-field="o.l10n_ec_authorization"/></strong>
