@@ -156,6 +156,14 @@ class AccountMove(models.Model):
     def _post(self, soft=True):
         #Execute ecuadorian validations with bypass option
         for document in self:
+            # Ticket Trescloud 18334, a veces los amls llevan un partner distinto que la cabecera
+            # posiblemente se hizo así al hacer la PO a un partner A pero cambiar el partner al momento de la factura
+            if document.move_type in ['in_invoice','out_invoice','in_refund','out_refund']:
+                #TODO podría ponerse un contexto para hacer bypass heredable en desarrollos especificos 
+                partners = self.line_ids.mapped('partner_id')
+                partners = partners | document.partner_id.commercial_partner_id
+                if len(partners) != 1:
+                    raise UserError(_("Algunas lineas del asiento contable tienen una empresa diferente a la de la cabecera de la factura, borre, guarde, y vuelva a colocar la empresa en la factura %s") % self.name)  
             if document.country_code == 'EC':
                 if document.journal_id.compatible_edi_ids.filtered(lambda e: e.code == 'facturx_1_0_05'):
                     raise UserError(_("Por favor, debe deshabilitar primero el Documento Electrónico Factur-X (FR) del Diario %s, Contabilidad/Configuración/Diarios Contables") % self.journal_id.name)
