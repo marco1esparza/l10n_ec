@@ -558,88 +558,87 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         '''
         income_tax_withholds = in_inv.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids.filtered(
             lambda l: l.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_tax'] and l.move_id.state == 'posted'
-        ).sorted(key=lambda l: l.tax_id.l10n_ec_code_ats) 
-        if income_tax_withholds and in_inv.l10n_latam_document_type_id.code not in ['41'] and self.include_electronic_document_in_ats:
-            #cuando son reembolsos no se reporta el detalle de valores retenidos (el dimm no permite)
-            air_form = doc.createElement('air')
-            detallecompras.appendChild(air_form)
-            for tax_line in income_tax_withholds:
+        ).sorted(key=lambda l: l.tax_id.l10n_ec_code_ats)
+        if income_tax_withholds and in_inv.l10n_latam_document_type_id.code not in ['41']:
+            allow_electronic_document = income_tax_withholds.mapped('move_id').mapped('l10n_ec_printer_id').filtered(lambda l: l.allow_electronic_document)
+            if not allow_electronic_document or (allow_electronic_document and self.include_electronic_document_in_ats):
+                #cuando son reembolsos no se reporta el detalle de valores retenidos (el dimm no permite)
+                air_form = doc.createElement('air')
+                detallecompras.appendChild(air_form)
+                for tax_line in income_tax_withholds:
+                     
+                    detalleAir_form = doc.createElement('detalleAir')
+                    air_form.appendChild(detalleAir_form)
+                     
+                    codigoRet = doc.createElement('codRetAir')
+                    detalleAir_form.appendChild(codigoRet)
+                    vcodigoRet = tax_line.tax_id.l10n_ec_code_ats
+                    if not vcodigoRet or len(vcodigoRet) < 3:
+                        #si no hay codigo de retencion o no es de al menos 3 digitos
+                        report_status.append(u'Impuesto IR sin codigo ats, doc compra ' + in_inv.name)
+                    pcodigoRet = doc.createTextNode(vcodigoRet or 'NA')
+                    codigoRet.appendChild(pcodigoRet)
+     
+                    baseImp = doc.createElement('baseImpAir')
+                    detalleAir_form.appendChild(baseImp)
+                    pbaseImp = doc.createTextNode('{0:.2f}'.format(tax_line.base))
+                    baseImp.appendChild(pbaseImp)
+     
+                    porcentajeRet = doc.createElement('porcentajeAir')
+                    detalleAir_form.appendChild(porcentajeRet)
+                    pporcentajeRet = doc.createTextNode('{0:.2f}'.format(abs(tax_line.tax_id.amount)))
+                    porcentajeRet.appendChild(pporcentajeRet)
+     
+                    valorRet = doc.createElement('valRetAir')
+                    detalleAir_form.appendChild(valorRet)
+                    pvalorRet = doc.createTextNode('{0:.2f}'.format(abs(tax_line.amount)))
+                    valorRet.appendChild(pvalorRet)
+     
+                #RETENCIONES POR DIVIDENDOS #TODO Implementar
+                #Fecha de Pago del Dividendo
+                #Impuesto a la renta pagado por la sociedad correspondiente al dividendo
+                #Año en que se generaron las utilidades atribuibles al dividendo
                  
-                detalleAir_form = doc.createElement('detalleAir')
-                air_form.appendChild(detalleAir_form)
-                 
-                codigoRet = doc.createElement('codRetAir')
-                detalleAir_form.appendChild(codigoRet)
-                vcodigoRet = tax_line.tax_id.l10n_ec_code_ats
-                if not vcodigoRet or len(vcodigoRet) < 3:
-                    #si no hay codigo de retencion o no es de al menos 3 digitos
-                    report_status.append(u'Impuesto IR sin codigo ats, doc compra ' + in_inv.name)
-                pcodigoRet = doc.createTextNode(vcodigoRet or 'NA')
-                codigoRet.appendChild(pcodigoRet)
- 
-                baseImp = doc.createElement('baseImpAir')
-                detalleAir_form.appendChild(baseImp)
-                pbaseImp = doc.createTextNode('{0:.2f}'.format(tax_line.base))
-                baseImp.appendChild(pbaseImp)
- 
-                porcentajeRet = doc.createElement('porcentajeAir')
-                detalleAir_form.appendChild(porcentajeRet)
-                pporcentajeRet = doc.createTextNode('{0:.2f}'.format(abs(tax_line.tax_id.amount)))
-                porcentajeRet.appendChild(pporcentajeRet)
- 
-                valorRet = doc.createElement('valRetAir')
-                detalleAir_form.appendChild(valorRet)
-                pvalorRet = doc.createTextNode('{0:.2f}'.format(abs(tax_line.amount)))
-                valorRet.appendChild(pvalorRet)
- 
-            #RETENCIONES POR DIVIDENDOS #TODO Implementar
-            #Fecha de Pago del Dividendo
-            #Impuesto a la renta pagado por la sociedad correspondiente al dividendo
-            #Año en que se generaron las utilidades atribuibles al dividendo
-             
-            #RETENCIONES POR BANANO #TODO Implementar
-            #Cantidad de cajas estándar de banano
-            #Precio de cajas estándar de banano
-            #Precio de la caja de banano
-            
-            withholds = in_inv.l10n_ec_withhold_ids.filtered(lambda l: l.state == 'posted') 
-            for withhold in withholds: 
-                #De haber mas de una retencion (escenario imposible con Odoo)
-                #se deberia poner estabRetencion2 para la segunda retencion
-                if withhold.edi_state != 'sent':
-                    #si la factura tiene novedades agregamos al msg de error
-                    #ayuda a identificar facturas sin retencion entre otros problemas
-                    report_status.append(u'Retencion ' + withhold.name + u', documento electronico por enviar.')
- 
-                estabRetencion1 = doc.createElement('estabRetencion1')
-                detallecompras.appendChild(estabRetencion1)
-                pestabRetencion1 = doc.createTextNode(withhold.l10n_latam_document_number[0:3])
-                estabRetencion1.appendChild(pestabRetencion1)
- 
-                ptoEmiRetencion1 = doc.createElement('ptoEmiRetencion1')
-                detallecompras.appendChild(ptoEmiRetencion1)
-                pptoEmiRetencion1 = doc.createTextNode(withhold.l10n_latam_document_number[4:7])
-                ptoEmiRetencion1.appendChild(pptoEmiRetencion1)
- 
-                secRetencion1 = doc.createElement('secRetencion1')
-                detallecompras.appendChild(secRetencion1)
-                psecRetencion1 = doc.createTextNode(withhold.l10n_latam_document_number[8:])
-                secRetencion1.appendChild(psecRetencion1)
-                 
-                autRetencion1 = doc.createElement('autRetencion1')
-                detallecompras.appendChild(autRetencion1)
-                autRetencion1.appendChild(doc.createTextNode(str(withhold.l10n_ec_authorization or '').strip()))
-                #en v14 la autorización es opcional, por tanto controlamos que esté lleanda
-                if not withhold.l10n_ec_authorization:
-                    report_status.append(in_inv.name + u' no tiene número de autorización o clave de acceso')
-
+                #RETENCIONES POR BANANO #TODO Implementar
+                #Cantidad de cajas estándar de banano
+                #Precio de cajas estándar de banano
+                #Precio de la caja de banano
                 
-                
- 
-                fechaEmiRet1 = doc.createElement('fechaEmiRet1')
-                detallecompras.appendChild(fechaEmiRet1)
-                pfechaEmiRet1 = doc.createTextNode(self._getFormatDates(withhold.invoice_date))
-                fechaEmiRet1.appendChild(pfechaEmiRet1)
+                withholds = in_inv.l10n_ec_withhold_ids.filtered(lambda l: l.state == 'posted') 
+                for withhold in withholds: 
+                    #De haber mas de una retencion (escenario imposible con Odoo)
+                    #se deberia poner estabRetencion2 para la segunda retencion
+                    if withhold.edi_state and withhold.edi_state != 'sent':
+                        #si la factura tiene novedades agregamos al msg de error
+                        #ayuda a identificar facturas sin retencion entre otros problemas
+                        report_status.append(u'Retencion ' + withhold.name + u', documento electronico por enviar.')
+     
+                    estabRetencion1 = doc.createElement('estabRetencion1')
+                    detallecompras.appendChild(estabRetencion1)
+                    pestabRetencion1 = doc.createTextNode(withhold.l10n_latam_document_number[0:3])
+                    estabRetencion1.appendChild(pestabRetencion1)
+     
+                    ptoEmiRetencion1 = doc.createElement('ptoEmiRetencion1')
+                    detallecompras.appendChild(ptoEmiRetencion1)
+                    pptoEmiRetencion1 = doc.createTextNode(withhold.l10n_latam_document_number[4:7])
+                    ptoEmiRetencion1.appendChild(pptoEmiRetencion1)
+     
+                    secRetencion1 = doc.createElement('secRetencion1')
+                    detallecompras.appendChild(secRetencion1)
+                    psecRetencion1 = doc.createTextNode(withhold.l10n_latam_document_number[8:])
+                    secRetencion1.appendChild(psecRetencion1)
+                     
+                    autRetencion1 = doc.createElement('autRetencion1')
+                    detallecompras.appendChild(autRetencion1)
+                    autRetencion1.appendChild(doc.createTextNode(str(withhold.l10n_ec_authorization or '').strip()))
+                    #en v14 la autorización es opcional, por tanto controlamos que esté lleanda
+                    if not withhold.l10n_ec_authorization:
+                        report_status.append(in_inv.name + u' no tiene número de autorización o clave de acceso')
+    
+                    fechaEmiRet1 = doc.createElement('fechaEmiRet1')
+                    detallecompras.appendChild(fechaEmiRet1)
+                    pfechaEmiRet1 = doc.createTextNode(self._getFormatDates(withhold.invoice_date))
+                    fechaEmiRet1.appendChild(pfechaEmiRet1)
   
     @api.model
     def write_purchase_credit_and_debit_note_section(self, doc, main, in_inv, detallecompras, report_status):
@@ -662,7 +661,6 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 report_status.append(u'Documento ' + modified_move.name + u' no tiene tipo de documento.')
             else:
                 pass #do nothing
-
  
             estabModificado = doc.createElement('estabModificado')
             detallecompras.appendChild(estabModificado)
