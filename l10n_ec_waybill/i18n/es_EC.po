@@ -1,13 +1,13 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* l10n_ec_waybill
+# 	* l10n_ec_withhold
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-17 04:30+0000\n"
-"PO-Revision-Date: 2021-02-17 04:30+0000\n"
+"POT-Creation-Date: 2021-06-23 04:59+0000\n"
+"PO-Revision-Date: 2021-06-23 04:59+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid ""
 "&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;\n"
 "                                    <strong>Emission: </strong>Normal<br/>"
@@ -24,609 +24,527 @@ msgstr ""
 "&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;\n"
 "                                    <strong>Emisión: </strong>Normal<br/>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid ""
-"<br/>\n"
-"                    \t<strong>Arrival Date: </strong>"
-msgstr ""
-"<br/>\n"
-"                    \t<strong>Fecha Fin Transporte: </strong>"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid ""
-"<br/>\n"
-"                    \t<strong>Company Name / Name and Surname: </strong>"
-msgstr ""
-"<br/>\n"
-"                    \t<strong>Razón Social / Nombres y Apellidos: </strong>"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid ""
-"<br/>\n"
-"                    \t<strong>Departure Date: </strong>"
-msgstr ""
-"<br/>\n"
-"                    \t<strong>Fecha Inicio Transporte: </strong>"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid ""
-"<br/>\n"
-"                    \t<strong>Destination (Arrival Point): </strong>"
-msgstr ""
-"<br/>\n"
-"                    \t<strong>Destino (Punto de Llegada): </strong>"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid ""
-"<br/>\n"
-"                    \t<strong>Identification (Recipient): </strong>"
-msgstr ""
-"<br/>\n"
-"                    \t<strong>Identificación (Destinatario): </strong>"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid ""
-"<br/>\n"
-"                    \t<strong>License Plate: </strong>"
-msgstr ""
-"<br/>\n"
-"                    \t<strong>Placa: </strong>"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid ""
 "<br/>\n"
 "                                    <strong>Headquarters Address: </strong>"
 msgstr ""
 "<br/>\n"
-"                                    <strong>Dirección Matriz:</strong>"
+"                                    <strong>Dirección Matriz: </strong>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_move_form_shipment
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
 msgid ""
-"<span attrs=\"{'invisible': ['|', '|', ('l10n_ec_is_waybill', '=', False), "
-"('state', '!=', 'draft'), ('name', '!=', '/')]}\">Draft Electronic "
-"Shipment</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('l10n_ec_withhold_type', 'not in', "
+"['out_withhold', 'in_withhold']), ('state', '!=', 'draft'), ('name', '!=', "
+"'/')]}\">Draft Withhold</span>"
 msgstr ""
+"<span attrs=\"{'invisible': ['|', '|', ('l10n_ec_withhold_type', 'not in', "
+"['out_withhold', 'in_withhold']), ('state', '!=', 'draft'), ('name', '!=', "
+"'/')]}\">Retención Borrador</span>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_picking_customization_form
-msgid "<span class=\"o_stat_text\">EDI Waybills</span>"
-msgstr ""
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "<span class=\"o_stat_text\">Withholds</span>"
+msgstr "<span class=\"o_stat_text\">Retenciones</span>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<span>Auxiliar Code</span>"
-msgstr "<span>Código Auxiliar</span>"
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Base amount</span>"
+msgstr "<span>Base</span>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<span>Description</span>"
-msgstr "<span>Descripción</span>"
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Date</span>"
+msgstr "<span>Fecha emisión</span>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<span>Main Code</span>"
-msgstr "<span>Código Principal</span>"
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Document No.</span>"
+msgstr "<span>Número</span>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<span>Quantity</span>"
-msgstr "<span>Cantidad</span>"
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Document</span>"
+msgstr "<span>Comprobante</span>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Fiscal exercise</span>"
+msgstr "<span>Ejercicio fiscal</span>"
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Tax %</span>"
+msgstr "<span>% Retenido</span>"
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Tax amount</span>"
+msgstr "<span>Valor retenido</span>"
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<span>Tax</span>"
+msgstr "<span>Impuesto</span>"
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "<strong>Agente de Retención Resolución No.: </strong>"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "<strong>Branch Office address: </strong>"
-msgstr "<strong>Dirección Sucursal:</strong>"
+msgstr "<strong>Dirección Sucursal: </strong>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Departure Address: </strong>"
-msgstr "<strong>Punto de Partida: </strong>"
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Company Name / Name and Surname: </strong>"
+msgstr "<strong>Razón Social / Nombres y Apellidos: </strong>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Due Date: </strong>"
+msgstr "<strong>Fecha de vencimiento: </strong>"
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "<strong>Environment: </strong>"
 msgstr "<strong>Ambiente: </strong>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Identification (Carrier): </strong>"
-msgstr ""
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Identification: </strong>"
+msgstr "<strong>Identificación: </strong>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "<strong>Move Reason: </strong>"
-msgstr "<strong>Motivo Traslado: </strong>"
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Invoice Date: </strong>"
+msgstr "<strong>Fecha: </strong>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "<strong>Obliged to keep accounting: </strong>"
-msgstr "<strong>Obligado a llevar Contabilidad: </strong>"
+msgstr "<strong>Obligado a llevar contabilidad: </strong>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "<strong>Special Taxpayer Number: </strong>"
 msgstr "<strong>Contribuyente Especial Nro: </strong>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "Access Key:"
-msgstr "Clave de Acceso"
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "<strong>Total</strong>"
+msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model,name:l10n_ec_waybill.model_account_chart_template
+#. module: l10n_ec_withhold
+#: code:addons/l10n_ec_withhold/models/account_move.py:0
+#, python-format
+msgid "A cancellation of the EDI has been requested."
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "Access Key:"
+msgstr "Clave de acceso:"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__account_id
+msgid "Account"
+msgstr "Cuenta contable"
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_account_chart_template
 msgid "Account Chart Template"
 msgstr "Plantilla de Plan de Cuentas"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company__l10n_ec_edi_waybill_account_id
-msgid "Account EDI Waybills"
-msgstr "Cuenta Guías Remisión EDI"
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Add Withhold"
+msgstr "Agregar retención"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking__l10n_ec_edi_waybill_ids
-msgid "Account Move"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_needaction
-msgid "Action Needed"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__active
-msgid "Active"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_picking_customization_form
-msgid "Add EDI Shipment"
-msgstr "Añadir Guía EDI"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_move_form_shipment
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
 msgid "Add an internal note..."
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking__l10n_ec_allow_edi_waybill
-msgid "Allow EDI Waybill"
-msgstr ""
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_allow_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_allow_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_allow_withhold
+msgid "Allow Withhold"
+msgstr "Permitir retención"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__allowed_identification_type_ids
-msgid "Allowed Identification Type"
-msgstr ""
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__amount
+msgid "Amount"
+msgstr "Monto"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_attachment_count
-msgid "Attachment Count"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "Authorization No.:"
-msgstr "Autorización Nro.:"
+msgstr "<strong>Autorización No.:</strong><br/>"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__base
+msgid "Base"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_invoice_vat_doce_subtotal
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_invoice_vat_doce_subtotal
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_invoice_vat_doce_subtotal
+msgid "Base Sugerida Ret. IVA"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_invoice_amount_untaxed
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_invoice_amount_untaxed
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_invoice_amount_untaxed
+msgid "Base Sugerida Ret. Renta"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_invoice_vat_doce_subtotal
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_invoice_vat_doce_subtotal
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_invoice_vat_doce_subtotal
+msgid "Base imponible sugerida (no obligatoria) para retención del IVA"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_invoice_amount_untaxed
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_invoice_amount_untaxed
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_invoice_amount_untaxed
+msgid ""
+"Base imponible sugerida (no obligatoria) para retención del Impuesto a la "
+"Renta"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "CONTRIBUYENTE RÉGIMEN MICROEMPRESAS<br/>"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_waybill_carrier_id
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_waybill_carrier_id
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_waybill_carrier_id
-msgid "Carrier"
-msgstr "Transportista"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.actions.act_window,help:l10n_ec_waybill.action_view_stock_carrier
-msgid "Click to define a new stock carrier."
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model,name:l10n_ec_waybill.model_res_company
-msgid "Companies"
-msgstr "Compañías"
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__company_id
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__company_id
 msgid "Company"
-msgstr ""
+msgstr "Compañía"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__create_uid
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__company_currency_id
+msgid "Company Currency"
+msgstr "Moneda de la compañía"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__create_uid
 msgid "Created by"
-msgstr ""
+msgstr "Creado por"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__create_date
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__create_date
 msgid "Created on"
-msgstr ""
+msgstr "Creado el"
 
-#. module: l10n_ec_waybill
-#: code:addons/l10n_ec_waybill/models/stock_picking.py:0
-#, python-format
-msgid "Debe asignar una cuenta para Guías de Remisión en la compañía."
-msgstr ""
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_res_currency
+msgid "Currency"
+msgstr "Moneda"
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.actions.act_window,help:l10n_ec_waybill.action_view_stock_carrier
-msgid "Define the waybill carrier used for your shipments."
-msgstr ""
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Customer"
+msgstr "Cliente/Proveedor"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_waybill_loc_dest_address
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_waybill_loc_dest_address
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_waybill_loc_dest_address
-msgid "Destination waybill address"
-msgstr "Dirección destino"
+#. module: l10n_ec_withhold
+#: model:ir.model.fields.selection,name:l10n_ec_withhold.selection__account_move__l10n_ec_withhold_type__out_withhold
+msgid "Customer Withhold"
+msgstr "Retención de cliente"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_waybill_loc_dest_address
-#: model:ir.model.fields,help:l10n_ec_waybill.field_account_move__l10n_ec_waybill_loc_dest_address
-#: model:ir.model.fields,help:l10n_ec_waybill.field_account_payment__l10n_ec_waybill_loc_dest_address
-msgid ""
-"Destination waybill address as in VAT document, saved in picking orders only"
-" not in partner"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_chart_template__display_name
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_edi_document__display_name
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__display_name
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__display_name
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company__display_name
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking__display_name
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_chart_template__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_document__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_tax__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_res_currency__display_name
 msgid "Display Name"
-msgstr "Nombre a Mostrar"
+msgstr "Nombre mostrado"
 
-#. module: l10n_ec_waybill
-#: code:addons/l10n_ec_waybill/models/l10n_ec_stock_carrier.py:0
-#, python-format
-msgid "Ecuadorian VAT number must contain only numeric characters"
-msgstr "La identificación fiscal de ecuador debe contener solamente números"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_picking_customization_form
-msgid "Edi Documents"
-msgstr "Documentos Edi"
-
-#. module: l10n_ec_waybill
-#: model:ir.model,name:l10n_ec_waybill.model_account_edi_document
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_account_edi_document
 msgid "Electronic Document for an account.move"
-msgstr "Documento Electrónico para un movimiento contable"
+msgstr "Documento electrónico para un account.move"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_follower_ids
-msgid "Followers"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_channel_ids
-msgid "Followers (Channels)"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_partner_ids
-msgid "Followers (Partners)"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_chart_template__id
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_edi_document__id
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__id
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__id
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company__id
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking__id
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_chart_template__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_document__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_tax__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_res_currency__id
 msgid "ID"
 msgstr "ID (identificación)"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__vat
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_form
-msgid "Identification Number"
-msgstr "Número Identificación"
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__vat
-msgid "Identification Number for selected type"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__l10n_latam_identification_type_id
-msgid "Identification Type"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_needaction
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_unread
-msgid "If checked, new messages require your attention."
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_has_error
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_has_sms_error
-msgid "If checked, some messages have a delivery error."
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "Información Adicional:"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_is_follower
-msgid "Is Follower"
-msgstr ""
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__invoice_id
+msgid "Invoice"
+msgstr "Factura"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_is_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_is_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_is_waybill
-msgid "Is Waybill"
-msgstr ""
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Invoice Date"
+msgstr "Fecha"
 
-#. module: l10n_ec_waybill
-#: model:ir.model,name:l10n_ec_waybill.model_account_move
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_origin_ids
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_origin_ids
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_origin_ids
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Invoices"
+msgstr "Facturas"
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_account_move
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__move_id
 msgid "Journal Entry"
 msgstr "Asiento contable"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_chart_template____last_update
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_edi_document____last_update
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move____last_update
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier____last_update
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company____last_update
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking____last_update
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_chart_template____last_update
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_document____last_update
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move____last_update
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_tax____last_update
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line____last_update
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_res_currency____last_update
 msgid "Last Modified on"
-msgstr "Fecha de modificación"
+msgstr "Última modificación el"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__write_uid
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__write_uid
 msgid "Last Updated by"
-msgstr ""
+msgstr "Última modificación por"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__write_date
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__write_date
 msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_origin_ids
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_withhold_origin_ids
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_origin_ids
+msgid "Link to invoices related to this withhold"
+msgstr "Enlace a facturas relacionadas con esta retención"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_ids
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_withhold_ids
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_ids
+msgid "Link to withholds related to this invoice"
+msgstr "Enlace a retenciones relacionadas con esta factura"
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Listado de facturas afectadas por esta retención"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_stock_picking__l10n_ec_edi_waybill_ids
-msgid "Link to account move edi related to this shipment"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_stock_picking_id
-#: model:ir.model.fields,help:l10n_ec_waybill.field_account_move__l10n_ec_stock_picking_id
-#: model:ir.model.fields,help:l10n_ec_waybill.field_account_payment__l10n_ec_stock_picking_id
-msgid "Link to stock picking related to this shipment"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "Logo"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_main_attachment_id
-msgid "Main Attachment"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_has_error
-msgid "Message Delivery error"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_ids
-msgid "Messages"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_waybill_move_reason
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_waybill_move_reason
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_waybill_move_reason
-msgid "Move reason"
-msgstr "Motivo Traslado"
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__name
-msgid "Name"
-msgstr "Nombre"
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "No"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_form
-msgid "Number"
-msgstr "Número"
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_count
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_count
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_count
+msgid "Number of Withhold"
+msgstr "Número de retención"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_needaction_counter
-msgid "Number of Actions"
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "Page: <span class=\"page\"/> / <span class=\"topage\"/>"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_res_company__days_for_valid_waybill
-msgid "Number of days of validity of the waybill."
-msgstr "Número de días de validez de la guía de remisión"
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_has_error_counter
-msgid "Number of errors"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_needaction_counter
-msgid "Number of messages which requires an action"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_has_error_counter
-msgid "Number of messages with delivery error"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_unread_counter
-msgid "Number of unread messages"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_waybill_line_ids
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_waybill_line_ids
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_waybill_line_ids
-msgid "Operations without package"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_move_form_shipment
-msgid "PDA-0123"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_move_form_shipment
-msgid "Picking Lines"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
-msgid "Production"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_form
-msgid "RUC/Ced/Pasaporte"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_has_sms_error
-msgid "SMS Delivery error"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__active
-msgid "Set active to false to hide the SRI Printer Point without removing it."
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_move_form_shipment
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_picking_customization_form
-msgid "Shipment Date"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: code:addons/l10n_ec_waybill/models/stock_picking.py:0
+#. module: l10n_ec_withhold
+#: code:addons/l10n_ec_withhold/models/account_move.py:0
 #, python-format
-msgid "Shipment documents are only aplicable for Ecuador"
+msgid "Posted journal entry must have an unique sequence number per company."
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_form
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.view_waybill_carrier_tree
-msgid "Stock Carrier"
-msgstr "Transportistas"
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
+msgid "Production"
+msgstr "Producción"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_stock_picking_id
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_stock_picking_id
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_stock_picking_id
-msgid "Stock Pickings"
+#. module: l10n_ec_withhold
+#: model:ir.actions.server,name:l10n_ec_withhold.action_receive_withhold
+msgid "Recibir retención"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Send & Print"
+msgstr "Enviar e imprimir"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields.selection,name:l10n_ec_withhold.selection__account_move__l10n_ec_withhold_type__in_withhold
+msgid "Supplier Withhold"
+msgstr "Retención de proveedor"
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_account_tax
+msgid "Tax"
+msgstr "Impuesto"
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "Tax ID"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_stock_picking__l10n_ec_edi_waybill_count
-msgid "Technical field to compute number of EDI Waybills"
-msgstr ""
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_account_withhold_line__tax_id
+msgid "Taxes"
+msgstr "Impuestos"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_stock_picking__l10n_ec_allow_edi_waybill
-msgid "Technical field to show/hide \"ADD EDI WAYBILL\" button"
-msgstr ""
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_allow_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_allow_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_allow_withhold
+msgid "Technical field to show/hide \"ADD WITHHOLD\" button"
+msgstr "Campo técnico para mostrar/ocultar el botón \"AÑADIR RETENCIÓN\""
 
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "Testing"
-msgstr "Pruebas"
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__l10n_latam_identification_type_id
-msgid "The type of identification"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model,name:l10n_ec_waybill.model_stock_picking
-msgid "Transfer"
-msgstr "Albarán"
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_l10n_ec_account_withhold_line__move_id
+msgid "The move of this entry line."
+msgstr "El movimiento de esta línea de entrada."
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_unread
-msgid "Unread Messages"
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total_base_vat
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_total_base_vat
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_total_base_vat
+msgid "Total Base IVA"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__message_unread_counter
-msgid "Unread Messages Counter"
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total_base_profit
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_total_base_profit
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_total_base_profit
+msgid "Total Base RENTA"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_res_company__days_for_valid_waybill
-msgid "Valid days of a waybill"
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_vat_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_vat_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_vat_withhold
+msgid "Total IVA"
 msgstr ""
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_bank_statement_line__l10n_ec_license_plate
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_move__l10n_ec_license_plate
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_account_payment__l10n_ec_license_plate
-msgid "Vehicle Plate"
-msgstr "Placa Vehículo"
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_vat_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_vat_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_vat_withhold
+msgid "Total IVA value of withhold"
+msgstr "Valor total de IVA de la retención"
 
-#. module: l10n_ec_waybill
-#: model:ir.actions.act_window,name:l10n_ec_waybill.action_view_stock_carrier
-#: model:ir.model,name:l10n_ec_waybill.model_l10n_ec_waybill_carrier
-#: model:ir.ui.menu,name:l10n_ec_waybill.menu_view_stock_carrier
-msgid "Waybill Carrier"
-msgstr "Transportista"
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_profit_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_profit_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_profit_withhold
+msgid "Total RENTA"
+msgstr ""
 
-#. module: l10n_ec_waybill
-#: code:addons/l10n_ec_waybill/models/stock_picking.py:0
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_total
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_total
+msgid "Total Withhold"
+msgstr "Total retención"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total_base_vat
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_total_base_vat
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_total_base_vat
+msgid "Total base IVA of withhold"
+msgstr "Total base IVA de la retención"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total_base_profit
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_total_base_profit
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_total_base_profit
+msgid "Total base renta of withhold"
+msgstr "Renta base total de retención"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_profit_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_profit_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_profit_withhold
+msgid "Total renta value of withhold"
+msgstr "Valor de renta total de la retención"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_total
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_total
+#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_total
+msgid "Total value of withhold"
+msgstr "Valor total de la retención"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,help:l10n_ec_withhold.field_l10n_ec_account_withhold_line__company_currency_id
+msgid "Utility field to express amount currency"
+msgstr "Campo de utilidad para expresar la cantidad de moneda"
+
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Withhold Date"
+msgstr "Fecha retención"
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_l10n_ec_account_withhold_line
+msgid "Withhold Line Detail"
+msgstr "Detalle de línea de retención"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_line_ids
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_line_ids
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_line_ids
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.view_move_form_withhold
+msgid "Withhold Lines"
+msgstr "Líneas de retención"
+
+#. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_type
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_type
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_type
+msgid "Withhold Type"
+msgstr "Tipo de retención"
+
+#. module: l10n_ec_withhold
+#: code:addons/l10n_ec_withhold/models/account_move.py:0
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_ids
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_ids
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_ids
 #, python-format
-msgid "Waybills"
-msgstr "Guías de Remisión"
+msgid "Withholds"
+msgstr "Retenciones"
 
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,field_description:l10n_ec_waybill.field_l10n_ec_waybill_carrier__website_message_ids
-msgid "Website Messages"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model:ir.model.fields,help:l10n_ec_waybill.field_l10n_ec_waybill_carrier__website_message_ids
-msgid "Website communication history"
-msgstr ""
-
-#. module: l10n_ec_waybill
-#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+#. module: l10n_ec_withhold
+#: model_terms:ir.ui.view,arch_db:l10n_ec_withhold.report_invoice_document
 msgid "Yes"
-msgstr "Sí"
+msgstr "Si"
