@@ -1,5 +1,6 @@
 # Needed for OpenUpgrade
 odoorpc==0.7.0
+#pip install --ignore-installed git+https://github.com/OCA/openupgradelib.git@master
 git+https://github.com/OCA/openupgradelib.git@master
 #para facturacion electronica
 suds-community
