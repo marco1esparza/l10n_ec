@@ -17,7 +17,7 @@ def migrate(env, version):
 def map_deprecated_modules(env):
     openupgrade.update_module_names(
         env.cr, [
-            # ('l10n_ec_hr','l10n_ec_hr_payroll'), #TODO migrar recursos humanos
+            ('l10n_ec_hr','l10n_ec_hr_payroll'),
             ('l10n_ec_account_check','l10n_ec_check_printing'),
             ('l10n_ec_financial_reports','trescloud_financial_reports'),
             ], merge_modules=True,)
