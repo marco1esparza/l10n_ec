@@ -20,6 +20,7 @@ def map_deprecated_modules(env):
             ('l10n_ec_hr','l10n_ec_hr_payroll'),
             ('l10n_ec_account_check','l10n_ec_check_printing'),
             ('l10n_ec_financial_reports','trescloud_financial_reports'),
+            ('gtica_whatsapp_live_free','website_whatsapp_icon'), #migracion fm
             ], merge_modules=True,)
     
 @openupgrade.logging()
