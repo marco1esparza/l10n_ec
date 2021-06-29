@@ -212,8 +212,10 @@ class TrialBalanceXslx(models.AbstractModel):
                 balance["currency_name"] = data.get("company_currency_name")
                 if hierarchy_on == "relation":
                     if data.get("show_4_and_5", False) and data.get("unaffected_earnings_account", False) and \
-                            (balance.get("id", -1) == data.get("unaffected_earnings_account") or
-                             balance.get("id", -1) in data.get("unaffected_earnings_account_group_id")):
+                            ((balance.get("type", "") == "account_type" and
+                              balance.get("id", -1) == data.get("unaffected_earnings_account")) or
+                             (balance.get("type", "") == "group_type" and
+                               balance.get("id", -1) in data.get("unaffected_earnings_account_group_id"))):
                         balance["ending_balance"] = all_data["ending_balance"]
                         balance["balance"] = all_data["balance"]
                         balance["credit"] = all_data["credit"]
@@ -289,14 +291,9 @@ class TrialBalanceXslx(models.AbstractModel):
                 report_data["row_pos"] += 2
 
         if data.get("show_4_and_5", False):
-            report_data["sheet"].write_string(
-                report_data["row_pos"] + 2,
-                1,
-                u'TOTAL PASIVO + PATRIMONIO',
-                report_data["formats"]["format_bold"],
-            )
             all_data["currency_id"] = data.get("company_currency_id")
             all_data["currency_name"] = data.get("company_currency_name")
+            all_data["4_and_5_text"] = data.get("4_and_5_text")
             all_data["account_group_id"] = True
             self.write_4_and_5_account_footer(all_data, report_data)
 
@@ -384,7 +381,7 @@ class TrialBalanceXslx(models.AbstractModel):
                 report_data["sheet"].write_string(
                     report_data["row_pos"] + 2,
                     1,
-                    u'TOTAL PASIVO + PATRIMONIO',
+                    values.get("4_and_5_text") or u'TOTAL PASIVO + PATRIMONIO',
                     report_data["formats"]["format_bold"],
                 )
                 continue
