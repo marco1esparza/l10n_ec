@@ -119,6 +119,15 @@
             <attribute name="style">font-size:11px;</attribute>
         </xpath>
 
+        <xpath expr="//table[@name='invoice_line_table']/thead/tr/th[1]" position="before">
+            <th>
+                <span>Principal code</span>
+            </th>
+        </xpath>
+        <xpath expr="//table[@name='invoice_line_table']/tbody//tr[1]//td[1]" position="before">
+            <td><span t-field="line.product_id.barcode"/></td>
+        </xpath>
+
         <xpath expr="//div[@id='total']/div[1]" position="replace">
             <div class="col-6 pr-5 mt-5">
                 <table class="table table-sm" style="page-break-inside: avoid; font-size:11px;" >

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="sale_stock_report_invoice_document" inherit_id="sale_stock.sale_stock_report_invoice_document">
+
+        <xpath expr="//table[@name='invoice_snln_table']" position="attributes">
+            <attribute name="style">font-size:9px; width: 50%;</attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_snln_table']/thead/tr/th[1]" position="before">
+            <th>
+                <span>Principal code</span>
+            </th>
+        </xpath>
+        <xpath expr="//table[@name='invoice_snln_table']/tbody//tr[1]//td[1]" position="before">
+            <td><t t-esc="snln_line.get('barcode', '')"/></td>
+        </xpath>
+    </template>
+</odoo>
