@@ -20,8 +20,18 @@ def map_deprecated_modules(env):
             ('l10n_ec_hr','l10n_ec_hr_payroll'),
             ('l10n_ec_account_check','l10n_ec_check_printing'),
             ('l10n_ec_financial_reports','trescloud_financial_reports'),
-            ('gtica_whatsapp_live_free','website_whatsapp_icon'), #migracion fm
             ], merge_modules=True,)
+    whatsapp_module = env['ir.module.module'].search([('name','=','gtica_whatsapp_live_free'),
+                                                      ('state','in',['installed','to upgrade','to install'])])
+    if whatsapp_module:
+        #borramos vistas que ahora son innecesarias
+        env.ref('gtica_whatsapp_live_free.assets_frontend').unlink()
+        env.ref('gtica_whatsapp_live_free.res_config_settings_whatsapp_livechat').unlink()
+        env.ref('gtica_whatsapp_live_free.gtica_whatsapp_frontend_layout').unlink()
+        openupgrade.update_module_names(
+            env.cr, [
+                ('gtica_whatsapp_live_free','website_whatsapp_icon'), #migracion fm
+                ], merge_modules=True,)
     
 @openupgrade.logging()
 def uninstall_deprecated_modules(env):
