@@ -284,9 +284,12 @@ class AccountMove(models.Model):
             access_key_date = access_key_data['document_date'].strftime('%d%m%Y')
             raise ValidationError(u'No existe correspondencia entre la clave de acceso "%s" y la fecha del documento "%s", para la autorización seleccionada se espera '\
                                   u'como fecha del documento"%s".' % (self.l10n_ec_authorization, invoice_date, access_key_date))
-        if self.l10n_latam_document_type_id != access_key_data['l10n_latam_document_type_id']:
-            raise ValidationError(u'No existe correspondencia entre la clave de acceso "%s" y el codigo de documento "%s", para la autorización seleccionada se espera '\
-                                  u'como codigo de documento "%s".' % (self.l10n_ec_authorization, self.l10n_latam_document_type_id.code, access_key_data['l10n_latam_document_type_id'].code))
+        # se comparan los codigos en lugar de los ids para soportar el caso de reembolso de gastos
+        source_code = access_key_data['source_code']
+        destination_code = self.l10n_latam_document_type_id.l10n_ec_map_document_type_code_to_electronic_code() 
+        if source_code != destination_code:
+            raise ValidationError(u'No existe correspondencia entre la clave de acceso "%s" pues su documento (digito 9 y 10) es "%s", para documento seleccionado se espera '\
+                                  u'como codigo de documento "%s".' % (self.l10n_ec_authorization, source_code, destination_code))
         if self.partner_id.vat != access_key_data['partner_vat']:
             raise ValidationError(u'No existe correspondencia entre la clave de acceso "%s" y el RUC registrado "%s", para la autorización seleccionada se espera '\
                                   u'como RUC del documento"%s".' % (self.l10n_ec_authorization, self.partner_id.vat, access_key_data['partner_vat']))
@@ -336,8 +339,9 @@ class AccountMove(models.Model):
             l10n_ec_type_filter = self.l10n_ec_withhold_type
         else:
             raise #nunca deberia caer aquí, problema con tipos de documentos
+        source_code = access_key[8:10]
         l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search(
-            [('code','=',access_key[8:10]),
+            [('code','=',source_code),
              ('l10n_ec_type','=',l10n_ec_type_filter),],
             limit=1)
         if not l10n_latam_document_type_id:
@@ -362,6 +366,7 @@ class AccountMove(models.Model):
         #49 digito verificador, no se usa
         return {
             'document_date': document_date,
+            'source_code': source_code,
             'l10n_latam_document_type_id': l10n_latam_document_type_id,
             'partner_vat': partner_vat,
             'partner_id': partner_id, #sometimes False

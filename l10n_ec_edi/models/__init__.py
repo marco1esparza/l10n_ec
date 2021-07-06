@@ -15,3 +15,4 @@ from . import account_move
 from . import account_edi_document
 from . import account_edi_format
 from . import account_journal
+from . import l10n_latam_document_type
