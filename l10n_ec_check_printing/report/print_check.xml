@@ -9,8 +9,8 @@
         <template id="ckec_check">
         	<div class="ckec_check">
 	        	<style type="text/css">
-					.paguese_a {position: absolute;}
-					.valor_en_numeros {position: fixed;}
+					.paguese_a {position: absolute;width: 600px;}
+					.valor_en_numeros {position: fixed;width: 100px;}
 					.valor_en_letras_linea1 {position: fixed;}
 					.valor_en_letras_linea2 {position: fixed;}
 					.ciudad_y_fecha {position: fixed;}
