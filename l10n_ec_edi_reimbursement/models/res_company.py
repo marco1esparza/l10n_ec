@@ -18,6 +18,26 @@ class ResCompany(models.Model):
             product = product.id
         return product
 
+    @api.model
+    def create_account_refund_product(self):
+        company_ids = self.env['res.company'].search([])
+        company_ids._create_account_refund_product()
+
+    def _create_account_refund_product(self):
+        '''
+        Metodo que asigna la cuenta para el producto de reembolso.
+        '''
+        for company in self.filtered(lambda x: x.country_code == 'EC'):
+            product_id = company.refund_product_id or \
+                         self.env.ref('l10n_ec_edi_reimbursement.refund_default_product', raise_if_not_found=False)
+            if product_id:
+                product_id = product_id.with_company(company)
+                account = self.env['account.account'].search([('code', '=', '11040401'),
+                                                              ('company_id', '=', company.id)])
+                if account:
+                    product_id.property_account_income_id = account
+                    product_id.property_account_expense_id = account
+
     #Columns
     refund_product_id = fields.Many2one(
         'product.product',

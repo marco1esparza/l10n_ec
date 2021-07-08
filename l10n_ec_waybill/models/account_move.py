@@ -32,6 +32,28 @@ class AccountMove(models.Model):
             is_waybill = True
         return is_waybill
 
+    def _get_invoiced_lot_values(self):
+        self.ensure_one()
+
+        lot_values = super(AccountMove, self)._get_invoiced_lot_values()
+
+        if self.state == 'draft' or self.country_code != 'EC' or not self.is_waybill():
+            return lot_values
+
+        lot_values = []
+        for line in self.l10n_ec_waybill_line_ids.filtered(lambda l: l.lot_id):
+            lot_values.append({
+                'barcode': line.product_id.barcode or '',
+                'product_name': line.product_id.display_name,
+                'quantity': line.qty_done,
+                'uom_name': line.product_uom_id.name,
+                'lot_name': line.lot_id.name,
+                'lot_id': line.lot_id.id
+            })
+        return lot_values
+
+
+
     def _get_name_invoice_report(self):
         self.ensure_one()
         if self.is_waybill():

@@ -66,6 +66,7 @@ Authors:
         'data/res_bank_data.xml',
         'data/l10n_latam_identification_type_data.xml',
         'data/res_partner_data.xml',
+        'data/account_tax_data.xml',
         #Other data
         'data/l10n_latam_document_type_data.xml',
         #Views

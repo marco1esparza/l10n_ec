@@ -15,9 +15,9 @@
             <field name="purchase_ok">False</field>
             <field name="taxes_id" eval="[]"/>
             <field name="supplier_taxes_id" eval="[]"/>
-			<field name="property_account_income_id" search="[('code','=','11040401')]"/>
-			<field name="property_account_expense_id" search="[('code','=','11040401')]"/>
         </record>
+
+        <function model="res.company" name="create_account_refund_product"/>
         
 	</data>
 </odoo>
