@@ -207,6 +207,12 @@ class AccountMove(models.Model):
         #hack: send the context to later bypass account_edi restrictions
         # Se modifica la ejecucion del post al final porque res se debe devolver con la ejecucion de todos los documentos
         res = super(AccountMove, self)._post(soft)
+        # Corregimos bug de Odoo... para Ecuador removemos el Factur-X, cambios en el core de Odoo causan que se vuelva a incluir
+        for document in self:
+            if document.country_code == 'EC':
+                ecuador_edis = document.edi_document_ids.filtered(lambda x: x.edi_format_id.code == 'l10n_ec_tax_authority')
+                unnecesary_edis = document.edi_document_ids - ecuador_edis
+                unnecesary_edis.unlink()
         self.l10n_ec_bypass_validations = False #Reset bypass to default value
         return res
     
