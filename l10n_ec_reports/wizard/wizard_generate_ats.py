@@ -1074,22 +1074,22 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
 
              establecimiento = doc.createElement('establecimiento')
              detalle_anuladas_form.appendChild(establecimiento)
-             pestablecimiento = doc.createTextNode(void_delivery.waybill_number[0:3])
+             pestablecimiento = doc.createTextNode(void_delivery.l10n_latam_document_number[0:3])
              establecimiento.appendChild(pestablecimiento)
 
              puntoEmision = doc.createElement('puntoEmision')
              detalle_anuladas_form.appendChild(puntoEmision)
-             ppuntoEmision = doc.createTextNode(void_delivery.waybill_number[4:7])
+             ppuntoEmision = doc.createTextNode(void_delivery.l10n_latam_document_number[4:7])
              puntoEmision.appendChild(ppuntoEmision)
 
              secuencialInicio = doc.createElement('secuencialInicio')
              detalle_anuladas_form.appendChild(secuencialInicio)
-             psecuencialInicio = doc.createTextNode(void_delivery.waybill_number[8:])
+             psecuencialInicio = doc.createTextNode(void_delivery.l10n_latam_document_number[8:])
              secuencialInicio.appendChild(psecuencialInicio)
 
              secuencialFin = doc.createElement('secuencialFin')
              detalle_anuladas_form.appendChild(secuencialFin)
-             psecuencialFin = doc.createTextNode(void_delivery.waybill_number[8:])
+             psecuencialFin = doc.createTextNode(void_delivery.l10n_latam_document_number[8:])
              secuencialFin.appendChild(psecuencialFin)
 
              autorizacion = doc.createElement('autorizacion')
