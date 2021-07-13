@@ -165,6 +165,12 @@ class AccountMove(models.Model):
                 if len(partners) != 1:
                     raise UserError(_("Algunas lineas del asiento contable tienen una empresa diferente a la de la cabecera de la factura, borre, guarde, y vuelva a colocar la empresa en la factura %s") % self.name)  
             if document.country_code == 'EC':
+                
+                # Corregimos bug de Odoo... para Ecuador removemos el Factur-X, cambios en el core de Odoo causan que se vuelva a incluir
+                ecuador_edis = document.journal_id.edi_format_ids.filtered(lambda x: x.code == 'l10n_ec_tax_authority')
+                unnecesary_edis = document.journal_id.edi_format_ids - ecuador_edis
+                document.journal_id.edi_format_ids -= unnecesary_edis #se elimina el factur-x del diarios
+
                 if document.journal_id.compatible_edi_ids.filtered(lambda e: e.code == 'facturx_1_0_05'):
                     raise UserError(_("Por favor, debe deshabilitar primero el Documento Electrónico Factur-X (FR) del Diario %s, Contabilidad/Configuración/Diarios Contables") % self.journal_id.name)
                 #FIX ME: a veces, con puntos de emision nuevos, no se computa el perfijo de la factura en el numero
@@ -207,12 +213,6 @@ class AccountMove(models.Model):
         #hack: send the context to later bypass account_edi restrictions
         # Se modifica la ejecucion del post al final porque res se debe devolver con la ejecucion de todos los documentos
         res = super(AccountMove, self)._post(soft)
-        # Corregimos bug de Odoo... para Ecuador removemos el Factur-X, cambios en el core de Odoo causan que se vuelva a incluir
-        for document in self:
-            if document.country_code == 'EC':
-                ecuador_edis = document.edi_document_ids.filtered(lambda x: x.edi_format_id.code == 'l10n_ec_tax_authority')
-                unnecesary_edis = document.edi_document_ids - ecuador_edis
-                unnecesary_edis.unlink()
         self.l10n_ec_bypass_validations = False #Reset bypass to default value
         return res
     
