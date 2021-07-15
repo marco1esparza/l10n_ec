@@ -7,10 +7,10 @@ from . import wizard
 from odoo import api, SUPERUSER_ID
 
 
-def _assign_default_company_tax(cr, registry):
-    '''
-    Este método se encarga de asignar los impuestos por defecto a la compañía
-    '''
+def _post_install_hook_setup_profit_withhold_taxes(cr, registry):
+    # Setup defaul profit withhold taxes per company
     env = api.Environment(cr, SUPERUSER_ID, {})
-    company_ids = env['res.company'].search([])
-    company_ids._create_withholding_profit()
+    companies = env['res.company'].search([])
+    for company in companies:
+        if company.country_code == 'EC':
+            env['account.chart.template']._l10n_ec_setup_profit_withhold_taxes(company)

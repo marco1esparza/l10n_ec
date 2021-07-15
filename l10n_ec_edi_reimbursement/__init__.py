@@ -6,7 +6,7 @@ from . import models
 from odoo import api, SUPERUSER_ID
 
 
-def _assign_default_refund_product_id(cr, registry):
+def _post_install_hook_setup_reimbursement_product(cr, registry):
     '''
     Este método se encarga de configurar el "Producto para Descuento Post-Venta"
     en las compañía existentes al instalar el modulo

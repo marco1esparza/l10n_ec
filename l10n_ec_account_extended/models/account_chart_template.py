@@ -8,9 +8,34 @@ class AccountChartTemplate(models.Model):
     _inherit = "account.chart.template"
 
     def _load(self, sale_tax_rate, purchase_tax_rate, company):
-        """
-        Se sobrescribe para cargar las retenciones a la compa;ia
-        """
+        # Override to setup withhold taxes in company configuration
         res = super()._load(sale_tax_rate, purchase_tax_rate, company)
-        company._create_withholding_profit()
+        self._l10n_ec_setup_profit_withhold_taxes(company)
         return res
+
+    def _l10n_ec_setup_profit_withhold_taxes(self, companies):
+        ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
+        for company in ecuadorian_companies:
+            self = self.with_company(company)
+            
+            company.l10n_ec_fallback_profit_withhold_services = self.env['account.tax'].search([
+                ('l10n_ec_code_ats', '=', '3440'),
+                ('l10n_ec_type', '=', 'withhold_income_tax'),
+                ('type_tax_use', '=', 'purchase'),
+                ('company_id', '=', company.id)
+            ], limit=1)
+
+            company.l10n_ec_profit_withhold_tax_credit_card = self.env['account.tax'].search([
+                ('l10n_ec_code_ats', '=', '332G'),
+                ('l10n_ec_type', '=', 'withhold_income_tax'),
+                ('type_tax_use', '=', 'purchase'),
+                ('company_id', '=', company.id)
+            ], limit=1)
+
+            company.l10n_ec_fallback_profit_withhold_goods = self.env['account.tax'].search([
+                ('l10n_ec_code_ats', '=', '312'),
+                ('l10n_ec_type', '=', 'withhold_income_tax'),
+                ('type_tax_use', '=', 'purchase'),
+                ('company_id', '=', company.id)
+            ], limit=1)
+            
