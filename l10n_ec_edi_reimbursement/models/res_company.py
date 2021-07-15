@@ -18,11 +18,6 @@ class ResCompany(models.Model):
             product = product.id
         return product
 
-    @api.model
-    def create_account_refund_product(self):
-        company_ids = self.env['res.company'].search([])
-        company_ids._create_account_refund_product()
-
     def _create_account_refund_product(self):
         '''
         Metodo que asigna la cuenta para el producto de reembolso.

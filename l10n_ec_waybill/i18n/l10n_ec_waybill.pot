@@ -631,3 +631,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
 msgid "Yes"
 msgstr ""
+
+#. module: l10n_ec_waybill
+#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.sale_stock_report_invoice_document
+msgid "<span>Principal code</span>"
+msgstr ""

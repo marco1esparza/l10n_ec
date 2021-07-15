@@ -6,34 +6,32 @@ from odoo import api, fields, models, _
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
-    
-    # @api.model
-    # def default_get(self, fields):
-    #     #Usefull to automate field filling on pre-existing companies
-    #     #For new companies in multicompany implement AccountChartTemplate._load()
-    #
-    #     #TODO ANDRES: No esta funcionando los valores por defecto al instalar el modulo
-    #     #en  una bdd existente... talvez moverlo a un init()?
-    #     vals = super(ResCompany, self).default_get(fields)
-    #     l10n_ec_fallback_profit_withhold_goods = self.env['account.tax'].search([
-    #         ('l10n_ec_code_ats','=','312'),
-    #         ('l10n_ec_type','=','withhold_income_tax'),
-    #         ('type_tax_use','=','purchase')
-    #         ], limit = 1)
-    #     l10n_ec_fallback_profit_withhold_services = self.env['account.tax'].search([
-    #         ('l10n_ec_code_ats','=','3440'),
-    #         ('l10n_ec_type','=','withhold_income_tax'),
-    #         ('type_tax_use','=','purchase')
-    #         ], limit = 1)
-    #     l10n_ec_profit_withhold_tax_credit_card = self.env['account.tax'].search([
-    #         ('l10n_ec_code_ats','=','332G'),
-    #         ('l10n_ec_type','=','withhold_income_tax'),
-    #         ('type_tax_use','=','purchase')
-    #         ], limit = 1)
-    #     vals['l10n_ec_fallback_profit_withhold_goods'] = l10n_ec_fallback_profit_withhold_goods
-    #     vals['l10n_ec_fallback_profit_withhold_services'] = l10n_ec_fallback_profit_withhold_services
-    #     vals['l10n_ec_profit_withhold_tax_credit_card'] = l10n_ec_profit_withhold_tax_credit_card
-    #     return vals
+
+    def _create_withholding_profit(self):
+        '''
+        Metodo que asigna las retenciones a la compa;ia
+        '''
+        for company in self.filtered(lambda x: x.country_code == 'EC'):
+            company.l10n_ec_fallback_profit_withhold_services = self.env['account.tax'].search([
+                ('l10n_ec_code_ats', '=', '3440'),
+                ('l10n_ec_type', '=', 'withhold_income_tax'),
+                ('type_tax_use', '=', 'purchase'),
+                ('company_id', '=', company.id)
+            ], limit=1)
+
+            company.l10n_ec_profit_withhold_tax_credit_card = self.env['account.tax'].search([
+                ('l10n_ec_code_ats', '=', '332G'),
+                ('l10n_ec_type', '=', 'withhold_income_tax'),
+                ('type_tax_use', '=', 'purchase'),
+                ('company_id', '=', company.id)
+            ], limit=1)
+
+            company.l10n_ec_fallback_profit_withhold_goods = self.env['account.tax'].search([
+                ('l10n_ec_code_ats', '=', '312'),
+                ('l10n_ec_type', '=', 'withhold_income_tax'),
+                ('type_tax_use', '=', 'purchase'),
+                ('company_id', '=', company.id)
+            ], limit=1)
     
     _SOURCE = [
         ('proyectox', 'Proyectox Versión 8'),

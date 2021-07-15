@@ -9,8 +9,8 @@ class AccountChartTemplate(models.Model):
 
     def _load(self, sale_tax_rate, purchase_tax_rate, company):
         """
-        Se sobrescribe para cargar cuenta de producto de reembolso.
+        Se sobrescribe para cargar las retenciones a la compa;ia
         """
         res = super()._load(sale_tax_rate, purchase_tax_rate, company)
-        company._create_account_withholding_profit()
+        company._create_withholding_profit()
         return res

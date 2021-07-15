@@ -174,6 +174,22 @@
         </xpath>
     </template>
 
+    <template id="sale_stock_report_invoice_document" inherit_id="sale_stock.sale_stock_report_invoice_document">
+
+        <xpath expr="//table[@name='invoice_snln_table']" position="attributes">
+            <attribute name="style">font-size:9px; width: 50%;</attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_snln_table']/thead/tr/th[1]" position="before">
+            <th>
+                <span>Principal code</span>
+            </th>
+        </xpath>
+        <xpath expr="//table[@name='invoice_snln_table']/tbody//tr[1]//td[1]" position="before">
+            <td><t t-esc="snln_line.get('barcode', '')"/></td>
+        </xpath>
+    </template>
+
     <!-- FIXME: Temp fix to allow fetching invoice_documemt in Studio Reports with localisation -->
     <template id="report_invoice" inherit_id="account.report_invoice">
         <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">

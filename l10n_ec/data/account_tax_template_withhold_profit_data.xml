@@ -470,6 +470,7 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
+                    'account_id': ref('ret_ir_1_75x100'),
                     'tag_ids': [ref('tax_tag_362')],
                 })]"/>
             <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
@@ -481,6 +482,7 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
+                    'account_id': ref('ret_ir_1_75x100'),
                     'tag_ids': [ref('tax_tag_362')],
                 })]"/>
         </record>
@@ -1989,6 +1991,7 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
+                    'account_id': ref('ret_ir_others'),
                 })]"/>
             <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
@@ -1999,6 +2002,7 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
+                    'account_id': ref('ret_ir_others'),
                 })]"/>
         </record>
         <record id="tax_withhold_profit_332H" model="account.tax.template">
@@ -2546,6 +2550,7 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
+                    'account_id': ref('ret_ir_2_75x100'),
                     'tag_ids': [ref('tax_tag_394')],
                 })]"/>
             <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
@@ -2557,6 +2562,7 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
+                    'account_id': ref('ret_ir_2_75x100'),
                     'tag_ids': [ref('tax_tag_394')],
                 })]"/>
         </record>
