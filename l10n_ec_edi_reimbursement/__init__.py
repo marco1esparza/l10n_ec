@@ -6,17 +6,14 @@ from . import models
 from odoo import api, SUPERUSER_ID
 
 
-def _post_install_hook_setup_reimbursement_product(cr, registry):
+def _post_install_hook_l10n_ec_setup_reimbursement_product(cr, registry):
     '''
     Este método se encarga de configurar el "Producto para Descuento Post-Venta"
     en las compañía existentes al instalar el modulo
     '''
     env = api.Environment(cr, SUPERUSER_ID, {})
-    company_ids = env['res.company'].search([])
-    default_refund_product_id = env.ref('l10n_ec_edi_reimbursement.refund_default_product', raise_if_not_found=False)
-    if default_refund_product_id:
-        company_ids\
-            .filtered(lambda x: not x.refund_product_id and x.country_code == 'EC').write({
-            'refund_product_id': default_refund_product_id.id,
-        })
-    company_ids._create_account_refund_product()
+    companies = env['res.company'].search([])
+    for company in companies:
+        if company.country_code == 'EC':
+            env['account.chart.template']._l10n_ec_setup_reimbursement_product(company)
+
