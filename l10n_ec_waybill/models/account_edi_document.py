@@ -113,7 +113,11 @@ class AccountEdiDocument(models.Model):
             detalle_data.append(('descripcion', each.product_id.name))
             detalle_data.append(('cantidad', each.qty_done))
             self.create_TreeElements(detalle, detalle_data)
-            #detalle_adic = self.create_SubElement(detalle, 'detallesAdicionales')
+            if each.lot_id:
+                detalle_adic = self.create_SubElement(detalle, 'detallesAdicionales')
+                detAdicional = self.create_SubElement(detalle_adic, 'detAdicional',
+                                       attrib={'nombre': 'LoteoSerie'},)
+                detAdicional.set('valor', each.lot_id.name)
             #if 'product_uom_id' in each._fields:
             #    self.create_SubElement(detalle_adic, 'detAdicional',
             #                           attrib={'nombre': 'UnidadDeMedida'},

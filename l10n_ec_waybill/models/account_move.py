@@ -43,24 +43,15 @@ class AccountMove(models.Model):
         if self.state == 'draft' or self.country_code != 'EC':
             return lot_values
 
-        if self.is_waybill():
-            lot_values = []
-            for line in self.l10n_ec_waybill_line_ids.filtered(lambda l: l.lot_id):
-                lot_values.append({
-                    'barcode': line.product_id.barcode or '',
-                    'product_name': line.product_id.display_name,
-                    'quantity': line.qty_done,
-                    'uom_name': line.product_uom_id.name,
-                    'lot_name': line.lot_id.name,
-                    'lot_id': line.lot_id.id
-                })
-        else:
+        if not self.is_waybill() and not self.is_withholding():
             for value in lot_values:
                 lot_id = value.get('lot_id', False)
                 if lot_id:
                     lot = self.env['stock.production.lot'].browse(lot_id)
                     barcode = lot.product_id.barcode
                     value.update({'barcode': barcode})
+                    if 'expiration_date' in lot._fields:
+                        value.update({'expiration_date': lot.expiration_date})
         return lot_values
 
 
@@ -163,7 +154,7 @@ class AccountMove(models.Model):
     l10n_ec_waybill_carrier_id = fields.Many2one(
         'l10n_ec.waybill.carrier',
         string='Carrier',
-        states = {'draft': [('readonly', False)]},
+        states={'draft': [('readonly', False)]},
         ondelete='restrict',
         check_company=True,
         tracking=True,
@@ -172,8 +163,8 @@ class AccountMove(models.Model):
         )
     l10n_ec_waybill_loc_dest_address = fields.Char(
         string='Destination waybill address',
-        readonly = True,
-        states = {'draft': [('readonly', False)]},
+        readonly=True,
+        states={'draft': [('readonly', False)]},
         copy=False,
         help='Destination waybill address as in VAT document, saved in picking orders only not in partner'
         )
@@ -184,8 +175,8 @@ class AccountMove(models.Model):
         string='Vehicle Plate',
         size=8,
         tracking=True,
-        readonly = True,
-        states = {'draft': [('readonly', False)]}
+        readonly=True,
+        states={'draft': [('readonly', False)]}
         )
     
     @api.constrains('l10n_ec_license_plate')
