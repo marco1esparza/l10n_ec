@@ -641,3 +641,18 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.sale_stock_report_invoice_document
 msgid "Lots"
 msgstr ""
+
+#. module: l10n_ec_waybill
+#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.sale_stock_report_invoice_document
+msgid "<span>Expiration date</span>"
+msgstr ""
+
+#. module: l10n_ec_waybill
+#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+msgid "<span>Lot</span>"
+msgstr ""
+
+#. module: l10n_ec_waybill
+#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.sale_stock_report_invoice_document
+msgid "<span>Lots</span>"
+msgstr ""

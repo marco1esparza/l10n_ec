@@ -119,16 +119,8 @@
             <attribute name="style">font-size:11px;</attribute>
         </xpath>
 
-        <xpath expr="//table[@name='invoice_line_table']/thead/tr/th[3]/span" position="replace">
-            <span>Lots</span>
-        </xpath>
-
-        <xpath expr="//table[@name='invoice_line_table']/thead/tr/th[1]" position="before">
-            <div class="row">
-                <div class="col-6 mt-5">
-                    <span>Principal code</span>
-                </div>
-            </div>
+        <xpath expr="//table[@name='invoice_line_table']/thead/tr[1]/th[1]" position="before">
+            <th name="th_description" class="text-left"><span>Principal code</span></th>
         </xpath>
 
         <xpath expr="//table[@name='invoice_line_table']/tbody//tr[1]//td[1]" position="before">

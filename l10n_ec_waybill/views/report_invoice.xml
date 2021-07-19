@@ -189,7 +189,7 @@
         </xpath>
 
         <xpath expr="//table[@name='invoice_snln_table']" position="before">
-            <div class="row">
+            <div class="row" groups="sale_stock.group_lot_on_invoice">
                 <div class="col-6 mt-1" style="padding-right:0px !important; padding-left:0px !important;">
                     <table name="lots" class="table table-condensed w-100" style="font-size:9px;;margin-bottom:0.4rem;">
                         <tr>
@@ -198,6 +198,10 @@
                     </table>
                 </div>
             </div>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_snln_table']/thead/tr/th[4]/span" position="replace">
+            <span>Lots</span>
         </xpath>
 
         <xpath expr="//table[@name='invoice_snln_table']/tbody//tr[1]//td[1]" position="before">

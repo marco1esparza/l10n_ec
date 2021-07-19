@@ -405,3 +405,18 @@ msgstr "<span>Código principal</span>"
 #: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.sale_stock_report_invoice_document
 msgid "Lots"
 msgstr "Lotes/Series"
+
+#. module: l10n_ec_waybill
+#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.sale_stock_report_invoice_document
+msgid "<span>Expiration date</span>"
+msgstr "<span>Fecha de expiración</span>"
+
+#. module: l10n_ec_waybill
+#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.report_invoice_document
+msgid "<span>Lot</span>"
+msgstr "<span>Lote/Serie</span>"
+
+#. module: l10n_ec_waybill
+#: model_terms:ir.ui.view,arch_db:l10n_ec_waybill.sale_stock_report_invoice_document
+msgid "<span>Lots</span>"
+msgstr "<span>Lote/Serie</span>"
