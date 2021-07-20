@@ -419,7 +419,7 @@ class AccountEdiDocument(models.Model):
         for each in move_lines:
             detalle = self.create_SubElement(detalles, 'detalle')
             detalle_data = []
-            main_code = each.product_id.l10n_ec_get_product_codes()
+            main_code, secondary_code = each.product_id.l10n_ec_get_product_codes()
             if main_code:
                 if type == 'out_invoice':
                     detalle_data.append(('codigoPrincipal', main_code))

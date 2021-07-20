@@ -11,10 +11,10 @@ class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     def l10n_ec_get_product_codes(self):
-        '''
-        Metodo que devuelve el codigo principal y el codigo secundario del producto.
-        '''
+        #Returns main and secondary product codes, for electronic documents, to be inherited in custom modules
         self.ensure_one()
-        main_code = self.barcode or self.default_code
-        aux_code = self.barcode and self.default_code or ''
+        main_code = self.barcode or self.default_code or ''
+        aux_code = ''
+        if self.barcode:
+            aux_code = self.default_code
         return main_code, aux_code
