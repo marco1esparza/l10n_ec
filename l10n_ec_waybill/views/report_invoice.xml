@@ -122,17 +122,21 @@
                         <th name="th_description" class="text-left"><span>Description</span></th>
                         <th name="th_code" class="text-left"><span>Main Code</span></th>
                         <th name="th_auxcode" class="text-left"><span>Auxiliar Code</span></th>
+                        <th name="th_lot" class="text-left" groups="stock.group_lot_on_delivery_slip"><span>Lot</span></th>
                     </tr>
                 </thead>
                 <tbody class="invoice_tbody">
                     <t t-set="lines" t-value="o.l10n_ec_waybill_line_ids.sorted(key=lambda l: l.id)"/>
 
                     <t t-foreach="lines" t-as="line">
+                        <t t-set="main_code" t-value="line.product_id.l10n_ec_get_product_codes()[0]"/>
+                        <t t-set="aux_code" t-value="line.product_id.l10n_ec_get_product_codes()[1]"/>
                         <tr>
                             <td><span t-field="line.qty_done"/></td>
                             <td><span t-field="line.product_id.name" t-options="{'widget': 'text'}"/></td>
-                            <td><span t-esc="line.product_id.barcode and line.product_id.barcode or line.product_id.code"/></td>
-                            <td><span t-if="line.product_id.barcode and line.product_id.code" t-esc="line.product_id.code" /></td>
+                            <td><span t-esc="main_code"/></td>
+                            <td><span t-esc="aux_code" /></td>
+                            <td groups="stock.group_lot_on_delivery_slip"><span t-field="line.lot_id" /></td>
                         </tr>
                     </t>
                 </tbody>
@@ -148,8 +152,8 @@
             <t t-set="additional_info" t-value="o._get_additional_info()"/>
             <t t-if="additional_info">
                 <div class="row">
-                    <div class="col-6 mt-5">
-                        <table name="social_reason" class="table table-condensed w-100" style="font-size:10px;">
+                    <div class="col-6 mt-1" style="padding-right:0px !important; padding-left:0px !important;">
+                        <table name="social_reason" class="table table-condensed w-100" style="font-size:10px; line-height:80%;margin-bottom:0.4rem;">
                             <tr>
                                 <th class="text-center">Información Adicional:</th>
                             </tr>
@@ -171,6 +175,49 @@
                     </div>
                 </div>
             </div>
+        </xpath>
+    </template>
+
+    <template id="sale_stock_report_invoice_document" inherit_id="sale_stock.sale_stock_report_invoice_document">
+
+        <xpath expr="//table[@name='invoice_snln_table']" position="attributes">
+            <attribute name="style">font-size:9px; width: 50%; line-height:60%; margin-left:-15px !important;</attribute>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_snln_table']/thead/tr/th[1]" position="before">
+            <th>
+                <span>Principal code</span>
+            </th>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_snln_table']" position="before">
+            <div class="row" groups="sale_stock.group_lot_on_invoice">
+                <div class="col-6 mt-1" style="padding-right:0px !important; padding-left:0px !important;">
+                    <table name="lots" class="table table-condensed w-100" style="font-size:9px;;margin-bottom:0.4rem;">
+                        <tr>
+                            <th class="text-center" style="padding: 0.3rem">Lots</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_snln_table']/thead/tr/th[4]/span" position="replace">
+            <span>Lots</span>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_snln_table']/tbody//tr[1]//td[1]" position="before">
+            <td><t t-esc="snln_line.get('main_code', '')"/></td>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_snln_table']/thead/tr/th[4]" position="after">
+            <th class="text-right">
+                <span>Expiration date</span>
+            </th>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_snln_table']/tbody//tr[1]//td[4]" position="after">
+            <td class="text-right"><t t-esc="snln_line.get('expiration_date', '')"/></td>
         </xpath>
     </template>
 

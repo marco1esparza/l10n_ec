@@ -8,9 +8,7 @@ class AccountChartTemplate(models.Model):
     _inherit = "account.chart.template"
 
     def _load(self, sale_tax_rate, purchase_tax_rate, company):
-        """
-        Override to configure ecuadorian waybill data.
-        """
+        # Override to configure ecuadorian withhold data.
         res = super()._load(sale_tax_rate, purchase_tax_rate, company)
         self._l10n_ec_configure_ecuadorian_withhold(company)
         return res

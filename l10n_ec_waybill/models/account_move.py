@@ -32,6 +32,30 @@ class AccountMove(models.Model):
             is_waybill = True
         return is_waybill
 
+    def _get_invoiced_lot_values(self):
+        '''
+        Heredamos el metodo, para obtener colocar la informacion de lotes a las facturas.
+        '''
+        self.ensure_one()
+
+        lot_values = super(AccountMove, self)._get_invoiced_lot_values()
+
+        if self.state == 'draft' or self.country_code != 'EC':
+            return lot_values
+
+        if not self.is_waybill() and not self.is_withholding():
+            for value in lot_values:
+                lot_id = value.get('lot_id', False)
+                if lot_id:
+                    lot = self.env['stock.production.lot'].browse(lot_id)
+                    main_code = lot.product_id.l10n_ec_get_product_codes()[0]
+                    value.update({'main_code': main_code})
+                    if 'expiration_date' in lot._fields:
+                        value.update({'expiration_date': lot.expiration_date})
+        return lot_values
+
+
+
     def _get_name_invoice_report(self):
         self.ensure_one()
         if self.is_waybill():
@@ -130,7 +154,7 @@ class AccountMove(models.Model):
     l10n_ec_waybill_carrier_id = fields.Many2one(
         'l10n_ec.waybill.carrier',
         string='Carrier',
-        states = {'draft': [('readonly', False)]},
+        states={'draft': [('readonly', False)]},
         ondelete='restrict',
         check_company=True,
         tracking=True,
@@ -139,8 +163,8 @@ class AccountMove(models.Model):
         )
     l10n_ec_waybill_loc_dest_address = fields.Char(
         string='Destination waybill address',
-        readonly = True,
-        states = {'draft': [('readonly', False)]},
+        readonly=True,
+        states={'draft': [('readonly', False)]},
         copy=False,
         help='Destination waybill address as in VAT document, saved in picking orders only not in partner'
         )
@@ -151,8 +175,8 @@ class AccountMove(models.Model):
         string='Vehicle Plate',
         size=8,
         tracking=True,
-        readonly = True,
-        states = {'draft': [('readonly', False)]}
+        readonly=True,
+        states={'draft': [('readonly', False)]}
         )
     
     @api.constrains('l10n_ec_license_plate')

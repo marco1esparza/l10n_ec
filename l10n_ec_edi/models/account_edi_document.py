@@ -419,14 +419,14 @@ class AccountEdiDocument(models.Model):
         for each in move_lines:
             detalle = self.create_SubElement(detalles, 'detalle')
             detalle_data = []
-            code = self.getXMLProductCode(move_line = each)
-            if code:
+            main_code = each.product_id.l10n_ec_get_product_codes()
+            if main_code:
                 if type == 'out_invoice':
-                    detalle_data.append(('codigoPrincipal', code))
+                    detalle_data.append(('codigoPrincipal', main_code))
                 elif type == 'out_refund':
-                    detalle_data.append(('codigoInterno', code))
+                    detalle_data.append(('codigoInterno', main_code))
                 elif type == 'in_invoice': #Liq de compras
-                    detalle_data.append(('codigoPrincipal', code))
+                    detalle_data.append(('codigoPrincipal', main_code))
             detalle_data.append(('descripcion', get_SRI_normalized_text(each.name[:300])))
             detalle_data.append(('cantidad', '{0:.6f}'.format(each.quantity)))
             #TODO: usar algo similar al price_unit-final que deberia ser este l10n_latam_price_net o algo parecido
@@ -540,12 +540,6 @@ class AccountEdiDocument(models.Model):
         result = etree.SubElement(_parent, _tag, attrib,nsmap, **_extra)
         result.text = (text if not text is None and isinstance(text, str) else not text is None and str(text)) or None
         return result
-    
-    def getXMLProductCode(self, move_line):
-        #To be redefined in customers customizations
-        #If set uses the barcode as main code, otherwise the default_code
-        product_code = move_line.product_id.barcode or move_line.product_id.default_code or ''
-        return product_code
 
     def _get_additional_info(self):
         self.ensure_one()

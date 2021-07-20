@@ -147,8 +147,8 @@
             <t t-set="additional_info" t-value="o._get_additional_info()"/>
             <t t-if="additional_info">
                 <div class="row">
-                    <div class="col-6 mt-5">
-                        <table name="social_reason" class="table table-condensed w-100" style="font-size:10px;">
+                    <div class="col-6 mt-1" style="padding-right:0px !important; padding-left:0px !important;">
+                        <table name="social_reason" class="table table-condensed w-100" style="font-size:10px; line-height:50%;margin-bottom:0.4rem;">
                             <tr>
                                 <th class="text-center">Información Adicional:</th>
                             </tr>

@@ -39,7 +39,6 @@
     ],
     'installable': True,
     'auto_install': True,
-    # Se hace uso del post_init_hook para al finalizar la instalacion del modulo, se ejecute el metodo _assign_default_refund_product_id
-    # para que asigne el Producto para Descuento Post-Venta en las compañias existentes (Metodo existente en __init__.py)
-    'post_init_hook': '_assign_default_refund_product_id',
+    'post_init_hook': '_post_install_hook_l10n_ec_setup_reimbursement_product',
+    
 }

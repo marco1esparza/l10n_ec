@@ -119,6 +119,14 @@
             <attribute name="style">font-size:11px;</attribute>
         </xpath>
 
+        <xpath expr="//table[@name='invoice_line_table']/thead/tr[1]/th[1]" position="before">
+            <th name="th_description" class="text-left"><span>Principal code</span></th>
+        </xpath>
+
+        <xpath expr="//table[@name='invoice_line_table']/tbody//tr[1]//td[1]" position="before">
+            <td><span t-esc="line.product_id.l10n_ec_get_product_codes()[0]"/></td>
+        </xpath>
+
         <xpath expr="//div[@id='total']/div[1]" position="replace">
             <div class="col-6 pr-5 mt-5">
                 <table class="table table-sm" style="page-break-inside: avoid; font-size:11px;" >
@@ -193,8 +201,8 @@
             <t t-set="additional_info" t-value="o._get_additional_info()"/>
             <t t-if="additional_info">
                 <div class="row">
-                    <div class="col-6 mt-5">
-                        <table name="social_reason" class="table table-condensed w-100" style="font-size:10px;">
+                    <div class="col-6 mt-1" style="padding-right:0px !important; padding-left:0px !important;">
+                        <table name="social_reason" class="table table-condensed w-100" style="font-size:10px; line-height:80%;margin-bottom:0.4rem;">
                             <tr>
                                 <th class="text-center">Información Adicional:</th>
                             </tr>

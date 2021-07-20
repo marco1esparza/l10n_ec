@@ -1732,3 +1732,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "on"
 msgstr "en"
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<span>Principal code</span>"
+msgstr "<span>Código principal</span>"
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<span>Lots</span>"
+msgstr "<span>Lotes/Series</span>"

@@ -104,8 +104,7 @@ class AccountEdiDocument(models.Model):
         for each in self.move_id.l10n_ec_waybill_line_ids:
             detalle_data = []
             detalle = self.create_SubElement(detalles, 'detalle')
-            main_code = each.product_id.barcode or each.product_id.code or ''
-            auxiliar_code = each.product_id.code if each.product_id.barcode else ''
+            main_code, auxiliar_code = each.product_id.l10n_ec_get_product_codes()
             if main_code:
                 detalle_data.append(('codigoInterno', main_code))
             if auxiliar_code:
@@ -113,7 +112,11 @@ class AccountEdiDocument(models.Model):
             detalle_data.append(('descripcion', each.product_id.name))
             detalle_data.append(('cantidad', each.qty_done))
             self.create_TreeElements(detalle, detalle_data)
-            #detalle_adic = self.create_SubElement(detalle, 'detallesAdicionales')
+            if each.lot_id:
+                detalle_adic = self.create_SubElement(detalle, 'detallesAdicionales')
+                detAdicional = self.create_SubElement(detalle_adic, 'detAdicional',
+                                       attrib={'nombre': 'LoteoSerie'},)
+                detAdicional.set('valor', each.lot_id.name)
             #if 'product_uom_id' in each._fields:
             #    self.create_SubElement(detalle_adic, 'detAdicional',
             #                           attrib={'nombre': 'UnidadDeMedida'},

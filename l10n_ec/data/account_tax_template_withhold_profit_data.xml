@@ -7506,5 +7506,6 @@
                     'tag_ids': [ref('tax_tag_845')],
                 })]"/>
         </record>
+
     </data>
 </odoo>
