@@ -104,8 +104,7 @@ class AccountEdiDocument(models.Model):
         for each in self.move_id.l10n_ec_waybill_line_ids:
             detalle_data = []
             detalle = self.create_SubElement(detalles, 'detalle')
-            main_code = each.product_id.barcode or each.product_id.code or ''
-            auxiliar_code = each.product_id.code if each.product_id.barcode else ''
+            main_code, auxiliar_code = each.product_id.l10n_ec_get_product_codes()
             if main_code:
                 detalle_data.append(('codigoInterno', main_code))
             if auxiliar_code:

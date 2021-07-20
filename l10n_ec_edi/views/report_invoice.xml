@@ -124,7 +124,7 @@
         </xpath>
 
         <xpath expr="//table[@name='invoice_line_table']/tbody//tr[1]//td[1]" position="before">
-            <td><span t-field="line.product_id.barcode"/></td>
+            <td><span t-esc="line.product_id.l10n_ec_get_product_codes()[0]"/></td>
         </xpath>
 
         <xpath expr="//div[@id='total']/div[1]" position="replace">

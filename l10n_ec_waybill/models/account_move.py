@@ -34,7 +34,7 @@ class AccountMove(models.Model):
 
     def _get_invoiced_lot_values(self):
         '''
-        Heredamos el metodo, para obtener colocar la informacion de lotes a las guias de remision.
+        Heredamos el metodo, para obtener colocar la informacion de lotes a las facturas.
         '''
         self.ensure_one()
 
@@ -48,8 +48,8 @@ class AccountMove(models.Model):
                 lot_id = value.get('lot_id', False)
                 if lot_id:
                     lot = self.env['stock.production.lot'].browse(lot_id)
-                    barcode = lot.product_id.barcode
-                    value.update({'barcode': barcode})
+                    main_code = lot.product_id.l10n_ec_get_product_codes()[0]
+                    value.update({'main_code': main_code})
                     if 'expiration_date' in lot._fields:
                         value.update({'expiration_date': lot.expiration_date})
         return lot_values

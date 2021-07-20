@@ -129,11 +129,13 @@
                     <t t-set="lines" t-value="o.l10n_ec_waybill_line_ids.sorted(key=lambda l: l.id)"/>
 
                     <t t-foreach="lines" t-as="line">
+                        <t t-set="main_code" t-value="line.product_id.l10n_ec_get_product_codes()[0]"/>
+                        <t t-set="aux_code" t-value="line.product_id.l10n_ec_get_product_codes()[1]"/>
                         <tr>
                             <td><span t-field="line.qty_done"/></td>
                             <td><span t-field="line.product_id.name" t-options="{'widget': 'text'}"/></td>
-                            <td><span t-esc="line.product_id.barcode and line.product_id.barcode or line.product_id.code"/></td>
-                            <td><span t-if="line.product_id.barcode and line.product_id.code" t-esc="line.product_id.code" /></td>
+                            <td><span t-esc="main_code"/></td>
+                            <td><span t-esc="aux_code" /></td>
                             <td groups="stock.group_lot_on_delivery_slip"><span t-field="line.lot_id" /></td>
                         </tr>
                     </t>
@@ -205,7 +207,7 @@
         </xpath>
 
         <xpath expr="//table[@name='invoice_snln_table']/tbody//tr[1]//td[1]" position="before">
-            <td><t t-esc="snln_line.get('barcode', '')"/></td>
+            <td><t t-esc="snln_line.get('main_code', '')"/></td>
         </xpath>
 
         <xpath expr="//table[@name='invoice_snln_table']/thead/tr/th[4]" position="after">
