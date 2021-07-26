@@ -29,7 +29,7 @@
 			</xpath>
 			
 			<xpath expr="//field[@name='acc_number']" position="before">
-				<field name="l10n_ec_account_type" readonly="0"/>
+				<field name="l10n_ec_account_type" readonly="0" required="1"/>
 			</xpath>
 			
 		</field>

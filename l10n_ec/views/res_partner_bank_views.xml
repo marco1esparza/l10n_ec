@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="base.view_partner_bank_form"/>
         <field name="arch" type="xml">
             <field name="bank_id" position="after">
-                <field name="l10n_ec_account_type"/>
+                <field name="l10n_ec_account_type" required="1"/>
             </field>
         </field>
     </record>
