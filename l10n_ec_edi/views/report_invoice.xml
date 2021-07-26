@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <template id="external_layout_standard" inherit_id="web.external_layout_standard" >
+        <xpath expr="//div[contains(@t-attf-class, 'o_report_layout_standard')]//t[@t-call='web.address_layout']" position="attributes">
+            <attribute name="t-if">o and o.company_id.partner_id.country_id.code != 'EC' or o._name != 'account.move'</attribute>
+        </xpath>
+    </template>
+
+    <template id="report_invoice_document_partner" inherit_id="account.report_invoice_document">
+        <xpath expr="//h2" position="before">
+            <t t-if="not o.l10n_latam_document_type_id and o.country_code == 'EC'">
+                <div class="address row" style="margin-top:100px;">
+                    <t t-set="colclass" t-value="'col-5 offset-1'"/>
+                    <div class="col-6">
+
+                    </div>
+                    <div name="address" t-att-class="colclass">
+                        <address t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}' />
+                        <div t-if="o.partner_id.vat" class="mt16">
+                            <t t-if="o.company_id.country_id.vat_label" t-esc="o.company_id.country_id.vat_label" id="inv_tax_id_label"/>
+                            <t t-else="">Tax ID</t>: <span t-field="o.partner_id.vat"/></div>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
     <template id="report_invoice_document" inherit_id="account.report_invoice_document" primary="True">
         <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">web.basic_layout</attribute>
