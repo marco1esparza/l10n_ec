@@ -51,7 +51,7 @@ class AccountMove(models.Model):
                     main_code = lot.product_id.l10n_ec_get_product_codes()[0]
                     value.update({'main_code': main_code})
                     if 'expiration_date' in lot._fields:
-                        value.update({'expiration_date': lot.expiration_date})
+                        value.update({'expiration_date': lot.expiration_date and lot.expiration_date.strftime('%d/%m/%Y')})
         return lot_values
 
 
