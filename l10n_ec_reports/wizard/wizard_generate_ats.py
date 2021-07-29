@@ -315,7 +315,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                     if not in_inv.l10n_ec_withhold_ids or not in_inv.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted'):
                         # los clientes q no están en regimen de facturación electronica no requieren emitir documento de retención para 332
                         # esos clentes deben omitir el mensaje de advertencia.
-                        report_status.append(u'Advertencia: La ' + in_inv.name + u' debería tener un documento de retencion por $ %s' % '{0:.2f}'.format(in_inv.l10n_ec_total_to_withhold))
+                        report_status.append(in_inv.name + u': Debería tener un documento de retencion por $ %s' % '{0:.2f}'.format(in_inv.l10n_ec_total_to_withhold))
                 
                 detallecompras = doc.createElement('detalleCompras')
                 compras.appendChild(detallecompras)
@@ -325,7 +325,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 vcodSustento = in_inv.l10n_ec_sri_tax_support_id.code or ''
                 codSustento.appendChild(doc.createTextNode(vcodSustento))
                 if not vcodSustento:
-                    report_status.append(u'Documento ' + in_inv.name + u' no tiene codigo de sustento tributario')
+                    report_status.append(in_inv.name + u': No tiene codigo de sustento tributario')
      
                 tpIdProv = doc.createElement('tpIdProv')
                 detallecompras.appendChild(tpIdProv)
@@ -336,7 +336,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                 vidProv = in_inv.partner_id.vat or ''
                 idProv.appendChild(doc.createTextNode(vidProv))
                 if not vidProv:
-                    report_status.append(u'Documento ' + in_inv.name + u' el proveedor no tiene número de RUC o Cédula')
+                    report_status.append(in_inv.name + u': El proveedor no tiene número de RUC o Cédula')
                                  
                 tipoComprobante = doc.createElement('tipoComprobante')
                 detallecompras.appendChild(tipoComprobante)
@@ -654,7 +654,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             if withhold.edi_state and withhold.edi_state != 'sent':
                 #si la factura tiene novedades agregamos al msg de error
                 #ayuda a identificar facturas sin retencion entre otros problemas
-                report_status.append(u'Retencion ' + withhold.name + u', documento electronico por autorizar en el SRI')
+                report_status.append(withhold.name + u': documento electronico por autorizar en el SRI')
         
             estabRetencion1 = doc.createElement('estabRetencion1')
             detallecompras.appendChild(estabRetencion1)
@@ -691,7 +691,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         if in_inv.l10n_latam_document_type_id.code=='04' or in_inv.l10n_latam_document_type_id.code=='05':
             modified_move = in_inv.reversed_entry_id or in_inv.debit_origin_id
             if not modified_move:
-                report_status.append(u'Documento ' + in_inv.name + u' no tiene la factura que modifica, debe crear las NCs o NDs desde la factura original')
+                report_status.append(in_inv.name + u': No tiene la factura que modifica, debe crear las NCs o NDs desde la factura original')
                 return False #usamos return porque todos los otros nodos de esta sección van a fallar
                         
             docModificado = doc.createElement('docModificado')
@@ -701,7 +701,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             docModificado.appendChild(pdocModificado)
             if not vdocModificado:
                 #si no es un codigo sino un texto, agregamos el texto del error
-                report_status.append(u'Documento ' + modified_move.name + u' no tiene tipo de documento.')
+                report_status.append(modified_move.name + u': No tiene tipo de documento.')
             else:
                 pass #do nothing
  
@@ -1368,8 +1368,9 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         help='This field defines if there are errors in the generation of ATS'
         )
     include_electronic_document_in_ats = fields.Boolean(
-        string=u'Incluir retenciones electrónicas emitidas a proveedores en el ATS',
-        help=u'Active esta opción si desea incluir las retenciones electrónicas emitidas a proveedores en el ATS.'
+        string=u'Incluir retenciones electrónicas emitidas',
+        help = u'Se recomienda dejar activada, incluye las retenciones electrónicas emitidas a proveedores en el ATS, '
+               u'las retenciones se consideran electronicas cuando su clave de acceso es de 42 o 49 digitos.'
         )
     company_id = fields.Many2one(
         'res.company',
