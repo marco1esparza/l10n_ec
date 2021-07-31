@@ -294,8 +294,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
         #TODO: evaluar crear otro tipo de documento para las compras de servicios al extranjero
         foreign_purchase_invoice_ids = account_move_obj.search([
             ('move_type', 'in', ('in_invoice', 'in_refund')),
-            ('state', '=', 'posted'),
             ('l10n_latam_document_type_id.code', 'in', _FOREIGN_PURCHASE_DOCUMENT_CODES),
+            ('state', '=', 'posted'),
             ('l10n_ec_sri_tax_support_id.code', 'not in', ['06','07']), #no se reportan importaciones de inventario
             ('invoice_date','>=', self.date_start),
             ('invoice_date','<=', self.date_finish),
@@ -315,7 +315,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                     if not in_inv.l10n_ec_withhold_ids or not in_inv.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted'):
                         # los clientes q no están en regimen de facturación electronica no requieren emitir documento de retención para 332
                         # esos clentes deben omitir el mensaje de advertencia.
-                        report_status.append(in_inv.name + u': Debería tener un documento de retencion por $ %s' % '{0:.2f}'.format(in_inv.l10n_ec_total_to_withhold))
+                        report_status.append(in_inv.name + u': Debería tener un documento de retencion electrónico por $ %s' % '{0:.2f}'.format(in_inv.l10n_ec_total_to_withhold))
                 
                 detallecompras = doc.createElement('detalleCompras')
                 compras.appendChild(detallecompras)
@@ -580,7 +580,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             dict['w_base'] = line.tax_base_amount
             dict['w_percentage'] = line.tax_line_id.amount
             dict['w_amount'] = line.credit
-            withhold_lines_from_invoice.append(dict)  
+            withhold_lines_from_invoice.append(dict)
         
         # comparamos valores computados de la factura vs valores emitidos en la retención
         # Podria afectar el rendimiento
