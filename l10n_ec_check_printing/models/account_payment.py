@@ -114,13 +114,15 @@ class AccountPayment(models.Model):
     def _check_build_page_info(self, i, p):
         page = super(AccountPayment, self)._check_build_page_info(i, p)
         amount_in_word = page['amount_in_word']
+        if not amount_in_word:
+            amount_in_word = ''
         lines = textwrap.wrap(amount_in_word, int(AMOUNT_IN_WORDS_LENGHT/2))
         l10n_ec_check_beneficiary_name = self.l10n_ec_check_beneficiary_name or self.commercial_partner_id and self.commercial_partner_id.name or '.'
         page.update({
             'city_and_date': self.company_id.city + ', ' + format_date(self.env, self.date, date_format='yyyy-MM-dd'),
             'partner_name': l10n_ec_check_beneficiary_name,
-            'amount_line1': lines[0],
-            'amount_line2': lines[1],
+            'amount_line1': lines and lines[0] or '',
+            'amount_line2': lines and lines[1] or '',
         })
         return page
     

@@ -3,7 +3,7 @@
 
     <template id="external_layout_standard" inherit_id="web.external_layout_standard" >
         <xpath expr="//div[contains(@t-attf-class, 'o_report_layout_standard')]//t[@t-call='web.address_layout']" position="attributes">
-            <attribute name="t-if">o and o.company_id.partner_id.country_id.code != 'EC' or o._name != 'account.move'</attribute>
+            <attribute name="t-if">o and (o.company_id.partner_id.country_id.code != 'EC' or o._name != 'account.move')</attribute>
         </xpath>
     </template>
 

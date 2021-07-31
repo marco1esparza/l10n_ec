@@ -12,9 +12,7 @@ class PrintPreNumberedChecks(models.TransientModel):
     @api.onchange('next_check_number')
     def onchange_next_check_number(self):
         #Ecuadorian check numbers has always 6 digits
-        if not self.env.company.country_code == 'EC':
-            return True
-        if len(self.next_check_number) < 6:
+        if self.env.company.country_code == 'EC' and len(self.next_check_number) < 6:
             self.next_check_number = self.next_check_number.zfill(6)
     
     def print_checks(self):
