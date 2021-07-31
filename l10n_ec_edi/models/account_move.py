@@ -175,7 +175,26 @@ class AccountMove(models.Model):
                         #Usamos _origin para obtener el id del registro y evitar algo como lo sig: NewId: <NewId origin=2>
                         l10n_ec_sri_tax_support_id = self.l10n_ec_available_sri_tax_support_ids[0]._origin.id
                 self.l10n_ec_sri_tax_support_id = l10n_ec_sri_tax_support_id
-    
+
+    @api.onchange('l10n_ec_invoice_custom')
+    def _onchange_l10n_ec_invoice_custom(self):
+        '''
+        Onchange para copiar los valores de las lineas de la factura a las lineas personalizadas
+        '''
+        in_draft_mode = self != self._origin
+        if self.l10n_ec_invoice_custom and not self.l10n_ec_custom_line_ids:
+            create_method = in_draft_mode and self.env['l10n_ec.custom.move.line'].new or self.env['l10n_ec.custom.move.line'].create
+            for line in self.invoice_line_ids.filtered(lambda l: not l.display_type):
+                custom_line = create_method({'name': line.name,
+                                             'quantity': line.quantity,
+                                             'price_unit': line.price_unit,
+                                             'discount': line.discount,
+                                             'tax_ids': line.tax_ids,
+                                             'move_id': line.move_id,
+                                             'partner_id': line.partner_id,
+                                             'currency_id': line.currency_id})
+                custom_line._onchange_price_subtotal()
+
     def button_cancel(self):
         # validate number format of void documents when voiding draft documents
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents and x.state == 'draft'):

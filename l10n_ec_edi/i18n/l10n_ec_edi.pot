@@ -340,6 +340,7 @@ msgid "Companies"
 msgstr ""
 
 #. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_custom_move_line__company_id
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_digital_signature__company_id
 #: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_sri_printer_point__company_id
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_digital_signature_filter
@@ -1652,4 +1653,96 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<span>Lots</span>"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<span>Description</span>"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<span>Disc.%</span>"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<span>Main Code</span>"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<span>Quantity</span>"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<span>Taxes</span>"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid "<span>Unit Price</span>"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid "Add a line"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model,name:l10n_ec_edi.model_l10n_ec_custom_move_line
+msgid "Custom Account Move Line"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid "Disc.%"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_custom_move_line__discount
+msgid "Discount (%)"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid "Invoice Custom Lines"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_custom_move_line__tax_ids
+msgid "Taxes"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_custom_move_line__name
+msgid "Label"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_custom_move_line__quantity
+msgid "Quantity"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model:ir.model.fields,field_description:l10n_ec_edi.field_l10n_ec_custom_move_line__price_unit
+msgid "Unit Price"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid "Price"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.view_move_invoice_customization_form
+msgid "Total amount"
+msgstr ""
+
+#. module: l10n_ec_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Amount</span>\n"
+"                                    <span groups=\"account.group_show_line_subtotals_tax_included\">Total Price</span>"
 msgstr ""

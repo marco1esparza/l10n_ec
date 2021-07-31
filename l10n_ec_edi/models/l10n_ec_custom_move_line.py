@@ -8,12 +8,13 @@ class L10nEcCustomMoveLine(models.Model):
     _name = 'l10n_ec.custom.move.line'
     _description = "Custom Account Move Line"
 
-    def _get_price_total_and_subtotal(self, price_unit=None, quantity=None, currency=None, partner=None, taxes=None, move_type=None):
+    def _get_price_total_and_subtotal(self, price_unit=None, quantity=None, discount=None, currency=None, partner=None, taxes=None, move_type=None):
         # Computa para obtener el subtotal y total de las lineas
         self.ensure_one()
         return self._get_price_total_and_subtotal_model(
             price_unit=price_unit or self.price_unit,
             quantity=quantity or self.quantity,
+            discount=discount or self.discount,
             currency=currency or self.currency_id,
             partner=partner or self.partner_id,
             taxes=taxes or self.tax_ids,
@@ -21,14 +22,15 @@ class L10nEcCustomMoveLine(models.Model):
         )
 
     @api.model
-    def _get_price_total_and_subtotal_model(self, price_unit, quantity, currency, partner, taxes, move_type):
+    def _get_price_total_and_subtotal_model(self, price_unit, quantity, discount, currency, partner, taxes, move_type):
         # Computa para obtener el subtotal y total de las lineas
         res = {}
-        subtotal = quantity * price_unit
+        line_discount_price_unit = price_unit * (1 - (discount / 100.0))
+        subtotal = quantity * line_discount_price_unit
 
         if taxes:
             force_sign = -1 if move_type in ('out_invoice', 'in_refund', 'out_receipt') else 1
-            taxes_res = taxes._origin.with_context(force_sign=force_sign).compute_all(price_unit,
+            taxes_res = taxes._origin.with_context(force_sign=force_sign).compute_all(line_discount_price_unit,
                 quantity=quantity, currency=currency, partner=partner, is_refund=move_type in ('out_refund', 'in_refund'))
             res['price_subtotal'] = taxes_res['total_excluded']
             res['price_total'] = taxes_res['total_included']
@@ -38,7 +40,7 @@ class L10nEcCustomMoveLine(models.Model):
             res = {k: currency.round(v) for k, v in res.items()}
         return res
 
-    @api.onchange('quantity', 'price_unit', 'tax_ids')
+    @api.onchange('quantity', 'discount', 'price_unit', 'tax_ids')
     def _onchange_price_subtotal(self):
         # Onchange para obtener y actualizar el subtotal y total de las lineas
         for line in self:
@@ -49,7 +51,7 @@ class L10nEcCustomMoveLine(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         # Se hace super al create para poder guardar los datos de subtotal y total
-        BUSINESS_FIELDS = ('price_unit', 'quantity', 'tax_ids')
+        BUSINESS_FIELDS = ('price_unit', 'quantity', 'discount', 'tax_ids')
         for vals in vals_list:
             move = self.env['account.move'].browse(vals['move_id'])
 
@@ -64,6 +66,7 @@ class L10nEcCustomMoveLine(models.Model):
                     vals.update(self._get_price_total_and_subtotal_model(
                         vals.get('price_unit', 0.0),
                         vals.get('quantity', 0.0),
+                        vals.get('discount', 0.0),
                         currency,
                         partner,
                         taxes,
@@ -74,7 +77,7 @@ class L10nEcCustomMoveLine(models.Model):
 
     def write(self, vals):
         # Se hace super al write para poder guardar los datos de subtotal y total
-        BUSINESS_FIELDS = ('price_unit', 'quantity', 'tax_ids')
+        BUSINESS_FIELDS = ('price_unit', 'quantity', 'discount', 'tax_ids')
         result = False
         for line in self:
             if not line.move_id.is_invoice(include_receipts=True):
@@ -119,18 +122,18 @@ class L10nEcCustomMoveLine(models.Model):
             line.l10n_latam_price_unit = l10n_latam_price_unit
 
     def _compute_total_invoice_line_ec(self):
-        # TODO: compute para obtener el monto de descuento.
+        # Compute para tener el monto del descuento por linea
         for line in self:
             total_discount = 0.0
-            #if line.discount:
-            #    if line.tax_ids:
-            #        taxes_res = line.tax_ids._origin.compute_all(line.l10n_latam_price_unit,
-            #            quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
-            #        total_discount = taxes_res['total_excluded'] - line.l10n_latam_price_subtotal
-            #    else:
-            #        total_discount = (line.quantity * line.l10n_latam_price_unit) - line.l10n_latam_price_subtotal
-            #    if line.currency_id:
-            #        total_discount = line.currency_id.round(total_discount)
+            if line.discount:
+                if line.tax_ids:
+                    taxes_res = line.tax_ids._origin.compute_all(line.l10n_latam_price_unit,
+                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
+                    total_discount = taxes_res['total_excluded'] - line.l10n_latam_price_subtotal
+                else:
+                    total_discount = (line.quantity * line.l10n_latam_price_unit) - line.l10n_latam_price_subtotal
+                if line.currency_id:
+                    total_discount = line.currency_id.round(total_discount)
             line.l10n_ec_total_discount = total_discount
 
     # columns
@@ -152,6 +155,7 @@ class L10nEcCustomMoveLine(models.Model):
     currency_id = fields.Many2one('res.currency', string='Currency', required=True)
     partner_id = fields.Many2one('res.partner', string='Partner', ondelete='restrict')
     product_id = fields.Many2one('product.product', string='Product', ondelete='restrict')
+    discount = fields.Float(string='Discount (%)', digits='Discount', default=0.0)
     tax_ids = fields.Many2many(
         comodel_name='account.tax',
         string="Taxes",
@@ -160,7 +164,7 @@ class L10nEcCustomMoveLine(models.Model):
         help="Taxes that apply on the base amount")
     company_id = fields.Many2one(related='move_id.company_id', store=True, readonly=True,
                                  default=lambda self: self.env.company)
-    l10n_latam_price_unit = fields.Float(compute='compute_l10n_latam_prices_and_taxes', digits='Product Price')
+    l10n_latam_price_unit = fields.Monetary(compute='compute_l10n_latam_prices_and_taxes', digits='Product Price')
     l10n_latam_price_subtotal = fields.Monetary(compute='compute_l10n_latam_prices_and_taxes')
     l10n_ec_total_discount = fields.Monetary(
         string='Total Discount',

@@ -182,6 +182,7 @@
 
         <xpath expr="//table[@name='invoice_snln_table']" position="attributes">
             <attribute name="style">font-size:9px; width: 50%; line-height:60%; margin-left:-15px !important;</attribute>
+            <attribute name="t-if">not o.l10n_ec_invoice_custom</attribute>
         </xpath>
 
         <xpath expr="//table[@name='invoice_snln_table']/thead/tr/th[1]" position="before">
@@ -191,7 +192,7 @@
         </xpath>
 
         <xpath expr="//table[@name='invoice_snln_table']" position="before">
-            <div class="row" groups="sale_stock.group_lot_on_invoice">
+            <div class="row" groups="sale_stock.group_lot_on_invoice" t-if="not o.l10n_ec_invoice_custom">
                 <div class="col-6 mt-1" style="padding-right:0px !important; padding-left:0px !important;">
                     <table name="lots" class="table table-condensed w-100" style="font-size:9px;;margin-bottom:0.4rem;">
                         <tr>
