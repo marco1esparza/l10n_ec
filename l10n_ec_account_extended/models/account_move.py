@@ -169,7 +169,7 @@ class AccountMove(models.Model):
                 # Corregimos bug de Odoo... para Ecuador removemos el Factur-X, cambios en el core de Odoo causan que se vuelva a incluir
                 ecuador_edis = document.journal_id.edi_format_ids.filtered(lambda x: x.code == 'l10n_ec_tax_authority')
                 unnecesary_edis = document.journal_id.edi_format_ids - ecuador_edis
-                document.journal_id.edi_format_ids -= unnecesary_edis #se elimina el factur-x del diarios
+                document.journal_id.sudo().edi_format_ids -= unnecesary_edis #se elimina el factur-x del diarios
 
                 if document.journal_id.compatible_edi_ids.filtered(lambda e: e.code == 'facturx_1_0_05'):
                     raise UserError(_("Por favor, debe deshabilitar primero el Documento Electrónico Factur-X (FR) del Diario %s, Contabilidad/Configuración/Diarios Contables") % self.journal_id.name)
