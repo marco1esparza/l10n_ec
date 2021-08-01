@@ -38,9 +38,6 @@
         'reports/report_account_move_templates.xml',
         'reports/report_payment_receipt_templates.xml',
         ],
-    'demo': [
-        'demo/res_partner_bank_demo.xml',
-        ],
     'installable': True,
     'auto_install': True,
     'application': True,
