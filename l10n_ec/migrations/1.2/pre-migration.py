@@ -12,6 +12,7 @@ def migrate(env, version):
     # Migracion de v13 a v14
     map_deprecated_modules(env)
     uninstall_deprecated_modules(env)
+    remove_exported_ir_model_data(env)
 
 @openupgrade.logging()
 def map_deprecated_modules(env):
@@ -48,3 +49,15 @@ def uninstall_deprecated_modules(env):
     for module in modules:
         module.module_uninstall()
         
+@openupgrade.logging()
+def remove_exported_ir_model_data(env):
+    openupgrade.logged_query(env.cr,'''
+        -- Removemos registros de ir_model_data que fueron creados por procesos de exportacion
+        -- desde v13 se usa un mecanismo mas detallado para darles nombres y por otro lado
+        -- con tantas migarciones de versiones, sqls, etc, muchos de estos registros ya no existen
+        DELETE
+        FROM ir_model_data
+        WHERE module = '__export__'
+        ''')
+
+    
