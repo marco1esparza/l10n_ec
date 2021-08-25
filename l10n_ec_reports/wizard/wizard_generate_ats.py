@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 from xml.dom.minidom import Document
 from lxml import etree
@@ -873,7 +873,10 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
   
                 idCliente = doc.createElement('idCliente')
                 detalle_ventas_form.appendChild(idCliente)
-                pidCliente = doc.createTextNode(out_invoices[out_inv]['idCliente'])
+                pidCliente_int = out_invoices[out_inv]['idCliente']
+                if not pidCliente_int:
+                    raise ValidationError(f"No se puede generar el reporte porque la Factura con Id. {out_invoices[out_inv]['id']} tiene un Cliente que NO tiene número de documento.")
+                pidCliente = doc.createTextNode(pidCliente_int)
                 idCliente.appendChild(pidCliente)
   
                 if not ((out_invoices[out_inv]['tpIdCliente'] == '07' and out_invoices[out_inv]['tipoComprobante'] in ('18','41')) or \
@@ -1222,6 +1225,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                                 elif line.tax_id.tax_group_id.l10n_ec_type == 'withhold_income_tax':
                                     tax_with_income += line.amount
                 values.update({
+                    'id': invoice.id,
                     'tpIdCliente': invoice.l10n_ec_transaction_type,
                     'parteRelVtas': invoice.partner_id.l10n_ec_related_part,
                     'idCliente': invoice.partner_id.vat,
