@@ -20,7 +20,7 @@
     'depends': [
         'stock',
         'l10n_ec_edi',
-        'sale_stock',
+        'stock_account',
     ],
     'data': [
         #Data
