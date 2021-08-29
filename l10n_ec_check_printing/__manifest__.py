@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Ecuadorian Checks Layout',
-    'version': '1.',
+    'version': '1.0',
     'author': 'TRESCLOUD',
     'category': 'Accounting/Localizations/Check',
     'summary': 'Print EC Checks',
