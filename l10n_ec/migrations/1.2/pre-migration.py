@@ -13,6 +13,7 @@ def migrate(env, version):
     map_deprecated_modules(env)
     uninstall_deprecated_modules(env)
     remove_exported_ir_model_data(env)
+    set_noupdate_true(env)
 
 @openupgrade.logging()
 def map_deprecated_modules(env):
@@ -59,5 +60,36 @@ def remove_exported_ir_model_data(env):
         FROM ir_model_data
         WHERE module = '__export__'
         ''')
+
+@openupgrade.logging()
+def set_noupdate_true(env):
+    openupgrade.logged_query(env.cr,'''
+        --borramos 18k registro ir_model_data de:
+        -- plantillas de localizacion para que se recarguen las nuevas
+        -- objetos que ya no existen
+        -- tablas de permisos para que estos se actualicen a la nueva version 
+        update ir_model_data
+        set noupdate = false
+        where noupdate = true
+        and model in ('account.account.template',
+                      'account.tax.code.template',
+                      'account.tax.template',
+                      'ir.model', --borramos modelos que ya no existen
+                      'ir.module.category', --para reagrupar los permisos en la ficha de usuario
+                      'ir.model.access',
+                      'ir.model.constraint',
+                      'ir.model.fields',
+                      'ir.model.fields.selection',
+                      'res.groups'
+                      'ir.rule')
+        --raro!.. no existen en el archivo de data del modulo base, los dejamos con el noupdate = True
+        and name not in ('module_category_inventory_inventory',
+                         'module_category_manufacturing_manufacturing')
+        --prueba a ver que no se borraron datos al marcar como no update a ir.model
+        --select * from account_fiscalyear
+        ''')
+
+
+
 
     
