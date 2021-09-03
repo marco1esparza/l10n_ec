@@ -80,6 +80,7 @@ def set_noupdate_true(env):
                       'ir.model.constraint',
                       'ir.model.fields',
                       'ir.model.fields.selection',
+                      'res.groups'
                       'ir.rule')
         --raro!.. no existen en el archivo de data del modulo base, los dejamos con el noupdate = True
         and name not in ('module_category_inventory_inventory',
