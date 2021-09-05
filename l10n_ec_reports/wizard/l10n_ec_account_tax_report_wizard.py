@@ -70,10 +70,10 @@ class AccountTaxReportWizard(models.TransientModel):
                 join account_tax t on ait.tax_line_id = t.id
             where ai.state in ('posted') """
         if self.date_from:
-            sql += " AND ai.invoice_date >= %s "
+            sql += " AND ai.date >= %s "
             params.append(self.date_from)
         if self.date_to:
-            sql += " AND ai.invoice_date <= %s "
+            sql += " AND ai.date <= %s "
             params.append(self.date_to)
         if self.company_id:
             sql += " AND ai.company_id = %s "

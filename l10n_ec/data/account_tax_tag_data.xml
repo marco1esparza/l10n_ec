@@ -696,5 +696,15 @@
 			<field name="applicability">taxes</field>
 			<field name="country_id" ref="base.ec"/>
 		</record>
+		<record id="tax_tag_352" model="account.account.tag">
+			<field name="name">352</field>
+			<field name="applicability">taxes</field>
+			<field name="country_id" ref="base.ec"/>
+		</record>
+		<record id="tax_tag_302" model="account.account.tag">
+			<field name="name">302</field>
+			<field name="applicability">taxes</field>
+			<field name="country_id" ref="base.ec"/>
+		</record>
     </data>
 </odoo>
