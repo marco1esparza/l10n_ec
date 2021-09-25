@@ -261,7 +261,7 @@ class AccountMove(models.Model):
             super()._is_manual_document_number(journal)
     
     def view_credit_note(self):
-        [action] = self.env.ref('account.action_move_out_refund_type').read()
+        [action] = self.env.ref('account.action_move_out_refund_type').sudo().read()
         action['domain'] = [('id', 'in', self.reversal_move_id.ids)]
         return action
  
