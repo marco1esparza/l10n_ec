@@ -156,14 +156,7 @@ class AccountMove(models.Model):
     def _post(self, soft=True):
         #Execute ecuadorian validations with bypass option
         for document in self:
-            # Ticket Trescloud 18334, a veces los amls llevan un partner distinto que la cabecera
-            # posiblemente se hizo así al hacer la PO a un partner A pero cambiar el partner al momento de la factura
-            if document.move_type in ['in_invoice','out_invoice','in_refund','out_refund']:
-                #TODO podría ponerse un contexto para hacer bypass heredable en desarrollos especificos 
-                partners = self.line_ids.mapped('partner_id')
-                partners = partners | document.partner_id.commercial_partner_id
-                if len(partners) != 1:
-                    raise UserError(_("Algunas lineas del asiento contable tienen una empresa diferente a la de la cabecera de la factura, borre, guarde, y vuelva a colocar la empresa en la factura %s") % self.name)  
+            document._fix_partner_in_amls()
             if document.country_code == 'EC':
                 
                 # Corregimos bug de Odoo... para Ecuador removemos el Factur-X, cambios en el core de Odoo causan que se vuelva a incluir
@@ -215,6 +208,22 @@ class AccountMove(models.Model):
         res = super(AccountMove, self)._post(soft)
         self.l10n_ec_bypass_validations = False #Reset bypass to default value
         return res
+    
+    def _fix_partner_in_amls(self):
+        # Ticket #18334, a veces los amls llevan un partner distinto que la cabecera
+        # Ticket #19729, a veces los amls tienen partner vacío
+        # posiblemente se hizo así al hacer la PO a un partner A pero cambiar el partner al momento de la factura
+        self.ensure_one()
+        if self.move_type in ['in_invoice','out_invoice','in_refund','out_refund']:
+            # TODO podría ponerse un contexto para hacer bypass heredable en desarrollos especificos 
+            # partners = self.line_ids.mapped('partner_id')
+            # partners = partners | document.partner_id.commercial_partner_id
+            # if len(partners) != 1:
+            #     raise UserError(_("Algunas lineas del asiento contable tienen una empresa diferente a la de la cabecera de la factura, borre, guarde, y vuelva a colocar la empresa en la factura %s") % self.name)
+            commercial_partner_id = self.partner_id.commercial_partner_id
+            for line in self.line_ids.filtered(lambda x:x.display_type not in ['line_section','line_note']):
+                if not line.partner_id == commercial_partner_id:
+                    line.partner_id = commercial_partner_id
     
     def _l10n_ec_validations_to_posted(self):
         #Execute extra validations for Ecuador when posting the move
