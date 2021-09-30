@@ -724,8 +724,10 @@ class AccountMoveLine(models.Model):
             total_discount = 0.0
             if line.discount:
                 if line.tax_ids:
-                    taxes_res = line.tax_ids._origin.compute_all(line.l10n_latam_price_unit,
-                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
+                    taxes_res = line.tax_ids._origin.compute_all(
+                        line.price_unit, #se usa price unit para el escenario de impuestos incluidos en el precio
+                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id,
+                        is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
                     total_discount = taxes_res['total_excluded'] - line.l10n_latam_price_subtotal
                 else:
                     total_discount = (line.quantity * line.l10n_latam_price_unit) - line.l10n_latam_price_subtotal
