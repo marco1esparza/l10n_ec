@@ -163,7 +163,7 @@ class AccountMove(models.Model):
                 ecuador_edis = document.journal_id.edi_format_ids.filtered(lambda x: x.code == 'l10n_ec_tax_authority')
                 unnecesary_edis = document.journal_id.edi_format_ids - ecuador_edis
                 document.journal_id.sudo().edi_format_ids -= unnecesary_edis #se elimina el factur-x del diarios
-                narration = len(document.narration)
+                narration = len(document.narration or '')
                 if narration > 300:
                     raise UserError(_("Por favor, Corrija los términos y cóndiciones pues es muy extenso, se aceptan máximo 300 caracteres y usted ingresó %s caracteres") % narration)
                 if document.journal_id.compatible_edi_ids.filtered(lambda e: e.code == 'facturx_1_0_05'):
