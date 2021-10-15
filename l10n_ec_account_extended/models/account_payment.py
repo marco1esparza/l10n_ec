@@ -11,6 +11,18 @@ from odoo.addons.l10n_ec_edi.models.amount_to_words import l10n_ec_amount_to_wor
 class AccountPayment(models.Model):
     _inherit = "account.payment"
 
+    def action_post(self):
+        '''
+        '''
+        vals = super(AccountPayment, self).action_post()
+        for payment in self:
+            if payment.journal_id and not payment.journal_id.l10n_latam_use_documents:
+                name = payment.name.split('/')
+                if len(name) > 0:
+                    if name[0] != payment.journal_id.code:
+                        raise UserError(u'En prefijo en el recibo "%s" no coincide con el código del diario "%s".' % (payment.name, payment.journal_id.name))
+        return vals
+
     def _synchronize_from_moves(self, changed_fields):
         '''
         Se hereda el metodo para corregir BUG que cambia el partner_type y la cuenta destino que es definido
