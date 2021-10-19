@@ -338,6 +338,7 @@ class TrialBalanceReportWizard(models.TransientModel):
             "company_currency_id": self.company_id.currency_id.id,
             "company_currency_name": self.company_id.currency_id.name,
             "4_and_5_text": self.env.context.get("4_and_5_text", False),
+            "unaffected_earnings_account_ids": self.env.context.get("unaffected_earnings_account_ids", False),
         }
 
     def _export(self, report_type):
