@@ -466,17 +466,20 @@ class TrialBalanceReport(models.AbstractModel):
         accounts_data = self._get_accounts_data(accounts_ids)
         #  Se comenta pues no queremos asignar ningun valor a la cuenta de utilidades
         # Lo vamos a asignar fuera de aqui
+        # (
+        #     pl_initial_balance,
+        #     pl_initial_currency_balance,
+        # ) = self._get_pl_initial_balance(
+        #     account_ids,
+        #     journal_ids,
+        #     partner_ids,
+        #     company_id,
+        #     fy_start_date,
+        #     only_posted_moves,
+        #     show_partner_details,
+        #     foreign_currency,
+        # )
         # if unaffected_id:
-        #     pl_initial_balance, pl_initial_currency_balance = self._get_pl_initial_balance(
-        #         self.env.context.get('show_4_and_5'),
-        #         journal_ids,
-        #         partner_ids,
-        #         company_id,
-        #         fy_start_date,
-        #         only_posted_moves,
-        #         show_partner_details,
-        #         foreign_currency,
-        #     )
         #     total_amount[unaffected_id]["ending_balance"] += pl_initial_balance
         #     total_amount[unaffected_id]["initial_balance"] += pl_initial_balance
         #     if foreign_currency:
