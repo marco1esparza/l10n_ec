@@ -163,9 +163,6 @@ class AccountMove(models.Model):
                 ecuador_edis = document.journal_id.edi_format_ids.filtered(lambda x: x.code == 'l10n_ec_tax_authority')
                 unnecesary_edis = document.journal_id.edi_format_ids - ecuador_edis
                 document.journal_id.sudo().edi_format_ids -= unnecesary_edis #se elimina el factur-x del diarios
-                narration = len(document.narration or '')
-                if narration > 300:
-                    raise UserError(_("Por favor, Corrija los términos y cóndiciones pues es muy extenso, se aceptan máximo 300 caracteres y usted ingresó %s caracteres") % narration)
                 if document.journal_id.compatible_edi_ids.filtered(lambda e: e.code == 'facturx_1_0_05'):
                     raise UserError(_("Por favor, debe deshabilitar primero el Documento Electrónico Factur-X (FR) del Diario %s, Contabilidad/Configuración/Diarios Contables") % self.journal_id.name)
                 #FIX ME: a veces, con puntos de emision nuevos, no se computa el perfijo de la factura en el numero
@@ -239,6 +236,11 @@ class AccountMove(models.Model):
                 if self.move_type in ('in_invoice', 'in_refund'):
                     raise UserError(_("No se pueden emitir Documentos de Compras como Consumidor Final"))
             #TODO V14 implemnetar validacion del tipo de documento, debe estar seteado con una opción válida
+        is_electronic_document = self.move_type in ['in_invoice','in_refund','out_invoice','out_refund'] and self.l10n_ec_printer_id.allow_electronic_document
+        if is_electronic_document:
+            # no se puede emitir documentos electronicos con descripcion mayor a 300 caracteres
+            if len(self.narration or '') > 300:
+                raise UserError(_("Por favor, Corrija los términos y cóndiciones pues es muy extenso, se aceptan máximo 300 caracteres y usted ingresó %s caracteres") % narration)
         if self.l10n_ec_authorization_type == 'third' and self.l10n_ec_authorization:
             #validamos la clave de acceso contra los datos de la cabecera de la factura
             self._l10n_ec_validate_authorization()
