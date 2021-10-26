@@ -222,13 +222,18 @@ class TrialBalanceXslx(models.AbstractModel):
                 if hierarchy_on == "relation":
                     if data.get("show_4_and_5", False) and data.get("unaffected_earnings_account", False) and \
                             ((balance.get("type", "") == "account_type" and
-                              balance.get("id", -1) == data.get("unaffected_earnings_account")) or
-                             (balance.get("type", "") == "group_type" and
-                               balance.get("id", -1) in data.get("unaffected_earnings_account_group_id"))):
+                              balance.get("id", -1) == data.get("unaffected_earnings_account"))):
                         balance["ending_balance"] = result_earnings_data["ending_balance"]
                         balance["balance"] = result_earnings_data["balance"]
                         balance["credit"] = result_earnings_data["credit"]
                         balance["debit"] = result_earnings_data["debit"]
+                    if data.get("show_4_and_5", False) and data.get("unaffected_earnings_account", False) and \
+                            (balance.get("type", "") == "group_type" and
+                             balance.get("id", -1) in data.get("unaffected_earnings_account_group_id")):
+                        balance["ending_balance"] += result_earnings_data["ending_balance"]
+                        balance["balance"] += result_earnings_data["balance"]
+                        balance["credit"] += result_earnings_data["credit"]
+                        balance["debit"] += result_earnings_data["debit"]
                     if limit_hierarchy_level:
                         if show_hierarchy_level > balance["level"]:
                             # Display account lines
