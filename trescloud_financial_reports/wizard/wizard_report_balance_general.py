@@ -104,7 +104,9 @@ class WizardReportBalanceGeneral(models.TransientModel):
             })
         trial_wizard_id = self.env['trial.balance.report.wizard'].create(trial_wizard_dict)
         four_and_five_account_ids = self.env['account.account'].search(
-            [('company_id', '=', self.company_id.id), '|', ('code', '=like', '2%'), ('code', '=like', '3%')]
+            [('company_id', '=', self.company_id.id), '|', '|', '|', '|', '|', '|', '|', ('code', '=like', '2%'),
+             ('code', '=like', '3%'), ('code', '=like', '4%'), ('code', '=like', '5%'), ('code', '=like', '6%'),
+             ('code', '=like', '7%'), ('code', '=like', '8%'), ('code', '=like', '9%')]
         ).ids
 
         unaffected_earnings_account_ids = self.env['account.account'].search(
