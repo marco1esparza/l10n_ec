@@ -249,13 +249,16 @@ class TrialBalanceReportWizard(models.TransientModel):
             report_name = "a_f_r.report_trial_balance_xlsx"
         else:
             report_name = "trescloud_financial_reports.trial_balance"
+        new_context = self.env.context.copy()
+        del new_context['show_4_and_5']
+        del new_context['unaffected_earnings_account_ids']
         return (
             self.env["ir.actions.report"]
             .search(
                 [("report_name", "=", report_name), ("report_type", "=", report_type)],
                 limit=1,
             )
-            .report_action(self, data=data)
+            .with_context(new_context).report_action(self, data=data)
         )
 
     def button_export_html(self):
