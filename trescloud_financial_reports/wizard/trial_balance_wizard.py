@@ -250,8 +250,12 @@ class TrialBalanceReportWizard(models.TransientModel):
         else:
             report_name = "trescloud_financial_reports.trial_balance"
         new_context = self.env.context.copy()
-        del new_context['show_4_and_5']
-        del new_context['unaffected_earnings_account_ids']
+        # new_context es un copy del contexto nativo
+        # simplemente se elimina del diccionario las dos claves si es que existen
+        if new_context.get('show_4_and_5', False):
+            del new_context['show_4_and_5']
+        if new_context.get('unaffected_earnings_account_ids', False):
+            del new_context['unaffected_earnings_account_ids']
         return (
             self.env["ir.actions.report"]
             .search(
