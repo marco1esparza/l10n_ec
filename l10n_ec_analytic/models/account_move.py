@@ -33,7 +33,7 @@ class AccountMoveLine(models.Model):
             if (analytic_policy == 'always' and not move_line.analytic_account_id):
                 return 'La política analítica está establecida a "Siempre" para la cuenta "%s" pero falta la ' \
                        'cuenta analítica en el apunte contable con etiqueta "%s".' % (move_line.account_id.name_get()[0][1], move_line.name)
-            elif (analytic_policy == 'never' and move_line.analytic_account_id):
+            elif (analytic_policy == 'never' and move_line.analytic_account_id and move_line.move_id.state == 'posted'):
                 return 'La política analítica está establecida a "Nunca" para la cuenta "%s" pero el apunte contable ' \
                        'con la etiqueta "%s" tiene la cuenta analítica "%s".' % (move_line.account_id.name_get()[0][1], move_line.name,
                                                                                  move_line.analytic_account_id.name_get()[0][1])
