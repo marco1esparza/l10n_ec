@@ -95,6 +95,7 @@ class AccountEdiFormat(models.Model):
             #First some validations
             msgs = []
             enviroment_type = invoice.company_id.l10n_ec_environment_type
+            test_mode = False
             if enviroment_type and enviroment_type == '0':
                 test_mode = True
             # Si estamos en Modo test y tenemos documentos electronicos y tenemos request
