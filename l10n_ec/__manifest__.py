@@ -72,7 +72,7 @@ Authors:
         'views/res_partner_bank_views.xml',
     ],
     'installable': True,
-    'auto_install': False,
+    'auto_install': True,
     'application': False,
 }
 

@@ -13,6 +13,6 @@ Gestión de cheques de clientes
     'data': [
     ],
     'installable': True,
-    'auto_install': False,
+    'auto_install': True,
     'license': 'OEEL-1',
 }
