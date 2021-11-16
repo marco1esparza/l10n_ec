@@ -253,6 +253,8 @@ class AccountMove(models.Model):
             l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
             if journal.type == 'purchase' and doc_code not in ['03', '41']:
                 return True
+            elif journal.type == 'purchase' and doc_code in ['41'] and self.l10n_latam_document_type_id.l10n_ec_authorization == 'third':
+                return True
             elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
                 return True
             else:
