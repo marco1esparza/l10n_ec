@@ -44,7 +44,8 @@ class L10nECA1DetailReport(models.TransientModel):
 
         for line in invoice_id.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted').l10n_ec_withhold_line_ids:
             if line.tax_id.l10n_ec_type in ('withhold_vat', 'withhold_income_tax'):
-                values[line.tax_id.l10n_ec_type] += [{'withholding_number': line.invoice_id.l10n_latam_document_number,
+                values[line.tax_id.l10n_ec_type] += [{'withholding_number': line.move_id.l10n_latam_document_number,
+                                                      'withholding_authorization': line.move_id.l10n_ec_authorization,
                                                       'withholding_name': line.tax_id.name,
                                                       'withholding_base': line.base,
                                                       'withholding_amt': line.amount,
@@ -74,10 +75,11 @@ class L10nECA1DetailReport(models.TransientModel):
             (u'ITEM', 'index', '', 'std', 6),
             (u'TIPO ID.', 'invoice_id', 'l10n_ec_transaction_type', 'std', 7),
             (u'RUC/CI', 'invoice_id', 'partner_id.vat', 'std', 10),
-            (u'CLIENTE', 'invoice_id', 'partner_id.name', 'std', 50),
+            (u'CLIENTE', 'invoice_id', 'partner_id.name', 'std', 40),
             (u'PAR REL', 'invoice_id', 'partner_id.l10n_ec_related_part', 'std', 10),
             (u'TIPO COMP.', 'invoice_id', 'l10n_latam_document_type_id.display_name', 'std', 15),
             (u'NÚMERO DE DOCUMENTO', 'invoice_id', 'l10n_latam_document_number', 'std', 20),
+            (u'AUTORIZACIÓN', 'invoice_id', 'l10n_ec_authorization', 'std', 40),
             (u'F. EMISIÓN', 'invoice_id', 'invoice_date', 'datef', 10),
             (u'F. CONTABIL.', 'invoice_id', 'date', 'datef', 12),
             (u'BASE NO GRAVA IVA', 'invoice_id', 'l10n_ec_base_not_subject_to_vat', 'num', 20),
@@ -85,6 +87,7 @@ class L10nECA1DetailReport(models.TransientModel):
             (u'BASE GRAVA IVA', 'invoice_id', 'l10n_ec_base_doce_iva', 'num', 15),
             (u'VALOR IVA', 'invoice_id', 'l10n_ec_vat_doce_subtotal', 'num', 12),
             (u'Nro. RETENCIÓN', 'withholding_vat_number', '', 'std', 20),
+            (u'AUTORIZACIÓN', 'withholding_vat_authorization', '', 'std', 40),
             (u'CONCEPTO RET. IVA', 'withholding_vat_name', '', 'std', 20),
             (u'BASE RET. IVA', 'withholding_vat_base', '', 'num', 15),
             (u'VALOR RET. IVA', 'withholding_vat_amt', '', 'num', 15),
@@ -160,6 +163,14 @@ class L10nECA1DetailReport(models.TransientModel):
                                 sheet.write(row, col, wth_values['withhold_vat'][i].get('withholding_number', ''), std)
                             elif i < len(wth_values['withhold_income_tax']):
                                 sheet.write(row, col, wth_values['withhold_income_tax'][i].get('withholding_number', ''), std)
+                        else:
+                            sheet.write(row, col, '', std)
+                    elif objt == 'withholding_vat_authorization':
+                        if wth_values['max_count'] > 0:
+                            if i < len(wth_values['withhold_vat']):
+                                sheet.write(row, col, wth_values['withhold_vat'][i].get('withholding_authorization', ''), std)
+                            elif i < len(wth_values['withhold_income_tax']):
+                                sheet.write(row, col, wth_values['withhold_income_tax'][i].get('withholding_authorization', ''), std)
                         else:
                             sheet.write(row, col, '', std)
                     elif objt == 'withholding_vat_name':
@@ -251,18 +262,20 @@ class L10nECA1DetailReport(models.TransientModel):
             sheet.write(row, 6, '', footer)
             sheet.write(row, 7, '', footer)
             sheet.write(row, 8, '', footer)
-            sheet.write(row, 9, l10n_ec_base_not_subject_to_vat, num_footer)
-            sheet.write(row, 10, l10n_ec_base_cero_iva, num_footer)
-            sheet.write(row, 11, l10n_ec_base_doce_iva, num_footer)
-            sheet.write(row, 12, l10n_ec_vat_doce_subtotal, num_footer)
-            sheet.write(row, 13, '', footer)
+            sheet.write(row, 9, '', footer)
+            sheet.write(row, 10, l10n_ec_base_not_subject_to_vat, num_footer)
+            sheet.write(row, 11, l10n_ec_base_cero_iva, num_footer)
+            sheet.write(row, 12, l10n_ec_base_doce_iva, num_footer)
+            sheet.write(row, 13, l10n_ec_vat_doce_subtotal, num_footer)
             sheet.write(row, 14, '', footer)
-            sheet.write(row, 15, l10n_ec_wth_vat_base, num_footer)
-            sheet.write(row, 16, l10n_ec_wth_vat_amt, num_footer)
-            sheet.write(row, 17, '', footer)
-            sheet.write(row, 18, l10n_ec_wth_income_base, num_footer)
-            sheet.write(row, 19, l10n_ec_wth_income_amt, num_footer)
-            sheet.write(row, 20, '', footer)
+            sheet.write(row, 15, '', footer)
+            sheet.write(row, 16, '', footer)
+            sheet.write(row, 17, l10n_ec_wth_vat_base, num_footer)
+            sheet.write(row, 18, l10n_ec_wth_vat_amt, num_footer)
+            sheet.write(row, 19, '', footer)
+            sheet.write(row, 20, l10n_ec_wth_income_base, num_footer)
+            sheet.write(row, 21, l10n_ec_wth_income_amt, num_footer)
+            sheet.write(row, 22, '', footer)
         book.close()
         output.seek(0)
         generated_file = base64.b64encode(output.read())
