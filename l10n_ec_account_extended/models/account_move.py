@@ -578,7 +578,7 @@ class AccountMove(models.Model):
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
-    
+
     def reconcile(self):
         # Restrict reconciliation to SAME PARTNER
         partner = None
@@ -586,8 +586,9 @@ class AccountMoveLine(models.Model):
             if partner is None:
                 partner = line.partner_id
             elif line.partner_id != partner:
-                raise UserError(_("Las entradas no son de la misma empresa: %s != %s")
-                                % (partner.display_name, line.partner_id.display_name))
+                if not self.env.context.get('allow_different_partner_entries'):
+                    raise UserError(_("Las entradas no son de la misma empresa: %s != %s")
+                                    % (partner.display_name, line.partner_id.display_name))
         res = super().reconcile()
         return res
     
