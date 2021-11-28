@@ -156,21 +156,13 @@ class AccountMove(models.Model):
     def _post(self, soft=True):
         #Execute ecuadorian validations with bypass option
         for document in self:
-            # Ticket Trescloud 18334, a veces los amls llevan un partner distinto que la cabecera
-            # posiblemente se hizo así al hacer la PO a un partner A pero cambiar el partner al momento de la factura
-            if document.move_type in ['in_invoice','out_invoice','in_refund','out_refund']:
-                #TODO podría ponerse un contexto para hacer bypass heredable en desarrollos especificos 
-                partners = self.line_ids.mapped('partner_id')
-                partners = partners | document.partner_id.commercial_partner_id
-                if len(partners) != 1:
-                    raise UserError(_("Algunas lineas del asiento contable tienen una empresa diferente a la de la cabecera de la factura, borre, guarde, y vuelva a colocar la empresa en la factura %s") % self.name)  
+            document._fix_partner_in_amls()
             if document.country_code == 'EC':
                 
                 # Corregimos bug de Odoo... para Ecuador removemos el Factur-X, cambios en el core de Odoo causan que se vuelva a incluir
                 ecuador_edis = document.journal_id.edi_format_ids.filtered(lambda x: x.code == 'l10n_ec_tax_authority')
                 unnecesary_edis = document.journal_id.edi_format_ids - ecuador_edis
-                document.journal_id.edi_format_ids -= unnecesary_edis #se elimina el factur-x del diarios
-
+                document.journal_id.sudo().edi_format_ids -= unnecesary_edis #se elimina el factur-x del diarios
                 if document.journal_id.compatible_edi_ids.filtered(lambda e: e.code == 'facturx_1_0_05'):
                     raise UserError(_("Por favor, debe deshabilitar primero el Documento Electrónico Factur-X (FR) del Diario %s, Contabilidad/Configuración/Diarios Contables") % self.journal_id.name)
                 #FIX ME: a veces, con puntos de emision nuevos, no se computa el perfijo de la factura en el numero
@@ -216,6 +208,22 @@ class AccountMove(models.Model):
         self.l10n_ec_bypass_validations = False #Reset bypass to default value
         return res
     
+    def _fix_partner_in_amls(self):
+        # Ticket #18334, a veces los amls llevan un partner distinto que la cabecera
+        # Ticket #19729, a veces los amls tienen partner vacío
+        # posiblemente se hizo así al hacer la PO a un partner A pero cambiar el partner al momento de la factura
+        self.ensure_one()
+        if self.move_type in ['in_invoice','out_invoice','in_refund','out_refund']:
+            # TODO podría ponerse un contexto para hacer bypass heredable en desarrollos especificos 
+            # partners = self.line_ids.mapped('partner_id')
+            # partners = partners | document.partner_id.commercial_partner_id
+            # if len(partners) != 1:
+            #     raise UserError(_("Algunas lineas del asiento contable tienen una empresa diferente a la de la cabecera de la factura, borre, guarde, y vuelva a colocar la empresa en la factura %s") % self.name)
+            commercial_partner_id = self.partner_id.commercial_partner_id
+            for line in self.line_ids.filtered(lambda x:x.display_type not in ['line_section','line_note']):
+                if not line.partner_id == commercial_partner_id:
+                    line.partner_id = commercial_partner_id
+    
     def _l10n_ec_validations_to_posted(self):
         #Execute extra validations for Ecuador when posting the move
         if self.l10n_latam_document_type_id.l10n_ec_require_vat:
@@ -228,6 +236,11 @@ class AccountMove(models.Model):
                 if self.move_type in ('in_invoice', 'in_refund'):
                     raise UserError(_("No se pueden emitir Documentos de Compras como Consumidor Final"))
             #TODO V14 implemnetar validacion del tipo de documento, debe estar seteado con una opción válida
+        is_electronic_document = self.move_type in ['in_invoice','in_refund','out_invoice','out_refund'] and self.l10n_ec_printer_id.allow_electronic_document
+        if is_electronic_document:
+            # no se puede emitir documentos electronicos con descripcion mayor a 300 caracteres
+            if len(self.narration or '') > 300:
+                raise UserError(_("Por favor, Corrija los términos y cóndiciones pues es muy extenso, se aceptan máximo 300 caracteres y usted ingresó %s caracteres") % narration)
         if self.l10n_ec_authorization_type == 'third' and self.l10n_ec_authorization:
             #validamos la clave de acceso contra los datos de la cabecera de la factura
             self._l10n_ec_validate_authorization()
@@ -565,7 +578,7 @@ class AccountMove(models.Model):
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
-    
+
     def reconcile(self):
         # Restrict reconciliation to SAME PARTNER
         partner = None
@@ -573,8 +586,9 @@ class AccountMoveLine(models.Model):
             if partner is None:
                 partner = line.partner_id
             elif line.partner_id != partner:
-                raise UserError(_("Las entradas no son de la misma empresa: %s != %s")
-                                % (partner.display_name, line.partner_id.display_name))
+                if not self.env.context.get('allow_different_partner_entries'):
+                    raise UserError(_("Las entradas no son de la misma empresa: %s != %s")
+                                    % (partner.display_name, line.partner_id.display_name))
         res = super().reconcile()
         return res
     

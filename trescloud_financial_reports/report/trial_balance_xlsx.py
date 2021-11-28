@@ -193,12 +193,21 @@ class TrialBalanceXslx(models.AbstractModel):
             self.write_array_header(report_data)
 
         # Calculo de las utilidades
+        if data.get("unaffected_earnings_account_ids", False):
+            earnings_data = data.copy()
+            earnings_data["account_ids"] = data.get("unaffected_earnings_account_ids")
+            result_earnings_data = self.env[
+                "report.trescloud_financial_reports.trial_balance"
+            ]._get_summarized_report_values(report, earnings_data)
+        # Calculo de linea final
         if data.get("show_4_and_5", False):
             custom_data = data.copy()
             custom_data["account_ids"] = data.get("show_4_and_5")
             all_data = self.env[
                 "report.trescloud_financial_reports.trial_balance"
             ]._get_summarized_report_values(report, custom_data)
+            all_data["credit"] = 0
+            all_data["debit"] = 0
         # For each account
         if not show_partner_details:
             trial_balance = sorted(trial_balance, key=lambda k: k['code'])
@@ -213,13 +222,18 @@ class TrialBalanceXslx(models.AbstractModel):
                 if hierarchy_on == "relation":
                     if data.get("show_4_and_5", False) and data.get("unaffected_earnings_account", False) and \
                             ((balance.get("type", "") == "account_type" and
-                              balance.get("id", -1) == data.get("unaffected_earnings_account")) or
-                             (balance.get("type", "") == "group_type" and
-                               balance.get("id", -1) in data.get("unaffected_earnings_account_group_id"))):
-                        balance["ending_balance"] = all_data["ending_balance"]
-                        balance["balance"] = all_data["balance"]
-                        balance["credit"] = all_data["credit"]
-                        balance["debit"] = all_data["debit"]
+                              balance.get("id", -1) == data.get("unaffected_earnings_account"))):
+                        balance["ending_balance"] = result_earnings_data["ending_balance"]
+                        balance["balance"] = result_earnings_data["balance"]
+                        balance["credit"] = result_earnings_data["credit"]
+                        balance["debit"] = result_earnings_data["debit"]
+                    if data.get("show_4_and_5", False) and data.get("unaffected_earnings_account", False) and \
+                            (balance.get("type", "") == "group_type" and
+                             balance.get("id", -1) in data.get("unaffected_earnings_account_group_id")):
+                        balance["ending_balance"] += result_earnings_data["ending_balance"]
+                        balance["balance"] += result_earnings_data["balance"]
+                        balance["credit"] += result_earnings_data["credit"]
+                        balance["debit"] += result_earnings_data["debit"]
                     if limit_hierarchy_level:
                         if show_hierarchy_level > balance["level"]:
                             # Display account lines

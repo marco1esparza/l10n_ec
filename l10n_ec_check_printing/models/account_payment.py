@@ -13,7 +13,7 @@ AMOUNT_IN_WORDS_LENGHT = 150 #numero de caracteres a usar para imprimir el monto
 
 class AccountPayment(models.Model):
     _inherit = "account.payment"
-    
+            
     @api.depends('payment_method_id', 'currency_id', 'amount')
     def _compute_check_amount_in_words(self):
         #overwrite Odoo core, Ecuadorian way is not currently supported by Odoo or num2words
@@ -47,6 +47,17 @@ class AccountPayment(models.Model):
             raise ValidationError(_("You have to setup a city in your company form, it is needed to print the issuing city on the check."))
         return super(AccountPayment, self).do_print_checks()
     
+    @api.onchange('check_number', 'journal_id')
+    def onchange_next_check_number(self):
+        #Ecuadorian check numbers has always 6 digits
+        country_code = self.company_id.country_code or self.env.company.country_code
+        if not country_code == 'EC':
+            return
+        if not self.check_number:
+            return
+        if len(self.check_number) < 6:
+            self.check_number = self.check_number.zfill(6)
+            
     @api.constrains('check_number', 'journal_id')
     def _constrains_check_number(self):
         #extra validations for Ecuador
@@ -103,13 +114,15 @@ class AccountPayment(models.Model):
     def _check_build_page_info(self, i, p):
         page = super(AccountPayment, self)._check_build_page_info(i, p)
         amount_in_word = page['amount_in_word']
+        if not amount_in_word:
+            amount_in_word = ''
         lines = textwrap.wrap(amount_in_word, int(AMOUNT_IN_WORDS_LENGHT/2))
         l10n_ec_check_beneficiary_name = self.l10n_ec_check_beneficiary_name or self.commercial_partner_id and self.commercial_partner_id.name or '.'
         page.update({
             'city_and_date': self.company_id.city + ', ' + format_date(self.env, self.date, date_format='yyyy-MM-dd'),
             'partner_name': l10n_ec_check_beneficiary_name,
-            'amount_line1': lines[0],
-            'amount_line2': lines[1],
+            'amount_line1': lines and lines[0] or '',
+            'amount_line2': lines and lines[1] or '',
         })
         return page
     

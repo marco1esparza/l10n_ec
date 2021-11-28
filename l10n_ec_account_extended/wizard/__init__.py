@@ -3,3 +3,4 @@
 
 from . import account_move_reversal
 from . import account_resequence
+from . import base_partner_merge

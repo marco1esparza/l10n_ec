@@ -277,6 +277,8 @@ class AccountMove(models.Model):
             l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
             if journal.type == 'purchase' and doc_code not in ['03', '41']:
                 return True
+            elif journal.type == 'purchase' and doc_code in ['41'] and self.l10n_latam_document_type_id.l10n_ec_authorization == 'third':
+                return True
             elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
                 return True
             else:
@@ -285,7 +287,7 @@ class AccountMove(models.Model):
             super()._is_manual_document_number(journal)
     
     def view_credit_note(self):
-        [action] = self.env.ref('account.action_move_out_refund_type').read()
+        [action] = self.env.ref('account.action_move_out_refund_type').sudo().read()
         action['domain'] = [('id', 'in', self.reversal_move_id.ids)]
         return action
  
@@ -801,8 +803,10 @@ class AccountMoveLine(models.Model):
             total_discount = 0.0
             if line.discount:
                 if line.tax_ids:
-                    taxes_res = line.tax_ids._origin.compute_all(line.l10n_latam_price_unit,
-                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
+                    taxes_res = line.tax_ids._origin.compute_all(
+                        line.price_unit, #se usa price unit para el escenario de impuestos incluidos en el precio
+                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id,
+                        is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
                     total_discount = taxes_res['total_excluded'] - line.l10n_latam_price_subtotal
                 else:
                     total_discount = (line.quantity * line.l10n_latam_price_unit) - line.l10n_latam_price_subtotal

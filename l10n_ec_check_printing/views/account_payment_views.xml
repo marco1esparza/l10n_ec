@@ -23,6 +23,28 @@
         </field>
     </record>
 
+    <record id="view_account_supplier_payment_check_tree" model="ir.ui.view">
+            <field name="name">view.account.supplier.payment.check.tree</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_supplier_payment_tree"/>
+            <field name="arch" type="xml">
+                <field name="state" position="after">
+                    <field name="check_number" optional="hidden"/>
+                </field>
+            </field>
+        </record>
+
+    <record id="view_account_payment_check_search" model="ir.ui.view">
+        <field name="name">view.account.payment.check.search</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="filter_domain">['|', '|', '|', ('name', 'ilike', self), ('partner_id', 'ilike', self), ('ref', 'ilike', self), ('check_number', 'ilike', self)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
     <record id="action_print_check" model="ir.actions.server">
 		<field name="name">Re-Imprimir Cheque</field>
 		<field name="model_id" ref="account.model_account_payment"/>

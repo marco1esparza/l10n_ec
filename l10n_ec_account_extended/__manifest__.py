@@ -3,7 +3,7 @@
 
 {
     'name': 'Extras Contables para Ecuador',
-    'version': '1.8',
+    'version': '2.0',
     'summary': 'Even easier Accounting by Trescloud',
     'category': 'Localization',
     'description': '''         
@@ -20,7 +20,7 @@
         'base',
         'l10n_ec_edi',
         'l10n_ec_withhold',
-    ],   
+        ],   
     'data': [
         #Views
         'views/account_account_view.xml',
@@ -37,7 +37,7 @@
         #Reports
         'reports/report_account_move_templates.xml',
         'reports/report_payment_receipt_templates.xml',
-    ],
+        ],
     'installable': True,
     'auto_install': True,
     'application': True,
