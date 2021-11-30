@@ -3,13 +3,13 @@
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
-from collections import defaultdict
-from odoo.tools.misc import formatLang
+import odoo.addons.decimal_precision as dp
+from odoo.tools.float_utils import float_compare
 import re
 
 
 class AccountMove(models.Model):
-    _inherit = 'account.move'
+    _inherit='account.move'
     
     @api.onchange('l10n_ec_printer_id')
     def onchange_l10n_ec_printer_id(self):
@@ -43,12 +43,6 @@ class AccountMove(models.Model):
             # Se manda a computar l10n_latam_document_number de forma manual para documentos no tributarios
             # al igual que asientos manuales debido a que el onchange desactiva el compute
             self._compute_l10n_latam_document_number()
-
-    def _l10n_ec_validate_custom_invoice(self):
-        # Validamos para las facturas personalizadas
-        # que el grupo de impuestos sea igual al grupo de impuestos de las lineas personalizadas.
-        if self.l10n_ec_invoice_custom and self.amount_custom_by_group != self.amount_by_group:
-            raise UserError('Los valores de las lineas personalizadas deben conincidir con los totales de las lineas originales.')
     
     def _l10n_ec_validate_number(self):
         #Check invoice number is like ###-###-#########, and prefix corresponds to printer point
@@ -176,25 +170,6 @@ class AccountMove(models.Model):
                         l10n_ec_sri_tax_support_id = self.l10n_ec_available_sri_tax_support_ids[0]._origin.id
                 self.l10n_ec_sri_tax_support_id = l10n_ec_sri_tax_support_id
 
-    @api.onchange('l10n_ec_invoice_custom')
-    def _onchange_l10n_ec_invoice_custom(self):
-        '''
-        Onchange para copiar los valores de las lineas de la factura a las lineas personalizadas
-        '''
-        in_draft_mode = self != self._origin
-        if self.l10n_ec_invoice_custom and not self.l10n_ec_custom_line_ids:
-            create_method = in_draft_mode and self.env['l10n_ec.custom.move.line'].new or self.env['l10n_ec.custom.move.line'].create
-            for line in self.invoice_line_ids.filtered(lambda l: not l.display_type):
-                custom_line = create_method({'name': line.name,
-                                             'quantity': line.quantity,
-                                             'price_unit': line.price_unit,
-                                             'discount': line.discount,
-                                             'tax_ids': line.tax_ids,
-                                             'move_id': line.move_id,
-                                             'partner_id': line.partner_id,
-                                             'currency_id': line.currency_id})
-                custom_line._onchange_price_subtotal()
-
     def button_cancel(self):
         # validate number format of void documents when voiding draft documents
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents and x.state == 'draft'):
@@ -228,7 +203,6 @@ class AccountMove(models.Model):
                 if not invoice.partner_id.vat:
                     raise ValidationError(_('Enter an identification number for the provider "%s".') % invoice.partner_id.name)
             invoice._l10n_ec_validate_number()
-            invoice._l10n_ec_validate_custom_invoice()
             if not invoice.l10n_ec_invoice_payment_method_ids:
                 #autofill, usefull as onchange is not called when invoicing from other modules (ie subscriptions) 
                 invoice.onchange_set_l10n_ec_invoice_payment_method_ids()
@@ -569,7 +543,7 @@ class AccountMove(models.Model):
                         edit_l10n_ec_authorization = True
                     elif res.l10n_ec_authorization_type == 'own':
                         if res.l10n_ec_printer_id.allow_electronic_document:
-                            if res.state in ['posted', 'cancel']:
+                            if res.state in ['posted','cancel']:
                                 #las autorizaciones emitidas por nosotros no se muestran en
                                 #el estado borrador pues se generará en el flujo del documento electronico
                                 show_l10n_ec_authorization = True
@@ -813,7 +787,7 @@ class AccountMoveLine(models.Model):
                 #In case of multi currency, round before it's use for computing debit credit
                 if line.currency_id:
                     total_discount = line.currency_id.round(total_discount)
-            line.l10n_ec_total_discount = total_discount
+            line.l10n_ec_total_discount = total_discount 
 
     #Columns
     l10n_ec_total_discount = fields.Monetary(

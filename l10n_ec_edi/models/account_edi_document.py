@@ -415,10 +415,7 @@ class AccountEdiDocument(models.Model):
         # DETALLES DE LA FACTURA
         detalles = etree.SubElement(factura, 'detalles')
         #remove sections and comments
-        move_lines = self.move_id.invoice_line_ids.filtered(lambda x: x.display_type not in ['line_section', 'line_note'])
-        # Si es una factura personalizada se cambia las move_lines por las custom_lines
-        if self.move_id.l10n_ec_invoice_custom:
-            move_lines = self.move_id.l10n_ec_custom_line_ids
+        move_lines = self.l10n_ec_get_invoice_lines()
         for each in move_lines:
             detalle = self.create_SubElement(detalles, 'detalle')
             detalle_data = []
@@ -533,7 +530,10 @@ class AccountEdiDocument(models.Model):
             if document_type.code in ('03','41'):
                 self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'totalLetras'}, text=l10n_ec_amount_to_words(self.move_id.l10n_ec_total_with_tax))
         return factura
-        
+    
+    def l10n_ec_get_invoice_lines(self):
+        return self.move_id.invoice_line_ids.filtered(lambda x:x.display_type not in ['line_section','line_note'])
+    
     def create_TreeElements(self, _parent,_tags_text):
         for tag, text in _tags_text:
             self.create_SubElement(_parent, tag, text=text)
