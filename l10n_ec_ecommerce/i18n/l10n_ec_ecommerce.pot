@@ -1,6 +1,6 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* l10n_ec_ecommerce
+# 	* l10n_ec
 #
 msgid ""
 msgstr ""
@@ -19,10 +19,10 @@ msgstr ""
 #. module: website_sale
 #: model_terms:ir.ui.view,arch_db:website_sale.address_b2b
 msgid "TIN / VAT"
-msgstr ""
+msgstr "Cédula/RUC/Pasaporte"
 
 # Traducción temporal hasta que Odoo acepte PR
 #. module: website_sale
 #: model_terms:ir.ui.view,arch_db:website_sale.address_b2b
 msgid "Company Name"
-msgstr ""
+msgstr "Nombre para la factura"

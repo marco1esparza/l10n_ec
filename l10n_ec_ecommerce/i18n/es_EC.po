@@ -1,6 +1,6 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* l10n_ec_ecommerce
+# 	* l10n_ec
 #
 msgid ""
 msgstr ""
