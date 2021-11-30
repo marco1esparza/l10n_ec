@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_invoice_document" inherit_id="l10n_ec_edi.report_invoice_document" primary="True">
+        <xpath expr="//table[@name='invoice_line_table']" position="attributes">
+            <attribute name="t-if">not o.l10n_ec_invoice_custom</attribute>
+        </xpath>
+        <xpath expr="//table[@name='invoice_line_table']" position="before">
+            <table class="table table-sm o_main_table" name="custom_invoice_line_table" t-if="o.l10n_ec_invoice_custom" style="font-size:11px;">
+	            <thead>
+	                <tr>
+	                    <th name="th_main_code_custom" class="text-left"><span>Main Code</span></th>
+	                    <th name="th_description_custom" class="text-left"><span>Description</span></th>
+	                    <th name="th_quantity_custom" class="text-right"><span>Quantity</span></th>
+	                    <th name="th_priceunit_custom" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}"><span>Unit Price</span></th>
+	                    <th name="th_price_unit_custom" t-if="display_discount" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}"><span>Disc.%</span></th>
+	                    <th name="th_taxes_custom" t-attf-class="text-left {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}"><span>Taxes</span></th>
+	                    <th name="th_subtotal_custom" class="text-right">
+	                        <span groups="account.group_show_line_subtotals_tax_excluded">Amount</span>
+	                        <span groups="account.group_show_line_subtotals_tax_included">Total Price</span>
+	                    </th>
+	                </tr>
+	            </thead>
+	            <tbody class="invoice_tbody">
+	                <t t-set="lines" t-value="o.l10n_ec_custom_line_ids.sorted(key=lambda l: (-l.sequence, -l.id), reverse=True)"/>	
+	                <t t-foreach="lines" t-as="line">
+	                    <tr>
+	                        <t name="account_invoice_line_accountable_custom">
+	                            <td></td>
+	                            <td name="account_invoice_line_name_custom"><span t-field="line.name" t-options="{'widget': 'text'}"/></td>
+	                            <td class="text-right">
+	                                <span t-field="line.quantity"/>
+	                            </td>
+	                            <td t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+	                                <span class="text-nowrap" t-field="line.price_unit"/>
+	                            </td>
+	                            <td t-if="display_discount" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+	                                <span class="text-nowrap" t-field="line.discount"/>
+	                            </td>
+	                            <td t-attf-class="text-left {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+	                                <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_ids))" id="line_tax_ids"/>
+	                            </td>
+	                            <td class="text-right o_price_total">
+	                                <span class="text-nowrap" t-field="line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+	                                <span class="text-nowrap" t-field="line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+	                            </td>
+	                        </t>
+	                    </tr>
+	                </t>
+	            </tbody>
+	        </table>
+        </xpath>
+	</template>    
+    
+    <!-- TODO: revisar por que angel tenia esta herencia a una plantilla de l10n_ec_waybill, si ese modulo no esta ni instalado para el cliente compuauto-->
+    <!--template id="sale_stock_report_invoice_document" inherit_id="l10n_ec_waybill.sale_stock_report_invoice_document">
+    	<xpath expr="//table[@name='invoice_snln_table']" position="attributes">
+        	<attribute name="style">font-size:9px; width: 50%; line-height:60%; margin-left:-15px !important;</attribute>
+            <attribute name="t-if">not o.l10n_ec_invoice_custom</attribute>
+        </xpath>
+        <xpath expr="//div[@name='div_invoice_snln_table']" position="attributes">        	
+            <attribute name="t-if">not o.l10n_ec_invoice_custom</attribute>
+        </xpath>
+	</template -->
+
+</odoo>

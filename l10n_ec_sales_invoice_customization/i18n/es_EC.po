@@ -1,0 +1,115 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_sales_invoice_customization
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 13.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-11-27 05:00+0000\n"
+"PO-Revision-Date: 2021-11-27 05:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model:ir.model.fields,field_description:l10n_ec_sales_invoice_customization.field_l10n_ec_custom_move_line__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.report_invoice_document
+msgid "<span>Description</span>"
+msgstr "<span>Descripción</span>"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.report_invoice_document
+msgid "<span>Disc.%</span>"
+msgstr "<span>Desc.%</span>"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.report_invoice_document
+msgid "<span>Main Code</span>"
+msgstr "<span>Código principal</span>"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.report_invoice_document
+msgid "<span>Quantity</span>"
+msgstr "<span>Cantidad</span>"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.report_invoice_document
+msgid "<span>Taxes</span>"
+msgstr "<span>Impuestos</span>"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.report_invoice_document
+msgid "<span>Unit Price</span>"
+msgstr "<span>Precio Unitario</span>"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.view_move_invoice_customization_form
+msgid "Add a line"
+msgstr "Agregar línea"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model:ir.model,name:l10n_ec_sales_invoice_customization.model_l10n_ec_custom_move_line
+msgid "Custom Account Move Line"
+msgstr "Detalle de factura personalizada"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.view_move_invoice_customization_form
+msgid "Disc.%"
+msgstr "Desc.%"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model:ir.model.fields,field_description:l10n_ec_sales_invoice_customization.field_l10n_ec_custom_move_line__discount
+msgid "Discount (%)"
+msgstr "Descuento (%)"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.view_move_invoice_customization_form
+msgid "Invoice Custom Lines"
+msgstr "Lineas factura personalizada"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model:ir.model.fields,field_description:l10n_ec_sales_invoice_customization.field_l10n_ec_custom_move_line__tax_ids
+msgid "Taxes"
+msgstr "Impuestos"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model:ir.model.fields,field_description:l10n_ec_sales_invoice_customization.field_l10n_ec_custom_move_line__name
+msgid "Label"
+msgstr "Descripción"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model:ir.model.fields,field_description:l10n_ec_sales_invoice_customization.field_l10n_ec_custom_move_line__quantity
+msgid "Quantity"
+msgstr "Cantidad"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model:ir.model.fields,field_description:l10n_ec_sales_invoice_customization.field_l10n_ec_custom_move_line__price_unit
+msgid "Unit Price"
+msgstr "Precio unitario"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.view_move_invoice_customization_form
+msgid "Price"
+msgstr "Precio"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.view_move_invoice_customization_form
+msgid "Total amount"
+msgstr "Monto total"
+
+#. module: l10n_ec_sales_invoice_customization
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.report_invoice_document
+msgid ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Amount</span>\n"
+"                                    <span groups=\"account.group_show_line_subtotals_tax_included\">Total Price</span>"
+msgstr ""
+"<span groups=\"account.group_show_line_subtotals_tax_excluded\">Importe</span>\n"
+"                                    <span groups=\"account.group_show_line_subtotals_tax_included\">Importe total</span>"

@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_l10n_ec_custom_move_line_manager,l10n_ec.custom.move.line manager,model_l10n_ec_custom_move_line,account.group_account_manager,1,0,0,0
+access_l10n_ec_custom_move_line_readonly,l10n_ec.custom.move.line readonly,model_l10n_ec_custom_move_line,account.group_account_readonly,1,0,0,0
+access_l10n_ec_custom_move_line_uinvoice,l10n_ec.custom.move.line invoice,model_l10n_ec_custom_move_line,account.group_account_invoice,1,1,1,1
