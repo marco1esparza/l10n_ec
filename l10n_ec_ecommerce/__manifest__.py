@@ -3,7 +3,7 @@
 
 {
     'name': 'Extras Ecommerce para Ecuador',
-    'version': '1.5',
+    'version': '1.6',
     'summary': 'ecommerce the ecuadorian way',
     'category': 'Localization',
     'description': '''         
@@ -17,7 +17,7 @@
     'depends': [
         'base',
         'website_sale',
-        'l10n_ec_account_extended',
+        'l10n_ec',
     ],   
     'data': [
         #Data
@@ -27,4 +27,5 @@
     'installable': True,
     'auto_install': True,
     'application': True,
+    'post_init_hook': '_l10n_ec_set_ecommerce_labels',
 }
