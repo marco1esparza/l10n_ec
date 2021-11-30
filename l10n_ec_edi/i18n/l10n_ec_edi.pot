@@ -1652,4 +1652,4 @@ msgstr ""
 #. module: l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_edi.report_invoice_document
 msgid "<span>Lots</span>"
-msgstr "" 
+msgstr ""
