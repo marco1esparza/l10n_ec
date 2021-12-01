@@ -18,14 +18,16 @@ class AccountMove(models.Model):
         if self.l10n_ec_invoice_custom and not self.l10n_ec_custom_line_ids:
             create_method = in_draft_mode and self.env['l10n_ec.custom.move.line'].new or self.env['l10n_ec.custom.move.line'].create
             for line in self.invoice_line_ids.filtered(lambda l: not l.display_type):
-                custom_line = create_method({'name': line.name,
-                                             'quantity': line.quantity,
-                                             'price_unit': line.price_unit,
-                                             'discount': line.discount,
-                                             'tax_ids': line.tax_ids,
-                                             'move_id': line.move_id,
-                                             'partner_id': line.partner_id,
-                                             'currency_id': line.currency_id})
+                custom_line = create_method({
+                    'name': line.name,
+                    'quantity': line.quantity,
+                    'price_unit': line.price_unit,
+                    'discount': line.discount,
+                    'tax_ids': line.tax_ids,
+                    'move_id': line.move_id,
+                    'partner_id': line.partner_id,
+                    'currency_id': line.currency_id
+                    })
                 custom_line._onchange_price_subtotal()
 
     def _post(self, soft=True):
@@ -41,10 +43,27 @@ class AccountMove(models.Model):
         # Validamos para las facturas personalizadas
         # que el grupo de impuestos sea igual al grupo de impuestos de las lineas personalizadas.
         if self.l10n_ec_invoice_custom and self.amount_custom_by_group != self.amount_by_group:
-            raise UserError('Los valores de las líneas personalizadas deben conincidir con los totales de las líneas originales.')    
+            raise UserError('Los valores de las líneas personalizadas deben conincidir con los totales de las líneas originales.')
+        
+    def _get_name_invoice_report(self):
+        '''
+        Invocamos el metodo _get_name_invoice_report para la impresion del ride personalizado
+        '''
+        self.ensure_one()
+        if self.l10n_latam_use_documents and self.country_code == 'EC' \
+                and self.move_type in ('out_invoice', 'out_refund') and self.l10n_latam_document_type_id.code in ['04', '18', '05', '41']:
+            return 'l10n_ec_sales_invoice_customization.report_invoice_document'
+        elif self.l10n_latam_use_documents and self.country_code == 'EC' \
+                and self.move_type in ('in_invoice') and self.l10n_latam_document_type_id.code in ['03', '41'] \
+                and self.l10n_latam_document_type_id.l10n_ec_authorization == 'own':
+            return 'l10n_ec_sales_invoice_customization.report_invoice_document'
+        return super(AccountMove, self)._get_name_invoice_report()
     
     @api.depends('l10n_ec_custom_line_ids.price_subtotal', 'partner_id', 'currency_id')
     def _compute_invoice_custom_taxes_by_group(self):
+        '''
+        Este metodo computa el campo binario para los totales de a factura personalizada
+        '''
         for move in self.filtered('l10n_latam_document_type_id'):
             if not move.is_invoice(include_receipts=True) or move.move_type not in ('out_invoice', 'out_refund') \
                     or not move.l10n_ec_invoice_custom:
