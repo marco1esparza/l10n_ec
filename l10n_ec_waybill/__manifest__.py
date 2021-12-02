@@ -20,7 +20,7 @@
     'depends': [
         'stock',
         'l10n_ec_edi',
-        'sale_stock',
+        'stock_account',
     ],
     'data': [
         #Data
@@ -36,6 +36,6 @@
     ],
     'installable': True,
     'application': True,
-    'auto_install': False,
+    'auto_install': True,
     'post_init_hook': '_post_install_hook_configure_ecuadorian_waybill',
 }

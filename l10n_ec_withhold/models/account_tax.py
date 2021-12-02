@@ -7,10 +7,10 @@ from odoo.tools.float_utils import float_round
 class AccountTax(models.Model):
     _inherit = "account.tax"
 
-    def compute_all(self, price_unit, currency=None, quantity=1.0, product=None, partner=None, is_refund=False, handle_price_include=True):
+    def compute_all(self, price_unit, currency=None, quantity=1.0, product=None, partner=None, is_refund=False, handle_price_include=True, include_caba_tags=False):
         # - alter base amount for vat withhold after computation, to store the correct base amount
         # - compute vat withold as globally rounding
-        res = super(AccountTax, self).compute_all(price_unit, currency, quantity, product, partner, is_refund, handle_price_include)
+        res = super(AccountTax, self).compute_all(price_unit, currency, quantity, product, partner, is_refund, handle_price_include, include_caba_tags)
         withholds = self.filtered(lambda t: t.tax_group_id.l10n_ec_type in ('withhold_vat', 'withhold_income_tax'))
         if withholds:
             for tax in res['taxes']:

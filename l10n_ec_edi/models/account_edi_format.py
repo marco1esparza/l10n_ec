@@ -79,27 +79,25 @@ class AccountEdiFormat(models.Model):
         self.ensure_one()        
         return False if self.code == 'l10n_ec_tax_authority' else super()._is_embedding_to_invoice_pdf_needed()
 
-    def _post_invoice_edi(self, invoices, test_mode=False):
+    def _post_invoice_edi(self, invoices):
         """ Create the file content representing the invoice (and calls web services if necessary).
         :param invoices:    A list of invoices to post.
-        :param test_mode:   A flag indicating the EDI should only simulate the EDI without sending data.
         :returns:           A dictionary with the invoice as key and as value, another dictionary:
         * attachment:       The attachment representing the invoice in this edi_format if the edi was successfully posted.
         * error:            An error if the edi was not successfully posted.
         """
         #replaces good old attempt_electronic_document from v10
         #llamamos a super para anexar los errores en "edi_result"
-        edi_result = super()._post_invoice_edi(invoices, test_mode=test_mode)
+        edi_result = super()._post_invoice_edi(invoices)
         if self.code != 'l10n_ec_tax_authority':
             return edi_result
         for invoice in invoices:
             #First some validations
             msgs = []
-            if not test_mode:
-                # Si no tenemos Modo test por context, entonces evaluamos que la company_id este en modo Demo
-                enviroment_type = invoice.company_id.l10n_ec_environment_type
-                if enviroment_type and enviroment_type == '0':
-                    test_mode = True
+            enviroment_type = invoice.company_id.l10n_ec_environment_type
+            test_mode = False
+            if enviroment_type and enviroment_type == '0':
+                test_mode = True
             # Si estamos en Modo test y tenemos documentos electronicos y tenemos request
             # asignamos el attachment con dicho documento.
             edi_ec = invoice.edi_document_ids.filtered(lambda d: d.edi_format_id.code == 'l10n_ec_tax_authority')
@@ -114,6 +112,10 @@ class AccountEdiFormat(models.Model):
                     'description': _('Demo Ecuadorian electronic document for the %s document.') % invoice.name,
                 })
                 edi_result[invoice] = {'attachment': attachment}
+                return edi_result
+            if test_mode:
+                res = {'success': True}  # indicates cancell operation success
+                edi_result[invoice] = res
                 return edi_result
             if invoice.edi_state in ('sent'):
                 raise ValidationError("No se puede enviar al SRI documentos previamente enviados: Documento %s" % str(self.name))
@@ -163,17 +165,16 @@ class AccountEdiFormat(models.Model):
                 edi_result[invoice] = {'attachment': electronic_document_attachment}
         return edi_result
 
-    def _cancel_invoice_edi(self, invoices, test_mode=False):
+    def _cancel_invoice_edi(self, invoices):
         """Calls the web services to cancel the invoice of this document.
 
         :param invoices:    A list of invoices to cancel.
-        :param test_mode:   A flag indicating the EDI should only simulate the EDI without sending data.
         :returns:           A dictionary with the invoice as key and as value, another dictionary:
         * success:          True if the invoice was successfully cancelled.
         * error:            An error if the edi was not successfully cancelled.
         """
-        edi_result = super()._cancel_invoice_edi(invoices, test_mode=test_mode)
-        if self.code  != 'l10n_ec_tax_authority':
+        edi_result = super()._cancel_invoice_edi(invoices)
+        if self.code != 'l10n_ec_tax_authority':
             return edi_result
         if test_mode:
             return edi_result
@@ -181,16 +182,12 @@ class AccountEdiFormat(models.Model):
             #here invoice refers to any document, an invoice, withhold, waybill
             document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_cancel" and r.edi_format_id.code == 'l10n_ec_tax_authority')
             msgs = []
-            
-            if not test_mode:
-                # Si no tenemos Modo test por context, entonces evaluamos que la company_id este en modo Demo
-                enviroment_type = invoice.company_id.l10n_ec_environment_type
-                if enviroment_type and enviroment_type == '0':
-                    test_mode = True
+            enviroment_type = invoice.company_id.l10n_ec_environment_type
+            if enviroment_type and enviroment_type == '0':
+                test_mode = True
             # Si estamos en Modo test y tenemos documentos electronicos y tenemos request
             # asignamos el attachment con dicho documento.
             if test_mode:
-                
                 res = {'success': True} #indicates cancell operation success
                 edi_result[invoice] = res
                 #Chatter, no_new_invoice to prevent creation of another new invoice "from the attachment"

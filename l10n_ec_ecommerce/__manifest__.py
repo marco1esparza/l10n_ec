@@ -3,7 +3,7 @@
 
 {
     'name': 'Extras Ecommerce para Ecuador',
-    'version': '1.5',
+    'version': '1.0',
     'summary': 'ecommerce the ecuadorian way',
     'category': 'Localization',
     'description': '''         

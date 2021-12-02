@@ -3,7 +3,7 @@
 
 {
     'name': 'Retenciones ecuatorianas',
-    'version': '1.3',
+    'version': '1.0',
     'category': 'Localization',
     'summary': 'SRI electronic withholds, sales withholds, etc',
     'description': '''

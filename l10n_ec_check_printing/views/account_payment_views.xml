@@ -6,7 +6,7 @@
         <field name="model">account.payment</field>
         <field name="inherit_id" ref="account.view_account_payment_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='amount']" position="after">
+            <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="check_number" invisible="context.get('default_payment_type') != 'outbound'"/>
             </xpath>
         </field>

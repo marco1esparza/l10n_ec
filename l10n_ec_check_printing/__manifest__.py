@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Ecuadorian Checks Layout',
-    'version': '1.1',
+    'version': '1.0',
     'author': 'TRESCLOUD',
     'category': 'Accounting/Localizations/Check',
     'summary': 'Print EC Checks',
@@ -23,6 +23,11 @@ can specify the location of each field for other banks, in this way it fits all 
         'views/account_payment_views.xml',
         'wizard/print_prenumbered_checks_view.xml',
     ],
+    'assets': {
+        'web.report_assets_common': [
+            'l10n_ec_check_printing/static/**/*',
+        ],
+    },
     'installable': True,
     'auto_install': True,
     'license': 'OEEL-1',

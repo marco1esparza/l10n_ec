@@ -178,7 +178,7 @@
         </xpath>
     </template>
 
-    <template id="sale_stock_report_invoice_document" inherit_id="sale_stock.sale_stock_report_invoice_document">
+    <template id="stock_account_report_invoice_document" inherit_id="stock_account.stock_account_report_invoice_document">
 
         <xpath expr="//table[@name='invoice_snln_table']" position="attributes">
             <attribute name="style">font-size:7.5px; width: 50%; line-height:92%; margin-left:-15px !important;</attribute>
