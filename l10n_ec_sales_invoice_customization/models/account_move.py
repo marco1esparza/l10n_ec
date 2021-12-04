@@ -18,9 +18,15 @@ class AccountMove(models.Model):
         if self.l10n_ec_invoice_custom and not self.l10n_ec_custom_line_ids:
             create_method = in_draft_mode and self.env['l10n_ec.custom.move.line'].new or self.env['l10n_ec.custom.move.line'].create
             for line in self.invoice_line_ids.filtered(lambda l: not l.display_type):
+                name = line.name
+                if len(name.split(']')) == 2:
+                    name = name.split(']')[1].strip()
                 custom_line = create_method({
-                    'name': line.name,
+                    'product_id': line.product_id,
+                    'code': line.product_id.default_code,
+                    'name': name,
                     'quantity': line.quantity,
+                    'product_uom_id': line.product_uom_id,
                     'price_unit': line.price_unit,
                     'discount': line.discount,
                     'tax_ids': line.tax_ids,
@@ -42,8 +48,26 @@ class AccountMove(models.Model):
     def _l10n_ec_validate_custom_invoice(self):
         # Validamos para las facturas personalizadas
         # que el grupo de impuestos sea igual al grupo de impuestos de las lineas personalizadas.
-        if self.l10n_ec_invoice_custom and self.amount_custom_by_group != self.amount_by_group:
-            raise UserError('Los valores de las líneas personalizadas deben conincidir con los totales de las líneas originales.')
+        #Antes de hacer la comparacion se hace un redondeo para evitar la falla que iban a generar las siguientes dos lineas
+        #[('IVA 12%', 1.1952, 9.959999999999999, '$ 1,20', '$ 9,96', 2, 35), ('IVA 0%', 0.0, 5.0, '$ 0,00', '$ 5,00', 2, 37)]
+        #[('IVA 12%', 1.2, 9.959999999999999, '$ 1,20', '$ 9,96', 2, 35), ('IVA 0%', 0.0, 5.0, '$ 0,00', '$ 5,00', 2, 37)]
+        if self.l10n_ec_invoice_custom:
+            customs= []
+            for custom in self.amount_custom_by_group:
+                i = 1
+                for element in custom:
+                    if isinstance(element, (int, float)):
+                        element = round(element, 2)
+                    customs.append(element)
+            natives = []
+            for native in self.amount_by_group:
+                i = 1
+                for element in native:
+                    if isinstance(element, (int, float)):
+                        element = round(element, 2)
+                    natives.append(element)
+            if customs != natives:
+                raise UserError('Los valores de las líneas personalizadas deben conincidir con los totales de las líneas originales.')
         
     def _get_name_invoice_report(self):
         '''
@@ -77,7 +101,8 @@ class AccountMove(models.Model):
                 handle_price_include = True
 
             lang_env = move.with_context(lang=move.partner_id.lang).env
-            tax_balance_multiplicator = 1 if move.is_inbound(True) else -1
+            #tax_balance_multiplicator = 1 if move.is_inbound(True) else -1
+            tax_balance_multiplicator = 1 #No se requiere la linea anterior este objeto nuevo trabaja todo con valores positivos
             res = {}
             for line in move.l10n_ec_custom_line_ids:
                 for tax in line.tax_ids.flatten_taxes_hierarchy():
@@ -101,9 +126,8 @@ class AccountMove(models.Model):
             res = sorted(res.items(), key=lambda l: l[0].sequence)
             move.amount_custom_by_group = [(
                 group.name,
-                #TODO: estos round buscarle una solucion en el original no estan 
-                round(amounts['amount'], 2),
-                round(amounts['base'], 2),
+                amounts['amount'],
+                amounts['base'],
                 formatLang(lang_env, amounts['amount'], currency_obj=move.currency_id),
                 formatLang(lang_env, amounts['base'], currency_obj=move.currency_id),
                 len(res),
@@ -117,14 +141,14 @@ class AccountMove(models.Model):
         help='Edit Tax amounts if you encounter rounding issues.'
         )
     l10n_ec_invoice_custom = fields.Boolean(
-        string='Factura Personalizada',
+        string='Personalizar',
         tracking=True
         )
     l10n_ec_custom_line_ids = fields.One2many(
         'l10n_ec.custom.move.line',
         'move_id',
         string='Invoice lines',
-        copy=False,
+        copy=True,
         readonly=True,
         states={'draft': [('readonly', False)]}
         )    

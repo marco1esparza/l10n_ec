@@ -7,10 +7,13 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="l10n_ec_edi.view_move_invoice_customization_form"/>
             <field name="arch" type="xml">
-				<xpath expr="//field[@name='to_check']" position="after">
-					<field name="l10n_ec_invoice_custom" attrs="{'invisible': [('country_code', '!=', 'EC'), ('move_type', 'not in', ('out_invoice', 'in_invoice'))]}"/>
+				<xpath expr="//field[@name='l10n_ec_payment_method_id']" position="after">
+					<field name="l10n_ec_invoice_custom"
+						string="Personalizar"
+						attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('country_code', '!=', 'EC'), ('move_type', 'not in', ('out_invoice', 'in_invoice'))]}"
+						widget="boolean_toggle"/>
 				</xpath>
-				<xpath expr="//page[@id='invoice_tab']" position="after">
+				<xpath expr="//page[@id='invoice_tab']" position="before">
 					<page id="custom_invoice_tab" string="Invoice Custom Lines" attrs="{'invisible': [('l10n_ec_invoice_custom', '=', False)]}">
 						<field name="l10n_ec_custom_line_ids"
 		                        widget="section_and_note_one2many"
@@ -22,8 +25,11 @@
 								</control>
 								<!-- Displayed fields -->
 								<field name="sequence" widget="handle"/>
+								<field name="product_id" string="Producto" optional="show"/>
+								<field name="code" optional="show"/>
 								<field name="name" widget="section_and_note_text" attrs="{'required': [('parent.move_type', 'not in', ('in_invoice', 'in_refund','in_receipt'))]}"/>
-								<field name="quantity"/>
+								<field name="quantity" attrs="{'required': [('parent.move_type', 'not in', ('in_invoice', 'in_refund','in_receipt'))]}"/>
+								<field name="product_uom_id" optional="show"/>
 								<field name="price_unit" string="Price"/>
 								<field name="discount" string="Disc.%" optional="show"/>
 								<field name="tax_ids" widget="many2many_tags"

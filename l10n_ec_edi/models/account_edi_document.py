@@ -419,7 +419,7 @@ class AccountEdiDocument(models.Model):
         for each in move_lines:
             detalle = self.create_SubElement(detalles, 'detalle')
             detalle_data = []
-            main_code, secondary_code = each.product_id.l10n_ec_get_product_codes()
+            main_code, secondary_code = self.l10n_ec_get_product_code(each)
             if main_code:
                 if type == 'out_invoice':
                     detalle_data.append(('codigoPrincipal', main_code))
@@ -533,6 +533,9 @@ class AccountEdiDocument(models.Model):
     
     def l10n_ec_get_invoice_lines(self):
         return self.move_id.invoice_line_ids.filtered(lambda x:x.display_type not in ['line_section','line_note'])
+    
+    def l10n_ec_get_product_code(self, line):
+        return line.product_id.l10n_ec_get_product_codes()
     
     def create_TreeElements(self, _parent,_tags_text):
         for tag, text in _tags_text:

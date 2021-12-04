@@ -73,7 +73,7 @@ msgstr "Descuento (%)"
 #. module: l10n_ec_sales_invoice_customization
 #: model_terms:ir.ui.view,arch_db:l10n_ec_sales_invoice_customization.view_move_invoice_customization_form
 msgid "Invoice Custom Lines"
-msgstr "Lineas factura personalizada"
+msgstr "Detalle personalizado"
 
 #. module: l10n_ec_sales_invoice_customization
 #: model:ir.model.fields,field_description:l10n_ec_sales_invoice_customization.field_l10n_ec_custom_move_line__tax_ids

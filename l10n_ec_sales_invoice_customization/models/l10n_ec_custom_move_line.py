@@ -49,6 +49,17 @@ class L10nEcCustomMoveLine(models.Model):
                 result |= super(L10nEcCustomMoveLine, line).write(to_write)
         return result
     
+    @api.onchange('product_id')
+    def _onchange_product_id(self):
+        # Para rellenar valores de la linea de fact
+        for line in self:
+            if line.product_id:
+                line.code = line.product_id.default_code
+                line.name = line.product_id.name
+                line.product_uom_id = line.product_id.uom_id
+                line.price_unit = line.product_id.list_price
+            line.tax_ids = line.move_id.company_id.account_sale_tax_id
+    
     @api.onchange('quantity', 'discount', 'price_unit', 'tax_ids')
     def _onchange_price_subtotal(self):
         # Onchange para obtener y actualizar el subtotal y total de las lineas
@@ -142,6 +153,15 @@ class L10nEcCustomMoveLine(models.Model):
     sequence = fields.Integer(
         default=10
         )
+    product_id = fields.Many2one(
+        'product.product',
+        string='Producto',
+        ondelete='restrict'
+        )
+    code = fields.Char(
+        string='Código',
+        tracking=True
+        )
     name = fields.Char(
         string='Label',
         tracking=True
@@ -151,6 +171,15 @@ class L10nEcCustomMoveLine(models.Model):
         default=1.0, digits='Product Unit of Measure',
         help='The optional quantity expressed by this line, eg: number of product sold. '
             'The quantity is not a legal requirement but is very useful for some reports.'
+        )
+    product_uom_category_id = fields.Many2one(
+        'uom.category', 
+        related='product_id.uom_id.category_id'
+        )
+    product_uom_id = fields.Many2one(
+        'uom.uom',
+        string='UdM',
+        domain=[('category_id', '=', product_uom_category_id)]
         )
     price_unit = fields.Float(
         string='Unit Price',
