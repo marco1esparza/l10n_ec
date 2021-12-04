@@ -11,26 +11,27 @@ class ResPartner(models.Model):
     @api.model
     def create(self, vals):
         #automate l10n_latam_identification_type_id when creating partners from website
-        if self._context.get('website_id',False): #si la creacion/edicion es desde el sitio web
-            vals.update({
-                'l10n_latam_identification_type_id': self._l10n_ec_ecommerce_autoselect_vat_type(vals),
-                 })
+        if self.env.company.country_code == 'EC': 
+            if self._context.get('website_id',False): #si la creacion/edicion es desde el sitio web
+                vals.update({
+                    'l10n_latam_identification_type_id': self._l10n_ec_ecommerce_autoselect_vat_type(vals),
+                     })
         return super().create(vals)
      
     def write(self, vals):
         #automate l10n_latam_identification_type_id when editing partners from website
-        if self._context.get('website_id',False): #si la creacion/edicion es desde el sitio web
-            vals.update({
-                'l10n_latam_identification_type_id': self._l10n_ec_ecommerce_autoselect_vat_type(vals),
-                })
+        if self.env.company.country_code == 'EC':
+            if self._context.get('website_id',False): #si la creacion/edicion es desde el sitio web
+                for rec in self:
+                    vals.update({
+                        'l10n_latam_identification_type_id': rec._l10n_ec_ecommerce_autoselect_vat_type(vals),
+                        })
         return super().write(vals)
      
     def _l10n_ec_ecommerce_autoselect_vat_type(self, vals):
         #smart detect vat type, usefull for ecommerce
-        if not self.env.company.country_code == 'EC':
-            return True #when company is not ecuadorian then do nothing, 
-        new_vat = vals.get('vat',self.vat) 
         #when identification_type not provided attempt to guess the type
+        new_vat = vals.get('vat',self.vat)
         if new_vat:
             country_code = self.country_id.code or 'EC'
             if len(new_vat) == 10 and country_code == 'EC':

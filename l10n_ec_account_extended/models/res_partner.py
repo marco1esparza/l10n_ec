@@ -67,9 +67,9 @@ class ResPartner(models.Model):
         'The profit withhold prevalence order is payment method (credit cards retains 0%), then partner, then product'
         )
     bypass_vat_validation = fields.Boolean(
-        string='Bypass vat validation',
-        help=u'Algunas cédulas antiguas no cumplen el formato, éste campo'
-             u' permite ignorar la validación hecha al campo CI/RUC/Pass.'
+        string='Omitir validacion RUC/Ced',
+        help=u'Algunas cédulas antiguas no cumplen el formato del registro civil, éste campo'
+             u' permite ignorar la validación Ecuatoriana para el campo CI/RUC/Pass.'
         )
     country_id = fields.Many2one(
         default=lambda self: self.env.company.country_id.id

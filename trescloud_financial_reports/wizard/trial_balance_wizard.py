@@ -249,13 +249,20 @@ class TrialBalanceReportWizard(models.TransientModel):
             report_name = "a_f_r.report_trial_balance_xlsx"
         else:
             report_name = "trescloud_financial_reports.trial_balance"
+        new_context = self.env.context.copy()
+        # new_context es un copy del contexto nativo
+        # simplemente se elimina del diccionario las dos claves si es que existen
+        if new_context.get('show_4_and_5', False):
+            del new_context['show_4_and_5']
+        if new_context.get('unaffected_earnings_account_ids', False):
+            del new_context['unaffected_earnings_account_ids']
         return (
             self.env["ir.actions.report"]
             .search(
                 [("report_name", "=", report_name), ("report_type", "=", report_type)],
                 limit=1,
             )
-            .report_action(self, data=data)
+            .with_context(new_context).report_action(self, data=data)
         )
 
     def button_export_html(self):
@@ -338,6 +345,7 @@ class TrialBalanceReportWizard(models.TransientModel):
             "company_currency_id": self.company_id.currency_id.id,
             "company_currency_name": self.company_id.currency_id.name,
             "4_and_5_text": self.env.context.get("4_and_5_text", False),
+            "unaffected_earnings_account_ids": self.env.context.get("unaffected_earnings_account_ids", False),
         }
 
     def _export(self, report_type):
