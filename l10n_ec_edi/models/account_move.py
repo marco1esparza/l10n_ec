@@ -43,8 +43,6 @@ class AccountMove(models.Model):
             # Se manda a computar l10n_latam_document_number de forma manual para documentos no tributarios
             # al igual que asientos manuales debido a que el onchange desactiva el compute
             self._compute_l10n_latam_document_number()
-
-
     
     def _l10n_ec_validate_number(self):
         #Check invoice number is like ###-###-#########, and prefix corresponds to printer point
@@ -171,7 +169,7 @@ class AccountMove(models.Model):
                         #Usamos _origin para obtener el id del registro y evitar algo como lo sig: NewId: <NewId origin=2>
                         l10n_ec_sri_tax_support_id = self.l10n_ec_available_sri_tax_support_ids[0]._origin.id
                 self.l10n_ec_sri_tax_support_id = l10n_ec_sri_tax_support_id
-    
+
     def button_cancel(self):
         # validate number format of void documents when voiding draft documents
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents and x.state == 'draft'):
@@ -556,7 +554,7 @@ class AccountMove(models.Model):
                             edit_l10n_ec_authorization = True
             res.show_l10n_ec_authorization = show_l10n_ec_authorization
             res.edit_l10n_ec_authorization = edit_l10n_ec_authorization
-        
+
     l10n_ec_printer_id = fields.Many2one(
         'l10n_ec.sri.printer.point',
         string='Punto de emisión', readonly = True,
