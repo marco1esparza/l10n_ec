@@ -415,11 +415,11 @@ class AccountEdiDocument(models.Model):
         # DETALLES DE LA FACTURA
         detalles = etree.SubElement(factura, 'detalles')
         #remove sections and comments
-        move_lines = self.move_id.invoice_line_ids.filtered(lambda x:x.display_type not in ['line_section','line_note'])
+        move_lines = self.l10n_ec_get_invoice_lines()
         for each in move_lines:
             detalle = self.create_SubElement(detalles, 'detalle')
             detalle_data = []
-            main_code, secondary_code = each.product_id.l10n_ec_get_product_codes()
+            main_code, secondary_code = self.l10n_ec_get_product_code(each)
             if main_code:
                 if type == 'out_invoice':
                     detalle_data.append(('codigoPrincipal', main_code))
@@ -440,7 +440,7 @@ class AccountEdiDocument(models.Model):
             self.create_TreeElements(detalle, detalle_data)
             if type == 'out_invoice':
                 detallesAdicionales = detalle.find('detallesAdicionales')
-                self.create_SubElement(detallesAdicionales, 'detAdicional', attrib={'valor': each.product_uom_id.name or 'Unidad', 'nombre': 'uom'})
+                self.create_SubElement(detallesAdicionales, 'detAdicional', attrib={'valor': each.product_id and each.product_uom_id.name or 'Unidad', 'nombre': 'uom'})
             impuestos = detalle.find('impuestos')
             for linetax in each.tax_ids:
                 if linetax.tax_group_id.l10n_ec_type in ('ice', 'irbpnr'):
@@ -530,7 +530,13 @@ class AccountEdiDocument(models.Model):
             if document_type.code in ('03','41'):
                 self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'totalLetras'}, text=l10n_ec_amount_to_words(self.move_id.l10n_ec_total_with_tax))
         return factura
-        
+    
+    def l10n_ec_get_invoice_lines(self):
+        return self.move_id.invoice_line_ids.filtered(lambda x:x.display_type not in ['line_section','line_note'])
+    
+    def l10n_ec_get_product_code(self, line):
+        return line.product_id.l10n_ec_get_product_codes()
+    
     def create_TreeElements(self, _parent,_tags_text):
         for tag, text in _tags_text:
             self.create_SubElement(_parent, tag, text=text)

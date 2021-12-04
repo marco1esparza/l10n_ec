@@ -29,18 +29,23 @@ class L10nECA3DetailReport(models.TransientModel):
         domain.extend(type)
         return domain
 
-    def _get_withholding_number(self, invoice_id):
+    def _get_withholding_data(self, invoice_id):
         '''
-        Se computa para obtener los numeros de retenciones.
+        Se computa para obtener los numeros de retenciones y autorizaciones
         '''
         withholding_number = ''
+        withholding_authorization = ''
         if invoice_id.l10n_ec_withhold_ids:
-            for withholding in invoice_id.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted'):
+            for withhold in invoice_id.l10n_ec_withhold_ids.filtered(lambda w: w.state == 'posted'):
                 if withholding_number:
-                    withholding_number += ',' + withholding.name
+                    withholding_number += ',' + withhold.name
                 else:
-                    withholding_number += withholding.name
-        return withholding_number
+                    withholding_number += withhold.name
+                if withholding_authorization:
+                    withholding_authorization += ',' + withhold.l10n_ec_authorization
+                else:
+                    withholding_authorization += withhold.l10n_ec_authorization
+        return withholding_number, withholding_authorization
 
     def print_xls(self):
         '''
@@ -61,16 +66,18 @@ class L10nECA3DetailReport(models.TransientModel):
         FIELDS = [
             (u'ITEM', 'index', '', 'std', 6),
             (u'RUC/CI', 'invoice_id', 'partner_id.vat', 'std', 10),
-            (u'PROVEEDOR', 'invoice_id', 'partner_id.name', 'std', 50),
+            (u'PROVEEDOR', 'invoice_id', 'partner_id.name', 'std', 40),
             (u'TIPO COMP.', 'invoice_id', 'l10n_latam_document_type_id.display_name', 'std', 15),
             (u'NÚMERO DE DOCUMENTO', 'invoice_id', 'l10n_latam_document_number', 'std', 20),
+            (u'REFERENCIA', 'invoice_id', 'ref', 'std', 40),
             (u'F. EMISIÓN', 'invoice_id', 'invoice_date', 'datef', 10),
             (u'F. CONTABIL.', 'invoice_id', 'date', 'datef', 12),
             (u'BASE NO GRAVA IVA', 'invoice_id', 'l10n_ec_base_not_subject_to_vat', 'num', 20),
             (u'BASE IVA 0%', 'invoice_id', 'l10n_ec_base_cero_iva', 'num', 15),
             (u'BASE GRAVA IVA', 'invoice_id', 'l10n_ec_base_doce_iva', 'num', 15),
             (u'VALOR IVA', 'invoice_id', 'l10n_ec_vat_doce_subtotal', 'num', 12),
-            (u'Nro. RETENCIÓN', 'withholding', '', 'std', 20),
+            (u'Nro. RETENCIÓN', 'withholding_number', '', 'std', 20),
+            (u'AUTORIZACIÓN', 'withholding_authorization', '', 'std', 40),
             (u'FORMA PAGO', 'invoice_id', 'l10n_ec_payment_method_id.name', 'std', 25),
         ]
 
@@ -127,8 +134,10 @@ class L10nECA3DetailReport(models.TransientModel):
             for col, (name, objt, attr, sty, width) in enumerate(FIELDS, 0):
                 if objt == 'index':
                     sheet.write(row, col, index + 1 or '', std)
-                elif objt == 'withholding':
-                    sheet.write(row, col, obj._get_withholding_number(invoice_id), std)
+                elif objt == 'withholding_number':
+                    sheet.write(row, col, obj._get_withholding_data(invoice_id)[0], std)
+                elif objt == 'withholding_authorization':
+                    sheet.write(row, col, obj._get_withholding_data(invoice_id)[1], std)
                 else:
                     style = std
                     if sty == 'num':
@@ -162,12 +171,14 @@ class L10nECA3DetailReport(models.TransientModel):
             sheet.write(row, 4, '', footer)
             sheet.write(row, 5, '', footer)
             sheet.write(row, 6, '', footer)
-            sheet.write(row, 7, l10n_ec_base_not_subject_to_vat, num_footer)
-            sheet.write(row, 8, l10n_ec_base_cero_iva, num_footer)
-            sheet.write(row, 9, l10n_ec_base_doce_iva, num_footer)
-            sheet.write(row, 10, l10n_ec_vat_doce_subtotal, num_footer)
-            sheet.write(row, 11, '', footer)
+            sheet.write(row, 7, '', footer)
+            sheet.write(row, 8, l10n_ec_base_not_subject_to_vat, num_footer)
+            sheet.write(row, 9, l10n_ec_base_cero_iva, num_footer)
+            sheet.write(row, 10, l10n_ec_base_doce_iva, num_footer)
+            sheet.write(row, 11, l10n_ec_vat_doce_subtotal, num_footer)
             sheet.write(row, 12, '', footer)
+            sheet.write(row, 13, '', footer)
+            sheet.write(row, 14, '', footer)
         book.close()
         output.seek(0)
         generated_file = base64.b64encode(output.read())

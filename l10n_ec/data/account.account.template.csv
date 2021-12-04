@@ -14,6 +14,7 @@ ec11020701,11020701,ANTICIPO SUELDOS,TRUE,account.data_account_type_receivable,l
 ec11020702,11020702,ANTICIPO DÉCIMO TERCER SUELDO,TRUE,account.data_account_type_receivable,l10n_ec_ifrs
 ec11020703,11020703,ANTICIPO DÉCIMO CUARTO SUELDO,TRUE,account.data_account_type_receivable,l10n_ec_ifrs
 ec11020704,11020704,ANTICIPO UTILIDADES,TRUE,account.data_account_type_receivable,l10n_ec_ifrs
+ec11020705,11020705,PRESTAMOS EMPLEADOS,TRUE,account.data_account_type_receivable,l10n_ec_ifrs
 ec110208,110208,OTRAS CUENTAS POR COBRAR RELACIONADAS,TRUE,account.data_account_type_receivable,l10n_ec_ifrs
 ec110209,110209,OTRAS CUENTAS POR COBRAR,TRUE,account.data_account_type_receivable,l10n_ec_ifrs
 ec110210,110210,PROVISION POR CUENTAS INCOBRABLES,FALSE,account.data_account_type_current_assets,l10n_ec_ifrs

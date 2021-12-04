@@ -7507,5 +7507,43 @@
                 })]"/>
         </record>
 
+		<record id="income_tax_withholding_302" model="account.tax.template">
+            <field name="name">En relación de dependencia que supera o no la base desgravada</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="l10n_ec_code_base">352</field>
+            <field name="l10n_ec_code_applied">302</field>
+            <field name="l10n_ec_code_ats">352</field>
+            <field name="amount">-22.0</field>
+            <field name="description">352</field>
+            <field name="tax_group_id" ref="ec_tax_group_withhold_income"/>
+            <field name="sequence">70</field>
+            <field name="chart_template_id" ref="l10n_ec_ifrs"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0,0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                    'tag_ids': [ref('tax_tag_352')],
+                }),
+                (0,0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ec21070101'),
+                    'tag_ids': [ref('tax_tag_302')],
+                })]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0,0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                    'tag_ids': [ref('tax_tag_352')],
+                }),
+                (0,0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ec21070101'),
+                    'tag_ids': [ref('tax_tag_302')],
+                })]"/>
+        </record> 
+
     </data>
 </odoo>

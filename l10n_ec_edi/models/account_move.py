@@ -43,8 +43,6 @@ class AccountMove(models.Model):
             # Se manda a computar l10n_latam_document_number de forma manual para documentos no tributarios
             # al igual que asientos manuales debido a que el onchange desactiva el compute
             self._compute_l10n_latam_document_number()
-
-
     
     def _l10n_ec_validate_number(self):
         #Check invoice number is like ###-###-#########, and prefix corresponds to printer point
@@ -171,7 +169,7 @@ class AccountMove(models.Model):
                         #Usamos _origin para obtener el id del registro y evitar algo como lo sig: NewId: <NewId origin=2>
                         l10n_ec_sri_tax_support_id = self.l10n_ec_available_sri_tax_support_ids[0]._origin.id
                 self.l10n_ec_sri_tax_support_id = l10n_ec_sri_tax_support_id
-    
+
     def button_cancel(self):
         # validate number format of void documents when voiding draft documents
         for invoice in self.filtered(lambda x: x.country_code == 'EC' and x.l10n_latam_use_documents and x.state == 'draft'):
@@ -253,6 +251,8 @@ class AccountMove(models.Model):
             l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
             if journal.type == 'purchase' and doc_code not in ['03', '41']:
                 return True
+            elif journal.type == 'purchase' and doc_code in ['41'] and self.l10n_latam_document_type_id.l10n_ec_authorization == 'third':
+                return True
             elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
                 return True
             else:
@@ -261,7 +261,7 @@ class AccountMove(models.Model):
             super()._is_manual_document_number(journal)
     
     def view_credit_note(self):
-        [action] = self.env.ref('account.action_move_out_refund_type').read()
+        [action] = self.env.ref('account.action_move_out_refund_type').sudo().read()
         action['domain'] = [('id', 'in', self.reversal_move_id.ids)]
         return action
  
@@ -554,7 +554,7 @@ class AccountMove(models.Model):
                             edit_l10n_ec_authorization = True
             res.show_l10n_ec_authorization = show_l10n_ec_authorization
             res.edit_l10n_ec_authorization = edit_l10n_ec_authorization
-        
+
     l10n_ec_printer_id = fields.Many2one(
         'l10n_ec.sri.printer.point',
         string='Punto de emisión', readonly = True,
@@ -724,8 +724,10 @@ class AccountMoveLine(models.Model):
             total_discount = 0.0
             if line.discount:
                 if line.tax_ids:
-                    taxes_res = line.tax_ids._origin.compute_all(line.l10n_latam_price_unit,
-                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id, is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
+                    taxes_res = line.tax_ids._origin.compute_all(
+                        line.price_unit, #se usa price unit para el escenario de impuestos incluidos en el precio
+                        quantity=line.quantity, currency=line.currency_id, product=line.product_id, partner=line.partner_id,
+                        is_refund=line.move_id.move_type in ('out_refund', 'in_refund'))
                     total_discount = taxes_res['total_excluded'] - line.l10n_latam_price_subtotal
                 else:
                     total_discount = (line.quantity * line.l10n_latam_price_unit) - line.l10n_latam_price_subtotal

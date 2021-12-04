@@ -121,5 +121,5 @@ class WizardReportBalanceResultados(models.TransientModel):
             'pretty_rows': True,
             'show_4_and_5': four_and_five_account_ids,
             'unaffected_earnings_account': False,
-            '4_and_5_text': u'UTILIDAD O PÉRDIDA DEL EJERCICIO',
+            '4_and_5_text': u'RESULTADO DEL EJERCICIO',
         }).button_export_xlsx()

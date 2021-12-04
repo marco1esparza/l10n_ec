@@ -2,13 +2,12 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
-    'name': 'Extras Ecommerce para Ecuador',
+    'name': 'Extras del Punto de Venta para Ecuador',
     'version': '1.0',
-    'summary': 'ecommerce the ecuadorian way',
+    'summary': 'Even easier Accounting by Trescloud',
     'category': 'Localization',
-    'description': '''         
-        - Validaciones extras
-        - Manejo de RUC/CED en ecommerce
+    'description': '''
+        - Bypass a la restriccion de conciliacion de asientos de la misma empresa, cuando el origen es el punto de venta.
     ''',
     'author': 'TRESCLOUD',
     'maintainer': 'TRESCLOUD CIA. LTDA.',
@@ -16,16 +15,12 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
-        'website_sale',
-        'l10n_ec',
-    ],   
+        'point_of_sale',
+        'l10n_ec_account_extended',
+        ],   
     'data': [
-        #Data
-        #wizard
-        #Views
-    ],
+        ],
     'installable': True,
     'auto_install': True,
-    'application': True,
-    'post_init_hook': '_l10n_ec_set_ecommerce_labels',
+    'application': True
 }
