@@ -244,21 +244,21 @@ class AccountMove(models.Model):
     #     self.env['account.edi.document'].create(edi_document_vals_list)
     #     self.edi_document_ids._process_documents_no_web_services()
 
-    def _is_manual_document_number(self, journal):
+    def _is_manual_document_number(self):
         #overriden in l10n_ec_account_extended
         if self.l10n_latam_use_documents and self.country_code == 'EC':
             doc_code = self.l10n_latam_document_type_id.code or ''
             l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
-            if journal.type == 'purchase' and doc_code not in ['03', '41']:
+            if self.journal_id.type == 'purchase' and doc_code not in ['03', '41']:
                 return True
-            elif journal.type == 'purchase' and doc_code in ['41'] and self.l10n_latam_document_type_id.l10n_ec_authorization == 'third':
+            elif self.journal_id.type == 'purchase' and doc_code in ['41'] and self.l10n_latam_document_type_id.l10n_ec_authorization == 'third':
                 return True
-            elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
+            elif self.journal_id.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
                 return True
             else:
                 return False
         else:
-            super()._is_manual_document_number(journal)
+            super()._is_manual_document_number()
     
     def view_credit_note(self):
         [action] = self.env.ref('account.action_move_out_refund_type').sudo().read()

@@ -26,6 +26,7 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
+        'account_reports', #Se agrega pues el l10n_ec_account_extended hace herencia a este modelo y rompe el auto_install de dicho modulo
         'l10n_ec',
         'account_edi'
     ],    

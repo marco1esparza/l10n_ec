@@ -515,7 +515,7 @@ class AccountEdiDocument(models.Model):
         if self.move_id.user_id.name: 
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'vendedor'}, text=self.move_id.user_id.name)
         if self.move_id.narration:
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'novedades'}, text= self.move_id.narration.replace('\n', ' '))
+            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'novedades'}, text=self.move_id.narration.replace('\n', ' '))
         if self.move_id.invoice_origin:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'pedido'}, text=self.move_id.invoice_origin)
         if get_invoice_partner_data['invoice_address']:
