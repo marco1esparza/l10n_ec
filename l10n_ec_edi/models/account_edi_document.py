@@ -514,7 +514,7 @@ class AccountEdiDocument(models.Model):
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'email'}, text=get_invoice_partner_data['invoice_email'])
         if self.move_id.user_id.name: 
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'vendedor'}, text=self.move_id.user_id.name)
-        if self.move_id.narration:
+        if self.move_id.narration != '<p><br></p>':
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'novedades'}, text=self.move_id.narration.replace('\n', ' '))
         if self.move_id.invoice_origin:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'pedido'}, text=self.move_id.invoice_origin)
@@ -555,7 +555,7 @@ class AccountEdiDocument(models.Model):
             additional_info.append('Email: %s' % get_invoice_partner_data['invoice_email'])
         if self.move_id.l10n_ec_printer_id.name[:3]:
             additional_info.append('Vendedor: %s' % self.move_id.user_id.name)
-        if self.move_id.narration:
+        if self.move_id.narration != '<p><br></p>':
             additional_info.append('Novedades: %s' % self.move_id.narration.replace('\n', ' '))
         if self.move_id.invoice_origin:
             additional_info.append('Pedido: %s' % self.move_id.invoice_origin)
