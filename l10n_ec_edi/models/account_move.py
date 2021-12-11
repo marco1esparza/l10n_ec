@@ -738,6 +738,9 @@ class AccountMoveLine(models.Model):
 
     @api.depends('price_unit', 'price_subtotal', 'move_id.l10n_latam_document_type_id')
     def compute_l10n_latam_prices_and_taxes(self):
+        '''
+        Este metodo es copiado del modulo l10n_latam_invoice_document v14 pues los valores que calcula se necesitan para el ride
+        '''
         for line in self:
             invoice = line.move_id
             included_taxes = False
@@ -766,6 +769,7 @@ class AccountMoveLine(models.Model):
         readonly=True,                                     
         help='Indicates the monetary discount applied to the total invoice line.'
         )
+    #Los siguientes campos son copiados del modulo l10n_latam_invoice_document v14 pue se necesitan para el ride
     l10n_latam_price_unit = fields.Float(compute='compute_l10n_latam_prices_and_taxes', digits='Product Price')
     l10n_latam_price_subtotal = fields.Monetary(compute='compute_l10n_latam_prices_and_taxes')
     l10n_latam_price_net = fields.Float(compute='compute_l10n_latam_prices_and_taxes', digits='Product Price')
