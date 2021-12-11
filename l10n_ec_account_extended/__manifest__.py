@@ -18,6 +18,7 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
+        'account_reports',
         'l10n_ec_edi',
         'l10n_ec_withhold',
         ],   
