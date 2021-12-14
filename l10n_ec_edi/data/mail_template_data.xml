@@ -11,7 +11,7 @@
             <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px;">
     <p style="margin: 0px; padding: 0px; font-size: 13px;">
-        Dear
+        Estimado
         <t t-if="object.partner_id.parent_id">
             <t t-out="object.partner_id.name or ''">Brandon Freeman</t> (<t t-out="object.partner_id.parent_id.name or ''">Azure Interior</t>),
         </t>
@@ -19,35 +19,35 @@
             <t t-out="object.partner_id.name or ''">Brandon Freeman</t>,
         </t>
         <br /><br />
-        Please find attached
+        Por favor encuentre adjunta su
         <t t-if="object.name and object.l10n_latam_document_type_id">
             <strong t-out="object.l10n_latam_document_type_id.report_name or object.l10n_latam_document_type_id.name or ''">INV/2021/05/0005</strong>
         </t>
         <t t-elif="object.name">
-            invoice <strong t-out="object.name or ''">INV/2021/05/0005</strong>
+            documento <strong t-out="object.name or ''">INV/2021/05/0005</strong>
         </t>
         <t t-else="">
-            invoice
+            documento
         </t>
         <t t-if="object.invoice_origin">
-            (with reference: <t t-out="object.invoice_origin or ''">SUB003</t>)
+            (con referencia: <t t-out="object.invoice_origin or ''">SUB003</t>)
         </t>
         <t t-if="object.is_withholding()">
-            amounting in <strong t-out="format_amount(object.l10n_ec_total, object.currency_id) or ''">$ 143,750.00</strong>
+            por un monto de <strong t-out="format_amount(object.l10n_ec_total, object.currency_id) or ''">$ 143,750.00</strong>
         </t>
         <t t-elif="object.is_waybill()">
             .
         </t>
         <t t-else="">
-            amounting in <strong t-out="format_amount(object.amount_total, object.currency_id) or ''">$ 143,750.00</strong>
+            por un monto de <strong t-out="format_amount(object.amount_total, object.currency_id) or ''">$ 143,750.00</strong>
         </t>
         <t t-if="object.move_type == 'out_invoice'">
-            Thank you for your purchase.
+            Gracias por su compra.
         </t>
         <br/>
-        Do not hesitate to contact us if you have any questions.
+        No dude en contactarnos si tiene alguna consulta.
         <br/>
-        A regard from <t t-out="object.company_id.name or ''">My Company</t>,
+        Un saludo de <t t-out="object.company_id.name or ''">My Company</t>
         <br/><br/>
     </p>
 </div>
