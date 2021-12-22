@@ -18,6 +18,7 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
+        'account_reports', #Se agrega esta dependencia pues el modulo hace herencia al modelo 'account.report' que es creado por el modulo account_reports
         'l10n_ec_edi',
         'l10n_ec_withhold',
         ],   

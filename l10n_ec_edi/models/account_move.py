@@ -244,21 +244,21 @@ class AccountMove(models.Model):
     #     self.env['account.edi.document'].create(edi_document_vals_list)
     #     self.edi_document_ids._process_documents_no_web_services()
 
-    def _is_manual_document_number(self, journal):
+    def _is_manual_document_number(self):
         #overriden in l10n_ec_account_extended
         if self.l10n_latam_use_documents and self.country_code == 'EC':
             doc_code = self.l10n_latam_document_type_id.code or ''
             l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
-            if journal.type == 'purchase' and doc_code not in ['03', '41']:
+            if self.journal_id.type == 'purchase' and doc_code not in ['03', '41']:
                 return True
-            elif journal.type == 'purchase' and doc_code in ['41'] and self.l10n_latam_document_type_id.l10n_ec_authorization == 'third':
+            elif self.journal_id.type == 'purchase' and doc_code in ['41'] and self.l10n_latam_document_type_id.l10n_ec_authorization == 'third':
                 return True
-            elif journal.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
+            elif self.journal_id.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
                 return True
             else:
                 return False
         else:
-            super()._is_manual_document_number(journal)
+            super()._is_manual_document_number()
     
     def view_credit_note(self):
         [action] = self.env.ref('account.action_move_out_refund_type').sudo().read()
@@ -738,6 +738,9 @@ class AccountMoveLine(models.Model):
 
     @api.depends('price_unit', 'price_subtotal', 'move_id.l10n_latam_document_type_id')
     def compute_l10n_latam_prices_and_taxes(self):
+        '''
+        Este metodo es copiado del modulo l10n_latam_invoice_document v14 pues los valores que calcula se necesitan para el ride
+        '''
         for line in self:
             invoice = line.move_id
             included_taxes = False
@@ -766,6 +769,7 @@ class AccountMoveLine(models.Model):
         readonly=True,                                     
         help='Indicates the monetary discount applied to the total invoice line.'
         )
+    #Los siguientes campos son copiados del modulo l10n_latam_invoice_document v14 pue se necesitan para el ride
     l10n_latam_price_unit = fields.Float(compute='compute_l10n_latam_prices_and_taxes', digits='Product Price')
     l10n_latam_price_subtotal = fields.Monetary(compute='compute_l10n_latam_prices_and_taxes')
     l10n_latam_price_net = fields.Float(compute='compute_l10n_latam_prices_and_taxes', digits='Product Price')
