@@ -10,6 +10,8 @@ import base64
 from odoo.addons.l10n_ec_edi.models.common_methods import get_SRI_normalized_text, clean_xml, validate_xml_vs_xsd, XSD_SRI_110_FACTURA, XSD_SRI_110_NOTA_CREDITO, XSD_SRI_110_LIQ_COMPRA
 from odoo.addons.l10n_ec_edi.models.amount_to_words import l10n_ec_amount_to_words
 
+from bs4 import BeautifulSoup
+
 from suds.client import Client #para los webservices, pip install suds-community
 DEFAULT_ECUADORIAN_DATE_FORMAT = '%d-%m-%Y'
 ELECTRONIC_SRI_WSDL_RECEPTION_OFFLINE = 'https://cel.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl'
@@ -514,8 +516,9 @@ class AccountEdiDocument(models.Model):
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'email'}, text=get_invoice_partner_data['invoice_email'])
         if self.move_id.user_id.name: 
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'vendedor'}, text=self.move_id.user_id.name)
-        if self.move_id.narration != '<p><br></p>':
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'novedades'}, text=self.move_id.narration.replace('\n', ' '))
+        narration = BeautifulSoup(self.move_id.narration, 'lxml').get_text()
+        if narration:
+            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'novedades'}, text=narration.replace('\n', ' '))
         if self.move_id.invoice_origin:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'pedido'}, text=self.move_id.invoice_origin)
         if get_invoice_partner_data['invoice_address']:
@@ -555,8 +558,9 @@ class AccountEdiDocument(models.Model):
             additional_info.append('Email: %s' % get_invoice_partner_data['invoice_email'])
         if self.move_id.l10n_ec_printer_id.name[:3]:
             additional_info.append('Vendedor: %s' % self.move_id.user_id.name)
-        if self.move_id.narration != '<p><br></p>':
-            additional_info.append('Novedades: %s' % self.move_id.narration.replace('\n', ' '))
+        narration = BeautifulSoup(self.move_id.narration, 'lxml').get_text()
+        if narration:
+            additional_info.append('Novedades: %s' % narration.replace('\n', ' '))
         if self.move_id.invoice_origin:
             additional_info.append('Pedido: %s' % self.move_id.invoice_origin)
         if get_invoice_partner_data['invoice_address']:
