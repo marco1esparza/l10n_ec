@@ -2461,7 +2461,7 @@
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
             <field name="amount">-1.0</field>
-            <field name="description">343</field>
+            <field name="description">Otras 1%</field>
             <field name="l10n_ec_code_applied">393</field>
             <field name="l10n_ec_code_base">343</field>
             <field name="l10n_ec_code_ats">343</field>
