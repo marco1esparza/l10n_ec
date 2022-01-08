@@ -128,12 +128,12 @@ class ResPartner(models.Model):
     def l10n_ec_change_to_microenterprise(self):
         """
         Cambia los impuestos del cliente de retencion de servicios y bienes 
-        al 346 impuesto cuando son microempresas
+        al impuesto 343
         """
         self.ensure_one()
-        tax_id = self.env['account.tax'].search([('l10n_ec_code_ats','=','346')])
+        tax_id = self.env['account.tax'].search([('l10n_ec_code_ats','=','343')])
         if not tax_id:
             raise UserError(
-                "No se encuentra un impuesto con código 346, por favor configure correctamente el impuesto"
+                "No se encuentra un impuesto con código 343, por favor configure correctamente el impuesto"
                 )
         self.property_l10n_ec_profit_withhold_tax_id = tax_id

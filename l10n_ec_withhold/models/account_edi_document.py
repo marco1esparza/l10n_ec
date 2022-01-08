@@ -142,6 +142,8 @@ class AccountEdiDocument(models.Model):
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'direccion'}, text=get_invoice_partner_data['invoice_address'])
         if get_invoice_partner_data['invoice_phone']:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'telefono'}, text=get_invoice_partner_data['invoice_phone'])
+        if self.move_id.company_id.l10n_ec_regime == 'rimpe':
+            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'regimen'}, text='Contribuyente Regimen RIMPE')
         return withhold
 
     def _get_additional_info(self):
@@ -156,6 +158,8 @@ class AccountEdiDocument(models.Model):
                 additional_info.append('Direccion: %s' % get_invoice_partner_data['invoice_address'])
             if get_invoice_partner_data['invoice_phone']:
                 additional_info.append('Telefono: %s' % get_invoice_partner_data['invoice_phone'])
+            if self.move_id.company_id.l10n_ec_regime == 'rimpe':
+                additional_info.append('Régimen: Contribuyente Régimen RIMPE')
         return additional_info
 
 

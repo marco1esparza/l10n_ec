@@ -62,9 +62,11 @@ class Company(models.Model):
         default=True,
         help='If set you are obligated to keep accounting, it will be used for printing electronic invoices and reports'
         )
-    l10n_ec_regime = fields.Selection(
-        [('regular', 'Regimen Regular (sin msgs adicionales en el RIDE)'),
-         ('micro', 'Régimen Impositivo para  Microempresas')],
+    l10n_ec_regime = fields.Selection([
+            ('regular', 'Regimen Regular (sin msgs adicionales en el RIDE)'),
+            ('micro', 'Régimen Impositivo para  Microempresas - Deprecado'),
+            ('rimpe', 'Régimen RIMPE')
+        ],
         string=u"Regimen",
         default='regular',
         required=True,

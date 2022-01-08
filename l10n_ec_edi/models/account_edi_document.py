@@ -519,6 +519,8 @@ class AccountEdiDocument(models.Model):
         narration = BeautifulSoup(self.move_id.narration, 'lxml').get_text()
         if narration:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'novedades'}, text=narration.replace('\n', ' '))
+        if self.move_id.company_id.l10n_ec_regime == 'rimpe':
+            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'regimen'}, text='Contribuyente Regimen RIMPE')
         if self.move_id.invoice_origin:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'pedido'}, text=self.move_id.invoice_origin)
         if get_invoice_partner_data['invoice_address']:
@@ -561,6 +563,8 @@ class AccountEdiDocument(models.Model):
         narration = BeautifulSoup(self.move_id.narration, 'lxml').get_text()
         if narration:
             additional_info.append('Novedades: %s' % narration.replace('\n', ' '))
+        if self.move_id.company_id.l10n_ec_regime == 'rimpe':
+            additional_info.append('Régimen: Contribuyente Régimen RIMPE')
         if self.move_id.invoice_origin:
             additional_info.append('Pedido: %s' % self.move_id.invoice_origin)
         if get_invoice_partner_data['invoice_address']:
