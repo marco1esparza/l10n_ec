@@ -2464,7 +2464,7 @@
             <field name="description">343</field>
             <field name="l10n_ec_code_applied">393</field>
             <field name="l10n_ec_code_base">343</field>
-            <field name="l10n_ec_code_ats">343A</field>
+            <field name="l10n_ec_code_ats">343</field>
             <field name="chart_template_id" ref="l10n_ec_ifrs"/>
             <field name="tax_group_id" ref="ec_tax_group_withhold_income"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
