@@ -164,8 +164,8 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
             'ats_filename': ats_filename,
             'errors_filename': 'Errores.txt' ,
             # Contenido de los reportes
-            'ats_file': base64.encodestring(report_data.toprettyxml(encoding='utf-8')),
-            'errors_file': base64.encodestring((u'\n'.join(report_status) or u'').encode('utf-8'))
+            'ats_file': base64.encodebytes(report_data.toprettyxml(encoding='utf-8')),
+            'errors_file': base64.encodebytes((u'\n'.join(report_status) or u'').encode('utf-8'))
         })
         return {
             'name': 'ANEXO TRANSACCIONAL SIMPLIFICADO (ATS)',
