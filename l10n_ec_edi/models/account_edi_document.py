@@ -186,7 +186,7 @@ class AccountEdiDocument(models.Model):
         except ValueError: 
             raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
         self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
-        self.l10n_ec_request_xml_file = base64.encodestring(xml_content)
+        self.l10n_ec_request_xml_file = base64.encodebytes(xml_content)
         return True
     
     @api.model

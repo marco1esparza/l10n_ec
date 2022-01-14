@@ -16,7 +16,7 @@ class L10nECReportsBaseFileReport(models.TransientModel):
     def show_excel(self, book, filename):    
         buf = io.BytesIO()
         book.save(buf)
-        out = base64.encodestring(buf.getvalue())
+        out = base64.encodebytes(buf.getvalue())
         buf.close()
         return self.show(out, filename)
 
