@@ -10,6 +10,7 @@ import base64
 from odoo.addons.l10n_ec_edi.models.common_methods import clean_xml, validate_xml_vs_xsd, XSD_SRI_100_RETENCION
 
 from odoo.addons.l10n_ec_edi.models.account_edi_document import _MICROCOMPANY_REGIME_LABEL
+from odoo.addons.l10n_ec_edi.models.account_edi_document import _RIMPE_REGIME_LABEL
 
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
@@ -96,6 +97,8 @@ class AccountEdiDocument(models.Model):
             infoTribElements.extend([('regimenMicroempresas', _MICROCOMPANY_REGIME_LABEL)])
         if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
             infoTribElements.extend([('agenteRetencion', self.move_id.company_id.l10n_ec_wihhold_agent_number)])
+        if self.move_id.company_id.l10n_ec_regime == 'rimpe':
+            infoTribElements.extend([('contribuyenteRimpe', _RIMPE_REGIME_LABEL)])
         self.create_TreeElements(infoTributaria, infoTribElements)
         # CREACION INFO Retencion
         infoCompRetencion = etree.SubElement(withhold, 'infoCompRetencion')
@@ -142,8 +145,6 @@ class AccountEdiDocument(models.Model):
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'direccion'}, text=get_invoice_partner_data['invoice_address'])
         if get_invoice_partner_data['invoice_phone']:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'telefono'}, text=get_invoice_partner_data['invoice_phone'])
-        if self.move_id.company_id.l10n_ec_regime == 'rimpe':
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'regimen'}, text='Contribuyente Regimen RIMPE')
         return withhold
 
     def _get_additional_info(self):
@@ -158,8 +159,6 @@ class AccountEdiDocument(models.Model):
                 additional_info.append('Direccion: %s' % get_invoice_partner_data['invoice_address'])
             if get_invoice_partner_data['invoice_phone']:
                 additional_info.append('Telefono: %s' % get_invoice_partner_data['invoice_phone'])
-            if self.move_id.company_id.l10n_ec_regime == 'rimpe':
-                additional_info.append('Régimen: Contribuyente Régimen RIMPE')
         return additional_info
 
 

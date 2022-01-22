@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 
 class Company(models.Model):
@@ -87,3 +88,17 @@ class Company(models.Model):
         help=u"Ultimos digitos del número de resolución del SRI donde se declara que se es agente de retención.\n"
         u"Si el número de Resolución es NAC-DNCRASC20-00001234 entonces ell No. Resolución sería: 1234",
         )
+    
+    @api.constrains('l10n_ec_regime', 'l10n_ec_special_contributor_number')
+    def _check_l10n_ec_regime(self):
+        '''
+        Se valida que la compañía no esté en el regimen Rimpe y al mismo tiempo sea Contribuyente Especial, debido a que se debe definir una sola estrucutra tributaria.
+        Esto evita mandar tanto en el XML al SRI y en el RIDE información erronea con dos estructuras tributarias.
+        '''
+        for company in self:
+            if company.l10n_ec_regime == 'rimpe' and company.l10n_ec_special_contributor_number:
+                raise ValidationError(
+                    u'La compañía %s no puede ser Contribuyente Especial y estar en el Regimen RIMPE a la vez, ya que debe definir una sola estructura tributaria.\n'
+                    u'- Si desea que la compañía solo sea Contribuyente Especial, cambie la configuración del Regimen en: Documentos Electrónicos > Configuración > Régimen\n'
+                    u'- Si desea que la compañía solo esté en el Régimen Rimpe, elimine el código de Contribuyente Especial en la configuración de la compañía %s.' % (
+                    company.name, company.name))

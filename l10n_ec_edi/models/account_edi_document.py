@@ -23,6 +23,7 @@ _IVA_CODES = ('vat12', 'vat14', 'zero_vat', 'not_charged_vat', 'exempt_vat')
 _ICE_CODES = ('ice',) 
 _IRBPNR_CODES = ('irbpnr',)
 _MICROCOMPANY_REGIME_LABEL = 'CONTRIBUYENTE RÉGIMEN MICROEMPRESAS'
+_RIMPE_REGIME_LABEL = u'CONTRIBUYENTE RÉGIMEN RIMPE'
 
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
@@ -236,6 +237,8 @@ class AccountEdiDocument(models.Model):
             infoTribElements.extend([('regimenMicroempresas',_MICROCOMPANY_REGIME_LABEL)])
         if self.move_id.company_id.l10n_ec_withhold_agent == 'designated_withhold_agent':
             infoTribElements.extend([('agenteRetencion',self.move_id.company_id.l10n_ec_wihhold_agent_number)])
+        if self.move_id.company_id.l10n_ec_regime == 'rimpe':
+            infoTribElements.extend([('contribuyenteRimpe', _RIMPE_REGIME_LABEL)])
         self.create_TreeElements(infoTributaria, infoTribElements)
         # CREACION INFO FACTURA
         if type == 'out_invoice':
@@ -519,8 +522,6 @@ class AccountEdiDocument(models.Model):
         narration = BeautifulSoup(self.move_id.narration, 'lxml').get_text()
         if narration:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'novedades'}, text=narration.replace('\n', ' '))
-        if self.move_id.company_id.l10n_ec_regime == 'rimpe':
-            self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'regimen'}, text='Contribuyente Regimen RIMPE')
         if self.move_id.invoice_origin:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'pedido'}, text=self.move_id.invoice_origin)
         if get_invoice_partner_data['invoice_address']:

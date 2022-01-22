@@ -34,6 +34,7 @@
 	                                    <strong>Agente de Retención Resolución No.: </strong>
 	                                    <span t-field="o.company_id.l10n_ec_wihhold_agent_number"/><br/>
 	                        		</t>
+	                        		<t t-if="o.company_id.l10n_ec_regime == 'rimpe'">CONTRIBUYENTE RÉGIMEN RIMPE<br/></t>
                                 </td>
                             </tr>
                         </table>
