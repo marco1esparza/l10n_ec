@@ -162,7 +162,7 @@ class AccountEdiFormat(models.Model):
                     'mimetype': 'application/xml',
                     'description': _('Ecuadorian electronic document for the %s document.') % invoice.name,
                 })
-                edi_result[invoice] = {'attachment': electronic_document_attachment}
+                edi_result[invoice] = {'attachment': electronic_document_attachment, 'success': True}
         return edi_result
 
     def _cancel_invoice_edi(self, invoices):
