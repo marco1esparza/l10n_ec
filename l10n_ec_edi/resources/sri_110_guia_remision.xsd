@@ -240,6 +240,7 @@
 			<xsd:element name="dirMatriz" type="dirMatriz"/>
 			<xsd:element name="regimenMicroempresas" minOccurs="0" type="regimenMicroempresas"/>
 			<xsd:element name="agenteRetencion" minOccurs="0" type="agenteRetencion"/>
+			<xsd:element name="contribuyenteRimpe" minOccurs="0" type="contribuyenteRimpe"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:simpleType name="razonSocial">
@@ -270,6 +271,13 @@
 		<xsd:restriction base="xsd:string">
 			<xsd:minLength value="1"/>
 			<xsd:maxLength value="300"/>
+			<xsd:pattern value="[^\n]*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="contribuyenteRimpe">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="27"/>
 			<xsd:pattern value="[^\n]*"/>
 		</xsd:restriction>
 	</xsd:simpleType>
