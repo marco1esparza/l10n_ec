@@ -100,20 +100,6 @@ class AccountMove(models.Model):
             self.edi_show_cancel_button = False
         else:
             return super()._compute_edi_show_cancel_button()
-    
-    def _is_manual_document_number(self):
-        #override for manual entry of invoice numbers, usefull for re-typing documents from old system
-        if self.l10n_latam_use_documents and self.country_code == 'EC':
-            doc_code = self.l10n_latam_document_type_id.code or ''
-            l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
-            if not self.l10n_ec_printer_id.automatic_numbering:
-                if self.journal_id.type == 'sale':
-                    return True
-                elif self.journal_id.type == 'purchase' and doc_code in ['03', '41']:
-                    return True
-                elif self.journal_id.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['in_withhold']:
-                    return True
-        return super()._is_manual_document_number()
         
     @api.depends('l10n_latam_document_type_id', 'journal_id', 'l10n_ec_printer_id')
     def _compute_l10n_latam_manual_document_number(self):

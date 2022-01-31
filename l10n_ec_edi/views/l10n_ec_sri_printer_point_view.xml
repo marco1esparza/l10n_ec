@@ -13,6 +13,7 @@
 							<field name="name" required="1"/>
 							<field name="printer_point_address"/>
 							<field name="allow_electronic_document"/>
+							<field name="automatic_numbering"/>
 							<field name="company_id" groups="base.group_multi_company" required="1"/>
 						</group>
 					</group>
@@ -34,6 +35,7 @@
 				<field name="sequence" widget="handle"/>
 			    <field name="name"/>
 			    <field name="allow_electronic_document"/>
+			    <field name="automatic_numbering"/>
 			    <field name="company_id"/>
 				<field name="active" widget="boolean_toggle"/>
 			</tree>
