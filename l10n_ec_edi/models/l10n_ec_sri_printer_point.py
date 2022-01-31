@@ -12,6 +12,21 @@ class L10nEcSRIPrinterPoint(models.Model):
     _order = 'sequence, id'
     _inherit = ['mail.thread']
     
+    automatic_numbering = fields.Boolean(
+        string=u'Numeración Automática',
+        default=True,
+        help=u'Desactivela para "igualarse" facturas digitados en su anterior sistema ' 
+             u'(aplica para documentos emitidos por mi empresa tales como facturas, notas de crédito, liquidaciones de compra',
+        tracking=True,
+    )
+    
+    @api.onchange('automatic_numbering')
+    def _onchange_partner_id(self):
+        if not self.automatic_numbering:
+            return {
+                'warning': {'title': _('Advertencia'), 'message': _('Esta es una opción avanzada, si no está seguro descarte los cambios'),},
+                 }
+    
     _sql_constraints = [('l10n_ec_sri_printer_point_name_unique', 'unique(name, company_id)', 'El punto de emisión debe ser único por compañía.')]
     
     name = fields.Char(
