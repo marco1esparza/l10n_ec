@@ -256,6 +256,12 @@ class AccountMove(models.Model):
                     return True
                 elif self.journal_id.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['in_withhold']:
                     return True
+            #Cuando se tiene solo un diario y es numeracion automatica, este diario tambien se usa en las reteciones en
+            #ventas, lo que trae consigo que se oculte el numero de doc, lo que seria un error, se agrega el else
+            #para verificar si el doc es retencion en venta.
+            else:
+                if self.journal_id.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
+                    return True
         return super()._is_manual_document_number()
     
     def view_credit_note(self):
