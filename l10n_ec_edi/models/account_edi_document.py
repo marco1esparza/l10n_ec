@@ -49,9 +49,11 @@ class AccountEdiDocument(models.Model):
     
     def _process_job(self, documents, doc_type):
         #sends an email
-        super(AccountEdiDocument,  self)._process_job(documents, doc_type)
+        #context to bypass _l10n_ec_validations_to_draft_when_edi validations when
+        #voiding a document
+        super(AccountEdiDocument,  self.with_context(procesing_edi_job=True))._process_job(documents, doc_type)
         self.send_email_success(documents.mapped('move_id').filtered(lambda x: x.country_code == 'EC'))
-    
+
     def _l10n_ec_set_access_key(self):
         #writes de access key of the document
         self.ensure_one()
