@@ -176,6 +176,7 @@ class AccountEdiFormat(models.Model):
         edi_result = super()._cancel_invoice_edi(invoices)
         if self.code != 'l10n_ec_tax_authority':
             return edi_result
+        test_mode = False
         if test_mode:
             return edi_result
         for invoice in invoices:
