@@ -56,4 +56,10 @@
     'images': [
         'static/description/icon.png'
     ],
+    'assets': {
+        'web.assets_backend': [
+            'trescloud_financial_reports/static/src/js/account_financial_report_backend.js',
+            'trescloud_financial_reports/static/src/js/account_financial_report_widgets.js',
+        ],
+    }
 }
