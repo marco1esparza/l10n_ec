@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <template
+    <!--template
         id="account_financial_report_assets_backend"
         name="account_financial_report assets"
-        inherit_id="web.assets_backend"
-    >
+        inherit_id="web.assets_backend">
         <xpath expr="." position="inside">
             <link
                 href="/trescloud_financial_reports/static/src/css/report.css"
@@ -19,7 +18,7 @@
                 src="/trescloud_financial_reports/static/src/js/account_financial_report_widgets.js"
             />
         </xpath>
-    </template>
+    </template-->
     <template id="report_buttons">
         <div class="button_row">
             <button class="o_account_financial_reports_print btn btn-sm oe_button">
