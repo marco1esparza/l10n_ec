@@ -521,8 +521,8 @@ class AccountEdiDocument(models.Model):
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'email'}, text=get_invoice_partner_data['invoice_email'])
         if self.move_id.user_id.name: 
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'vendedor'}, text=self.move_id.user_id.name)
-        narration = BeautifulSoup(self.move_id.narration, 'lxml').get_text()
-        if narration:
+        if self.move_id.narration:
+            narration = BeautifulSoup(self.move_id.narration, 'lxml').get_text()
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'novedades'}, text=narration.replace('\n', ' '))
         if self.move_id.invoice_origin:
             self.create_SubElement(infoAdicional, 'campoAdicional', attrib={'nombre': 'pedido'}, text=self.move_id.invoice_origin)
@@ -563,8 +563,8 @@ class AccountEdiDocument(models.Model):
             additional_info.append('Email: %s' % get_invoice_partner_data['invoice_email'])
         if self.move_id.l10n_ec_printer_id.name[:3]:
             additional_info.append('Vendedor: %s' % self.move_id.user_id.name)
-        narration = BeautifulSoup(self.move_id.narration, 'lxml').get_text()
-        if narration:
+        if self.move_id.narration:
+            narration = BeautifulSoup(self.move_id.narration, 'lxml').get_text()
             additional_info.append('Novedades: %s' % narration.replace('\n', ' '))
         if self.move_id.company_id.l10n_ec_regime == 'rimpe':
             additional_info.append('Régimen: Contribuyente Régimen RIMPE')
