@@ -54,7 +54,12 @@
                     </thead>
                     <tbody>
 						<tr class="text-left" t-foreach="o.line_ids" t-as="line">
-							<td><span t-esc="line.account_id.name_get()[0][1]"/></td>
+							<t t-if="line.account_id">
+								<td><span t-esc="line.account_id.name_get()[0][1]"/></td>
+							</t>
+							<t t-if="not line.account_id">
+								<td></td>
+							</t>
 							<td><span t-field="line.partner_id.name"/></td>
 							<td><t t-if="line.date_maturity"><span t-field="line.name"/> (Vence <span t-field="line.date_maturity"/>)</t><t t-if="not line.date_maturity"><span t-field="line.name"/></t></td>
 							<td><span t-field="line.analytic_account_id.name"/></td>
