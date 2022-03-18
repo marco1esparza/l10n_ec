@@ -30,6 +30,7 @@
         #Views
         'views/account_move_view.xml',
         'views/account_journal_view.xml',
+        'views/product_view.xml',
         'views/report_invoice.xml',
     ],
     'installable': True,

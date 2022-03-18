@@ -7,3 +7,4 @@ from . import account_tax
 from . import account_withhold_line
 from . import res_currency
 from . import account_chart_template
+from . import product

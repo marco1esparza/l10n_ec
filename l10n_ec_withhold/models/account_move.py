@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
-from odoo.tools import float_compare
+from odoo.tools import float_compare, float_round
 from odoo.exceptions import UserError, ValidationError
 
 MAP_INVOICE_TYPE_PARTNER_TYPE = {
@@ -29,6 +29,9 @@ class AccountMove(models.Model):
         if self.is_withholding():
             raise ValidationError(u'No se permite duplicar las retenciones, si necesita crear una debe hacerlo desde la factura correspondiente.')
         return res
+    #No funciona todavia    
+    def action_create_journal_items(self):
+        return self.l10n_ec_make_withhold_entry()
 
     def _post(self, soft=True):
         '''
@@ -316,16 +319,35 @@ class AccountMove(models.Model):
                     'l10n_ec_withhold_type': 'in_withhold',
                 }
             l10n_ec_withhold_line_ids = []
+            group_taxes = {}
+            prec = self.env['decimal.precision'].precision_get('Account')
             for invoice in self:
-                lines = invoice.line_ids.filtered(lambda l: l.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax']).sorted(key=lambda l: l.tax_line_id.sequence)
-                for line in lines:
-                    l10n_ec_withhold_line_ids.append((0, 0, {
-                        'tax_id': line.tax_line_id.id,
-                        'account_id': line.account_id.id,
-                        'invoice_id': invoice.id,
-                        'base': line.tax_base_amount,
-                        'amount': line.credit
-                    }))
+                for line in invoice.line_ids:
+                    for tax in line.withhold_tax_ids:
+                        tax_line = tax.invoice_repartition_line_ids.filtered(lambda x: x.repartition_type == 'tax')
+                        group_taxes.setdefault(tax.id, [{}, 0, 0])
+                        if tax.tax_group_id.l10n_ec_type in ['withhold_income_tax']:
+                            group_taxes[tax.id][0].update({
+                                'account_id': tax_line.account_id.id,
+                                'invoice_id': invoice.id
+                            })
+                            group_taxes[tax.id][1] += line.debit
+                            group_taxes[tax.id][2] += abs(line.debit * tax.amount / 100)
+                        if tax.tax_group_id.l10n_ec_type in ['withhold_vat']:
+                            group_taxes[tax.id][0].update({
+                                'account_id': tax_line.account_id.id,
+                                'invoice_id': invoice.id
+                            })
+                            group_taxes[tax.id][1] += line.price_total - line.price_subtotal
+                            group_taxes[tax.id][2] +=  abs((line.price_total - line.price_subtotal) * tax.amount / 100)
+            for tax_id, detail in group_taxes.items():
+                l10n_ec_withhold_line_ids.append((0, 0, {
+                    'tax_id': tax_id,
+                    'account_id': detail[0].get('account_id'),
+                    'invoice_id': detail[0].get('invoice_id'),
+                    'base': float_round(detail[1], precision_digits=prec),
+                    'amount': float_round(detail[2], precision_digits=prec)
+                }))
             default_values.update({
                 'l10n_ec_withhold_line_ids': l10n_ec_withhold_line_ids
             })
@@ -614,4 +636,27 @@ class AccountMove(models.Model):
         store=False, 
         readonly=True, 
         help='Base imponible sugerida (no obligatoria) para retención del IVA'
+        )
+
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+     
+    @api.onchange('product_id')
+    def _onchange_product_id(self):
+        for line in self:
+            if not line.product_id or line.display_type in ('line_section', 'line_note'):
+                continue
+            line.withhold_tax_ids = line.product_id.withhold_tax_ids.mapped('id')
+        return super(AccountMoveLine, self)._onchange_product_id()
+    
+    #Columns
+    withhold_tax_ids = fields.Many2many(
+        'account.tax',
+        'move_line_withhold_taxes_rel',
+        'line_id',
+        'tax_id',
+        string='Withholdings',
+        domain=[('type_tax_use', '=', 'purchase')],
+        help='Withholding taxes applied on the base amount'
         )

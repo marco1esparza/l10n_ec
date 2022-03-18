@@ -113,6 +113,12 @@
 			<xpath expr="//page[@id='other_tab_entry']//field[@name='narration']" position="attributes">
 				<attribute name="attrs">{'invisible':[('l10n_ec_withhold_type', '!=', False)]}</attribute>
 			</xpath>
+			<xpath expr="//field[@name='tax_ids']" position="after">
+				<field name="withhold_tax_ids" widget="many2many_tags" optional="hide"/>
+			</xpath>
+			<xpath expr="//button[@name='button_cancel']" position="after">
+        		<button name="action_create_journal_items" string="Create Journal Items" type="object" groups="base.group_no_one"/>
+			</xpath>
 		</field>
 	</record>
 
