@@ -54,7 +54,7 @@
 					<field name="l10n_ec_withhold_origin_ids" invisible="1"/>
 					<field name="l10n_ec_withhold_line_ids" nolabel="0"
 						context="{'l10n_ec_withhold_origin_ids': l10n_ec_withhold_origin_ids}"
-						attrs="{'readonly':['|', ('state','!=','draft'), ('l10n_ec_withhold_type', 'in', ['in_withhold'])]}">
+						attrs="{'readonly':[('state','!=','draft')]}">
 						<tree editable="bottom">
 		                    <field name="company_id" invisible="1"/>
 							<field name="tax_id"
@@ -112,8 +112,11 @@
             </field>
 			<xpath expr="//page[@id='other_tab_entry']//field[@name='narration']" position="attributes">
 				<attribute name="attrs">{'invisible':[('l10n_ec_withhold_type', '!=', False)]}</attribute>
+			</xpath>			
+			<xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='tax_ids']" position="after">
+				<field name="withhold_tax_ids" widget="many2many_tags" options="{'no_create': True}" optional="hide"/>
 			</xpath>
-			<xpath expr="//field[@name='tax_ids']" position="after">
+			<xpath expr="//field[@name='line_ids']/tree/field[@name='tax_ids']" position="after">
 				<field name="withhold_tax_ids" widget="many2many_tags" options="{'no_create': True}" optional="hide"/>
 			</xpath>
 			<xpath expr="//button[@name='button_cancel']" position="after">
