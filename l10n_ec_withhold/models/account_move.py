@@ -29,8 +29,10 @@ class AccountMove(models.Model):
         if self.is_withholding():
             raise ValidationError(u'No se permite duplicar las retenciones, si necesita crear una debe hacerlo desde la factura correspondiente.')
         return res
-    #No funciona todavia    
+
     def action_create_journal_items(self):
+        if not self.is_withholding():
+            raise ValidationError(u'This functionality is only available for withholdings.')
         return self.l10n_ec_make_withhold_entry()
 
     def _post(self, soft=True):
@@ -183,10 +185,26 @@ class AccountMove(models.Model):
                                 'partner_id': partner.id,
                                 'account_id': line.account_id.id,
                                 'date_maturity': False,
-                                'quantity': 0.0,
-                                'amount_currency': 0.0, #Withholds are always in company currency
-                                'price_unit': 0.0,
+                                'quantity': 1.0,
+                                'amount_currency': line.amount, #Withholds are always in company currency
+                                'price_unit': line.amount,
                                 'debit': 0.0,
+                                'credit': line.amount,
+                                'tax_base_amount': line.base,
+                                'is_rounding_line': False
+                            }
+                            account_move_line_obj.with_context(check_move_validity=False).create(vals)
+                        if withhold.l10n_ec_withhold_line_ids:
+                            vals = {
+                                'name': withhold.name,
+                                'move_id': withhold.id,
+                                'partner_id': partner.id,
+                                'account_id': withhold.partner_id.property_account_payable_id.id,
+                                'date_maturity': False,
+                                'quantity': 1.0,
+                                'amount_currency': withhold.l10n_ec_total, #Withholds are always in company currency
+                                'price_unit': withhold.l10n_ec_total,
+                                'debit': withhold.l10n_ec_total,
                                 'credit': 0.0,
                                 'tax_base_amount': 0.0,
                                 'is_rounding_line': False
