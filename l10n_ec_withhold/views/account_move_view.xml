@@ -120,7 +120,7 @@
 				<field name="withhold_tax_ids" widget="many2many_tags" options="{'no_create': True}" optional="hide"/>
 			</xpath>
 			<xpath expr="//button[@name='button_cancel']" position="after">
-        		<button name="action_create_journal_items" string="Create Journal Items" type="object" groups="base.group_no_one"/>
+        		<button name="l10n_ec_make_withhold_entry" string="Create Journal Items" type="object" groups="base.group_no_one"/>
 			</xpath>
 		</field>
 	</record>

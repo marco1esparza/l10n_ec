@@ -29,15 +29,6 @@ class AccountMove(models.Model):
         if self.is_withholding():
             raise ValidationError(u'No se permite duplicar las retenciones, si necesita crear una debe hacerlo desde la factura correspondiente.')
         return res
-    
-    @api.onchange('l10n_ec_withhold_line_ids')
-    def _onchange_l10n_ec_withhold_line_ids(self):
-        return self.action_create_journal_items()
-
-    def action_create_journal_items(self):
-        if not self.is_withholding():
-            raise ValidationError(u'This functionality is only available for withholdings.')
-        return self.l10n_ec_make_withhold_entry()
 
     def _post(self, soft=True):
         '''
@@ -99,6 +90,37 @@ class AccountMove(models.Model):
                     withhold.line_ids.unlink()
         return res
     
+    @api.onchange('l10n_ec_withhold_line_ids')
+    def _onchange_l10n_ec_withhold_line_ids(self):
+        
+        if self.is_withholding():
+#            self.line_ids.unlink()
+#            self.l10n_ec_make_withhold_entry()
+            self.line_ids
+            
+            # Only synchronize one2many in onchange.
+#             if invoice != invoice._origin:
+#                 invoice.invoice_line_ids = invoice.line_ids.filtered(lambda line: not line.exclude_from_invoice_tab)
+
+            
+#             self._onchange_recompute_dynamic_lines()
+        
+        # Remove old terms lines that are no longer needed.
+#         self.line_ids -= existing_terms_lines - new_terms_lines
+         
+     
+#     @api.onchange('invoice_line_ids')
+#     def _onchange_invoice_line_ids(self):
+#         current_invoice_lines = self.line_ids.filtered(lambda line: not line.exclude_from_invoice_tab)
+#         others_lines = self.line_ids - current_invoice_lines
+#         if others_lines and current_invoice_lines - self.invoice_line_ids:
+#             others_lines[0].recompute_tax_line = True
+#         self.line_ids = others_lines + self.invoice_line_ids
+#         self._onchange_recompute_dynamic_lines()
+        
+    #def _recompute_dynamic_lines
+    
+    
     def l10n_ec_make_withhold_entry(self):
         '''
         Metodo para hacer asientos de retenciones
@@ -145,6 +167,8 @@ class AccountMove(models.Model):
                         if withhold.l10n_ec_withhold_line_ids:
                             #create the account.move.lines
                             #Credit
+                            
+                            
                             vals = {
                                 'name': withhold.name,
                                 'move_id': withhold.id,
@@ -179,6 +203,24 @@ class AccountMove(models.Model):
                                     'tax_repartition_line_id': tax_line.id,
                                     'tax_tag_ids': [(6, 0, tax_line.tag_ids.ids)],                                    
                                 }
+                                
+                                
+                                debit_vals_list = [{
+                                    "move_id": move.id,
+                                    "account_id": account.id,
+                                    "debit": tax_amount,
+                                    "price_unit": tax_amount * -1,
+                                    "price_subtotal": tax_amount * -1,
+                                    "price_total": tax_amount * -1,
+                                    "quantity": 1,
+                                    "credit": 0.0,
+                                    "name": name,
+                                    "tax_tag_ids": tax_repartition.tag_ids and [(6, 0, tax_repartition.tag_ids.ids)] or [],
+                                    "tax_repartition_line_id": tax_repartition.id,
+                                    "tax_tag_invert": True,
+                                    'tax_base_amount': line.base_amount,
+                                },]
+                                
                                 account_move_line_obj.with_context(check_move_validity=False).create(vals)
                     #Retenciones en compras
                     lines = self.env['account.move.line']
@@ -438,6 +480,7 @@ class AccountMove(models.Model):
             result['res_id'] = l10n_ec_withhold_ids and l10n_ec_withhold_ids[0] or False
         return result
 
+    @api.depends('l10n_ec_withhold_line_ids')
     def _compute_total_invoice_ec(self):
         '''
         '''
