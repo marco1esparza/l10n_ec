@@ -33,5 +33,5 @@ class AccountChartTemplate(models.Model):
                         'l10n_latam_use_documents': True,
                         'type': 'general',
                         'company_id': company.id,
-                        'show_on_dashboard': False
+                        'show_on_dashboard': True
                     })

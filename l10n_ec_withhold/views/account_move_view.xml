@@ -112,12 +112,6 @@
             </field>
 			<xpath expr="//page[@id='other_tab_entry']//field[@name='narration']" position="attributes">
 				<attribute name="attrs">{'invisible':[('l10n_ec_withhold_type', '!=', False)]}</attribute>
-			</xpath>			
-			<xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='tax_ids']" position="after">
-				<field name="withhold_tax_ids" widget="many2many_tags" options="{'no_create': True}" optional="hide"/>
-			</xpath>
-			<xpath expr="//field[@name='line_ids']/tree/field[@name='tax_ids']" position="after">
-				<field name="withhold_tax_ids" widget="many2many_tags" options="{'no_create': True}" optional="hide"/>
 			</xpath>
 			<xpath expr="//button[@name='button_cancel']" position="after">
         		<button name="l10n_ec_make_withhold_entry" string="Create Journal Items" type="object" groups="base.group_no_one"/>

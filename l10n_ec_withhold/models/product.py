@@ -8,12 +8,9 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     #Columns
-    withhold_tax_ids = fields.Many2many(
+    withhold_tax_id = fields.Many2one(
         'account.tax',
-        'product_withhold_taxes_rel',
-        'prod_id',
-        'tax_id',
-        string='Vendor Withholdings',
+        string='Vendor Withhold',
         domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'), ('type_tax_use', '=', 'purchase')],
         help='Default withholding tax when the product is purchased'
         )

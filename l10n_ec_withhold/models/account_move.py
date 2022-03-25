@@ -29,6 +29,30 @@ class AccountMove(models.Model):
         if self.is_withholding():
             raise ValidationError(u'No se permite duplicar las retenciones, si necesita crear una debe hacerlo desde la factura correspondiente.')
         return res
+    
+    @api.depends('journal_id', 'partner_id', 'company_id', 'move_type')
+    def _compute_l10n_latam_available_document_types(self):
+        #Para EC el computo del tipo de documento no depende del partner, se rescribe en ese sentido
+        #esto permite tener un tipo de documento por defecto al crear facturas, y facilita el ignreso
+        #del numero de autorización
+        self.l10n_latam_available_document_type_ids = False
+        for rec in self.filtered(lambda x: x.journal_id and x.l10n_latam_use_documents): #en esta linea se borro el filtro de partner_id
+            rec.l10n_latam_available_document_type_ids = self.env['l10n_latam.document.type'].search(rec._get_l10n_latam_documents_domain())
+            #TODO V15, hacer que para el consumidor final se excluyan los documentos que no puede manejar
+
+    @api.depends('l10n_latam_available_document_type_ids')
+    @api.depends_context('internal_type')
+    def _compute_l10n_latam_document_type(self):
+        #Reescribimos el metodo original de l10n_latam_document_type, pues reescribia el tipo de documento
+        #cada vez q se cambiaba el partner, cuando debería reescribirlo solo si el tipo de documento
+        #viejo no forma parte del nuevo l10n_latam_available_document_type_ids
+        internal_type = self._context.get('internal_type', False)
+        for rec in self.filtered(lambda x: x.state == 'draft'):
+            document_types = rec.l10n_latam_available_document_type_ids._origin
+            document_types = internal_type and document_types.filtered(lambda x: x.internal_type == internal_type) or document_types
+            #linea agregada por trescloud:
+            if rec.l10n_latam_document_type_id not in document_types:
+                rec.l10n_latam_document_type_id = document_types and document_types[0].id
 
     def _post(self, soft=True):
         '''
@@ -393,7 +417,8 @@ class AccountMove(models.Model):
             prec = self.env['decimal.precision'].precision_get('Account')
             for invoice in self:
                 for line in invoice.line_ids:
-                    for tax in line.withhold_tax_ids:
+                    tax = line.product_id.withhold_tax_id
+                    if tax:
                         tax_line = tax.invoice_repartition_line_ids.filtered(lambda x: x.repartition_type == 'tax')
                         group_taxes.setdefault(tax.id, [{}, 0, 0])
                         if tax.tax_group_id.l10n_ec_type in ['withhold_income_tax']:
@@ -409,7 +434,7 @@ class AccountMove(models.Model):
                                 'invoice_id': invoice.id
                             })
                             group_taxes[tax.id][1] += line.price_total - line.price_subtotal
-                            group_taxes[tax.id][2] +=  abs((line.price_total - line.price_subtotal) * tax.amount / 100)
+                            group_taxes[tax.id][2] += abs((line.price_total - line.price_subtotal) * tax.amount / 100)
             for tax_id, detail in group_taxes.items():
                 l10n_ec_withhold_line_ids.append((0, 0, {
                     'tax_id': tax_id,
@@ -707,27 +732,4 @@ class AccountMove(models.Model):
         store=False, 
         readonly=True, 
         help='Base imponible sugerida (no obligatoria) para retención del IVA'
-        )
-
-
-class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
-     
-    @api.onchange('product_id')
-    def _onchange_product_id(self):
-        for line in self:
-            if not line.product_id or line.display_type in ('line_section', 'line_note'):
-                continue
-            line.withhold_tax_ids = line.product_id.withhold_tax_ids.mapped('id')
-        return super(AccountMoveLine, self)._onchange_product_id()
-    
-    #Columns
-    withhold_tax_ids = fields.Many2many(
-        'account.tax',
-        'move_line_withhold_taxes_rel',
-        'line_id',
-        'tax_id',
-        string='Withholdings',
-        domain=[('type_tax_use', '=', 'purchase')],
-        help='Withholding taxes applied on the base amount'
         )
