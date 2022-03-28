@@ -113,7 +113,6 @@ class AccountMove(models.Model):
                     is_move_marked = True
             if is_move_marked:
                 move.message_post(body=_("A cancellation of the EDI has been requested."))
-
         to_cancel_documents.write({'state': 'to_cancel', 'error': False})
         return res
 
@@ -478,8 +477,7 @@ class AccountMove(models.Model):
             default_values.update({
                 'invoice_origin': origin,
                 'l10n_ec_withhold_line_ids': l10n_ec_withhold_line_ids
-            })
-            
+            })            
         return default_values
         
     def l10n_ec_action_view_withholds(self):
@@ -589,11 +587,9 @@ class AccountMove(models.Model):
         super()._compute_amount()
         for move in self.filtered(lambda x: x.is_withholding() and x.l10n_ec_withhold_type == 'out_withhold'):
             total = 0.0
-
             for line in move.line_ids:
                 if line.debit:
                     total += line.balance
-
             move.amount_total_signed = abs(total) if move.move_type == 'entry' else -total
 
     @api.constrains('name', 'journal_id', 'state')
@@ -782,8 +778,12 @@ class AccountMove(models.Model):
         readonly=True, 
         help='Base imponible sugerida (no obligatoria) para retención del IVA'
         )
-    l10n_ec_require_withhold_tax = fields.Boolean(compute='_l10n_ec_compute_require_withhold_tax')
-    l10n_ec_require_vat_tax = fields.Boolean(compute='_l10n_ec_compute_require_vat_tax')
+    l10n_ec_require_withhold_tax = fields.Boolean(
+        compute='_l10n_ec_compute_require_withhold_tax'
+        )
+    l10n_ec_require_vat_tax = fields.Boolean(
+        compute='_l10n_ec_compute_require_vat_tax'
+        )
 
 
 class AccountMoveLine(models.Model):
