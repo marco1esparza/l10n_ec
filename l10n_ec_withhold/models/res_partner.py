@@ -8,6 +8,7 @@ from odoo.exceptions import UserError, ValidationError
 class ResPartner(models.Model):
     _inherit = 'res.partner'
     
+    #Columns
     property_l10n_ec_profit_withhold_tax_id = fields.Many2one(
         'account.tax',
         company_dependent=True,
