@@ -11,7 +11,7 @@
 					<attribute name="attrs">{'invisible': ['|', ('l10n_latam_company_use_documents','=',False), ('type','not in',['purchase','sale','general'])]}</attribute>
 				</xpath>
 				<xpath expr="//field[@name='type']" position="after">
-					<field name="l10n_ec_withhold"/>
+					<field name="l10n_ec_withhold" attrs="{'invisible': [('type', '!=', 'general')]}"/>
 				</xpath>
             </field>
         </record>
