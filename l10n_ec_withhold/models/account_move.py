@@ -810,22 +810,20 @@ class AccountMoveLine(models.Model):
                 if not self.exclude_from_invoice_tab: #just regular invoice lines
                     if self.move_id.l10n_ec_require_withhold_tax: #compute withholds
                         company_id = self.move_id.company_id
-                        fiscal_postition_id = self.move_id.fiscal_position_id
-                        tax_groups = super_tax_ids.mapped('tax_group_id').mapped('l10n_ec_type')
- 
+                        contributor_type = self.partner_id.contributor_type_id
+                        tax_groups = super_tax_ids.mapped('tax_group_id').mapped('l10n_ec_type') 
                         #compute vat withhold
                         if 'vat12' in tax_groups or 'vat14' in tax_groups:
                             if not self.product_id or self.product_id.type in ['consu','product']:
-                                vat_withhold_tax = fiscal_postition_id.l10n_ec_vat_withhold_goods
+                                vat_withhold_tax = contributor_type.l10n_ec_vat_withhold_goods
                             else: #services
-                                vat_withhold_tax = fiscal_postition_id.l10n_ec_vat_withhold_services
-                         
+                                vat_withhold_tax = contributor_type.l10n_ec_vat_withhold_services                         
                         #compute profit withhold
                         if self.move_id.l10n_ec_payment_method_id.code in ['16','18','19']:
                             #payment with debit card, credit card or gift card retains 0%
                             profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
-                        elif self.partner_id.property_l10n_ec_profit_withhold_tax_id:
-                            profit_withhold_tax = self.partner_id.property_l10n_ec_profit_withhold_tax_id
+                        elif contributor_type.property_l10n_ec_profit_withhold_tax_id:
+                            profit_withhold_tax = contributor_type.property_l10n_ec_profit_withhold_tax_id
                         elif self.product_id.withhold_tax_id:
                             profit_withhold_tax = self.product_id.withhold_tax_id         
                         elif 'withhold_income_tax' in tax_groups:

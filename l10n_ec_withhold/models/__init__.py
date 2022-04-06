@@ -12,3 +12,4 @@ from . import res_company
 from . import res_config_settings
 from . import account_journal
 from . import contributor_type
+from . import res_partner
