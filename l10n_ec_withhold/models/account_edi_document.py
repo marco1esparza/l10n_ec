@@ -160,5 +160,3 @@ class AccountEdiDocument(models.Model):
             if get_invoice_partner_data['invoice_phone']:
                 additional_info.append('Telefono: %s' % get_invoice_partner_data['invoice_phone'])
         return additional_info
-
-
