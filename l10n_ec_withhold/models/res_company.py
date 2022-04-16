@@ -29,4 +29,4 @@ class ResCompany(models.Model):
         'account.tax',
         string='Withhold Credit Card',
         help='When payment method will be credit card apply this withhold',
-        )   
+        )

@@ -37,6 +37,8 @@
         'views/res_config_settings_views.xml',
         'views/contributor_type_view.xml',
         'views/res_partner_view.xml',
+        #Wizard
+        'wizard/wizard_account_withhold_view.xml',
     ],
     'installable': True,
     'auto_install': True,

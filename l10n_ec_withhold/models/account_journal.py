@@ -10,11 +10,11 @@ class AccountJournal(models.Model):
     @api.onchange('company_id', 'type', 'l10n_ec_withhold')
     def onchange_withhold_type(self):
         self.l10n_latam_use_documents = (self.type in ['sale', 'purchase'] and self.l10n_latam_company_use_documents) or \
-                                        (self.type in ['general'] and self.l10n_latam_company_use_documents and self.l10n_ec_withhold in ['purchase', 'sale'])
+                                        (self.type in ['general'] and self.l10n_latam_company_use_documents and self.l10n_ec_withhold in ['sale', 'purchase'])
 
     _L10n_EC_WITHHOLD = [
-        ('purchase', 'Purchases'),
-        ('sale', 'Sales')
+        ('sale', 'Sales'),
+        ('purchase', 'Purchases')
     ]
 
     #Columns
