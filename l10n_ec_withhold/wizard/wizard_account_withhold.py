@@ -33,7 +33,7 @@ class WizardAccountWithhold(models.TransientModel):
         invoice = self.env['account.move'].browse(self.env.context.get('active_id'))
         l10n_ec_withhold_type = 'in_withhold'
         default_values = {
-            'invoice_date': False,
+            'invoice_date': self.date,
             'journal_id': self.journal_id.id,
             'invoice_payment_term_id': None,
             'move_type': 'entry',
@@ -54,6 +54,7 @@ class WizardAccountWithhold(models.TransientModel):
                 raise ValidationError(u'Solamente se puede tener una retención aprobada por factura de proveedor.')
             total = 0.0
             for line in self.account_withhold_line_ids:
+                tax_line = line.tax_id.invoice_repartition_line_ids.filtered(lambda x:x.repartition_type == 'tax')
                 vals = {
                     'name': withhold.name,
                     'move_id': withhold._origin.id,
@@ -66,7 +67,10 @@ class WizardAccountWithhold(models.TransientModel):
                     'debit': 0.0,
                     'credit': line.amount,
                     'tax_base_amount': line.base,
-                    'is_rounding_line': False
+                    'is_rounding_line': False,
+                    'tax_line_id': line.tax_id.id, #originator tax
+                    'tax_repartition_line_id': tax_line.id,
+                    'tax_tag_ids': [(6, 0, tax_line.tag_ids.ids)],
                 }
                 total += line.amount
                 line = account_move_line_obj.with_context(check_move_validity=False).create(vals)
@@ -89,6 +93,7 @@ class WizardAccountWithhold(models.TransientModel):
                 line = account_move_line_obj.with_context(check_move_validity=False).create(vals)
                 lines += line
             withhold.line_ids = lines
+            withhold._post(soft=False)
         return invoice.l10n_ec_action_view_withholds()
 
     #Columns

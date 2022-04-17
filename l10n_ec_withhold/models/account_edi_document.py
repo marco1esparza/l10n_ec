@@ -68,7 +68,7 @@ class AccountEdiDocument(models.Model):
                 elif abs(percentage) == 100.0:
                     code = 3
             if not code:
-                raise ValidationError('El impuesto "%s" no tiene definido ningun codigo.' % line.tax_id.name)
+                raise ValidationError('El impuesto "%s" no tiene definido ningun codigo.' % line.tax_line_id.name)
             return code
 
         # INICIO CREACION DE LA RETENCION
@@ -119,22 +119,23 @@ class AccountEdiDocument(models.Model):
         self.create_TreeElements(infoCompRetencion, infoCompRetencionElements)
         # CREACION DE LOS IMPUESTOS
         # DETALLES DE LA RETENCION
-        detalles = etree.SubElement(withhold, 'impuestos')        
-        for line in self.move_id.l10n_ec_withhold_line_ids:
-            detalle_data = []
-            porc_ret = abs(line.tax_id.amount)
-            type_ec = line.tax_id.tax_group_id.l10n_ec_type
-            tax_code = line.tax_id.l10n_ec_code_ats
-            impuesto = self.create_SubElement(detalles, 'impuesto')
-            detalle_data.append(('codigo', get_electronic_tax_type_code(type_ec)))
-            detalle_data.append(('codigoRetencion', get_electronic_tax_code(type_ec, porc_ret, tax_code)))
-            detalle_data.append(('baseImponible', line.base))
-            detalle_data.append(('porcentajeRetener', '{0:.2f}'.format(porc_ret)))
-            detalle_data.append(('valorRetenido', round(line.amount, 2)))
-            detalle_data.append(('codDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_type_id.code))
-            detalle_data.append(('numDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_number.replace('-','')))
-            detalle_data.append(('fechaEmisionDocSustento', datetime.strftime(line.move_id.l10n_ec_withhold_origin_ids[0].invoice_date,'%d/%m/%Y')))
-            self.create_TreeElements(impuesto, detalle_data)
+        detalles = etree.SubElement(withhold, 'impuestos')   
+        for line in self.move_id.line_ids:
+            if line.tax_line_id:
+                detalle_data = []
+                porc_ret = abs(line.tax_line_id.amount)
+                type_ec = line.tax_line_id.tax_group_id.l10n_ec_type
+                tax_code = line.tax_line_id.l10n_ec_code_ats
+                impuesto = self.create_SubElement(detalles, 'impuesto')
+                detalle_data.append(('codigo', get_electronic_tax_type_code(type_ec)))
+                detalle_data.append(('codigoRetencion', get_electronic_tax_code(type_ec, porc_ret, tax_code)))
+                detalle_data.append(('baseImponible', line.tax_base_amount))
+                detalle_data.append(('porcentajeRetener', '{0:.2f}'.format(porc_ret)))
+                detalle_data.append(('valorRetenido', round(line.debit, 2)))
+                detalle_data.append(('codDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_type_id.code))
+                detalle_data.append(('numDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_number.replace('-','')))
+                detalle_data.append(('fechaEmisionDocSustento', datetime.strftime(line.move_id.l10n_ec_withhold_origin_ids[0].invoice_date,'%d/%m/%Y')))
+                self.create_TreeElements(impuesto, detalle_data)
         if get_invoice_partner_data['invoice_email'] or get_invoice_partner_data['invoice_address']\
            or get_invoice_partner_data['invoice_phone']:
             #dentro del if para asegurar que no quede huerfano el label

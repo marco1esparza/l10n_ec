@@ -37,7 +37,7 @@
         'reports/report_payment_receipt_templates.xml',
         ],
     'installable': True,
-    'auto_install': True,
+    'auto_install': False, #Se cambia pues en retenciones v15 al instalar la contabilidad se instala automaticamente y tiene logica no deseada al momento
     'application': True,
     # Post Init para asignacion de impuesto a compañia.
     'post_init_hook': '_post_install_hook_setup_profit_withhold_taxes',
