@@ -30,11 +30,11 @@
 	                    <field name="amount"/>
 	                </tree>
 		    	</field>
+				<footer>
+	                <button string="Generate" name="action_generate_withhold" type="object" class="oe_highlight"/>
+	                <button string="Close" special="cancel" class="oe_link"/>
+            	</footer>
 			</form>
-			<footer>
-                <button string="Generate" name="action_generate_withhold" type="object" class="oe_highlight"/>
-                <button string="Close" special="cancel" class="oe_link"/>
-            </footer>
 		</field>
     </record>
 

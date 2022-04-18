@@ -46,7 +46,6 @@ class WizardAccountWithhold(models.TransientModel):
         }
         invoice = invoice.with_context(include_business_fields=False) #don't copy sale/purchase links
         withhold = invoice.copy(default=default_values)
-        #TODO: arreglar las lineas de asiento todavia no se generan
         #Retenciones en compras
         lines = self.env['account.move.line']
         if withhold.l10n_ec_withhold_type == 'in_withhold':
@@ -134,7 +133,6 @@ class WizardAccountWithhold(models.TransientModel):
 class WizardAccountWithholdLine(models.TransientModel):
     _name = 'wizard.account.withhold.line'
 
-    #Columns
     @api.onchange('invoice_id', 'tax_id')
     def onchange_invoice_id(self):
         #Sets the "base amount" according to invoice_id and tax
@@ -204,3 +202,4 @@ class WizardAccountWithholdLine(models.TransientModel):
         ondelete='cascade',
         help='The move of this entry line.'
         )
+    

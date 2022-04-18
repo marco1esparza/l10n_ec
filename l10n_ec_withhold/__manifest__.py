@@ -24,7 +24,6 @@
         'l10n_ec_edi',
     ],
     'data': [
-        #Data
         #Security
         'security/ir.model.access.csv',
         'security/l10n_ec_multicompany_security.xml',
