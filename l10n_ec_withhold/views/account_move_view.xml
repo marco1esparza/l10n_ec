@@ -51,7 +51,9 @@
            	</xpath>
 			<xpath expr="//page[@id='aml_tab']" position="before">
 				<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
+					<!-- Remove, not needed for v15.1, replace with funcional field maybe?
 					<field name="l10n_ec_withhold_origin_ids" invisible="1"/>
+					 -->
 					<field name="l10n_ec_withhold_line_ids">
 						<tree editable="bottom">
 							<field name="tax_line_id" string="Tax"/>
@@ -70,7 +72,9 @@
 					</group>
 					<!-- Internal note -->
 					<field name="narration" placeholder="Add an internal note..." nolabel="1" height="50"/>
-				</page>				
+				</page>		
+				
+				<!-- #TODO REIMPLEMENT FOR V15.1		
 				<page id="invoice_tab" string="Invoices" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
 					<group>
 						<field name="invoice_origin"/>
@@ -80,7 +84,6 @@
 						<tree editable="bottom">
 							<field name="partner_id" string="Customer"/>
 							<field name="invoice_date" string="Invoice Date"/>
-							<!-- Se usa name en lugar de l10n_latam_document_number pues da problemas de persistencia y no deja guardar la retencion cuando campos campos como partner, fecha, # de doc -->
 							<field name="name"/>
 							<field name="l10n_ec_base_cero_iva"/>
 							<field name="l10n_ec_base_doce_iva"/>
@@ -94,6 +97,7 @@
 						<field name="l10n_ec_invoice_amount_untaxed"/>
 					</group>
 				</page>
+				 -->
 			</xpath>
 			<xpath expr="//field[@name='to_check']" position="after">
                 <field name="edi_document_ids" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>

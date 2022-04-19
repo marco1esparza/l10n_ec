@@ -25,8 +25,12 @@ class AccountEdiDocument(models.Model):
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
                 if self.move_id.move_type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']: #Retenciones en compras
-                    validate_xml_vs_xsd(xml_content, XSD_SRI_100_RETENCION)
-            except ValueError: 
+                    
+                    
+                    pass #TODO Reimplement for v15.1
+                    # validate_xml_vs_xsd(xml_content, XSD_SRI_100_RETENCION)
+                    
+            except ValueError:
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
             self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
             self.l10n_ec_request_xml_file = base64.encodebytes(xml_content)
@@ -73,6 +77,7 @@ class AccountEdiDocument(models.Model):
 
         # INICIO CREACION DE LA RETENCION
         withhold = etree.Element('comprobanteRetencion', {'id': 'comprobante', 'version': '1.0.0'})
+        return withhold #TODO reimplementar for v15.1
         # CREACION INFO TRIBUTARIA
         infoTributaria = etree.SubElement(withhold, 'infoTributaria')
         if not self.move_id.company_id.l10n_ec_legal_name:
