@@ -13,26 +13,34 @@
 						<field name="l10n_latam_document_number"/>
 						<field name="date"/>
 						<field name="company_id" invisible="1"/>
-						<field name="withhold_type" invisible="0"/>
-						<!-- -->
-						<field name="withhold_origin_ids" invisible="0"/>
+						<field name="withhold_type" invisible="1"/>
 					</group>
 					<group>
 					</group>
 				</group>
-				<field name="account_withhold_line_ids" force_save="1" mode="tree">
-		            <tree editable="bottom">
-	                    <field name="company_id" invisible="1"/>
-						<field name="tax_id"
-							   domain="[('type_tax_use', '=', 'none'), ('tax_group_id.l10n_ec_type', 'in', ['withhold_vat','withhold_income_tax'])]"
-							   options="{'no_create': True,'no_open': True}" required="True"/>
-	                    <field name="invoice_id" required="True"/>
-	                    <field name="account_id" readonly="1" groups="account.group_account_user"/>
-	                    <field name="account_id" readonly="0" invisible="1"/> <!-- editable version to be able to write from onchange -->
-	                    <field name="base"/>
-	                    <field name="amount"/>
-	                </tree>
-		    	</field>
+				<notebook>
+					<page id="withhold_lines_tab" string="Withhold Lines">
+						<field name="account_withhold_line_ids" force_save="1" mode="tree"
+							   context="{'l10n_ec_withhold_origin_ids': withhold_origin_ids, 'withhold_type': withhold_type}">
+				            <tree editable="bottom">
+			                    <field name="company_id" invisible="1"/>
+								<field name="tax_id"
+									   options="{'no_create': True,'no_open': True}" required="True"
+									   context="{'origin': 'receive_withhold', 'withhold_type': context.get('withhold_type') }"/>
+			                    <field name="invoice_id" required="True"
+			                    	   context="{'origin': 'receive_withhold', 'l10n_ec_withhold_origin_ids': context.get('l10n_ec_withhold_origin_ids')}" />
+			                    <field name="account_id" readonly="1" groups="account.group_account_user"/>
+			                    <field name="account_id" readonly="0" invisible="1"/> <!-- editable version to be able to write from onchange -->
+			                    <field name="base"/>
+			                    <field name="amount"/>
+			                </tree>
+				    	</field>
+					</page>
+					<page id="invoices_tab" string="Invoices">
+						<field name="withhold_origin_ids"/>
+					</page>
+				</notebook>
+
 				<footer>
 	                <button string="Generate" name="action_generate_withhold" type="object" class="oe_highlight"/>
 	                <button string="Close" special="cancel" class="oe_link"/>

@@ -72,9 +72,7 @@
 					</group>
 					<!-- Internal note -->
 					<field name="narration" placeholder="Add an internal note..." nolabel="1" height="50"/>
-				</page>		
-				
-				<!-- #TODO REIMPLEMENT FOR V15.1		
+				</page>
 				<page id="invoice_tab" string="Invoices" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
 					<group>
 						<field name="invoice_origin"/>
@@ -97,7 +95,6 @@
 						<field name="l10n_ec_invoice_amount_untaxed"/>
 					</group>
 				</page>
-				 -->
 			</xpath>
 			<xpath expr="//field[@name='to_check']" position="after">
                 <field name="edi_document_ids" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
