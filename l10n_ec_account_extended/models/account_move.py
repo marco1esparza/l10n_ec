@@ -59,6 +59,32 @@ class AccountMove(models.Model):
         remaining = self - recs_with_journal_id
         remaining.l10n_latam_manual_document_number = False
     
+    #TODO V15.2 Revisar si se incorpora en el l10n_ec_edi para reprocesamientos o creación manual
+    @api.depends('journal_id', 'partner_id', 'company_id', 'move_type')
+    def _compute_l10n_latam_available_document_types(self):
+        #Para EC el computo del tipo de documento no depende del partner, se rescribe en ese sentido
+        #esto permite tener un tipo de documento por defecto al crear facturas, y facilita el ignreso
+        #del numero de autorización
+        self.l10n_latam_available_document_type_ids = False
+        for rec in self.filtered(lambda x: x.journal_id and x.l10n_latam_use_documents): #en esta linea se borro el filtro de partner_id
+            rec.l10n_latam_available_document_type_ids = self.env['l10n_latam.document.type'].search(rec._get_l10n_latam_documents_domain())
+            #TODO V15, hacer que para el consumidor final se excluyan los documentos que no puede manejar
+
+    #TODO V15.2 Revisar si se incorpora en el l10n_latam
+    @api.depends('l10n_latam_available_document_type_ids')
+    @api.depends_context('internal_type')
+    def _compute_l10n_latam_document_type(self):
+        #Reescribimos el metodo original de l10n_latam_document_type, pues reescribia el tipo de documento
+        #cada vez q se cambiaba el partner, cuando debería reescribirlo solo si el tipo de documento
+        #viejo no forma parte del nuevo l10n_latam_available_document_type_ids
+        internal_type = self._context.get('internal_type', False)
+        for rec in self.filtered(lambda x: x.state == 'draft'):
+            document_types = rec.l10n_latam_available_document_type_ids._origin
+            document_types = internal_type and document_types.filtered(lambda x: x.internal_type == internal_type) or document_types
+            #linea agregada por trescloud:
+            if rec.l10n_latam_document_type_id not in document_types:
+                rec.l10n_latam_document_type_id = document_types and document_types[0].id
+                
     def _l10n_ec_validations_to_draft(self):
         #Validaciones para cuando se mueve un asiento a draft o a cancel
         self.ensure_one()
@@ -205,19 +231,20 @@ class AccountMove(models.Model):
                     vat_withhold_taxes += tax #not yet implemented
                 else:
                     pass #do nothin
-            #check one tax type per line
+            #check one tax type per line 
             if l10n_ec_require_vat_tax and len(vat_taxes) != 1:
                 raise UserError(_("Please select one and only one vat type (IVA 12, IVA 0, etc) for product:\n\n%s") % line.name)
             elif not l10n_ec_require_vat_tax and vat_taxes:
                 raise UserError(_("Por favor remueva el IVA del producto:\n\n%s") % line.name)
-            if l10n_ec_require_withhold_tax:
-                if len(profit_withhold_taxes) != 1:
-                    raise UserError(_("Please select one and only one profit withhold type (312, 332, 322, etc) for product:\n\n%s") % line.name)
-                if len(vat_withhold_taxes) not in [0,1]:
-                    raise UserError(_("Please select no more than one vat withhold tax for product:\n\n%s") % line.name)
-            else:
-                if len(profit_withhold_taxes) + len(vat_withhold_taxes):
-                    raise UserError(_("This document doesn't needs a withholding tax, please remove it for product:\n\n%s") % line.name)
+            #TODO v15.2 Volver a poner la validacion
+            # if l10n_ec_require_withhold_tax:
+            #     if len(profit_withhold_taxes) != 1:
+            #         raise UserError(_("Please select one and only one profit withhold type (312, 332, 322, etc) for product:\n\n%s") % line.name)
+            #     if len(vat_withhold_taxes) not in [0,1]:
+            #         raise UserError(_("Please select no more than one vat withhold tax for product:\n\n%s") % line.name)
+            # else:
+            #     if len(profit_withhold_taxes) + len(vat_withhold_taxes):
+            #         raise UserError(_("This document doesn't needs a withholding tax, please remove it for product:\n\n%s") % line.name)
     
     def _l10n_ec_validate_authorization(self):
         '''

@@ -6,8 +6,7 @@ from odoo import api, fields, models, _
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
-
-    #Columns
+    
     withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Vendor Withhold',

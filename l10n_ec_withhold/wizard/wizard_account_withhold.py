@@ -26,31 +26,11 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         
         invoice_ids = invoice_id #TODO V15.1 en las lineas previas cambiar invoice_id por invoice_ids para que se invoque desde el tree
         invoices = self.env['account.move'].search([('id','in',[invoice_ids])])
-        self._validate_related_invoices(invoices)
+        self._l10n_ec_withhold_validate_related_invoices(invoices)
         default_values = self._prepare_withold_default_values(invoices)
         res.update(default_values)
         return res
     
-    def _validate_related_invoices(self, invoices):
-        # Let's test the source invoices for missuse
-        for invoice in invoices:
-            # TODO: v15.1 Move validation to central method as data can change in other browser tabs
-            if not invoice.l10n_ec_allow_withhold:
-                raise ValidationError(u'The selected document type does not support withholds')
-        #TODO V15.1 mover estas validaciones dentro del lazo for por eficiencia y para mostrar mensajes de error con numero de factura
-        if any(invoice.state not in ['posted'] for invoice in invoices):
-            raise ValidationError(u'Can not create a withhold, some documents are not yet posted')
-        if invoices and any(inv.commercial_partner_id != invoices[0].commercial_partner_id for inv in invoices): #and not self.env.context.get('massive_withhold'):
-            raise ValidationError(u'Some documents belong to different partners, please correct your selection')
-        if invoices and any(MAP_INVOICE_TYPE_PARTNER_TYPE[inv.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[invoices[0].move_type] for inv in invoices):
-            raise ValidationError(u'Can not mix documents supplier and customer documents in the same withhold')
-        if invoices and any(inv.currency_id != invoices[0].currency_id for inv in invoices):
-            #TODO: v15.1 Mas bien validar que sea sobre la moneda de la compañia, es decir dólares
-            raise ValidationError(u'A fin de emitir retenciones sobre múltiples facturas, aquellas deben tener la misma moneda.')
-            # TODO: v15.1 Decide if needed
-            # if len(self) > 1 and invoice.move_type != 'out_invoice':
-            #     raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
-                    
     def _prepare_withold_default_values(self, invoices):
         #Computes new withhold data for provided invoices
         if invoices[0].move_type == 'in_invoice':
@@ -110,7 +90,12 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                 })
         return default_values
     
-    def action_generate_withhold(self):
+    def action_create_and_post_withhold(self):
+        self.env['account.move']._l10n_ec_withhold_validate_related_invoices(withhold_origin_ids)
+        self.l10n_ec_validate_withhold_data_on_post()
+        self.l10n_ec_validate_withhold_accounting_parameters()
+        
+        
         invoices = self.withhold_origin_ids
         default_values = {
             'invoice_date': self.date,
@@ -129,9 +114,6 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         withhold = invoice.copy(default=default_values)
         lines = self.env['account.move.line'] #empty recordset
         if withhold.l10n_ec_withhold_type == 'in_withhold':
-            #TODO REIMPLMENTAR FOR V15.1
-            # if withhold.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted'):
-            #     raise ValidationError(u'Solamente se puede tener una retención aprobada por factura de proveedor.')
             total = 0.0
             for line in self.account_withhold_line_ids:
                 tax_line = line.tax_id.invoice_repartition_line_ids.filtered(lambda x:x.repartition_type == 'tax')
@@ -175,6 +157,81 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             withhold.line_ids = lines
             withhold._post(soft=False)
         return invoice.l10n_ec_action_view_withholds() #TODO V15.2 talvez no retornar pues ya queda en el widget de pago
+    
+    def l10n_ec_validate_withhold_data_on_post(self):
+        
+            #TODO REIMPLMENTAR FOR V15.1
+            # if withhold.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted'):
+            #     raise ValidationError(u'Solamente se puede tener una retención aprobada por factura de proveedor.')
+            
+        partner_id = self.partner_id or self.partner_id
+        invoices = self.l10n_ec_withhold_origin_ids
+        if invoices and partner_id.commercial_partner_id != invoices[0].commercial_partner_id:
+           raise ValidationError(u'La empresa indicada en la retención no corresponde a la de las facturas.')
+        #Validamos que para cada factura exista maximo una retención de IVA y una de renta
+        #en todas las lineas de retención de todas las retenciónes asociadas a todas las facturas
+        categories = self.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids.tax_id.tax_group_id.mapped('l10n_ec_type')
+        categories = list(set(categories)) #remueve duplicados
+        for withhold_line in self.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids:
+            if withhold_line.move_id.state in ('posted') and withhold_line.move_id != self:
+                if withhold_line.tax_line_id.tax_group_id.l10n_ec_type in categories:
+                    if withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_vat':
+                        withhold_category = u'Retención IVA'
+                    elif withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_income_tax':
+                        withhold_category = u'Retención Renta'
+                    error_msg = u'Una factura no puede tener dos retenciones por el mismo concepto.\n' + \
+                                u'La retención previamente existente ' + withhold_line.move_id.name + \
+                                u' tiene tambien una retención por ' + withhold_category + u'.'  
+                    raise ValidationError(error_msg)
+                
+                
+                
+                    if not withhold.l10n_ec_withhold_origin_ids:
+                        raise ValidationError(u'La retención debe tener al menos una factura asociada.')
+                    if not withhold.l10n_ec_withhold_line_ids:
+                        raise ValidationError(u'Debe ingresar al menos un impuesto para aprobar la retención.')
+                    if withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_ec_total == 0.0:
+                        raise ValidationError(u'La cantidad de la retención debe ser mayor a cero.')
+                    if any(invoice.state not in ['posted'] for invoice in withhold.l10n_ec_withhold_origin_ids):
+                        raise ValidationError(u'Solo se puede registrar retenciones sobre facturas abiertas o pagadas.')
+                    withhold.l10n_ec_validate_accounting_parameters() #validaciones generales
+                    withhold.l10n_ec_validate_related_invoices(withhold.l10n_ec_withhold_origin_ids) # Checks on invoice records
+                
+    def l10n_ec_validate_withhold_accounting_parameters(self):
+        '''
+        Validacion de configuraciones de diarios y cuentas contables
+        '''
+        error = ''
+        list = []
+        for invoice in self.l10n_ec_withhold_origin_ids:
+            if self.invoice_date < invoice.invoice_date:
+                list.append(invoice.name)
+        if list:
+            joined_vals = '\n'.join('* ' + l for l in list)
+            error += u'Las siguientes facturas tienen una fecha posterior a la retención:\n%s\n' % joined_vals
+        amount_total = 0.0
+        for invoice in self.l10n_ec_withhold_origin_ids:
+            amount_total += invoice.amount_total
+        if self.l10n_ec_total > amount_total:
+                error += u'La cantidad a retener es mayor que el valor de las facturas.\n'
+        if error:
+            raise ValidationError(error)
+    
+    #TODO Reimplement for v15.1
+    def _post(self, soft=True):
+        #
+        '''
+        Invocamos el metodo post para generar los asientos de retenciones de forma manual y conciliar
+        los asientos de retenciones en ventas con la factura
+        '''
+        posted = super()._post(soft=soft)
+        for withhold in self:
+            if withhold.country_code == 'EC':
+                if withhold.l10n_ec_withhold_type in ['out_withhold']:
+                    (withhold + withhold.l10n_ec_withhold_origin_ids).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_receivable_id).reconcile()
+                elif withhold.l10n_ec_withhold_type in ['in_withhold']:
+                    (withhold + withhold.l10n_ec_withhold_origin_ids).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_payable_id).reconcile()
+        return posted 
     
     #TODO: rescatar las validaciones y la parte de ventas(compras ya esta implementado en el wizard), luego borrar el metodo
     def l10n_ec_make_withhold_entry(self):
@@ -413,3 +470,4 @@ class L10n_ecWizardAccountWithholdLine(models.TransientModel):
         help='The move of this entry line.'
         )
     
+    #TODO v15.1: Agregar subtotales de retención al wizard, similares a los del metodo _compute_total_invoice_ec

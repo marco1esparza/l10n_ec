@@ -4,7 +4,6 @@
 from . import account_move
 from . import account_edi_document
 from . import account_tax
-from . import res_currency
 from . import account_chart_template
 from . import product
 from . import res_company

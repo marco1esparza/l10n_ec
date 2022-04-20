@@ -90,9 +90,7 @@
 							<field name="state"/>
 		                </tree>
 					</field>
-					<group class="oe_subtotal_footer oe_right">
-						<field name="l10n_ec_invoice_vat_doce_subtotal"/>
-						<field name="l10n_ec_invoice_amount_untaxed"/>
+					<group>
 					</group>
 				</page>
 			</xpath>

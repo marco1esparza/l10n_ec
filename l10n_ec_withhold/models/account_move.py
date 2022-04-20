@@ -16,158 +16,87 @@ class AccountMove(models.Model):
         return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
         
     def copy_data(self, default=None):
-        #avoid duplicating withholds, it has not been tested
+        #avoid duplicating withholds, duplication has not been tested
         res = super(AccountMove, self).copy_data(default=default)
         if self.is_withholding():
             raise ValidationError(u'You can not duplicate a withhold, instead create a new one from the invoice.')
         return res
     
-    #TODO V15.2 Revisar si se incorpora en el l10n_ec_edi
-    @api.depends('journal_id', 'partner_id', 'company_id', 'move_type')
-    def _compute_l10n_latam_available_document_types(self):
-        #Para EC el computo del tipo de documento no depende del partner, se rescribe en ese sentido
-        #esto permite tener un tipo de documento por defecto al crear facturas, y facilita el ignreso
-        #del numero de autorización
-        self.l10n_latam_available_document_type_ids = False
-        for rec in self.filtered(lambda x: x.journal_id and x.l10n_latam_use_documents): #en esta linea se borro el filtro de partner_id
-            rec.l10n_latam_available_document_type_ids = self.env['l10n_latam.document.type'].search(rec._get_l10n_latam_documents_domain())
-            #TODO V15, hacer que para el consumidor final se excluyan los documentos que no puede manejar
+    #TODO: V15.2 Revisar con el equipo de Odoo, si a la retenciones les hacemos el is_invoice = True ya no se necesitaria este codigo
+    # def button_cancel_posted_moves(self):
+    #     # Verificamos si es una retencion y se puede ejecutar REQUEST EDI CANCELLATION
+    #     res = super().button_cancel_posted_moves()
+    #     to_cancel_documents = self.env['account.edi.document']
+    #     for move in self:
+    #         is_move_marked = False
+    #         for doc in move.edi_document_ids:
+    #             if doc.edi_format_id._needs_web_services() \
+    #                     and doc.attachment_id \
+    #                     and doc.state == 'sent' \
+    #                     and move.is_withholding():
+    #                 to_cancel_documents |= doc
+    #                 is_move_marked = True
+    #         if is_move_marked:
+    #             move.message_post(body=_("A cancellation of the EDI has been requested."))
+    #     to_cancel_documents.write({'state': 'to_cancel', 'error': False})
+    #     return res
+    # 
+    # @api.depends(
+    #     'state',
+    #     'edi_document_ids.state',
+    #     'edi_document_ids.attachment_id')
+    # def _compute_edi_show_cancel_button(self):
+    #     # Validacion de mostrar el REQUEST EDI CANCELATION a las retenciones
+    #     for move in self:
+    #         super(AccountMove, move)._compute_edi_show_cancel_button()
+    #         if move.is_withholding():
+    #             move.edi_show_cancel_button = any([doc.edi_format_id._needs_web_services()
+    #                                                and doc.attachment_id
+    #                                                and doc.state == 'sent'
+    #                                                and move.is_withholding()
+    #                                                for doc in move.edi_document_ids])
 
-    #TODO V15.2 Revisar si se incorpora en el l10n_latam
-    @api.depends('l10n_latam_available_document_type_ids')
-    @api.depends_context('internal_type')
-    def _compute_l10n_latam_document_type(self):
-        #Reescribimos el metodo original de l10n_latam_document_type, pues reescribia el tipo de documento
-        #cada vez q se cambiaba el partner, cuando debería reescribirlo solo si el tipo de documento
-        #viejo no forma parte del nuevo l10n_latam_available_document_type_ids
-        internal_type = self._context.get('internal_type', False)
-        for rec in self.filtered(lambda x: x.state == 'draft'):
-            document_types = rec.l10n_latam_available_document_type_ids._origin
-            document_types = internal_type and document_types.filtered(lambda x: x.internal_type == internal_type) or document_types
-            #linea agregada por trescloud:
-            if rec.l10n_latam_document_type_id not in document_types:
-                rec.l10n_latam_document_type_id = document_types and document_types[0].id
+    # TODO V15.2 ya no se requiere pues al tener un documento EDI el modulo account_edi impide que se cambie a borrador
+    # def button_draft(self):
+    #     #For now the wizard for withhold lines can be called only from the invoices... it is imposible to edit!
+    #     res = super(AccountMove, self).button_draft()
+    #     for move in self:
+    #         if move.country_code == 'EC':
+    #             if move.l10n_ec_withhold_type == 'in_withhold':
+    #                 raise ValidationError(_("Can not send to draft an issued withhold, instead issue a new one"))
+    #     return res
     
     #TODO Reimplement for v15.1
-    # def _post(self, soft=True):
-    #     '''
-    #     Invocamos el metodo post para generar los asientos de retenciones de forma manual y conciliar
-    #     los asientos de retenciones en ventas con la factura
-    #     '''
-    #     posted = super()._post(soft=soft)
-    #     for withhold in self:
-    #         if withhold.country_code == 'EC':
-    #             if withhold.l10n_ec_withhold_type in ['out_withhold']:
-    #                 (withhold + withhold.l10n_ec_withhold_origin_ids).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_receivable_id).reconcile()
-    #             elif withhold.l10n_ec_withhold_type in ['in_withhold']:
-    #                 (withhold + withhold.l10n_ec_withhold_origin_ids).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_payable_id).reconcile()
-    #     return posted 
-
-    def button_cancel_posted_moves(self):
-        # Verificamos si es una retencion y se puede ejecutar REQUEST EDI CANCELLATION
-        res = super().button_cancel_posted_moves()
-        to_cancel_documents = self.env['account.edi.document']
+    def _post(self, soft=True):
+        posted = super()._post(soft=soft)
         for move in self:
-            is_move_marked = False
-            for doc in move.edi_document_ids:
-                if doc.edi_format_id._needs_web_services() \
-                        and doc.attachment_id \
-                        and doc.state == 'sent' \
-                        and move.is_withholding():
-                    to_cancel_documents |= doc
-                    is_move_marked = True
-            if is_move_marked:
-                move.message_post(body=_("A cancellation of the EDI has been requested."))
-        to_cancel_documents.write({'state': 'to_cancel', 'error': False})
-        return res
-
-    @api.depends(
-        'state',
-        'edi_document_ids.state',
-        'edi_document_ids.attachment_id')
-    def _compute_edi_show_cancel_button(self):
-        # Validacion de mostrar el REQUEST EDI CANCELATION a las retenciones
-        for move in self:
-            super(AccountMove, move)._compute_edi_show_cancel_button()
-            if move.is_withholding():
-                move.edi_show_cancel_button = any([doc.edi_format_id._needs_web_services()
-                                                   and doc.attachment_id
-                                                   and doc.state == 'sent'
-                                                   and move.is_withholding()
-                                                   for doc in move.edi_document_ids])
-
-    def button_draft(self):
-        #For now the wizard for withhold lines can be called only from the invoices... it is imposible to edit!
-        res = super(AccountMove, self).button_draft()
-        for move in self:
-            if move.country_code == 'EC':
-                if move.l10n_ec_withhold_type == 'in_withhold':
-                    raise ValidationError(_("Can not send to draft an issued withhold, instead issue a new one"))
-        return res
+            if move.country_code == 'EC' and move.is_withholding():
+                move._l10n_ec_withhold_validate_related_invoices(self,invoices)
+        return posted 
     
-    def l10n_ec_validate_withhold_data_on_post(self):
-        partner_id = partner_id or self.partner_id
-        if invoices and partner_id.commercial_partner_id != invoices[0].commercial_partner_id:
-           raise ValidationError(u'La empresa indicada en la retención no corresponde a la de las facturas.')
-        #Validamos que para cada factura exista maximo una retención de IVA y una de renta
-        #en todas las lineas de retención de todas las retenciónes asociadas a todas las facturas
-        categories = self.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids.tax_id.tax_group_id.mapped('l10n_ec_type')
-        categories = list(set(categories)) #remueve duplicados
-        for withhold_line in self.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids:
-            if withhold_line.move_id.state in ('posted') and withhold_line.move_id != self:
-                if withhold_line.tax_line_id.tax_group_id.l10n_ec_type in categories:
-                    if withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_vat':
-                        withhold_category = u'Retención IVA'
-                    elif withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_income_tax':
-                        withhold_category = u'Retención Renta'
-                    error_msg = u'Una factura no puede tener dos retenciones por el mismo concepto.\n' + \
-                                u'La retención previamente existente ' + withhold_line.move_id.name + \
-                                u' tiene tambien una retención por ' + withhold_category + u'.'  
-                    raise ValidationError(error_msg)
-                
-                
-                
-                    if not withhold.l10n_ec_withhold_origin_ids:
-                        raise ValidationError(u'La retención debe tener al menos una factura asociada.')
-                    if not withhold.l10n_ec_withhold_line_ids:
-                        raise ValidationError(u'Debe ingresar al menos un impuesto para aprobar la retención.')
-                    if withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_ec_total == 0.0:
-                        raise ValidationError(u'La cantidad de la retención debe ser mayor a cero.')
-                    if any(invoice.state not in ['posted'] for invoice in withhold.l10n_ec_withhold_origin_ids):
-                        raise ValidationError(u'Solo se puede registrar retenciones sobre facturas abiertas o pagadas.')
-                    withhold.l10n_ec_validate_accounting_parameters() #validaciones generales
-                    withhold.l10n_ec_validate_related_invoices(withhold.l10n_ec_withhold_origin_ids) # Checks on invoice records
-                
-    def l10n_ec_validate_accounting_parameters(self):
-        '''
-        Validacion de configuraciones de diarios y cuentas contables
-        '''
-        error = ''
-        list = []
-        for invoice in self.l10n_ec_withhold_origin_ids:
-            if self.invoice_date < invoice.invoice_date:
-                list.append(invoice.name)
-        if list:
-            joined_vals = '\n'.join('* ' + l for l in list)
-            error += u'Las siguientes facturas tienen una fecha posterior a la retención:\n%s\n' % joined_vals
-        amount_total = 0.0
-        for invoice in self.l10n_ec_withhold_origin_ids:
-            amount_total += invoice.amount_total
-        if self.l10n_ec_total > amount_total:
-                error += u'La cantidad a retener es mayor que el valor de las facturas.\n'
-        if error:
-            raise ValidationError(error)
-
-
-
-    def _recompute_tax_lines(self, recompute_tax_base_amount=False):
-        # It allows generating zero entries when the tax amount is zero, needed to keep base amount in 0% withholdings
-        #TODO V15.1 hacer el metodo solo para ecuador
-        #TODO V15.2 luego de la fusión con Odoo evaluar moverlo al l10n_ec
-        return super(AccountMove, self.with_context(generate_zero_entry=True))._recompute_tax_lines(recompute_tax_base_amount)
-    
+    @api.model
+    def _l10n_ec_withhold_validate_related_invoices(self, invoices):
+        # Let's test the source invoices for missuse
+        for invoice in invoices:
+            if not invoice.l10n_ec_allow_withhold:
+                raise ValidationError(u'The selected document type does not support withholds')
+        #TODO V15.1 mover estas validaciones dentro del lazo for por eficiencia y para mostrar mensajes de error con numero de factura
+        if any(invoice.state not in ['posted'] for invoice in invoices):
+            raise ValidationError(u'Can not create a withhold, some documents are not yet posted')
+        if invoices and any(inv.commercial_partner_id != invoices[0].commercial_partner_id for inv in invoices): #and not self.env.context.get('massive_withhold'):
+            raise ValidationError(u'Some documents belong to different partners, please correct your selection')
+        if invoices and any(MAP_INVOICE_TYPE_PARTNER_TYPE[inv.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[invoices[0].move_type] for inv in invoices):
+            raise ValidationError(u'Can not mix documents supplier and customer documents in the same withhold')
+        if invoices and any(inv.currency_id != invoices[0].currency_id for inv in invoices):
+            #TODO: v15.1 Mas bien validar que sea sobre la moneda de la compañia, es decir dólares
+            raise ValidationError(u'A fin de emitir retenciones sobre múltiples facturas, aquellas deben tener la misma moneda.')
+            # TODO: v15.1 Decide if needed
+            # if len(self) > 1 and invoice.move_type != 'out_invoice':
+            #     raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
+        
     def l10n_ec_add_withhold(self):
-        #Launches the withholds wizard linked to selected invoices        
+        #Launches the withholds wizard linked to selected invoices
+        self._l10n_ec_withhold_validate_related_invoices(invoices=self)
         view = self.env.ref('l10n_ec_withhold.wizard_account_withhold_form')
         return {
             'name': u'Withholding',
@@ -180,7 +109,7 @@ class AccountMove(models.Model):
             'target': 'new'
         }
 
-    # #TODO V15.2 Posiblemente remover el metodo pues el wizard ya tiene algo parecido... pero talvez se necesite
+    # #TODO V15.2 Posiblemente remover el metodo pues el wizard ya tiene algo parecido... pero talvez se necesite para edicion posterior de la retencion
     # @api.depends('move_type')
     # def _compute_invoice_filter_type_domain(self):
     #     '''
@@ -191,7 +120,7 @@ class AccountMove(models.Model):
     #         if move.l10n_ec_withhold_type and move.l10n_ec_withhold_type in ('in_withhold'):
     #             move.invoice_filter_type_domain = 'general'
     # 
-    # #TODO V15.2 Posiblemente remover el metodo pues el wizard ya tiene algo parecido... pero talvez se necesite
+    # #TODO V15.2 Posiblemente remover el metodo pues el wizard ya tiene algo parecido... pero talvez se necesite para edicion posterior de la retencion
     # def _get_l10n_latam_documents_domain(self):
     #     #Filter document types according to ecuadorian type
     #     
@@ -218,7 +147,7 @@ class AccountMove(models.Model):
         return result
 
     @api.depends('l10n_ec_withhold_line_ids')
-    def _compute_total_invoice_ec(self):
+    def _compute_total_invoice_ec(self): #TODO: V15.1 change to _l10n_ec_compute_withhold_totals
         '''
         '''
         res = super(AccountMove, self)._compute_total_invoice_ec()
@@ -252,29 +181,14 @@ class AccountMove(models.Model):
             invoice.l10n_ec_allow_withhold = result
     
     @api.depends('l10n_ec_withhold_ids')
-    def _compute_l10n_ec_withhold_count(self):
+    def _compute_l10n_ec_withhold_count(self): #TODO V15.1 combinarlo en el metodo del computo del campo l10n_ec_withhold_ids
         for invoice in self:
             count = len(self.l10n_ec_withhold_ids)
             invoice.l10n_ec_withhold_count = count
-    
-    #TODO: REIMPLEMENT FOR V15.1, llevandonos al valor por defecto para retenciones
-    @api.depends()
-    def _l10n_ec_compute_total_invoices(self):
-        '''
-        Computa subtotales que dependen de la factura, estos subtotales son 
-        utilizados para sugerir valores al momento de crear la retención
-        '''
-        for invoice in self:
-            #valor de arranque
-            l10n_ec_invoice_vat_doce_subtotal = l10n_ec_invoice_amount_untaxed = 0.0
-            #computamos
-            invoice.l10n_ec_invoice_vat_doce_subtotal = sum(inv.l10n_ec_vat_doce_subtotal for inv in invoice.l10n_ec_withhold_origin_ids)
-            invoice.l10n_ec_invoice_amount_untaxed = sum(inv.amount_untaxed for inv in invoice.l10n_ec_withhold_origin_ids)
 
     def _get_name_invoice_report(self):
         self.ensure_one()
-        if self.l10n_latam_use_documents and self.company_id.country_id.code == 'EC' \
-                and self.move_type in ('entry') and self.l10n_latam_document_type_id.code in ['07']:
+        if self.is_withholding():
             return 'l10n_ec_withhold.report_invoice_document'
         return super()._get_name_invoice_report()
 
@@ -287,6 +201,7 @@ class AccountMove(models.Model):
             is_withholding = True
         return is_withholding
 
+    # TODO: V15.2 este calculo debiera de ser incluido... aunque podría funcionar si está marcado como is_invoice?
     # @api.depends(
     #     'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
     #     'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual',
@@ -402,7 +317,7 @@ class AccountMove(models.Model):
     @api.depends('line_ids')
     def _compute_l10n_ec_withhold_line_ids(self):
         for withhold in self:
-            withhold.l10n_ec_withhold_line_ids = withhold.line_ids.filtered(lambda l: l.credit > 0.0)
+            withhold.l10n_ec_withhold_line_ids = withhold.line_ids.filtered(lambda l: l.tax_line_id)
 
     _EC_WITHHOLD_TYPE = [
         ('out_withhold', 'Customer Withhold'),
@@ -429,6 +344,7 @@ class AccountMove(models.Model):
         compute='_compute_l10n_ec_withhold_line_ids',
         readonly=True
         )
+    #TODO: V15.1 reemplazarlo por un campo funcional store False con el mismo nombre, que compute las retenciones en base al campo l10n_ec_witthold_invoice_id 
     l10n_ec_withhold_ids = fields.Many2many(
         'account.move',
         'account_move_invoice_withhold_rel',
@@ -438,6 +354,8 @@ class AccountMove(models.Model):
         copy=False,
         help='Link to withholds related to this invoice'
         )
+    
+    #TODO: V15.1 reemplazarlo por un campo funcional store False con el mismo nombre, que compute las retenciones en base al campo l10n_ec_witthold_invoice_id
     l10n_ec_withhold_origin_ids = fields.Many2many(
         'account.move',
         'account_move_invoice_withhold_rel',
@@ -488,22 +406,6 @@ class AccountMove(models.Model):
         readonly=True, 
         help='Total value of withhold'
         )
-    l10n_ec_invoice_amount_untaxed = fields.Monetary(
-        string='Base Sugerida Ret. Renta',
-        compute='_l10n_ec_compute_total_invoices',
-        tracking=True,
-        store=False, 
-        readonly=True, 
-        help='Base imponible sugerida (no obligatoria) para retención del Impuesto a la Renta'
-        )
-    l10n_ec_invoice_vat_doce_subtotal = fields.Monetary(
-        string='Base Sugerida Ret. IVA', 
-        compute='_l10n_ec_compute_total_invoices',
-        tracking=True,
-        store=False, 
-        readonly=True, 
-        help='Base imponible sugerida (no obligatoria) para retención del IVA'
-        )
     l10n_ec_require_withhold_tax = fields.Boolean(
         compute='_l10n_ec_compute_require_withhold_tax'
         )
@@ -514,7 +416,12 @@ class AccountMove(models.Model):
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
-                 
+    
+    # TODO V15.1 agregar un campo que vincule la línea de asiento contable de retención a la cabecera de la factura de origen
+    # Campo l10n_ec_witthold_invoice_id, en este campo guardar la factura desde el wizard, debe ser obligatorio, ondelete "restrict"
+    # 
+    # 
+    
     def _l10n_ec_get_computed_taxes(self):
         '''
         For purchases adds prevalence for tax mapping to ease withholds in Ecuador, in the following order:

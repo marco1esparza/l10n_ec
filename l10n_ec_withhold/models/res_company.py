@@ -7,7 +7,6 @@ from odoo import api, fields, models, _
 class ResCompany(models.Model):
     _inherit = 'res.company'
     
-    #Columns
     l10n_ec_issue_withholds = fields.Boolean(
         string='Issue Withhols',
         default=True,

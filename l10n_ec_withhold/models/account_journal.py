@@ -9,7 +9,6 @@ class AccountJournal(models.Model):
     
     @api.onchange('type', 'l10n_ec_withhold_type')
     def onchange_withhold_type(self):
-        #TODO: Make method specific for Ecuador only
         if self.type != 'general':
             self.l10n_ec_withhold_type = False
         elif self.type == 'general' and self.l10n_ec_withhold_type == 'in_withhold':
@@ -27,7 +26,7 @@ class AccountJournal(models.Model):
         for rec in self:
             if rec.env['account.move'].search([('journal_id', '=', rec.id), ('posted_before', '=', True)], limit=1):
                 raise ValidationError(_(
-                    'You can not modify the field "Withhold Type?" if there are validated withholds in this journal!'))
+                    'You can not modify the field "Withhold Type" if there are validated withholds in this journal!'))
     
     l10n_ec_withhold_type = fields.Selection(
         [('out_withhold', 'Sales Withhold'),
