@@ -11,8 +11,8 @@ class AccountMove(models.Model):
     @api.model
     def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
         #only shows previously selected invoices in the withhold wizard lines
-        if self.env.context.get('origin') == 'receive_withhold':
-            return super(AccountMove, self)._name_search(name, args=[('id', 'in', self.env.context.get('l10n_ec_withhold_origin_ids'))], operator=operator, limit=limit, name_get_uid=name_get_uid)
+        if self.env.context.get('l10n_ec_related_invoices_ctx'):
+            return super(AccountMove, self)._name_search(name, args=[('id', 'in', self.env.context.get('l10n_ec_related_invoices_ctx'))], operator=operator, limit=limit, name_get_uid=name_get_uid)
         return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
         
     def copy_data(self, default=None):
@@ -66,14 +66,6 @@ class AccountMove(models.Model):
     #                 raise ValidationError(_("Can not send to draft an issued withhold, instead issue a new one"))
     #     return res
     
-    #TODO Reimplement for v15.1
-    def _post(self, soft=True):
-        posted = super()._post(soft=soft)
-        for move in self:
-            if move.country_code == 'EC' and move.is_withholding():
-                move._l10n_ec_withhold_validate_related_invoices(self,invoices)
-        return posted 
-    
     @api.model
     def _l10n_ec_withhold_validate_related_invoices(self, invoices):
         # Let's test the source invoices for missuse
@@ -85,6 +77,12 @@ class AccountMove(models.Model):
             raise ValidationError(u'Can not create a withhold, some documents are not yet posted')
         if invoices and any(inv.commercial_partner_id != invoices[0].commercial_partner_id for inv in invoices): #and not self.env.context.get('massive_withhold'):
             raise ValidationError(u'Some documents belong to different partners, please correct your selection')
+        MAP_INVOICE_TYPE_PARTNER_TYPE = {
+            'out_invoice': 'customer',
+            'out_refund': 'customer',
+            'in_invoice': 'supplier',
+            'in_refund': 'supplier',
+        }
         if invoices and any(MAP_INVOICE_TYPE_PARTNER_TYPE[inv.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[invoices[0].move_type] for inv in invoices):
             raise ValidationError(u'Can not mix documents supplier and customer documents in the same withhold')
         if invoices and any(inv.currency_id != invoices[0].currency_id for inv in invoices):
@@ -429,8 +427,7 @@ class AccountMoveLine(models.Model):
     # TODO V15.1 agregar un campo que vincule la línea de asiento contable de retención a la cabecera de la factura de origen
     # Campo l10n_ec_withhold_invoice_id, en este campo guardar la factura desde el wizard, debe ser obligatorio, ondelete "restrict"
     # 
-    # 
-    
+        
     def _l10n_ec_get_computed_taxes(self):
         '''
         For purchases adds prevalence for tax mapping to ease withholds in Ecuador, in the following order:
@@ -444,10 +441,10 @@ class AccountMoveLine(models.Model):
         - If product is services or not set then l10n_ec_vat_withhold_services
         If withholds doesn't apply to the document type then remove the withholds  
         '''
-        super_tax_ids = self.env['account.tax']
-        vat_withhold_tax = False
-        profit_withhold_tax = False
         if self.move_id.country_code == 'EC':
+            super_tax_ids = self.env['account.tax']
+            vat_withhold_tax = False
+            profit_withhold_tax = False
             if self.move_id.is_purchase_document(include_receipts=True):
                 if not self.exclude_from_invoice_tab: #just regular invoice lines
                     if self.move_id.l10n_ec_require_withhold_tax: #compute withholds

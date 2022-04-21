@@ -13,9 +13,8 @@ class AccountTax(models.Model):
         # - Show only sales withhold taxes on sales withholds
         # - Show only purchase withhold taxes on purchase withholds
         context = self._context or {}
-        if context.get('origin') == 'receive_withhold':
-            if context.get('withhold_type') == 'in_withhold':
-                args += [('type_tax_use', '=', 'purchase'),('l10n_ec_type', 'in', ['withhold_vat','withhold_income_tax'])]
-            elif context.get('withhold_type') == 'out_withhold':
-                args += [('type_tax_use', '=', 'none'),('l10n_ec_type', 'in', ['withhold_vat','withhold_income_tax'])]
+        if context.get('l10n_ec_withhold_type_ctx') == 'in_withhold':
+            args += [('type_tax_use', '=', 'purchase'),('l10n_ec_type', 'in', ['withhold_vat','withhold_income_tax'])]
+        elif context.get('l10n_ec_withhold_type_ctx') == 'out_withhold':
+            args += [('type_tax_use', '=', 'none'),('l10n_ec_type', 'in', ['withhold_vat','withhold_income_tax'])]
         return super(AccountTax, self)._search(args, offset, limit, order, count=count, access_rights_uid=access_rights_uid)

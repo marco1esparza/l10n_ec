@@ -587,7 +587,7 @@ class AccountMove(models.Model):
         'l10n_ec.invoice.payment.method',
         'move_id',
         string='Payment Methods',
-        copy=True,
+        copy=False,
         help='Estos valores representan la forma estimada de pago de la factura, son '
              'utilizados con fines informativos en documentos impresos y documentos '
              'electrónicos. No tienen efecto contable.'
