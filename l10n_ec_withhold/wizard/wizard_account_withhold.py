@@ -50,7 +50,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             'l10n_latam_document_type_id': l10n_latam_document_type_id and l10n_latam_document_type_id.id,
             'date': fields.Date.context_today(self),
             'withhold_type': withhold_type,
-            'withhold_origin_ids': [(6, 0, invoices.ids)],
+            'related_invoices': [(6, 0, invoices.ids)],
             'company_id': invoices[0].company_id.id,
             }
         if withhold_type == 'in_withhold':
@@ -91,12 +91,9 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         return default_values
     
     def action_create_and_post_withhold(self):
-        self.env['account.move']._l10n_ec_withhold_validate_related_invoices(withhold_origin_ids)
-        self.l10n_ec_validate_withhold_data_on_post()
-        self.l10n_ec_validate_withhold_accounting_parameters()
-        
-        
-        invoices = self.withhold_origin_ids
+        self.env['account.move']._l10n_ec_withhold_validate_related_invoices(related_invoices)
+        self._validate_withhold_data_on_post()
+        invoices = self.related_invoices
         default_values = {
             'invoice_date': self.date,
             'journal_id': self.journal_id.id,
@@ -106,7 +103,6 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             'l10n_latam_document_type_id': self.l10n_latam_document_type_id.id,
             'l10n_latam_document_number': self.l10n_latam_document_number,
             'l10n_ec_invoice_payment_method_ids':  [(5, 0, 0)], #TODO v15.2 remove when merging into Odoo branch
-            'l10n_ec_withhold_origin_ids': [(6, 0, invoices.ids)], #TODO v15.1 reimplementar, quiza con un campo funcional store false
             'l10n_ec_withhold_type': self.withhold_type,
         }
         invoice = invoices[0]
@@ -156,23 +152,23 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                 lines += line
             withhold.line_ids = lines
             withhold._post(soft=False)
+            self._reconcile_withhold_vs_invoices()
         return invoice.l10n_ec_action_view_withholds() #TODO V15.2 talvez no retornar pues ya queda en el widget de pago
     
-    def l10n_ec_validate_withhold_data_on_post(self):
-        
-            #TODO REIMPLMENTAR FOR V15.1
-            # if withhold.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted'):
-            #     raise ValidationError(u'Solamente se puede tener una retención aprobada por factura de proveedor.')
-            
-        partner_id = self.partner_id or self.partner_id
-        invoices = self.l10n_ec_withhold_origin_ids
-        if invoices and partner_id.commercial_partner_id != invoices[0].commercial_partner_id:
-           raise ValidationError(u'La empresa indicada en la retención no corresponde a la de las facturas.')
-        #Validamos que para cada factura exista maximo una retención de IVA y una de renta
-        #en todas las lineas de retención de todas las retenciónes asociadas a todas las facturas
-        categories = self.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids.tax_id.tax_group_id.mapped('l10n_ec_type')
-        categories = list(set(categories)) #remueve duplicados
-        for withhold_line in self.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids:
+    def _validate_withhold_data_on_post(self):
+        #Validations that apply only on withhold post, other validations should be in account.move class method _l10n_ec_withhold_validate_related_invoices
+        # if withhold.related_invoices.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted'):
+        #     TODO V15.2, evaluar si debe haber restricción en la retención en compras 
+        #     raise ValidationError(u'Solamente se puede tener una retención aprobada por factura de proveedor.')
+        self.env['account.move'].l10n_ec_validate_related_invoices(withhold.related_invoices) # Checks on invoice records
+        if not self.related_invoices:
+            raise ValidationError(u'The withhold must be linked to some invoice')
+        if not self.l10n_ec_withhold_line_ids:
+            raise ValidationError(u'You must input at least one withhold line')
+        #Validate that each invoice has no more than one vat withhold document and one profit withhold document
+        categories = self.related_invoices.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids.tax_id.tax_group_id.mapped('l10n_ec_type')
+        categories = list(set(categories)) #remove duplicates
+        for withhold_line in self.related_invoices.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids:
             if withhold_line.move_id.state in ('posted') and withhold_line.move_id != self:
                 if withhold_line.tax_line_id.tax_group_id.l10n_ec_type in categories:
                     if withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_vat':
@@ -183,55 +179,55 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                                 u'La retención previamente existente ' + withhold_line.move_id.name + \
                                 u' tiene tambien una retención por ' + withhold_category + u'.'  
                     raise ValidationError(error_msg)
-                
-                
-                
-                    if not withhold.l10n_ec_withhold_origin_ids:
-                        raise ValidationError(u'La retención debe tener al menos una factura asociada.')
-                    if not withhold.l10n_ec_withhold_line_ids:
-                        raise ValidationError(u'Debe ingresar al menos un impuesto para aprobar la retención.')
-                    if withhold.l10n_ec_withhold_type in ['out_withhold'] and withhold.l10n_ec_total == 0.0:
-                        raise ValidationError(u'La cantidad de la retención debe ser mayor a cero.')
-                    if any(invoice.state not in ['posted'] for invoice in withhold.l10n_ec_withhold_origin_ids):
-                        raise ValidationError(u'Solo se puede registrar retenciones sobre facturas abiertas o pagadas.')
-                    withhold.l10n_ec_validate_accounting_parameters() #validaciones generales
-                    withhold.l10n_ec_validate_related_invoices(withhold.l10n_ec_withhold_origin_ids) # Checks on invoice records
-                
+        withhold.l10n_ec_validate_withhold_accounting_parameters() #TODO V15.1 incorporar estas validaciones dentro del metodo validate_withhold_data_on_post()
+        #Se verifica que el monto total de iva o renta por factura no sobrepase la base gravable
+        for invoice in withhold.related_invoices:
+            #TODO V15.1 adicionar el campo l10n_ec_withhold_invoice_id al account.move.line
+            total_base_vat = 0.0
+            vat_lines = account_withhold_line_ids.filtered(lambda withhold_line: withhold_line.tax_id.tax_group_id.l10n_ec_type == 'withhold_vat' and withhold_line.invoice_id == invoice)
+            for vat_line in vat_lines:
+                total_base_vat += vat_line.base
+            precision = invoice.company_id.currency_id.decimal_places
+            diff_base_vat = float_compare(total_base_vat, invoice.l10n_ec_vat_doce_subtotal, precision_digits=precision)
+            if diff_base_vat > 0:
+                raise ValidationError(u'La base imponible de la retención de iva es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
+            total_base_profit = 0.0
+            vat_lines = account_withhold_line_ids.filtered(lambda withhold_line: withhold_line.tax_id.tax_group_id.l10n_ec_type == 'withhold_income_tax' and withhold_line.invoice_id == invoice)
+            for profit_line in profit_lines:
+                total_base_profit += profit_line.base
+            diff_base_profit = float_compare(total_base_profit, invoice.amount_untaxed, precision_digits=precision)
+            if diff_base_profit > 0:
+                raise ValidationError(u'La base imponible de la retención de renta es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
+        
+    #TODO V15.1 remover este metodo e incorporarlo al unico metodo de validacion validate_withhold_data_on_post()
+    #En las lineas de retencion poner un constraint que impida que se digiten montos inferiores a cero
     def l10n_ec_validate_withhold_accounting_parameters(self):
         '''
         Validacion de configuraciones de diarios y cuentas contables
         '''
         error = ''
         list = []
-        for invoice in self.l10n_ec_withhold_origin_ids:
+        for invoice in self.related_invoices:
             if self.invoice_date < invoice.invoice_date:
                 list.append(invoice.name)
         if list:
             joined_vals = '\n'.join('* ' + l for l in list)
             error += u'Las siguientes facturas tienen una fecha posterior a la retención:\n%s\n' % joined_vals
         amount_total = 0.0
-        for invoice in self.l10n_ec_withhold_origin_ids:
+        for invoice in self.related_invoices:
             amount_total += invoice.amount_total
         if self.l10n_ec_total > amount_total:
                 error += u'La cantidad a retener es mayor que el valor de las facturas.\n'
         if error:
             raise ValidationError(error)
     
-    #TODO Reimplement for v15.1
-    def _post(self, soft=True):
-        #
-        '''
-        Invocamos el metodo post para generar los asientos de retenciones de forma manual y conciliar
-        los asientos de retenciones en ventas con la factura
-        '''
-        posted = super()._post(soft=soft)
-        for withhold in self:
-            if withhold.country_code == 'EC':
-                if withhold.l10n_ec_withhold_type in ['out_withhold']:
-                    (withhold + withhold.l10n_ec_withhold_origin_ids).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_receivable_id).reconcile()
-                elif withhold.l10n_ec_withhold_type in ['in_withhold']:
-                    (withhold + withhold.l10n_ec_withhold_origin_ids).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_payable_id).reconcile()
-        return posted 
+    @api.model
+    def _reconcile_withhold_vs_invoices(self, withhold, invoices):
+        #reconciles the withhold against the invoce, pays older open invoice first
+        if withhold.l10n_ec_withhold_type in ['out_withhold']:
+            (withhold + withhold.related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_receivable_id).reconcile()
+        elif withhold.l10n_ec_withhold_type in ['in_withhold']:
+            (withhold + withhold.related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == withhold.partner_id.property_account_payable_id).reconcile()        
     
     #TODO: rescatar las validaciones y la parte de ventas(compras ya esta implementado en el wizard), luego borrar el metodo
     def l10n_ec_make_withhold_entry(self):
@@ -241,123 +237,101 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         account_move_line_obj = self.env['account.move.line'] 
         for withhold in self:
             if withhold.country_code == 'EC':
-
-
-
-                    #Retenciones en ventas
-                    partner = withhold.partner_id.commercial_partner_id
-                    if withhold.l10n_ec_withhold_type == 'out_withhold':
-                        #Se verifica que el monto total de iva o renta por factura no sobrepase la base gravable
-                        for invoice in withhold.l10n_ec_withhold_origin_ids:
-                            total_base_vat = 0.0
-                            vat_lines = self.env['l10n_ec.account.withhold.line'].search([('move_id','=',withhold.id), ('invoice_id','=',invoice.id), ('tax_id.tax_group_id.l10n_ec_type','=','withhold_vat')])
-                            for vat_line in vat_lines:
-                                total_base_vat += vat_line.base
-                            precision = invoice.company_id.currency_id.decimal_places
-                            diff_base_vat = float_compare(total_base_vat, invoice.l10n_ec_vat_doce_subtotal, precision_digits=precision)
-                            if diff_base_vat > 0:
-                                raise ValidationError(u'La base imponible de la retención de iva es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
-                            total_base_profit = 0.0
-                            profit_lines = self.env['l10n_ec.account.withhold.line'].search([('move_id','=',withhold.id), ('invoice_id','=',invoice.id), ('tax_id.tax_group_id.l10n_ec_type','=','withhold_income_tax')])
-                            for profit_line in profit_lines:
-                                total_base_profit += profit_line.base
-                            diff_base_profit = float_compare(total_base_profit, invoice.amount_untaxed, precision_digits=precision)
-                            if diff_base_profit > 0:
-                                raise ValidationError(u'La base imponible de la retención de renta es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)                            
-                        if withhold.l10n_ec_withhold_line_ids:
-                            #create the account.move.lines
-                            #Credit
-                            vals = {
-                                'name': withhold.name,
-                                'move_id': withhold.id,
-                                'partner_id': partner.id,
-                                'account_id': partner.property_account_receivable_id.id,
-                                'date_maturity': False,
-                                'quantity': 1.0,
-                                'amount_currency': 0.0, #Withholds are always in company currency
-                                'price_unit': withhold.l10n_ec_total,
-                                'debit': 0.0,
-                                'credit': withhold.l10n_ec_total,
-                                'tax_base_amount': 0.0,
-                                'is_rounding_line': False
-                            }
-                            account_move_line_obj.with_context(check_move_validity=False).create(vals)
-                            for line in withhold.l10n_ec_withhold_line_ids:
-                                #Debit
-                                tax_line = line.tax_id.invoice_repartition_line_ids.filtered(lambda x:x.repartition_type == 'tax')
-                                vals = {
-                                    'name': line.tax_id.name + ' ' + line.invoice_id.name,
-                                    'move_id': withhold.id,
-                                    'partner_id': partner.id,
-                                    'account_id': line.account_id.id,
-                                    'date_maturity': False,
-                                    'quantity': 1.0,
-                                    'amount_currency': 0.0, #Withholds are always in company currency
-                                    'price_unit': (-1) * line.amount,
-                                    'debit': line.amount,
-                                    'credit': 0.0,
-                                    'tax_base_amount': line.base,
-                                    'tax_line_id': line.tax_id.id, #originator tax
-                                    'tax_repartition_line_id': tax_line.id,
-                                    'tax_tag_ids': [(6, 0, tax_line.tag_ids.ids)],                                    
-                                }
-                                debit_vals_list = [{
-                                    "move_id": withhold.id,
-                                    "account_id": account.id,
-                                    "debit": tax_amount,
-                                    "price_unit": tax_amount * -1,
-                                    "price_subtotal": tax_amount * -1,
-                                    "price_total": tax_amount * -1,
-                                    "quantity": 1,
-                                    "credit": 0.0,
-                                    "name": name,
-                                    "tax_tag_ids": tax_repartition.tag_ids and [(6, 0, tax_repartition.tag_ids.ids)] or [],
-                                    "tax_repartition_line_id": tax_repartition.id,
-                                    "tax_tag_invert": True,
-                                    'tax_base_amount': line.base_amount,
-                                },]
-                                
-                                account_move_line_obj.with_context(check_move_validity=False).create(vals)
-                    #Retenciones en compras
-                    lines = self.env['account.move.line']
-                    if withhold.l10n_ec_withhold_type == 'in_withhold':
-                        if withhold.l10n_ec_withhold_origin_ids.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted'):
-                            raise ValidationError(u'Solamente se puede tener una retención aprobada por factura de proveedor.')
+               #Retenciones en ventas
+                partner = withhold.partner_id.commercial_partner_id
+                if withhold.l10n_ec_withhold_type == 'out_withhold':                            
+                    if withhold.l10n_ec_withhold_line_ids:
+                        #create the account.move.lines
+                        #Credit
+                        vals = {
+                            'name': withhold.name,
+                            'move_id': withhold.id,
+                            'partner_id': partner.id,
+                            'account_id': partner.property_account_receivable_id.id,
+                            'date_maturity': False,
+                            'quantity': 1.0,
+                            'amount_currency': 0.0, #Withholds are always in company currency
+                            'price_unit': withhold.l10n_ec_total,
+                            'debit': 0.0,
+                            'credit': withhold.l10n_ec_total,
+                            'tax_base_amount': 0.0,
+                            'is_rounding_line': False
+                        }
+                        account_move_line_obj.with_context(check_move_validity=False).create(vals)
                         for line in withhold.l10n_ec_withhold_line_ids:
+                            #Debit
+                            tax_line = line.tax_id.invoice_repartition_line_ids.filtered(lambda x:x.repartition_type == 'tax')
                             vals = {
-                                'name': withhold.name,
-                                'move_id': withhold._origin.id,
+                                'name': line.tax_id.name + ' ' + line.invoice_id.name,
+                                'move_id': withhold.id,
                                 'partner_id': partner.id,
                                 'account_id': line.account_id.id,
                                 'date_maturity': False,
                                 'quantity': 1.0,
-                                'amount_currency': line.amount, #Withholds are always in company currency
-                                'price_unit': line.amount,
-                                'debit': 0.0,
-                                'credit': line.amount,
-                                'tax_base_amount': line.base,
-                                'is_rounding_line': False
-                            }
-                            line = account_move_line_obj.with_context(check_move_validity=False).create(vals)
-                            lines += line
-                        if withhold.l10n_ec_withhold_line_ids:
-                            vals = {
-                                'name': withhold.name,
-                                'move_id': withhold._origin.id,
-                                'partner_id': partner.id,
-                                'account_id': withhold.partner_id.property_account_payable_id.id,
-                                'date_maturity': False,
-                                'quantity': 1.0,
-                                'amount_currency': withhold.l10n_ec_total, #Withholds are always in company currency
-                                'price_unit': withhold.l10n_ec_total,
-                                'debit': withhold.l10n_ec_total,
+                                'amount_currency': 0.0, #Withholds are always in company currency
+                                'price_unit': (-1) * line.amount,
+                                'debit': line.amount,
                                 'credit': 0.0,
-                                'tax_base_amount': 0.0,
-                                'is_rounding_line': False
+                                'tax_base_amount': line.base,
+                                'tax_line_id': line.tax_id.id, #originator tax
+                                'tax_repartition_line_id': tax_line.id,
+                                'tax_tag_ids': [(6, 0, tax_line.tag_ids.ids)],                                    
                             }
-                            line = account_move_line_obj.with_context(check_move_validity=False).create(vals)
-                            lines += line
-                        withhold.line_ids = lines
+                            debit_vals_list = [{
+                                "move_id": withhold.id,
+                                "account_id": account.id,
+                                "debit": tax_amount,
+                                "price_unit": tax_amount * -1,
+                                "price_subtotal": tax_amount * -1,
+                                "price_total": tax_amount * -1,
+                                "quantity": 1,
+                                "credit": 0.0,
+                                "name": name,
+                                "tax_tag_ids": tax_repartition.tag_ids and [(6, 0, tax_repartition.tag_ids.ids)] or [],
+                                "tax_repartition_line_id": tax_repartition.id,
+                                "tax_tag_invert": True,
+                                'tax_base_amount': line.base_amount,
+                            },]
+                            
+                            account_move_line_obj.with_context(check_move_validity=False).create(vals)
+                #Retenciones en compras
+                lines = self.env['account.move.line']
+                if withhold.l10n_ec_withhold_type == 'in_withhold':
+                    for line in withhold.l10n_ec_withhold_line_ids:
+                        vals = {
+                            'name': withhold.name,
+                            'move_id': withhold._origin.id,
+                            'partner_id': partner.id,
+                            'account_id': line.account_id.id,
+                            'date_maturity': False,
+                            'quantity': 1.0,
+                            'amount_currency': line.amount, #Withholds are always in company currency
+                            'price_unit': line.amount,
+                            'debit': 0.0,
+                            'credit': line.amount,
+                            'tax_base_amount': line.base,
+                            'is_rounding_line': False
+                        }
+                        line = account_move_line_obj.with_context(check_move_validity=False).create(vals)
+                        lines += line
+                    if withhold.l10n_ec_withhold_line_ids:
+                        vals = {
+                            'name': withhold.name,
+                            'move_id': withhold._origin.id,
+                            'partner_id': partner.id,
+                            'account_id': withhold.partner_id.property_account_payable_id.id,
+                            'date_maturity': False,
+                            'quantity': 1.0,
+                            'amount_currency': withhold.l10n_ec_total, #Withholds are always in company currency
+                            'price_unit': withhold.l10n_ec_total,
+                            'debit': withhold.l10n_ec_total,
+                            'credit': 0.0,
+                            'tax_base_amount': 0.0,
+                            'is_rounding_line': False
+                        }
+                        line = account_move_line_obj.with_context(check_move_validity=False).create(vals)
+                        lines += line
+                    withhold.line_ids = lines
                         
                         
             origins = []
@@ -399,7 +373,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         default=lambda self: self.env.company,
         help=''
         )
-    withhold_origin_ids = fields.Many2many(
+    related_invoices = fields.Many2many(
         'account.move',
         'l10n_ec_account_invoice_withhold_rel',
         'withhold_id',
@@ -420,7 +394,8 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         'wizard_id',
         string='Withhold Lines',
         )
-
+    
+    #TODO v15.1: Agregar subtotales de retención al wizard, similares a los del metodo _compute_total_invoice_ec
 
 class L10n_ecWizardAccountWithholdLine(models.TransientModel):
     _name = 'l10n_ec.wizard.account.withhold.line'
@@ -470,4 +445,3 @@ class L10n_ecWizardAccountWithholdLine(models.TransientModel):
         help='The move of this entry line.'
         )
     
-    #TODO v15.1: Agregar subtotales de retención al wizard, similares a los del metodo _compute_total_invoice_ec

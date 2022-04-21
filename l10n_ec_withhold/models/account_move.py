@@ -93,6 +93,14 @@ class AccountMove(models.Model):
             # TODO: v15.1 Decide if needed
             # if len(self) > 1 and invoice.move_type != 'out_invoice':
             #     raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
+        #TODO V15.1 reimplementar esta validacion de que todas las facturas deben esta posted
+        # if any(invoice.state not in ['posted'] for invoice in withhold.related_invoices):
+        #     raise ValidationError(u'Solo se puede registrar retenciones sobre facturas abiertas o pagadas.')
+        #TODO V15.1 validar que el commercial_partner_id sea el mismo en todas las facturas
+        # partner_id = self.related_invoices[0].partner_id
+        # if partner_id.commercial_partner_id != related_invoices[0].commercial_partner_id:
+        #    raise ValidationError(u'La empresa indicada en la retención no corresponde a la de las facturas.')
+
         
     def l10n_ec_add_withhold(self):
         #Launches the withholds wizard linked to selected invoices
@@ -259,6 +267,7 @@ class AccountMove(models.Model):
             return
         return super(AccountMove, self)._check_unique_sequence_number()
     
+    #TODO 15.3 suggest Odoo to have something like this + bypass
     @api.depends('l10n_latam_document_type_id')
     def _l10n_ec_compute_require_vat_tax(self):
         #Indicates if the invoice requires a vat tax or not
@@ -418,7 +427,7 @@ class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
     
     # TODO V15.1 agregar un campo que vincule la línea de asiento contable de retención a la cabecera de la factura de origen
-    # Campo l10n_ec_witthold_invoice_id, en este campo guardar la factura desde el wizard, debe ser obligatorio, ondelete "restrict"
+    # Campo l10n_ec_withhold_invoice_id, en este campo guardar la factura desde el wizard, debe ser obligatorio, ondelete "restrict"
     # 
     # 
     
