@@ -20,12 +20,10 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
     @api.model
     def default_get(self, data_fields):
         res = {}
-        invoice_id = self.env.context.get('active_id', False)
-        if not invoice_id or not self.env.context.get('active_model') == 'account.move':
+        invoice_ids = self.env.context.get('active_ids', False)
+        if not invoice_ids or not self.env.context.get('active_model') == 'account.move':
             return res
-        
-        invoice_ids = invoice_id #TODO V15.1 en las lineas previas cambiar invoice_id por invoice_ids para que se invoque desde el tree
-        invoices = self.env['account.move'].search([('id','in',[invoice_ids])])
+        invoices = self.env['account.move'].search([('id','in',invoice_ids)])
         self.env['account.move']._l10n_ec_withhold_validate_related_invoices(invoices)
         default_values = self._prepare_withold_wizard_default_values(invoices)
         res.update(default_values)
@@ -76,7 +74,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                             })
                             group_taxes[tax.id][1] += line.price_total - line.price_subtotal
                             group_taxes[tax.id][2] += abs((line.price_total - line.price_subtotal) * tax.amount / 100)
-            prec = self.env['decimal.precision'].precision_get('Account') #TODO: V15.1 Replace wwith currency precision
+            prec = invoices[0].company_id.currency_id.decimal_places
             for tax_id, detail in group_taxes.items():
                 withhold_line_ids.append((0, 0, {
                     'tax_id': tax_id,
@@ -93,6 +91,13 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
     def action_create_and_post_withhold(self):
         self.env['account.move']._l10n_ec_withhold_validate_related_invoices(self.related_invoices)
         self._validate_withhold_data_on_post()
+        origins = []
+        for invoice in self.related_invoices:
+            origin = invoice.name #Usamos name en lugar del l10n_latam_document_number para aprovechar el prefijo del tipo de doc
+            if invoice.invoice_origin:
+                origin += ';' + invoice.invoice_origin
+            origins.append(origin)
+        origin = ','.join(origins)
         vals = {
             'invoice_date': self.date,
             'journal_id': self.journal_id.id,
@@ -102,18 +107,8 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             'l10n_latam_document_type_id': self.l10n_latam_document_type_id.id,
             'l10n_latam_document_number': self.l10n_latam_document_number,
             'l10n_ec_withhold_type': self.withhold_type,
-        }        
-        #TODO V15.1 agregar en la variable vals el campo invoice_origin:
-        # origins = []
-        # for invoice in self:
-        #     origin = invoice.name #Usamos name en lugar del l10n_latam_document_number para aprovechar el prefijo del tipo de doc
-        #     if invoice.invoice_origin:
-        #         origin += ';' + invoice.invoice_origin
-        #     origins.append(origin)
-        # origin = ','.join(origins)
-        # default_values.update({
-        #     'invoice_origin': origin,
-        # })
+            'invoice_origin': origin
+        }
         invoice = self.related_invoices[0]
         invoice = invoice.with_context(include_business_fields=False) #don't copy sale/purchase links
         withhold = invoice.copy(default=vals)
@@ -136,6 +131,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                     'debit': 0.0,
                     'credit': line.amount,
                     'is_rounding_line': False,
+                    'l10n_ec_withhold_invoice_id': line.invoice_id.id,
                     'tax_base_amount': line.base,
                     'tax_line_id': line.tax_id.id, #originator tax
                     'tax_repartition_line_id': tax_line.id,
@@ -158,7 +154,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                 'debit': total,
                 'credit': 0.0,
                 'tax_base_amount': 0.0,
-                'is_rounding_line': False
+                'is_rounding_line': False,
             }
             line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals)
             lines += line
@@ -287,10 +283,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         string='Withhold Lines',
         )
     
-    #TODO v15.1: Agregar campos subtotales de retención al wizard, similares a los del metodo _compute_total_invoice_ec
-    
-    # TODO V15.1 en el formulario de wizard de retenciones permitir borrado de lineas (como borrar cualquier linea de una factura en borrador)
-
+    #TODO v15.1: Agregar campos subtotales de retención al wizard, similares a los del metodo _l10n_ec_compute_move_totals
 
 class L10n_ecWizardAccountWithholdLine(models.TransientModel):
     _name = 'l10n_ec.wizard.account.withhold.line'

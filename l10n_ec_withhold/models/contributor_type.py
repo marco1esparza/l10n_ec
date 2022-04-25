@@ -6,7 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 
 
 class ContributorType(models.Model):
-    _name = 'contributor.type' #TODO V15.1 Change name to l10n_ec.contributor.type
+    _name = 'l10n_ec.contributor.type'
     _description = 'Contributor Type'
     _order = 'sequence, id'
     _inherit = ['mail.thread']
@@ -20,20 +20,20 @@ class ContributorType(models.Model):
         tracking=True,
         help='',
         )
-    property_l10n_ec_profit_withhold_tax_id = fields.Many2one( #TODO V15.1 change name to profit_withhold_tax_id
+    profit_withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Force profit withhold',
         domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'),('type_tax_use', '=', 'purchase')],
         help='If set forces the vat withhold tax on applicable purchases (also a withhold is required on document type). '
         'The profit withhold prevalence order is payment method (credit cards retains 0%), then partner, then product'
         )
-    l10n_ec_vat_withhold_goods = fields.Many2one( #TODO V15.1 change name to vat_goods_withhold_tax_id
+    vat_goods_withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Goods VAT withhold',
         domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_vat'),('type_tax_use', '=', 'purchase')],
         help='If set forces vat withhold in invoice lines with product in applicable purchases (also depends on document type)'
         )
-    l10n_ec_vat_withhold_services = fields.Many2one( #TODO V15.1 change name to vat_services_withhold_tax_id
+    vat_services_withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Services VAT withhold',
         domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_vat'),('type_tax_use', '=', 'purchase')],

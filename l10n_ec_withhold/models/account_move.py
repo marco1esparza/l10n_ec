@@ -112,7 +112,8 @@ class AccountMove(models.Model):
             'res_model': 'l10n_ec.wizard.account.withhold',
             'type': 'ir.actions.act_window',
             'nodestroy': True,
-            'target': 'new'
+            'target': 'new',
+            'context': self.env.context
         }
 
     # #TODO V15.2 Posiblemente remover el metodo pues el wizard ya tiene algo parecido... pero talvez se necesite para edicion posterior de la retencion
@@ -153,10 +154,10 @@ class AccountMove(models.Model):
         return result
 
     @api.depends('l10n_ec_withhold_line_ids')
-    def _compute_total_invoice_ec(self): #TODO: V15.1 change to _l10n_ec_compute_withhold_totals
+    def _l10n_ec_compute_move_totals(self):
         '''
         '''
-        res = super(AccountMove, self)._compute_total_invoice_ec()
+        res = super(AccountMove, self)._l10n_ec_compute_move_totals()
         for invoice in self:
             l10n_ec_vat_withhold = 0.0
             l10n_ec_profit_withhold = 0.0
@@ -185,12 +186,6 @@ class AccountMove(models.Model):
                 if invoice.l10n_latam_document_type_id.code in ['01','02','03','18']:
                     result = True
             invoice.l10n_ec_allow_withhold = result
-    
-    @api.depends('l10n_ec_withhold_ids')
-    def _compute_l10n_ec_withhold_count(self): #TODO V15.1 combinarlo en el metodo del computo del campo l10n_ec_withhold_ids
-        for invoice in self:
-            count = len(self.l10n_ec_withhold_ids)
-            invoice.l10n_ec_withhold_count = count
 
     def _get_name_invoice_report(self):
         self.ensure_one()
@@ -322,9 +317,12 @@ class AccountMove(models.Model):
             move.l10n_ec_require_withhold_tax = result
 
     @api.depends('line_ids')
-    def _compute_l10n_ec_withhold_line_ids(self):
-        for withhold in self:
-            withhold.l10n_ec_withhold_line_ids = withhold.line_ids.filtered(lambda l: l.tax_line_id)
+    def _compute_l10n_ec_withhold_ids(self):
+        for move in self:
+            move.l10n_ec_withhold_line_ids = move.line_ids.filtered(lambda l: l.tax_line_id)
+            move.l10n_ec_withhold_ids = self.env['account.move.line'].search([('l10n_ec_withhold_invoice_id', '=', move.id)]).mapped('move_id')
+            move.l10n_ec_withhold_origin_ids = move.line_ids.mapped('l10n_ec_withhold_invoice_id')
+            move.l10n_ec_withhold_count = len(move.l10n_ec_withhold_ids)
 
     _EC_WITHHOLD_TYPE = [
         ('out_withhold', 'Customer Withhold'),
@@ -341,40 +339,32 @@ class AccountMove(models.Model):
         tracking=True,
         help='Technical field to show/hide "ADD WITHHOLD" button'
         )
-    l10n_ec_withhold_count = fields.Integer(
-        compute='_compute_l10n_ec_withhold_count',
-        string='Number of Withhold',
-        )
     l10n_ec_withhold_line_ids = fields.One2many(
         'account.move.line',
         string='Withhold Lines',
-        compute='_compute_l10n_ec_withhold_line_ids',
+        compute='_compute_l10n_ec_withhold_ids',
         readonly=True
         )
-    #TODO: V15.1 reemplazarlo por un campo funcional store False con el mismo nombre, que compute las retenciones en base al campo l10n_ec_witthold_invoice_id 
     l10n_ec_withhold_ids = fields.Many2many(
         'account.move',
-        'account_move_invoice_withhold_rel',
-        'invoice_id',
-        'withhold_id',
+        compute='_compute_l10n_ec_withhold_ids',
         string='Withholds',
-        copy=False,
         help='Link to withholds related to this invoice'
         )
-    
-    #TODO: V15.1 reemplazarlo por un campo funcional store False con el mismo nombre, que compute las retenciones en base al campo l10n_ec_witthold_invoice_id
     l10n_ec_withhold_origin_ids = fields.Many2many(
         'account.move',
-        'account_move_invoice_withhold_rel',
-        'withhold_id',
-        'invoice_id',
+        compute='_compute_l10n_ec_withhold_ids',
         string='Invoices',
         copy=False,
         help='Technical field to limit elegible invoices related to this withhold'
         )
+    l10n_ec_withhold_count = fields.Integer(
+        compute='_compute_l10n_ec_withhold_ids',
+        string='Number of Withhold',
+        )
     #subtotals
     l10n_ec_vat_withhold = fields.Monetary(
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         string='Total IVA',  
         tracking=True,
         store=False, 
@@ -382,7 +372,7 @@ class AccountMove(models.Model):
         help='Total IVA value of withhold'
         )
     l10n_ec_profit_withhold = fields.Monetary(
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         string='Total RENTA', 
         tracking=True,
         store=False, 
@@ -390,7 +380,7 @@ class AccountMove(models.Model):
         help='Total renta value of withhold'
         )    
     l10n_ec_total_base_vat = fields.Monetary(
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         string='Total Base IVA',  
         tracking=True,
         store=False, 
@@ -398,7 +388,7 @@ class AccountMove(models.Model):
         help='Total base IVA of withhold'
         )
     l10n_ec_total_base_profit = fields.Monetary(
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         string='Total Base RENTA', 
         tracking=True,
         store=False, 
@@ -407,7 +397,7 @@ class AccountMove(models.Model):
         )
     l10n_ec_total = fields.Monetary(
         string='Total Withhold', 
-        compute='_compute_total_invoice_ec', 
+        compute='_l10n_ec_compute_move_totals', 
         tracking=True,
         store=False, 
         readonly=True, 
@@ -423,10 +413,6 @@ class AccountMove(models.Model):
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
-    
-    # TODO V15.1 agregar un campo que vincule la línea de asiento contable de retención a la cabecera de la factura de origen
-    # Campo l10n_ec_withhold_invoice_id, en este campo guardar la factura desde el wizard, debe ser obligatorio, ondelete "restrict"
-    # 
         
     def _l10n_ec_get_computed_taxes(self):
         '''
@@ -437,8 +423,8 @@ class AccountMoveLine(models.Model):
         - product_id profit withhold, if not set then
         - company fallback profit withhold for goods or for services
         For vat withhold tax:
-        - If product is consumable then l10n_ec_vat_withhold_goods
-        - If product is services or not set then l10n_ec_vat_withhold_services
+        - If product is consumable then vat_goods_withhold_tax_id
+        - If product is services or not set then vat_services_withhold_tax_id
         If withholds doesn't apply to the document type then remove the withholds  
         '''
         if self.move_id.country_code == 'EC':
@@ -454,15 +440,15 @@ class AccountMoveLine(models.Model):
                         #compute vat withhold
                         if 'vat12' in tax_groups or 'vat14' in tax_groups:
                             if not self.product_id or self.product_id.type in ['consu','product']:
-                                vat_withhold_tax = contributor_type.l10n_ec_vat_withhold_goods
+                                vat_withhold_tax = contributor_type.vat_goods_withhold_tax_id
                             else: #services
-                                vat_withhold_tax = contributor_type.l10n_ec_vat_withhold_services                         
+                                vat_withhold_tax = contributor_type.vat_services_withhold_tax_id                         
                         #compute profit withhold
                         if self.move_id.l10n_ec_payment_method_id.code in ['16','18','19']:
                             #payment with debit card, credit card or gift card retains 0%
                             profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
-                        elif contributor_type.property_l10n_ec_profit_withhold_tax_id:
-                            profit_withhold_tax = contributor_type.property_l10n_ec_profit_withhold_tax_id
+                        elif contributor_type.profit_withhold_tax_id:
+                            profit_withhold_tax = contributor_type.profit_withhold_tax_id
                         elif self.product_id.withhold_tax_id:
                             profit_withhold_tax = self.product_id.withhold_tax_id
                         elif 'withhold_income_tax' in tax_groups:
@@ -481,3 +467,11 @@ class AccountMoveLine(models.Model):
                 super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_income_tax'])
                 super_tax_ids += profit_withhold_tax
         return super_tax_ids
+    
+    l10n_ec_withhold_invoice_id = fields.Many2one(
+        'account.move',
+        string='Invoice',
+        required=True,
+        ondelete='restrict',
+        help='Link the withholding entry lines to the invoice'
+        )

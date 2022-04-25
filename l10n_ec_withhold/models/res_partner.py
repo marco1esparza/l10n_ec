@@ -8,7 +8,7 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
     
     contributor_type_id = fields.Many2one(
-        'contributor.type',
+        'l10n_ec.contributor.type',
         string='Contributor Type',
         help=''
         )

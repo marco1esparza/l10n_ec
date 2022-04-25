@@ -53,26 +53,26 @@ class AccountChartTemplate(models.Model):
             if tax_rimpe:
                 tax_rimpe_id = tax_rimpe.id
             new_distribution_types = [
-                {'sequence': 1, 'name': 'SOCIEDADES - PERSONAS JURIDICAS', 'property_l10n_ec_profit_withhold_tax_id': False},
-                {'sequence': 2, 'name': 'CONTRIBUYENTES ESPECIALES', 'property_l10n_ec_profit_withhold_tax_id': False},
-                {'sequence': 3, 'name': 'SECTOR PUBLICO Y EP', 'property_l10n_ec_profit_withhold_tax_id': False},
-                {'sequence': 4, 'name': 'PERSONA NATURAL OBLIGADA A LLEVAR CONTABILIDAD', 'property_l10n_ec_profit_withhold_tax_id': False},
-                {'sequence': 5, 'name': 'PERSONA NATURAL NO OBLIGADA - ARRIENDOS', 'property_l10n_ec_profit_withhold_tax_id': False},
-                {'sequence': 6, 'name': 'PERSONA NATURAL NO OBLIGADA - PROFESIONALES', 'property_l10n_ec_profit_withhold_tax_id': False},
-                {'sequence': 7, 'name': 'PERSONA NATURAL NO OBLIGADA - LIQUIDACIONES DE COMPRAS', 'property_l10n_ec_profit_withhold_tax_id': False},
-                {'sequence': 8, 'name': 'PERSONA NATURAL NO OBLIGADAS - EMITE FACTURA O NOTA DE VENTA', 'property_l10n_ec_profit_withhold_tax_id': False},
-                {'sequence': 10, 'name': 'PERSONA EXTRANJERA', 'property_l10n_ec_profit_withhold_tax_id': False},
-                {'sequence': 13, 'name': 'CONTRIBUYENTE REGIMEN RIMPE', 'property_l10n_ec_profit_withhold_tax_id': tax_rimpe_id},
-                {'sequence': 14, 'name': 'OTRAS - Sin cálculo automático de retención de IVA', 'property_l10n_ec_profit_withhold_tax_id': False}
+                {'sequence': 1, 'name': 'SOCIEDADES - PERSONAS JURIDICAS', 'profit_withhold_tax_id': False},
+                {'sequence': 2, 'name': 'CONTRIBUYENTES ESPECIALES', 'profit_withhold_tax_id': False},
+                {'sequence': 3, 'name': 'SECTOR PUBLICO Y EP', 'profit_withhold_tax_id': False},
+                {'sequence': 4, 'name': 'PERSONA NATURAL OBLIGADA A LLEVAR CONTABILIDAD', 'profit_withhold_tax_id': False},
+                {'sequence': 5, 'name': 'PERSONA NATURAL NO OBLIGADA - ARRIENDOS', 'profit_withhold_tax_id': False},
+                {'sequence': 6, 'name': 'PERSONA NATURAL NO OBLIGADA - PROFESIONALES', 'profit_withhold_tax_id': False},
+                {'sequence': 7, 'name': 'PERSONA NATURAL NO OBLIGADA - LIQUIDACIONES DE COMPRAS', 'profit_withhold_tax_id': False},
+                {'sequence': 8, 'name': 'PERSONA NATURAL NO OBLIGADAS - EMITE FACTURA O NOTA DE VENTA', 'profit_withhold_tax_id': False},
+                {'sequence': 10, 'name': 'PERSONA EXTRANJERA', 'profit_withhold_tax_id': False},
+                {'sequence': 13, 'name': 'CONTRIBUYENTE REGIMEN RIMPE', 'profit_withhold_tax_id': tax_rimpe_id},
+                {'sequence': 14, 'name': 'OTRAS - Sin cálculo automático de retención de IVA', 'profit_withhold_tax_id': False}
                 ]
             for new_distribution_type in new_distribution_types:
-                distribution_type = self.env['contributor.type'].search([
+                distribution_type = self.env['l10n_ec.contributor.type'].search([
                     ('name', '=', new_distribution_type['name']),
                     ('company_id', '=', company.id)])
                 if not distribution_type:
-                    distribution_type = self.env['contributor.type'].create({
+                    distribution_type = self.env['l10n_ec.contributor.type'].create({
                         'sequence': new_distribution_type['sequence'],
                         'name': new_distribution_type['name'],
-                        'property_l10n_ec_profit_withhold_tax_id': new_distribution_type['property_l10n_ec_profit_withhold_tax_id'],
+                        'profit_withhold_tax_id': new_distribution_type['profit_withhold_tax_id'],
                         'company_id': company.id
                     })

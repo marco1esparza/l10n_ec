@@ -335,7 +335,7 @@ class AccountMove(models.Model):
             return 'l10n_ec_edi.report_invoice_document'
         return super(AccountMove, self)._get_name_invoice_report()
     
-    def _compute_total_invoice_ec(self):
+    def _l10n_ec_compute_move_totals(self):
         '''
         '''
         for invoice in self:
@@ -618,7 +618,7 @@ class AccountMove(models.Model):
         help='Es la sumatoria de las formas de pago con códigos 02, 03, 04, 05, 06, 08, 09, 12, 13, 14, 15, 20, 21.'
         )
     l10n_ec_total_discount = fields.Monetary(
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         string='Total Discount',
         tracking=True,
         readonly=True,
@@ -626,63 +626,63 @@ class AccountMove(models.Model):
         )
     l10n_ec_base_doce_iva = fields.Monetary(
         string='VAT 12 Base',
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         tracking=True,
         readonly=True, 
         help='Summation of total prices included discount of products that tax VAT 12%'
         )
     l10n_ec_vat_doce_subtotal = fields.Monetary(
         string='VAT Value 12', 
-        compute='_compute_total_invoice_ec', 
+        compute='_l10n_ec_compute_move_totals', 
         tracking=True,
         readonly=True, 
         help='Generated VAT'
         )
     l10n_ec_base_cero_iva = fields.Monetary(
         string='VAT 0 Base', 
-        compute='_compute_total_invoice_ec', 
+        compute='_l10n_ec_compute_move_totals', 
         tracking=True,
         readonly=True,
         help='Sum of total prices included discount of products that tax VAT 0%'
         )
     l10n_ec_vat_cero_subtotal = fields.Monetary(
         string='VAT Value 0',
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         tracking=True,
         readonly=True,
         help=''
         )
     l10n_ec_base_tax_free = fields.Monetary(
         string='Base Exempt VAT',
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         tracking=True,
         readonly=True,
         help='Sum of total prices included discount of products exempt from VAT'
         )    
     l10n_ec_base_not_subject_to_vat = fields.Monetary(
         string='Base Not Object VAT',
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         tracking=True,
         readonly=True, 
         help='Sum of total prices included discount of products not subject to VAT'
         )
     l10n_ec_total_irbpnr = fields.Monetary(
         string='IRBPNR',
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         tracking=True,
         readonly=True,
         help='Impuesto redimible a las botellas plásticas no retornables PET',
         )
     l10n_ec_total_with_tax = fields.Monetary(
         string='Total With Taxes', 
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         tracking=True,
         readonly=True,
         help='Result of the sum of taxable amount plus the Value of VAT'
         )
     l10n_ec_total_to_withhold = fields.Monetary( #TODO V15.1 remover
         string='Total to Withhold', 
-        compute='_compute_total_invoice_ec',
+        compute='_l10n_ec_compute_move_totals',
         tracking=True,
         readonly=True,
         help='Sum of values to be retained'
