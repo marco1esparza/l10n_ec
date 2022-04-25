@@ -69,28 +69,26 @@ class AccountMove(models.Model):
     @api.model
     def _l10n_ec_withhold_validate_related_invoices(self, invoices):
         # Let's test the source invoices for missuse
-        for invoice in invoices:
-            if not invoice.l10n_ec_allow_withhold:
-                raise ValidationError(u'The selected document type does not support withholds')
-        #TODO V15.1 mover estas validaciones dentro del lazo for por eficiencia y para mostrar mensajes de error con numero de factura
-        if any(invoice.state not in ['posted'] for invoice in invoices):
-            raise ValidationError(u'Can not create a withhold, some documents are not yet posted')
-        if invoices and any(inv.commercial_partner_id != invoices[0].commercial_partner_id for inv in invoices): #and not self.env.context.get('massive_withhold'):
-            raise ValidationError(u'Some documents belong to different partners, please correct your selection')
         MAP_INVOICE_TYPE_PARTNER_TYPE = {
             'out_invoice': 'customer',
             'out_refund': 'customer',
             'in_invoice': 'supplier',
             'in_refund': 'supplier',
         }
-        if invoices and any(MAP_INVOICE_TYPE_PARTNER_TYPE[inv.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[invoices[0].move_type] for inv in invoices):
-            raise ValidationError(u'Can not mix documents supplier and customer documents in the same withhold')
-        if invoices and any(inv.currency_id != invoices[0].currency_id for inv in invoices):
-            #TODO: v15.1 Mas bien validar que sea sobre la moneda de la compañia, es decir dólares
-            raise ValidationError(u'A fin de emitir retenciones sobre múltiples facturas, aquellas deben tener la misma moneda.')
-            # TODO: v15.1 Decide if needed
-            # if len(self) > 1 and invoice.move_type != 'out_invoice':
-            #     raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
+        for invoice in invoices:
+            if not invoice.l10n_ec_allow_withhold:
+                raise ValidationError(u'The selected document type does not support withholds, please check the document "%s".' % invoice.name) 
+            if invoice.state not in ['posted']:
+                raise ValidationError(u'Can not create a withhold, the document "%s" not yet posted.' % invoice.name)
+            if invoice.commercial_partner_id != invoices[0].commercial_partner_id: #and not self.env.context.get('massive_withhold'):
+                raise ValidationError(u'Some documents belong to different partners, please correct the document "%s".' % invoice.name)
+            if MAP_INVOICE_TYPE_PARTNER_TYPE[invoice.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[invoices[0].move_type]:
+                raise ValidationError(u'Can not mix documents supplier and customer documents in the same withhold, please correct the document "%s".' % invoice.name)
+            if invoice.currency_id != invoice.company_id.currency_id:
+                raise ValidationError(u'A fin de emitir retenciones sobre múltiples facturas, deben tener la misma moneda, revise la factura "%s".' % invoice.name)    
+            if len(self) > 1 and invoice.move_type != 'out_invoice':
+                raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
+        
         #TODO V15.1 reimplementar esta validacion de que todas las facturas deben esta posted
         # if any(invoice.state not in ['posted'] for invoice in withhold.related_invoices):
         #     raise ValidationError(u'Solo se puede registrar retenciones sobre facturas abiertas o pagadas.')

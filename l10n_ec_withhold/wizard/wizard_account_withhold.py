@@ -143,7 +143,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                 lines += line
             #Payable/Receivable line
             vals = {
-                'name': withhold.name, #TODO V15.1 implementarlo como la cuenta por pagar de la factura de compra... actualmente esta saliendo vacio
+                'name': False,
                 'move_id': withhold._origin.id,
                 'partner_id': withhold.partner_id.id,
                 'account_id': withhold.partner_id.property_account_payable_id.id,
