@@ -64,7 +64,7 @@
 						<field name="l10n_ec_total_base_vat"/>
 						<field name="l10n_ec_vat_withhold"/>
 						<field name="l10n_ec_total_base_profit"/>
-						<field name="l10n_ec_profit_withhold"/>						
+						<field name="l10n_ec_profit_withhold"/>
 						<field name="l10n_ec_total" class="oe_subtotal_footer_separator"/>
 					</group>
 					<!-- Internal note -->

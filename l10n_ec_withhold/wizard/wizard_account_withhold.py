@@ -189,7 +189,33 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         #             raise ValidationError(error_msg)
         
         # TODO V15.1 incorporar estas validaciones dentro del metodo validate_withhold_data_on_post()
-        # self.l10n_ec_validate_withhold_accounting_parameters()
+        # self.l10n_ec_validate_withhold_accounting_parameters()        
+        
+#         #TODO V15.1 remover este metodo e incorporarlo al unico metodo de validacion validate_withhold_data_on_post()
+#         #En las lineas de retencion poner un constraint que impida que se digiten montos inferiores a cero
+
+#         def l10n_ec_validate_withhold_accounting_parameters(self):
+#         '''
+#         Validacion de configuraciones de diarios y cuentas contables
+#         '''
+#         error = ''
+#         list = []
+#         for invoice in self.related_invoices:
+#             if self.invoice_date < invoice.invoice_date:
+#                 list.append(invoice.name)
+#         if list:
+#             joined_vals = '\n'.join('* ' + l for l in list)
+#             error += u'Las siguientes facturas tienen una fecha posterior a la retención:\n%s\n' % joined_vals
+#         amount_total = 0.0
+#         for invoice in self.related_invoices:
+#             amount_total += invoice.amount_total
+#         if self.l10n_ec_total > amount_total:
+#                 error += u'La cantidad a retener es mayor que el valor de las facturas.\n'
+#         if error:
+#             raise ValidationError(error)       
+        
+        
+        
         for invoice in self.related_invoices:
             #Ensure withhold tax base amounts are smaller than base amounts of its invoices
             total_base_vat = 0.0
@@ -207,28 +233,6 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             diff_base_profit = float_compare(total_base_profit, invoice.amount_untaxed, precision_digits=precision)
             if diff_base_profit > 0:
                 raise ValidationError(u'La base imponible de la retención de renta es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
-        
-    #TODO V15.1 remover este metodo e incorporarlo al unico metodo de validacion validate_withhold_data_on_post()
-    #En las lineas de retencion poner un constraint que impida que se digiten montos inferiores a cero
-    def l10n_ec_validate_withhold_accounting_parameters(self):
-        '''
-        Validacion de configuraciones de diarios y cuentas contables
-        '''
-        error = ''
-        list = []
-        for invoice in self.related_invoices:
-            if self.invoice_date < invoice.invoice_date:
-                list.append(invoice.name)
-        if list:
-            joined_vals = '\n'.join('* ' + l for l in list)
-            error += u'Las siguientes facturas tienen una fecha posterior a la retención:\n%s\n' % joined_vals
-        amount_total = 0.0
-        for invoice in self.related_invoices:
-            amount_total += invoice.amount_total
-        if self.l10n_ec_total > amount_total:
-                error += u'La cantidad a retener es mayor que el valor de las facturas.\n'
-        if error:
-            raise ValidationError(error)
     
     @api.model
     def _reconcile_withhold_vs_invoices(self, withhold, related_invoices):
@@ -237,7 +241,30 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         if withhold.l10n_ec_withhold_type in ['out_withhold']:
             (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == partner_id.property_account_receivable_id).reconcile()
         elif withhold.l10n_ec_withhold_type in ['in_withhold']:
-            (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == partner_id.property_account_payable_id).reconcile()                                
+            (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == partner_id.property_account_payable_id).reconcile()
+            
+    @api.depends('withhold_line_ids')
+    def _l10n_ec_compute_move_totals(self):
+        '''
+        '''
+        for wizard in self:
+            l10n_ec_vat_withhold = 0.0
+            l10n_ec_profit_withhold = 0.0
+            l10n_ec_total_base_vat = 0.0
+            l10n_ec_total_base_profit = 0.0
+            for line in wizard.withhold_line_ids:
+                if line.tax_id.tax_group_id:
+                    if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_vat']:
+                        l10n_ec_vat_withhold += line.amount
+                        l10n_ec_total_base_vat += line.base
+                    if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_tax']:
+                        l10n_ec_profit_withhold += line.amount
+                        l10n_ec_total_base_profit += line.base
+            wizard.l10n_ec_vat_withhold = l10n_ec_vat_withhold
+            wizard.l10n_ec_profit_withhold = l10n_ec_profit_withhold
+            wizard.l10n_ec_total_base_vat = l10n_ec_total_base_vat
+            wizard.l10n_ec_total_base_profit = l10n_ec_total_base_profit
+            wizard.l10n_ec_total = l10n_ec_vat_withhold + l10n_ec_profit_withhold                                
                 
     journal_id = fields.Many2one(
         'account.journal', 
@@ -270,7 +297,6 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         string='Invoices',
         help='Technical field to limit elegible invoices related to this withhold'
         )
-    
     withhold_type = fields.Selection(
         [('out_withhold', 'Sales Withhold'),
          ('in_withhold', 'Purchase Withhold')],
@@ -282,8 +308,50 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         'wizard_id',
         string='Withhold Lines',
         )
-    
-    #TODO v15.1: Agregar campos subtotales de retención al wizard, similares a los del metodo _l10n_ec_compute_move_totals
+    #Subtotals
+    currency_id = fields.Many2one(string='Company Currency', readonly=True,
+        related='company_id.currency_id')
+    l10n_ec_vat_withhold = fields.Monetary(
+        compute='_l10n_ec_compute_move_totals',
+        string='Total IVA',  
+        tracking=True,
+        store=False, 
+        readonly=True, 
+        help='Total IVA value of withhold'
+        )
+    l10n_ec_profit_withhold = fields.Monetary(
+        compute='_l10n_ec_compute_move_totals',
+        string='Total RENTA', 
+        tracking=True,
+        store=False, 
+        readonly=True, 
+        help='Total renta value of withhold'
+        )    
+    l10n_ec_total_base_vat = fields.Monetary(
+        compute='_l10n_ec_compute_move_totals',
+        string='Total Base IVA',  
+        tracking=True,
+        store=False, 
+        readonly=True, 
+        help='Total base IVA of withhold'
+        )
+    l10n_ec_total_base_profit = fields.Monetary(
+        compute='_l10n_ec_compute_move_totals',
+        string='Total Base RENTA', 
+        tracking=True,
+        store=False, 
+        readonly=True, 
+        help='Total base renta of withhold'
+        )
+    l10n_ec_total = fields.Monetary(
+        string='Total Withhold', 
+        compute='_l10n_ec_compute_move_totals', 
+        tracking=True,
+        store=False, 
+        readonly=True, 
+        help='Total value of withhold'
+        )
+
 
 class L10n_ecWizardAccountWithholdLine(models.TransientModel):
     _name = 'l10n_ec.wizard.account.withhold.line'
