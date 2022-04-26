@@ -88,16 +88,7 @@ class AccountMove(models.Model):
                 raise ValidationError(u'A fin de emitir retenciones sobre múltiples facturas, deben tener la misma moneda, revise la factura "%s".' % invoice.name)    
             if len(self) > 1 and invoice.move_type != 'out_invoice':
                 raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
-        
-        #TODO V15.1 reimplementar esta validacion de que todas las facturas deben esta posted
-        # if any(invoice.state not in ['posted'] for invoice in withhold.related_invoices):
-        #     raise ValidationError(u'Solo se puede registrar retenciones sobre facturas abiertas o pagadas.')
-        #TODO V15.1 validar que el commercial_partner_id sea el mismo en todas las facturas
-        # partner_id = self.related_invoices[0].partner_id
-        # if partner_id.commercial_partner_id != related_invoices[0].commercial_partner_id:
-        #    raise ValidationError(u'La empresa indicada en la retención no corresponde a la de las facturas.')
 
-        
     def l10n_ec_add_withhold(self):
         #Launches the withholds wizard linked to selected invoices
         self._l10n_ec_withhold_validate_related_invoices(invoices=self)
@@ -142,7 +133,7 @@ class AccountMove(models.Model):
         action = self.env.ref(action)
         result = action.sudo().read()[0]
         result['name'] = _('Withholds')
-        l10n_ec_withhold_ids = self.l10n_ec_withhold_ids.ids
+        l10n_ec_withhold_ids = self.l10n_ec_withhold_ids.ids or self.env.context.get('withhold', [])
         if len(l10n_ec_withhold_ids) > 1:
             result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"
         else:

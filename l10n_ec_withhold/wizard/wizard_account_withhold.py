@@ -161,7 +161,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             withhold.line_ids = lines
             withhold._post(soft=False)
             self._reconcile_withhold_vs_invoices(withhold, self.related_invoices)
-        return invoice.l10n_ec_action_view_withholds() #TODO V15.2 talvez no retornar pues ya queda en el widget de pago
+        return invoice.with_context(withhold=withhold.ids).l10n_ec_action_view_withholds() #TODO V15.2 talvez no retornar pues ya queda en el widget de pago
     
     def _validate_withhold_data_on_post(self):
         #Validations that apply only on withhold post, other validations should be in account.move class method _l10n_ec_withhold_validate_related_invoices
@@ -172,27 +172,24 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             raise ValidationError(u'The withhold must be linked to some invoice')
         if not self.withhold_line_ids:
             raise ValidationError(u'You must input at least one withhold line')
-        # TODO V15.1 validar que no exista previamente otra retencion de IVA, u otra retencion de RENTA, como el siguiente codigo: 
-        # Validate there where not other withholds for same invoice for same concept (concept might be vat withhold or income withhold)
-        # categories = self.related_invoices.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids.tax_id.tax_group_id.mapped('l10n_ec_type')
-        # categories = list(set(categories)) #remove duplicates
-        # for withhold_line in self.related_invoices.l10n_ec_withhold_ids.withhold_line_ids:
-        #     if withhold_line.parent_state in ('posted'):
-        #         if withhold_line.tax_line_id.tax_group_id.l10n_ec_type in categories:
-        #             if withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_vat':
-        #                 withhold_category = u'Retención IVA'
-        #             elif withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_income_tax':
-        #                 withhold_category = u'Retención Renta'
-        #             error_msg = u'Una factura no puede tener dos retenciones por el mismo concepto.\n' + \
-        #                         u'La retención previamente existente ' + withhold_line.move_id.name + \
-        #                         u' tiene tambien una retención por ' + withhold_category + u'.'  
-        #             raise ValidationError(error_msg)
-        
-        # TODO V15.1 incorporar estas validaciones dentro del metodo validate_withhold_data_on_post()
-        # self.l10n_ec_validate_withhold_accounting_parameters()        
+        #Validate there where not other withholds for same invoice for same concept (concept might be vat withhold or income withhold)
+        categories = self.related_invoices.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids.tax_line_id.tax_group_id.mapped('l10n_ec_type')
+        categories = list(set(categories)) #remove duplicates
+        for withhold_line in self.related_invoices.l10n_ec_withhold_ids.line_ids:
+            if withhold_line.parent_state in ('posted'):
+                if withhold_line.tax_line_id.tax_group_id.l10n_ec_type in categories:
+                    if withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_vat':
+                        withhold_category = u'Retención IVA'
+                    elif withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_income_tax':
+                        withhold_category = u'Retención Renta'
+                    error_msg = u'Una factura no puede tener dos retenciones por el mismo concepto.\n' + \
+                                u'La retención previamente existente ' + withhold_line.move_id.name + \
+                                u' tiene tambien una retención por ' + withhold_category + u'.'
+                    raise ValidationError(error_msg)
+
         
 #         #TODO V15.1 remover este metodo e incorporarlo al unico metodo de validacion validate_withhold_data_on_post()
-#         #En las lineas de retencion poner un constraint que impida que se digiten montos inferiores a cero
+
 
 #         def l10n_ec_validate_withhold_accounting_parameters(self):
 #         '''
@@ -355,7 +352,9 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
 
 class L10n_ecWizardAccountWithholdLine(models.TransientModel):
     _name = 'l10n_ec.wizard.account.withhold.line'
-
+    
+    #TODO V15.1 En las lineas de retencion poner un constraint que impida que se digiten montos inferiores a cero
+    
     @api.onchange('invoice_id', 'tax_id')
     def onchange_invoice_id(self):
         #Sets the "base amount" according to linked invoice_id and tax type
