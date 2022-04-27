@@ -25,11 +25,7 @@ class AccountEdiDocument(models.Model):
             xml_content = clean_xml(etree_content)
             try: #validamos el XML contra el XSD
                 if self.move_id.move_type in ('entry') and self.move_id.l10n_ec_withhold_type in ['in_withhold'] and self.move_id.l10n_latam_document_type_id.code in ['07']: #Retenciones en compras
-                    
-                    
-                    pass #TODO Reimplement for v15.1
-                    # validate_xml_vs_xsd(xml_content, XSD_SRI_100_RETENCION)
-                    
+                    validate_xml_vs_xsd(xml_content, XSD_SRI_100_RETENCION)
             except ValueError:
                 raise UserError(u'No se ha enviado al servidor: ¿quiza los datos estan mal llenados?:' + ValueError[1])        
             self.l10n_ec_request_xml_file_name = self.move_id.name + '_draft.xml'
@@ -77,7 +73,6 @@ class AccountEdiDocument(models.Model):
 
         # INICIO CREACION DE LA RETENCION
         withhold = etree.Element('comprobanteRetencion', {'id': 'comprobante', 'version': '1.0.0'})
-        return withhold #TODO reimplementar for v15.1
         # CREACION INFO TRIBUTARIA
         infoTributaria = etree.SubElement(withhold, 'infoTributaria')
         if not self.move_id.company_id.l10n_ec_legal_name:
@@ -136,7 +131,7 @@ class AccountEdiDocument(models.Model):
                 detalle_data.append(('codigoRetencion', get_electronic_tax_code(type_ec, porc_ret, tax_code)))
                 detalle_data.append(('baseImponible', line.tax_base_amount))
                 detalle_data.append(('porcentajeRetener', '{0:.2f}'.format(porc_ret)))
-                detalle_data.append(('valorRetenido', round(line.debit, 2)))
+                detalle_data.append(('valorRetenido', round(line.credit, 2)))
                 detalle_data.append(('codDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_type_id.code))
                 detalle_data.append(('numDocSustento', line.move_id.l10n_ec_withhold_origin_ids[0].l10n_latam_document_number.replace('-','')))
                 detalle_data.append(('fechaEmisionDocSustento', datetime.strftime(line.move_id.l10n_ec_withhold_origin_ids[0].invoice_date,'%d/%m/%Y')))

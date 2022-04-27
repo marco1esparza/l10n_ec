@@ -186,33 +186,9 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                                 u'La retención previamente existente ' + withhold_line.move_id.name + \
                                 u' tiene tambien una retención por ' + withhold_category + u'.'
                     raise ValidationError(error_msg)
-
-        
-#         #TODO V15.1 remover este metodo e incorporarlo al unico metodo de validacion validate_withhold_data_on_post()
-
-
-#         def l10n_ec_validate_withhold_accounting_parameters(self):
-#         '''
-#         Validacion de configuraciones de diarios y cuentas contables
-#         '''
-#         error = ''
-#         list = []
-#         for invoice in self.related_invoices:
-#             if self.invoice_date < invoice.invoice_date:
-#                 list.append(invoice.name)
-#         if list:
-#             joined_vals = '\n'.join('* ' + l for l in list)
-#             error += u'Las siguientes facturas tienen una fecha posterior a la retención:\n%s\n' % joined_vals
-#         amount_total = 0.0
-#         for invoice in self.related_invoices:
-#             amount_total += invoice.amount_total
-#         if self.l10n_ec_total > amount_total:
-#                 error += u'La cantidad a retener es mayor que el valor de las facturas.\n'
-#         if error:
-#             raise ValidationError(error)       
-        
-        
-        
+        error = ''
+        invoice_list = []
+        amount_total = 0.0
         for invoice in self.related_invoices:
             #Ensure withhold tax base amounts are smaller than base amounts of its invoices
             total_base_vat = 0.0
@@ -229,7 +205,17 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                 total_base_profit += profit_line.base
             diff_base_profit = float_compare(total_base_profit, invoice.amount_untaxed, precision_digits=precision)
             if diff_base_profit > 0:
-                raise ValidationError(u'La base imponible de la retención de renta es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
+                raise ValidationError(u'La base imponible de la retención de renta es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)            
+            if self.date < invoice.invoice_date:
+                invoice_list.append(invoice.name)
+            amount_total += invoice.amount_total
+        if invoice_list:
+            joined_vals = '\n'.join('* ' + l for l in invoice_list)
+            error += u'Las siguientes facturas tienen una fecha posterior a la retención:\n%s\n' % joined_vals        
+        if self.l10n_ec_total > amount_total:
+            error += u'La cantidad a retener es mayor que el valor de las facturas.\n'
+        if error:
+            raise ValidationError(error)
     
     @api.model
     def _reconcile_withhold_vs_invoices(self, withhold, related_invoices):
@@ -352,9 +338,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
 
 class L10n_ecWizardAccountWithholdLine(models.TransientModel):
     _name = 'l10n_ec.wizard.account.withhold.line'
-    
-    #TODO V15.1 En las lineas de retencion poner un constraint que impida que se digiten montos inferiores a cero
-    
+        
     @api.onchange('invoice_id', 'tax_id')
     def onchange_invoice_id(self):
         #Sets the "base amount" according to linked invoice_id and tax type
@@ -399,4 +383,10 @@ class L10n_ecWizardAccountWithholdLine(models.TransientModel):
         auto_join=True,
         help='The move of this entry line.'
         )
+    
+    @api.constrains('amount')
+    def _check_amount(self):
+        for line in self:
+            if line.amount < 0.0:
+                raise ValidationError(_('Negative values ​​are not allowed in withhold lines.'))
     
