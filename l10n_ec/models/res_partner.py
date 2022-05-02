@@ -1,40 +1,57 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import models, _
-from stdnum.ec import ci, ruc
+from odoo import models, api, _
 from odoo.exceptions import ValidationError
 
+import logging
+
+_logger = logging.getLogger(__name__)
+
+
+def verify_final_consumer(vat):
+    all_number_9 = False
+    try:
+        all_number_9 = vat and all(int(number) == 9 for number in vat) or False
+    except ValueError as e:
+        _logger.debug('Vat is not only numbers %s', e)
+    return all_number_9 and len(vat) == 13
+
+
 class ResPartner(models.Model):
-    _inherit = 'res.partner'
 
-    def check_vat_ec(self, vat):
-        if self.l10n_latam_identification_type_id.is_vat:
-            ruc_vat_type = self.env.ref('l10n_ec.ec_ruc')
-            ced_vat_type = self.env.ref('l10n_ec.ec_dni')
-            if self.l10n_latam_identification_type_id in (ruc_vat_type,ced_vat_type):
-                #temporal fix as stdnum.ec is allowing old format with a dash in between the number                    
-                if not self.vat.isnumeric():
-                    raise ValidationError(_('Ecuadorian VAT number must contain only numeric characters'))
-            if self.l10n_latam_identification_type_id == ced_vat_type:
-                return ci.is_valid(vat)
-            elif self.l10n_latam_identification_type_id == ruc_vat_type and vat != '9999999999999':
-                return ruc.is_valid(vat)
-        return True
+    _inherit = "res.partner"
 
-    def _get_complete_address(self):
-        self.ensure_one()
-        partner_id = self
-        address = ""
-        if partner_id.street:
-            address += partner_id.street + ", "
-        if partner_id.street2:
-            address += partner_id.street2 + ", "
-        if partner_id.city:
-            address += partner_id.city + ", "
-        if partner_id.state_id:
-            address += partner_id.state_id.name + ", "
-        if partner_id.zip:
-            address += "(" + partner_id.zip + ") "
-        if partner_id.country_id:
-            address += partner_id.country_id.name
-        return address
+    @api.constrains("vat", "country_id", "l10n_latam_identification_type_id")
+    def check_vat(self):
+        it_ruc = self.env.ref("l10n_ec.ec_ruc", False)
+        it_dni = self.env.ref("l10n_ec.ec_dni", False)
+        ecuadorian_partners = self.filtered(
+            lambda x: x.country_id == self.env.ref("base.ec")
+        )
+        for partner in ecuadorian_partners:
+            if partner.vat:
+                if partner.l10n_latam_identification_type_id.id in (
+                    it_ruc.id,
+                    it_dni.id,
+                ):
+                    if partner.l10n_latam_identification_type_id.id == it_dni.id and len(partner.vat) != 10:
+                        raise ValidationError(_('If your identification type is %s, it must be 10 digits')
+                                              % it_dni.display_name)
+                    if partner.l10n_latam_identification_type_id.id == it_ruc.id and len(partner.vat) != 13:
+                        raise ValidationError(_('If your identification type is %s, it must be 13 digits')
+                                              % it_ruc.display_name)
+                    final_consumer = verify_final_consumer(partner.vat)
+                    if final_consumer:
+                        valid = True
+                    else:
+                        valid = self.is_valid_ruc_ec(partner.vat)
+                    if not valid:
+                        error_message = ""
+                        if partner.l10n_latam_identification_type_id.id == it_dni.id:
+                            error_message = _("VAT %s is not valid for an Ecuadorian DNI, "
+                                              "it must be like this form 0915068258") % partner.vat
+                        if partner.l10n_latam_identification_type_id.id == it_ruc.id:
+                            error_message = _("VAT %s is not valid for an Ecuadorian company, "
+                                              "it must be like this form 0993143790001") % partner.vat
+                        raise ValidationError(error_message)
+        return super(ResPartner, self - ecuadorian_partners).check_vat()
