@@ -155,10 +155,10 @@ class AccountMove(models.Model):
             for line in invoice.l10n_ec_withhold_line_ids:
                 if line.tax_line_id.tax_group_id:
                     if line.tax_line_id.tax_group_id.l10n_ec_type in ['withhold_vat']:
-                        l10n_ec_vat_withhold += line.credit
+                        l10n_ec_vat_withhold += line.credit if invoice.l10n_ec_withhold_type == 'in_withhold' else line.debit 
                         l10n_ec_total_base_vat += line.tax_base_amount
                     if line.tax_line_id.tax_group_id.l10n_ec_type in ['withhold_income_tax']:
-                        l10n_ec_profit_withhold += line.credit
+                        l10n_ec_profit_withhold += line.credit if invoice.l10n_ec_withhold_type == 'in_withhold' else line.debit
                         l10n_ec_total_base_profit += line.tax_base_amount
             invoice.l10n_ec_vat_withhold = l10n_ec_vat_withhold
             invoice.l10n_ec_profit_withhold = l10n_ec_profit_withhold

@@ -86,6 +86,19 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             default_values.update({
                 'withhold_line_ids': withhold_line_ids
                 })
+        elif withhold_type == 'out_withhold':
+            withhold_line_ids = []
+            for invoice in invoices:
+                withhold_line_ids.append((0, 0, {
+                    'tax_id': False,
+                    'account_id': False,
+                    'invoice_id': invoice.id,
+                    'base': 0.0,
+                    'amount': 0.0
+                }))
+            default_values.update({
+                'withhold_line_ids': withhold_line_ids
+                })
         return default_values
     
     def action_create_and_post_withhold(self):
@@ -113,7 +126,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         invoice = invoice.with_context(include_business_fields=False) #don't copy sale/purchase links
         withhold = invoice.copy(default=vals)
         lines = self.env['account.move.line'] #empty recordset
-        if withhold.l10n_ec_withhold_type == 'in_withhold':
+        if withhold.l10n_ec_withhold_type == 'in_withhold' or withhold.l10n_ec_withhold_type == 'out_withhold':
             total = 0.0
             for line in self.withhold_line_ids:
                 tax_line = line.tax_id.invoice_repartition_line_ids.filtered(lambda x:x.repartition_type == 'tax')
@@ -128,8 +141,8 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                     'price_unit': line.amount,
                     'price_subtotal': line.amount,
                     'price_total': line.amount,
-                    'debit': 0.0,
-                    'credit': line.amount,
+                    'debit': line.amount if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
+                    'credit': line.amount if withhold.l10n_ec_withhold_type == 'in_withhold' else 0.0,
                     'is_rounding_line': False,
                     'l10n_ec_withhold_invoice_id': line.invoice_id.id,
                     'tax_base_amount': line.base,
@@ -146,13 +159,13 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                 'name': False,
                 'move_id': withhold._origin.id,
                 'partner_id': withhold.partner_id.id,
-                'account_id': withhold.partner_id.property_account_payable_id.id,
+                'account_id': self._l10n_ec_get_partner_account(withhold.partner_id, withhold.l10n_ec_withhold_type).id,
                 'date_maturity': False,
                 'quantity': 1.0,
                 'amount_currency': total, #Withholds are always in company currency
                 'price_unit': total,
-                'debit': total,
-                'credit': 0.0,
+                'debit': total if withhold.l10n_ec_withhold_type == 'in_withhold' else 0.0,
+                'credit': total if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
                 'tax_base_amount': 0.0,
                 'is_rounding_line': False,
             }
@@ -222,9 +235,17 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         #reconciles the withhold against the invoce, pays older open invoice first
         partner_id = related_invoices[0].partner_id.commercial_partner_id
         if withhold.l10n_ec_withhold_type in ['out_withhold']:
-            (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == partner_id.property_account_receivable_id).reconcile()
+            (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == self._l10n_ec_get_partner_account(partner_id, withhold.l10n_ec_withhold_type)).reconcile()
         elif withhold.l10n_ec_withhold_type in ['in_withhold']:
-            (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == partner_id.property_account_payable_id).reconcile()
+            (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == self._l10n_ec_get_partner_account(partner_id, withhold.l10n_ec_withhold_type)).reconcile()
+            
+    def _l10n_ec_get_partner_account(self, partner, withhold_type):
+        account = self.env['account.account']
+        if withhold_type in ['out_withhold']:
+            account = partner.property_account_receivable_id
+        elif withhold_type in ['in_withhold']:
+            account = partner.property_account_payable_id
+        return account
             
     @api.depends('withhold_line_ids')
     def _l10n_ec_compute_move_totals(self):
@@ -352,7 +373,7 @@ class L10n_ecWizardAccountWithholdLine(models.TransientModel):
     @api.onchange('base', 'tax_id')
     def onchange_base(self):
         #Recomputes amount according to "base amount" and tax percentage
-        percentage = (-1) * self.tax_id.amount/100 or 0.0
+        percentage = (-1) * self.tax_id.amount / 100 or 0.0
         amount = self.base * percentage
         accounts = self.tax_id.invoice_repartition_line_ids.mapped('account_id')
         account_id = accounts[0].id if accounts else False
