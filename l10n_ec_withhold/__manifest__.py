@@ -24,7 +24,6 @@
         'l10n_ec_edi',
     ],
     'data': [
-        #Data
         #Security
         'security/ir.model.access.csv',
         'security/l10n_ec_multicompany_security.xml',
@@ -37,6 +36,8 @@
         'views/res_config_settings_views.xml',
         'views/contributor_type_view.xml',
         'views/res_partner_view.xml',
+        #Wizard
+        'wizard/wizard_account_withhold_view.xml',
     ],
     'installable': True,
     'auto_install': True,

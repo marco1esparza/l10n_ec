@@ -3,7 +3,7 @@
 	
 	<record id="view_contributor_type_form" model="ir.ui.view">
 		<field name="name">view.contributor.type.form</field>
-		<field name="model">contributor.type</field>
+		<field name="model">l10n_ec.contributor.type</field>
 		<field name="type">form</field>
 		<field name="arch" type="xml">
             <form string="Contributor Type">
@@ -11,9 +11,9 @@
 					<group>
 						<group name="group_left" string="Contributor Type">
 							<field name="name" required="1"/>
-							<field name="property_l10n_ec_profit_withhold_tax_id"/>
-							<field name="l10n_ec_vat_withhold_goods"/>
-							<field name="l10n_ec_vat_withhold_services"/>
+							<field name="profit_withhold_tax_id"/>
+							<field name="vat_goods_withhold_tax_id"/>
+							<field name="vat_services_withhold_tax_id"/>
 							<field name="company_id" groups="base.group_multi_company" required="1"/>
 						</group>
 					</group>
@@ -28,15 +28,15 @@
 
 	<record id="view_contributor_type_tree" model="ir.ui.view">
 		<field name="name">view.contributor.type.tree</field>
-		<field name="model">contributor.type</field>
+		<field name="model">l10n_ec.contributor.type</field>
 		<field name="type">tree</field>
 		<field name="arch" type="xml">
 			<tree string="Contributor Type" decoration-muted="(not active)">
 				<field name="sequence" widget="handle"/>
 			    <field name="name"/>
-				<field name="property_l10n_ec_profit_withhold_tax_id"/>
-				<field name="l10n_ec_vat_withhold_goods"/>
-				<field name="l10n_ec_vat_withhold_services"/>
+				<field name="profit_withhold_tax_id"/>
+				<field name="vat_goods_withhold_tax_id"/>
+				<field name="vat_services_withhold_tax_id"/>
 			    <field name="company_id"/>
 				<field name="active" widget="boolean_toggle"/>
 			</tree>
@@ -46,7 +46,7 @@
 	<record id="action_contributor_type" model="ir.actions.act_window">
 		<field name="name">Contributor Type</field>
 		<field name="type">ir.actions.act_window</field>
-		<field name="res_model">contributor.type</field>
+		<field name="res_model">l10n_ec.contributor.type</field>
 		<field name="view_mode">tree,form</field>
 		<field name="help" type="html">
 	      <p class="oe_view_nocontent_create">
