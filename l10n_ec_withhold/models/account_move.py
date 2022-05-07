@@ -460,7 +460,7 @@ class AccountMoveLine(models.Model):
     l10n_ec_withhold_invoice_id = fields.Many2one(
         'account.move',
         string='Invoice',
-        required=True,
+        #required=True,
         ondelete='restrict',
         help='Link the withholding entry lines to the invoice'
         )

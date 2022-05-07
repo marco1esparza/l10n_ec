@@ -21,7 +21,8 @@
     'license': 'OEEL-1',
     'depends': [
         'base',
-        'l10n_ec_edi',
+        'account_accountant',
+        'l10n_ec_edi'
     ],
     'data': [
         #Security

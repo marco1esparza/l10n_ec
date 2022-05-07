@@ -213,7 +213,7 @@ class AccountMove(models.Model):
             raise UserError(_(u'La generación de facturas de venta por reembolso de gastos solo aplica para facturas de compra por reembolso de gastos.'))
         if any(x.state not in ('posted') for x in self):
             raise UserError(_(u'Las facturas seleccionadas deben estar aprobadas.'))
-        l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_59')
+        l10n_latam_document_type_id = self.env.ref('l10n_ec.ec_dt_sale_41')
         if not l10n_latam_document_type_id:
             raise UserError(_(u'No se encontro un tipo de documento de reembolso para venta, por favor verifique la configuración del documento de venta con código 41.'))
         #computo del campo origin

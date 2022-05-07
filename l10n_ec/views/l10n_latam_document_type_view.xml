@@ -9,6 +9,9 @@
             <xpath expr="//group" position="after">
                 <group string="Ecuadorian Configuration" col="2" colspan="2">
                     <field name="l10n_ec_check_format"/>
+                    <field name="l10n_ec_type"/>
+					<field name="l10n_ec_authorization"/>
+					<field name="l10n_ec_require_vat"/>
                 </group>
             </xpath>
         </field>

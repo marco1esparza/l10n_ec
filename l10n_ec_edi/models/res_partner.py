@@ -53,6 +53,24 @@ class ResPartner(models.Model):
             'invoice_email': self.email,
         }
         
+    def _get_complete_address(self):
+        self.ensure_one()
+        partner_id = self
+        address = ""
+        if partner_id.street:
+            address += partner_id.street + ", "
+        if partner_id.street2:
+            address += partner_id.street2 + ", "
+        if partner_id.city:
+            address += partner_id.city + ", "
+        if partner_id.state_id:
+            address += partner_id.state_id.name + ", "
+        if partner_id.zip:
+            address += "(" + partner_id.zip + ") "
+        if partner_id.country_id:
+            address += partner_id.country_id.name
+        return address
+        
     def _compute_l10n_ec_code(self):
         #Este método asigna un código a cada tipo de identificación
         for partner in self:
