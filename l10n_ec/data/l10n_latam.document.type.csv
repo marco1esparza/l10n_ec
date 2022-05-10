@@ -1,5 +1,5 @@
 "id","sequence","code","name","report_name","internal_type","doc_code_prefix","country_id/id","active","l10n_ec_check_format","l10n_ec_type","l10n_ec_authorization","l10n_ec_require_vat"
-"ec_dt_01",10,"01","Factura","Factura de compra","invoice","FA","base.ec",1,1,"in_invoice","third",1
+"ec_dt_01",10,"01","Factura de compra","Factura de compra","invoice","FA","base.ec",1,1,"in_invoice","third",1
 "ec_dt_02",20,"02","Nota o boleta de venta","Nota o boleta de venta","invoice","NV","base.ec",1,1,"in_invoice","third",1
 "ec_dt_03",30,"03","Liquidación de compra de Bienes o Prestación de servicios","Liquidación de compra de Bienes o Prestación de servicios","purchase_liquidation","LDC","base.ec",1,1,"in_invoice","own",1
 "ec_dt_purchase_04",40,"04","Nota de crédito en compras","Nota de crédito en compras","credit_note","NotCr","base.ec",1,1,"in_refund","third",1
