@@ -5,8 +5,7 @@ from odoo import api, fields, models
 
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
-
-    #Columns
+    
     l10n_ec_issue_withholds = fields.Boolean(
         string='Issue Withhols',
         related='company_id.l10n_ec_issue_withholds',

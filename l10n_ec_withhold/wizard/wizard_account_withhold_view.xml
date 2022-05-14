@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="wizard_account_withhold_form" model="ir.ui.view">
+        <field name="name">l10n_ec.wizard.account.withhold.form</field>
+        <field name="model">l10n_ec.wizard.account.withhold</field>
+        <field name="arch" type="xml">
+			<form string="Withholding">
+				<group>
+					<group>
+						<field name="journal_id" domain="[('l10n_ec_withhold_type', '=', withhold_type)]" options="{'no_open': True, 'no_create': True}"/>
+						<field name="l10n_latam_document_type_id" domain="[('l10n_ec_type', '=', withhold_type)]" options="{'no_open': True, 'no_create': True}"/>
+						<field name="l10n_latam_document_number"/>
+						<field name="date"/>
+						<field name="company_id" invisible="1"/>
+						<field name="withhold_type" invisible="1"/>
+					</group>
+					<group>
+					</group>
+				</group>
+				<notebook>
+					<page id="withhold_lines_tab" string="Withhold Lines">
+						<field name="withhold_line_ids" force_save="1" mode="tree"
+							   context="{'related_invoices': related_invoices, 'withhold_type': withhold_type}">
+				            <tree editable="bottom">
+			                    <field name="company_id" invisible="1"/>
+								<field name="tax_id"
+									   options="{'no_create': True,'no_open': True}" required="True"
+									   context="{'l10n_ec_withhold_type_ctx': context.get('withhold_type') }"/>
+			                    <field name="invoice_id" required="True"
+			                    	   context="{'l10n_ec_related_invoices_ctx': context.get('related_invoices')}" />
+			                    <field name="account_id" readonly="1" groups="account.group_account_user"/>
+			                    <field name="account_id" readonly="0" invisible="1"/> <!-- editable version to be able to write from onchange -->
+			                    <field name="base"/>
+			                    <field name="amount"/>
+			                </tree>
+				    	</field>
+				    	<group class="oe_subtotal_footer oe_right">
+							<field name="l10n_ec_total_base_vat"/>
+							<field name="l10n_ec_vat_withhold"/>
+							<field name="l10n_ec_total_base_profit"/>
+							<field name="l10n_ec_profit_withhold"/>
+							<field name="l10n_ec_total" class="oe_subtotal_footer_separator"/>
+						</group>
+					</page>
+					<page id="invoices_tab" string="Invoices">
+						<field name="related_invoices"/>
+					</page>
+				</notebook>
+
+				<footer>
+	                <button string="Create and Post" name="action_create_and_post_withhold" type="object" class="oe_highlight"/>
+	                <button string="Close" special="cancel" class="oe_link"/>
+            	</footer>
+			</form>
+		</field>
+    </record>
+
+</odoo>
