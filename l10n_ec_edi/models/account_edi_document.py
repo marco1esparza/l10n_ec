@@ -252,7 +252,7 @@ class AccountEdiDocument(models.Model):
                 infoFactura = etree.SubElement(factura, 'infoLiquidacionCompra')
         infoFactElements = [
             ('fechaEmision', datetime.strftime(self.move_id.invoice_date,'%d/%m/%Y')),
-            ('dirEstablecimiento', self.move_id.l10n_ec_printer_id.printer_point_address)
+            ('dirEstablecimiento', self.move_id.journal_id.l10n_ec_emission_address_id.street)
         ]
         get_invoice_partner_data = self.move_id.partner_id.get_invoice_partner_data()
         if type == 'out_invoice':
@@ -565,7 +565,7 @@ class AccountEdiDocument(models.Model):
         get_invoice_partner_data = self.move_id.partner_id.get_invoice_partner_data()
         if get_invoice_partner_data['invoice_email']:
             additional_info.append('Email: %s' % get_invoice_partner_data['invoice_email'])
-        if self.move_id.l10n_ec_printer_id.name[:3]:
+        if self.move_id.journal_id.l10n_ec_entity:
             additional_info.append('Vendedor: %s' % self.move_id.user_id.name)
         #Debe ponerse primero el BeautifulSoup y luego el if porque si inviertes el orden falla
         #cuando narration es vacio (aunque en la interfaz esta vacio internamente tiene (<p><br></p>)

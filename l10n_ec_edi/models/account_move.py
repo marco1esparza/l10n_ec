@@ -11,11 +11,11 @@ import re
 class AccountMove(models.Model):
     _inherit='account.move'
     
-    @api.onchange('l10n_ec_printer_id')
-    def onchange_l10n_ec_printer_id(self):
-        #Resets the document number when the printer point is changed
-        if self.country_code == 'EC':
-            self.l10n_latam_document_number = False
+#     @api.onchange('l10n_ec_printer_id')
+#     def onchange_l10n_ec_printer_id(self):
+#         #Resets the document number when the printer point is changed
+#         if self.country_code == 'EC':
+#             self.l10n_latam_document_number = False
 
     @api.onchange('l10n_latam_document_number')
     def onchange_l10n_latam_document_number(self):
@@ -37,7 +37,7 @@ class AccountMove(models.Model):
                 if self.l10n_latam_document_type_id.l10n_ec_authorization == 'third':
                     prefix = '001-001-'
                 if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own':
-                    prefix = self.l10n_ec_printer_id.name + '-'
+                    prefix = self.journal_id.l10n_ec_entity + '-' + self.journal_id.l10n_ec_emission + '-'
             self.l10n_latam_document_number = prefix + number
         else:
             # Se manda a computar l10n_latam_document_number de forma manual para documentos no tributarios
@@ -53,7 +53,7 @@ class AccountMove(models.Model):
         if self.l10n_latam_document_type_id.l10n_ec_authorization == 'none':
             prefix_to_validate = '999-999-' #No tan seguro que sea necesario pero veamos que dicen los usuarios
         if self.l10n_latam_document_type_id.l10n_ec_authorization == 'own': #only when printer point is used
-            prefix_to_validate = self.l10n_ec_printer_id.name + '-'
+            prefix_to_validate = self.journal_id.l10n_ec_entity + '-' + self.journal_id.l10n_ec_emission + '-'
         if prefix_to_validate:
             if self.l10n_latam_document_number[0:8] != prefix_to_validate:
                 raise ValidationError("Acorde a la configuración del tipo de documento, el prefijo del número de documento debería empezar con %s" % prefix_to_validate)
@@ -213,8 +213,8 @@ class AccountMove(models.Model):
                     raise ValidationError(_('Please setup your VAT number in the company form'))
                 if not invoice.company_id.street:
                     raise ValidationError(_('Please setup the your company address in the company form'))
-                if not invoice.l10n_ec_printer_id.printer_point_address:
-                    raise ValidationError(_('Please setup the printer point address, in Accounting / Settings / Printer Points'))
+                if not invoice.journal_id.l10n_ec_emission_address_id.street:
+                    raise ValidationError(_('Please setup the address, for the partner "%s".' % invoice.journal_id.l10n_ec_emission_address_id.name))
                 #needed to print offline RIDE and populate XML request
                 edi_ec._l10n_ec_set_access_key()
                 self.l10n_ec_authorization = edi_ec.l10n_ec_access_key #for auditing manual changes
@@ -243,44 +243,24 @@ class AccountMove(models.Model):
     #                     })
     #     self.env['account.edi.document'].create(edi_document_vals_list)
     #     self.edi_document_ids._process_documents_no_web_services()
-    
-    def _is_manual_document_number(self):
-        #override for manual entry of invoice numbers, usefull for re-typing documents from old system
-        if self.l10n_latam_use_documents and self.country_code == 'EC':
-            doc_code = self.l10n_latam_document_type_id.code or ''
-            l10n_ec_type = self.l10n_latam_document_type_id.l10n_ec_type or ''
-            if not self.l10n_ec_printer_id.automatic_numbering:
-                if self.journal_id.type == 'sale':
-                    return True
-                elif self.journal_id.type == 'purchase' and doc_code in ['03', '41']:
-                    return True
-                elif self.journal_id.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['in_withhold']:
-                    return True
-            #Cuando se tiene solo un diario y es numeracion automatica, este diario tambien se usa en las reteciones en
-            #ventas, lo que trae consigo que se oculte el numero de doc, lo que seria un error, se agrega el else
-            #para verificar si el doc es retencion en venta.
-            else:
-                if self.journal_id.type == 'general' and doc_code in ['07'] and l10n_ec_type in ['out_withhold']:
-                    return True
-        return super()._is_manual_document_number()
-    
+        
     def view_credit_note(self):
         [action] = self.env.ref('account.action_move_out_refund_type').sudo().read()
         action['domain'] = [('id', 'in', self.reversal_move_id.ids)]
         return action
  
-    @api.model
-    def _default_l10n_ec_printer_id(self):
-        #Gets the first printer point by its sequence as default value, usually 001-001
-        #Overriden with extended features in l10n_ec_account_extended
-        printer_id = False
-        company_id = self.env.company #self.country_code is still empty
-        if company_id.country_code == 'EC':
-            move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) or self._context.get('default_waybill_type', False) #self.type is not yet populated
-            if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold', 'out_waybill']:
-                #regular account.move doesn't need a printer point
-                printer_id = self.env['l10n_ec.sri.printer.point'].search([('company_id', '=', company_id.id)], order="sequence asc", limit=1)
-        return printer_id
+#     @api.model
+#     def _default_l10n_ec_printer_id(self):
+#         #Gets the first printer point by its sequence as default value, usually 001-001
+#         #Overriden with extended features in l10n_ec_account_extended
+#         printer_id = False
+#         company_id = self.env.company #self.country_code is still empty
+#         if company_id.country_code == 'EC':
+#             move_type = self._context.get('default_move_type',False) or self._context.get('default_withhold_type',False) or self._context.get('default_waybill_type', False) #self.type is not yet populated
+#             if move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_withhold', 'out_waybill']:
+#                 #regular account.move doesn't need a printer point
+#                 printer_id = self.env['l10n_ec.sri.printer.point'].search([('company_id', '=', company_id.id)], order="sequence asc", limit=1)
+#         return printer_id
 
     @api.model
     def _default_l10n_ec_payment_method_id(self):
@@ -377,56 +357,56 @@ class AccountMove(models.Model):
             invoice.l10n_ec_total_with_tax = invoice.amount_untaxed + invoice.l10n_ec_vat_cero_subtotal + invoice.l10n_ec_vat_doce_subtotal + invoice.l10n_ec_total_irbpnr
             invoice.l10n_ec_total_to_withhold = l10n_ec_total_to_withhold
 
-    @api.depends('l10n_latam_document_type_id', 'l10n_ec_printer_id')
-    def _compute_name(self):
-        # Se computa tomando en cuenta tambien cambios en el Punto de Emision.
-        super(AccountMove, self)._compute_name()
+#     @api.depends('l10n_latam_document_type_id', 'l10n_ec_printer_id')
+#     def _compute_name(self):
+#         # Se computa tomando en cuenta tambien cambios en el Punto de Emision.
+#         super(AccountMove, self)._compute_name()
             
-    def _get_formatted_sequence(self, number=0):
-        return "%s-%09d" % (self.l10n_ec_printer_id.name, number)
+#     def _get_formatted_sequence(self, number=0):
+#         return "%s-%09d" % (self.l10n_ec_printer_id.name, number)
 
-    def _get_starting_sequence(self):
-        """ If use documents then will create a new starting sequence using the document type code prefix and the
-        journal document number with a 8 padding number """
-        if self.journal_id.l10n_latam_use_documents and self.env.company.country_id == self.env.ref('base.ec'):
-            if self.l10n_ec_printer_id:
-                return self._get_formatted_sequence()
-        return super()._get_starting_sequence()
+#     def _get_starting_sequence(self):
+#         """ If use documents then will create a new starting sequence using the document type code prefix and the
+#         journal document number with a 8 padding number """
+#         if self.journal_id.l10n_latam_use_documents and self.env.company.country_id == self.env.ref('base.ec'):
+#             if self.l10n_ec_printer_id:
+#                 return self._get_formatted_sequence()
+#         return super()._get_starting_sequence()
 
-    def _get_last_sequence_domain(self, relaxed=False):
-        if self.company_id.country_code == 'EC' and self.l10n_latam_use_documents:
-            where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
-            if self.l10n_latam_document_type_id and self.l10n_ec_printer_id:
-                l10n_latam_document_type_id = self.l10n_latam_document_type_id
-                # Se obtiene el sequence para el l10n_latam_document_type_id correspondiente con
-                # 18 - Factura de Venta
-                if self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_dt_sale_41'):
-                    l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_dt_18')
-                # Verificamos si el documento es 18 - Factura de Venta
-                # a traves de su reference id
-                elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_dt_18'):   #Factura de Venta
-                    l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_dt_sale_41')
-                # Verificamos si el documento es 41 - Liquidación de Compras Emitida por Reembolso de Gastos
-                # a traves de su reference id
-                elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_dt_liqco_41'):
-                    l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_dt_03')
-                # Verificamos si el documento es 03 - Liquidación de Compras
-                # a traves de su reference id
-                elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_dt_03'): #Liquidación de Compras
-                    l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_dt_liqco_41')
-                where_string += "AND l10n_ec_printer_id = %(l10n_ec_printer_id)s "
-                # Creamos un IN para poder buscar por mas de un tipo de documento,
-                # para poder saber cual es el ultimo Nro de documento asignado para tipos de documentos compartidos.
-                where_string += "AND l10n_latam_document_type_id IN ("
-                doctype_id = ','.join(str(x.id) for x in l10n_latam_document_type_id)
-                if not doctype_id:
-                    doctype_id = 0
-                where_string += doctype_id
-                where_string += ") "
-                param.update({'l10n_ec_printer_id': self.l10n_ec_printer_id.id or 0})
-        else:
-            where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
-        return where_string, param
+#     def _get_last_sequence_domain(self, relaxed=False):
+#         if self.company_id.country_code == 'EC' and self.l10n_latam_use_documents:
+#             where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
+#             if self.l10n_latam_document_type_id and self.l10n_ec_printer_id:
+#                 l10n_latam_document_type_id = self.l10n_latam_document_type_id
+#                 # Se obtiene el sequence para el l10n_latam_document_type_id correspondiente con
+#                 # 18 - Factura de Venta
+#                 if self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_dt_sale_41'):
+#                     l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_dt_18')
+#                 # Verificamos si el documento es 18 - Factura de Venta
+#                 # a traves de su reference id
+#                 elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_dt_18'):   #Factura de Venta
+#                     l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_dt_sale_41')
+#                 # Verificamos si el documento es 41 - Liquidación de Compras Emitida por Reembolso de Gastos
+#                 # a traves de su reference id
+#                 elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_dt_liqco_41'):
+#                     l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_dt_03')
+#                 # Verificamos si el documento es 03 - Liquidación de Compras
+#                 # a traves de su reference id
+#                 elif self.l10n_latam_document_type_id == self.env.ref('l10n_ec.ec_dt_03'): #Liquidación de Compras
+#                     l10n_latam_document_type_id += self.env.ref('l10n_ec.ec_dt_liqco_41')
+#                 where_string += "AND l10n_ec_printer_id = %(l10n_ec_printer_id)s "
+#                 # Creamos un IN para poder buscar por mas de un tipo de documento,
+#                 # para poder saber cual es el ultimo Nro de documento asignado para tipos de documentos compartidos.
+#                 where_string += "AND l10n_latam_document_type_id IN ("
+#                 doctype_id = ','.join(str(x.id) for x in l10n_latam_document_type_id)
+#                 if not doctype_id:
+#                     doctype_id = 0
+#                 where_string += doctype_id
+#                 where_string += ") "
+#                 param.update({'l10n_ec_printer_id': self.l10n_ec_printer_id.id or 0})
+#         else:
+#             where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
+#         return where_string, param
 
     @api.depends('reversal_move_id')
     def _get_refund_count(self):
@@ -532,22 +512,23 @@ class AccountMove(models.Model):
                 invoice.l10n_ec_transaction_type = ''
 
 
-    @api.depends('l10n_latam_document_type_id','l10n_ec_printer_id','state')
+    @api.depends('l10n_latam_document_type_id','state')
+    #@api.depends('l10n_latam_document_type_id','l10n_ec_printer_id','state')
     def _show_edit_l10n_ec_authorization(self):
-        for res in self:
+        for invoice in self:
             show_l10n_ec_authorization = False
             edit_l10n_ec_authorization = False
-            if res.country_code == 'EC':
+            if invoice.country_code == 'EC':
                 # ideally we should call a line like
-                # if res.is_invoice(): or res.is_withholding()
+                # if invoice.is_invoice(): or invoice.is_withholding()
                 # but for v14 we consider is_invoice to include all edis
-                if res.is_invoice():
-                    if res.l10n_ec_authorization_type == 'third':
+                if invoice.is_invoice():
+                    if invoice.l10n_ec_authorization_type == 'third':
                         show_l10n_ec_authorization = True
                         edit_l10n_ec_authorization = True
-                    elif res.l10n_ec_authorization_type == 'own':
-                        if res.l10n_ec_printer_id.allow_electronic_document:
-                            if res.state in ['posted','cancel']:
+                    elif invoice.l10n_ec_authorization_type == 'own':
+                        if invoice.journal_id.l10n_ec_emission_type == 'electronic':
+                            if invoice.state in ['posted','cancel']:
                                 #las autorizaciones emitidas por nosotros no se muestran en
                                 #el estado borrador pues se generará en el flujo del documento electronico
                                 show_l10n_ec_authorization = True
@@ -556,20 +537,20 @@ class AccountMove(models.Model):
                             #en todos los estadoss
                             show_l10n_ec_authorization = True
                             edit_l10n_ec_authorization = True
-            res.show_l10n_ec_authorization = show_l10n_ec_authorization
-            res.edit_l10n_ec_authorization = edit_l10n_ec_authorization
+            invoice.show_l10n_ec_authorization = show_l10n_ec_authorization
+            invoice.edit_l10n_ec_authorization = edit_l10n_ec_authorization
 
-    l10n_ec_printer_id = fields.Many2one(
-        'l10n_ec.sri.printer.point',
-        string='Punto de emisión', readonly = True,
-        states = {'draft': [('readonly', False)]},
-        default = _default_l10n_ec_printer_id,
-        ondelete='restrict',
-        index=True,
-        check_company=True,
-        tracking=True,
-        help='The tax authority authorized printer point from where to send or receive invoices'
-        )
+#     l10n_ec_printer_id = fields.Many2one(
+#         'l10n_ec.sri.printer.point',
+#         string='Punto de emisión', readonly = True,
+#         states = {'draft': [('readonly', False)]},
+#         default = _default_l10n_ec_printer_id,
+#         ondelete='restrict',
+#         index=True,
+#         check_company=True,
+#         tracking=True,
+#         help='The tax authority authorized printer point from where to send or receive invoices'
+#         )
     l10n_ec_authorization = fields.Char(
         string='Autorización', readonly = True,
         copy = False,

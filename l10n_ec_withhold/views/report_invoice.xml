@@ -21,7 +21,7 @@
                                 <td class="text-center p-1">
                                     <strong><span t-field="o.company_id.l10n_ec_legal_name"/></strong><br/>
                                     <strong>Headquarters Address: </strong> <span t-esc="o.company_id.partner_id._get_complete_address()"/><br/>
-                                    <t t-if="o.l10n_ec_printer_id.printer_point_address">
+                                    <t t-if="o.journal_id.l10n_ec_emission_address_id.street">
                             			<strong>Branch Office address: </strong> <span t-esc="o.l10n_ec_printer_id.printer_point_address"/><br/>
                             		</t>
                             		<t t-if="o.company_id.l10n_ec_special_contributor_number">

@@ -104,7 +104,7 @@ class AccountEdiDocument(models.Model):
         infoCompRetencion = etree.SubElement(withhold, 'infoCompRetencion')
         infoCompRetencionElements = [
             ('fechaEmision', datetime.strftime(self.move_id.invoice_date,'%d/%m/%Y')),
-            ('dirEstablecimiento', self.move_id.l10n_ec_printer_id.printer_point_address)
+            ('dirEstablecimiento', self.move_id.journal_id.l10n_ec_emission_address_id.street)
         ]
         if self.move_id.company_id.l10n_ec_special_contributor_number:
             infoCompRetencionElements.append(('contribuyenteEspecial', self.move_id.company_id.l10n_ec_special_contributor_number))

@@ -33,7 +33,7 @@ class AccountEdiFormat(models.Model):
             is_required_for_invoice = False
             if invoice.country_code != 'EC':
                 return is_required_for_invoice
-            if not invoice.l10n_ec_printer_id.allow_electronic_document:
+            if invoice.journal_id.l10n_ec_emission_type != 'electronic':
                 #first lets verify that the printer point is an electronic one
                 return is_required_for_invoice
             #Facturas de venta
