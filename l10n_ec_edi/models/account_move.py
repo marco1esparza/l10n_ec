@@ -213,7 +213,7 @@ class AccountMove(models.Model):
                     raise ValidationError(_('Please setup your VAT number in the company form'))
                 if not invoice.company_id.street:
                     raise ValidationError(_('Please setup the your company address in the company form'))
-                if not invoice.journal_id.l10n_ec_emission_address_id.street:
+                if invoice.journal_id.l10n_ec_emission_address_id and not invoice.journal_id.l10n_ec_emission_address_id.street:
                     raise ValidationError(_('Please setup the address, for the partner "%s".' % invoice.journal_id.l10n_ec_emission_address_id.name))
                 #needed to print offline RIDE and populate XML request
                 edi_ec._l10n_ec_set_access_key()

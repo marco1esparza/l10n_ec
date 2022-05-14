@@ -57,7 +57,7 @@
 		                    <!--field name="invoice_id"/ -->
 		                    <field name="account_id"/>
 		                    <field name="tax_base_amount" string="Base"/>
-		                    <field name="amount" string="Amount"/>
+		                    <field name="balance" string="Amount"/>
 		                </tree>
 					</field>
 					<group class="oe_subtotal_footer oe_right">
