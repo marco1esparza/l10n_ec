@@ -5,14 +5,6 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare, float_round
 
-
-MAP_INVOICE_TYPE_PARTNER_TYPE = {
-    'out_invoice': 'customer',
-    'out_refund': 'customer',
-    'in_invoice': 'supplier',
-    'in_refund': 'supplier',
-}
-
 class L10n_ecWizardAccountWithhold(models.TransientModel):
     _name = 'l10n_ec.wizard.account.withhold'
     _check_company_auto = True
@@ -150,6 +142,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                     'tax_repartition_line_id': tax_line.id,
                     'tax_tag_ids': [(6, 0, tax_line.tag_ids.ids)],
                     # 'tax_tag_invert': True, #TODO V15.3 revisar este campo, es el delta
+                    'exclude_from_invoice_tab': True,
                 }
                 total += line.amount
                 line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals)
@@ -168,6 +161,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                 'credit': total if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
                 'tax_base_amount': 0.0,
                 'is_rounding_line': False,
+                'exclude_from_invoice_tab': True,
             }
             line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals)
             lines += line
@@ -178,27 +172,19 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
     
     def _validate_withhold_data_on_post(self):
         #Validations that apply only on withhold post, other validations should be in account.move class method _l10n_ec_withhold_validate_related_invoices
-        # if withhold.related_invoices.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted'):
-        #     TODO V15.2, evaluar si debe haber restricción en la retención en compras 
-        #     raise ValidationError(u'Solamente se puede tener una retención aprobada por factura de proveedor.')
-        if not self.related_invoices:
-            raise ValidationError(u'The withhold must be linked to some invoice')
         if not self.withhold_line_ids:
             raise ValidationError(u'You must input at least one withhold line')
+        related_withholds = self.related_invoices.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted' and x.id != self.id)
+        if self.withhold_type == 'in_withhold':
+            #Current MVP allows just one withhold per purchase invoice
+            #TODO evaluate allowing 2 withholds per purchase invoice and on several purchase invoces at a time (similar to sales) 
+            raise ValidationError(u'Another withhold already exists, you can have only one posted withhold per purchase document')
         #Validate there where not other withholds for same invoice for same concept (concept might be vat withhold or income withhold)
-        categories = self.related_invoices.l10n_ec_withhold_ids.l10n_ec_withhold_line_ids.tax_line_id.tax_group_id.mapped('l10n_ec_type')
-        categories = list(set(categories)) #remove duplicates
-        for withhold_line in self.related_invoices.l10n_ec_withhold_ids.line_ids:
-            if withhold_line.parent_state in ('posted'):
-                if withhold_line.tax_line_id.tax_group_id.l10n_ec_type in categories:
-                    if withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_vat':
-                        withhold_category = u'Retención IVA'
-                    elif withhold_line.tax_line_id.tax_group_id.l10n_ec_type == 'withhold_income_tax':
-                        withhold_category = u'Retención Renta'
-                    error_msg = u'Una factura no puede tener dos retenciones por el mismo concepto.\n' + \
-                                u'La retención previamente existente ' + withhold_line.move_id.name + \
-                                u' tiene tambien una retención por ' + withhold_category + u'.'
-                    raise ValidationError(error_msg)
+        current_categories = self.withhold_line_ids.tax_id.tax_group_id.mapped('l10n_ec_type')
+        for previous_withhold_line in related_withholds.l10n_ec_withhold_line_ids:
+            previous_category = previous_withhold_line.tax_line_id.tax_group_id.l10n_ec_type
+            if previous_category in current_categories:
+                raise ValidationError("Error, another withhold already exists for %s, withhold number %s" % (previous_category, previous_withhold_line.move_id.name))
         error = ''
         invoice_list = []
         amount_total = 0.0
@@ -270,9 +256,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             wizard.l10n_ec_total_base_profit = l10n_ec_total_base_profit
             wizard.l10n_ec_total = l10n_ec_vat_withhold + l10n_ec_profit_withhold                                
                 
-    journal_id = fields.Many2one(
-        'account.journal', 
-        string='Journal',
+    journal_id = fields.Many2one('account.journal', string='Journal', required=True,
         check_company=True,
         )
     l10n_latam_document_type_id = fields.Many2one(
@@ -388,6 +372,11 @@ class L10n_ecWizardAccountWithholdLine(models.TransientModel):
     
     account_id = fields.Many2one('account.account', string='Account')
     
+    account_id = fields.Many2one('account.account', string='Account',
+        domain="[('deprecated', '=', False), ('company_id', '=', 'company_id'),('is_off_balance', '=', False)]",
+        check_company=True,
+        )
+    
     base = fields.Monetary(string='Base')
     
     amount = fields.Monetary(string='Amount')
@@ -405,9 +394,12 @@ class L10n_ecWizardAccountWithholdLine(models.TransientModel):
         help='The move of this entry line.'
         )
     
-    @api.constrains('amount')
+    @api.constrains('base','amount')
     def _check_amount(self):
-        for line in self:
-            if line.amount < 0.0:
-                raise ValidationError(_('Negative values ​​are not allowed in withhold lines.'))
+        for line in self:            
+            precision = self.currency_id.decimal_places
+            if float_compare(line.amount, 0.0, precision_digits=precision) < 0:
+                raise ValidationError(_('Negative values ​​are not allowed in amount for withhold lines.'))
+            if float_compare(line.base, 0.0, precision_digits=precision) < 0:
+                raise ValidationError(_('Negative or zero values ​​are not allowed in base for withhold lines.'))
     
