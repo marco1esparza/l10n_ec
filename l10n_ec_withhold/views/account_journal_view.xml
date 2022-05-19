@@ -17,6 +17,14 @@
             		-->
 					<attribute name="attrs">{'invisible': ['|', ('l10n_latam_company_use_documents','=',False), ('type','not in',['purchase','sale','general'])]}</attribute>
 				</xpath>
+				<xpath expr="//field[@name='l10n_ec_entity']" position="attributes">
+					<attribute name="attrs">{'invisible':['|', '|', '|', ('country_code', '!=', 'EC'), ('l10n_latam_use_documents', '=', False), ('type', 'not in', ('sale', 'purchase')), ('type', '=', 'general'), ('l10n_ec_withhold_type', '!=', 'in_withhold')], 
+					                         'required':[('country_code', '=', 'EC'), ('l10n_latam_use_documents', '=', True), ('type', 'not in', ('sale', 'purchase'))]}</attribute>
+				</xpath>
+				<xpath expr="//field[@name='l10n_ec_emission']" position="attributes">
+					<attribute name="attrs">{'invisible':['|', '|', '|', ('country_code', '!=', 'EC'), ('l10n_latam_use_documents', '=', False), ('type', 'not in', ('sale', 'purchase')), ('type', '=', 'general'), ('l10n_ec_withhold_type', '!=', 'in_withhold')], 
+					                         'required':[('country_code', '=', 'EC'), ('l10n_latam_use_documents', '=', True), ('type', 'not in', ('sale', 'purchase'))]}</attribute>
+				</xpath>
             </field>
         </record>
 

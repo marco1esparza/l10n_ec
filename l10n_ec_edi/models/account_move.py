@@ -344,7 +344,7 @@ class AccountMove(models.Model):
                         l10n_ec_base_not_subject_to_vat += move_line.tax_base_amount
                     if move_line.tax_group_id.l10n_ec_type in ['irbpnr']:
                         l10n_ec_total_irbpnr += move_line.price_subtotal
-                    elif move_line.tax_group_id.l10n_ec_type in ['withhold_vat', 'withhold_income_tax']:
+                    elif move_line.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase', 'withhold_income_sale', 'withhold_income_purchase']:
                         l10n_ec_total_to_withhold += move_line.price_subtotal
             invoice.l10n_ec_total_discount = l10n_ec_total_discount
             invoice.l10n_ec_base_doce_iva = l10n_ec_base_doce_iva

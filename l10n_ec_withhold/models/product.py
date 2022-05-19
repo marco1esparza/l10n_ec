@@ -10,6 +10,6 @@ class ProductTemplate(models.Model):
     withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Vendor Withhold',
-        domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'), ('type_tax_use', '=', 'purchase')],
+        domain=[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')), ('type_tax_use', '=', 'none')],
         help='Default withholding tax when the product is purchased'
         )

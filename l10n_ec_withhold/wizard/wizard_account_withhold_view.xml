@@ -26,9 +26,9 @@
 			                    <field name="company_id" invisible="1"/>
 								<field name="tax_id"
 									   options="{'no_create': True,'no_open': True}" required="True"
-									   context="{'l10n_ec_withhold_type_ctx': context.get('withhold_type') }"/>
+									   context="{'l10n_ec_withhold_type_ctx': context.get('withhold_type')}"/>
 			                    <field name="invoice_id" required="True"
-			                    	   context="{'l10n_ec_related_invoices_ctx': context.get('related_invoices')}" />
+			                    	   context="{'l10n_ec_related_invoices_ctx': context.get('related_invoices')}"/>
 			                    <field name="account_id" readonly="1" groups="account.group_account_user"/>
 			                    <field name="account_id" readonly="0" invisible="1"/> <!-- editable version to be able to write from onchange -->
 			                    <field name="base"/>
@@ -47,7 +47,6 @@
 						<field name="related_invoices"/>
 					</page>
 				</notebook>
-
 				<footer>
 	                <button string="Create and Post" name="action_create_and_post_withhold" type="object" class="oe_highlight"/>
 	                <button string="Close" special="cancel" class="oe_link"/>
