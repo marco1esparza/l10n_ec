@@ -133,7 +133,7 @@ class AccountMove(models.Model):
         action = self.env.ref(action)
         result = action.sudo().read()[0]
         result['name'] = _('Withholds')
-        l10n_ec_withhold_ids = self.l10n_ec_withhold_ids.ids or self.env.context.get('withhold', [])
+        l10n_ec_withhold_ids = self.env.context.get('withhold', []) or self.l10n_ec_withhold_ids.ids 
         if len(l10n_ec_withhold_ids) > 1:
             result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"
         else:
