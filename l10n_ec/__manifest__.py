@@ -78,4 +78,5 @@ Master Data:
     "installable": True,
     "auto_install": False,
     "application": False,
+    'post_init_hook': '_post_install_hook_configure_ecuadorian',
 }
