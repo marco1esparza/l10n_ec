@@ -52,14 +52,14 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
                     if tax:
                         tax_line = tax.invoice_repartition_line_ids.filtered(lambda x: x.repartition_type == 'tax')
                         group_taxes.setdefault(tax.id, [{}, 0, 0])
-                        if tax.tax_group_id.l10n_ec_type in ['withhold_income_tax']:
+                        if tax.tax_group_id.l10n_ec_type in ['withhold_income_sale', 'withhold_income_purchase']:
                             group_taxes[tax.id][0].update({
                                 'account_id': tax_line.account_id.id,
                                 'invoice_id': invoice.id
                             })
                             group_taxes[tax.id][1] += line.debit
                             group_taxes[tax.id][2] += abs(line.debit * tax.amount / 100)
-                        if tax.tax_group_id.l10n_ec_type in ['withhold_vat']:
+                        if tax.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase']:
                             group_taxes[tax.id][0].update({
                                 'account_id': tax_line.account_id.id,
                                 'invoice_id': invoice.id
@@ -191,7 +191,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         for invoice in self.related_invoices:
             #Ensure withhold tax base amounts are smaller than base amounts of its invoices
             total_base_vat = 0.0
-            vat_lines = self.withhold_line_ids.filtered(lambda withhold_line: withhold_line.tax_id.tax_group_id.l10n_ec_type == 'withhold_vat' and withhold_line.invoice_id == invoice)
+            vat_lines = self.withhold_line_ids.filtered(lambda withhold_line: withhold_line.tax_id.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase'] and withhold_line.invoice_id == invoice)
             for vat_line in vat_lines:
                 total_base_vat += vat_line.base
             precision = invoice.company_id.currency_id.decimal_places
@@ -199,7 +199,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             if diff_base_vat > 0:
                 raise ValidationError(u'La base imponible de la retención de iva es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
             total_base_profit = 0.0
-            profit_lines = self.withhold_line_ids.filtered(lambda withhold_line: withhold_line.tax_id.tax_group_id.l10n_ec_type == 'withhold_income_tax' and withhold_line.invoice_id == invoice)
+            profit_lines = self.withhold_line_ids.filtered(lambda withhold_line: withhold_line.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_sale', 'withhold_income_purchase'] and withhold_line.invoice_id == invoice)
             for profit_line in profit_lines:
                 total_base_profit += profit_line.base
             diff_base_profit = float_compare(total_base_profit, invoice.amount_untaxed, precision_digits=precision)
@@ -244,10 +244,10 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             l10n_ec_total_base_profit = 0.0
             for line in wizard.withhold_line_ids:
                 if line.tax_id.tax_group_id:
-                    if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_vat']:
+                    if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase']:
                         l10n_ec_vat_withhold += line.amount
                         l10n_ec_total_base_vat += line.base
-                    if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_tax']:
+                    if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_sale', 'withhold_income_purchase']:
                         l10n_ec_profit_withhold += line.amount
                         l10n_ec_total_base_profit += line.base
             wizard.l10n_ec_vat_withhold = l10n_ec_vat_withhold
@@ -348,9 +348,9 @@ class L10n_ecWizardAccountWithholdLine(models.TransientModel):
     def onchange_invoice_id(self):
         #Sets the "base amount" according to linked invoice_id and tax type
         base = 0.0
-        if self.tax_id.tax_group_id.l10n_ec_type == 'withhold_vat':
+        if self.tax_id.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase']:
             base = self.invoice_id.l10n_ec_vat_doce_subtotal
-        elif self.tax_id.tax_group_id.l10n_ec_type == 'withhold_income_tax':
+        elif self.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_sale', 'withhold_income_purchase']:
             base = self.invoice_id.amount_untaxed
         self.base = base
     

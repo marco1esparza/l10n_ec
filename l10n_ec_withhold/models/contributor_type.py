@@ -23,20 +23,20 @@ class ContributorType(models.Model):
     profit_withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Force profit withhold',
-        domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'),('type_tax_use', '=', 'purchase')],
+        domain=[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')),('type_tax_use', '=', 'none')],
         help='If set forces the vat withhold tax on applicable purchases (also a withhold is required on document type). '
         'The profit withhold prevalence order is payment method (credit cards retains 0%), then partner, then product'
         )
     vat_goods_withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Goods VAT withhold',
-        domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_vat'),('type_tax_use', '=', 'purchase')],
+        domain=[('tax_group_id.l10n_ec_type', 'in', ('withhold_vat_sale', 'withhold_vat_purchase')),('type_tax_use', '=', 'none')],
         help='If set forces vat withhold in invoice lines with product in applicable purchases (also depends on document type)'
         )
     vat_services_withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Services VAT withhold',
-        domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_vat'),('type_tax_use', '=', 'purchase')],
+        domain=[('tax_group_id.l10n_ec_type', '=', ('withhold_vat_sale', 'withhold_vat_purchase')),('type_tax_use', '=', 'none')],
         help='This field defines the VAT withholding tax for services'
         )
     company_id = fields.Many2one(

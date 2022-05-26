@@ -51,16 +51,30 @@
             <field name="country_id" ref="base.ec"/>
         </record>
 
-        <record id="tax_group_withhold_vat" model="account.tax.group">
-            <field name="name">VAT Withhold</field>
-            <field name="l10n_ec_type">withhold_vat</field>
+        <record id="tax_group_withhold_vat_sale" model="account.tax.group">
+            <field name="name">VAT Withhold Sale</field>
+            <field name="l10n_ec_type">withhold_vat_sale</field>
+            <field name="sequence">80</field>
+            <field name="country_id" ref="base.ec"/>
+        </record>
+        
+        <record id="tax_group_withhold_vat_purchase" model="account.tax.group">
+            <field name="name">VAT Withhold Purchase</field>
+            <field name="l10n_ec_type">withhold_vat_purchase</field>
             <field name="sequence">80</field>
             <field name="country_id" ref="base.ec"/>
         </record>
 
-        <record id="tax_group_withhold_income" model="account.tax.group">
-            <field name="name">Profit Withhold</field>
-            <field name="l10n_ec_type">withhold_income_tax</field>
+        <record id="tax_group_withhold_income_sale" model="account.tax.group">
+            <field name="name">Profit Withhold Sale</field>
+            <field name="l10n_ec_type">withhold_income_sale</field>
+            <field name="sequence">90</field>
+            <field name="country_id" ref="base.ec"/>
+        </record>
+        
+        <record id="tax_group_withhold_income_purchase" model="account.tax.group">
+            <field name="name">Profit Withhold Purchase</field>
+            <field name="l10n_ec_type">withhold_income_purchase</field>
             <field name="sequence">90</field>
             <field name="country_id" ref="base.ec"/>
         </record>

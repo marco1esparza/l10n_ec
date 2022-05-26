@@ -187,7 +187,7 @@
                             <span t-field="o.amount_untaxed"/>
                         </td>
                     </tr>
-                    <t t-foreach="o.line_ids.filtered(lambda line: line.tax_line_id and line.tax_line_id.l10n_ec_type not in ['withhold_vat', 'withhold_income_tax'])" t-as="move_line">
+                    <t t-foreach="o.line_ids.filtered(lambda line: line.tax_line_id and line.tax_line_id.l10n_ec_type not in ['withhold_vat_sale', 'withhold_vat_purchase', 'withhold_income_sale', 'withhold_income_purchase'])" t-as="move_line">
                         <tr style="">
                             <t t-if="len(o.line_ids.filtered(lambda line: line.tax_line_id)) in [0, 1] and o.amount_untaxed == abs(move_line.balance)">
                                 <td><span class="text-nowrap" t-esc="move_line.tax_line_id.name"/></td>

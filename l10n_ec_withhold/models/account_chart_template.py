@@ -19,8 +19,8 @@ class AccountChartTemplate(models.Model):
             self = self.with_company(company)
             #Create withhold journals
             new_journals = [
-                {'code': 'RVNTA','name': 'Retenciones en ventas', 'l10n_ec_withhold_type': 'out_withhold'},
-                {'code': 'RCMPR','name': 'Retenciones en compras', 'l10n_ec_withhold_type': 'in_withhold'}
+                {'code': 'RVNTA','name': 'Retenciones en ventas', 'l10n_ec_withhold_type': 'out_withhold', 'l10n_ec_entity': False, 'l10n_ec_emission': False},
+                {'code': 'RCMPR','name': '001-001 Retenciones', 'l10n_ec_withhold_type': 'in_withhold', 'l10n_ec_entity': '001', 'l10n_ec_emission': '001'}
                 ]
             for new_journal in new_journals:
                 journal = self.env['account.journal'].search([

@@ -41,8 +41,8 @@ class AccountEdiDocument(models.Model):
             '''Retorna el codigo numero solicitado en el doc electronico del SRI 
             para cada tipo de impuesto de retencion
             '''
-            if withhold_category_dummy == 'withhold_income_tax': return 1
-            elif withhold_category_dummy == 'withhold_vat': return 2 
+            if withhold_category_dummy in ['withhold_income_sale', 'withhold_income_purchase']: return 1
+            elif withhold_category_dummy in ['withhold_vat_sale', 'withhold_vat_purchase']: return 2 
             elif withhold_category_dummy == 'other': return 6
 
         def get_electronic_tax_code(withhold_category_dummy, percentage, tax_code):
@@ -52,9 +52,9 @@ class AccountEdiDocument(models.Model):
             :return: Devuelve un numero entero del codigo del impuesto.
             """
             code = False
-            if withhold_category_dummy == 'withhold_income_tax' or withhold_category_dummy == 'isd':
+            if withhold_category_dummy in ['withhold_income_sale', 'withhold_income_purchase'] or withhold_category_dummy == 'isd':
                 code = tax_code
-            elif withhold_category_dummy == 'withhold_vat':
+            elif withhold_category_dummy in ['withhold_vat_sale', 'withhold_vat_purchase']:
                 if abs(percentage) == 0.0: #retencion iva 0%
                     code = 7
                 elif abs(percentage) == 10.0:

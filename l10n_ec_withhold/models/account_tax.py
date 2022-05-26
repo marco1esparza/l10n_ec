@@ -14,7 +14,7 @@ class AccountTax(models.Model):
         # - Show only purchase withhold taxes on purchase withholds
         context = self._context or {}
         if context.get('l10n_ec_withhold_type_ctx') == 'in_withhold':
-            args += [('type_tax_use', '=', 'purchase'),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat','withhold_income_tax'])]
+            args += [('type_tax_use', '=', 'none'),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat_purchase', 'withhold_income_purchase'])]
         elif context.get('l10n_ec_withhold_type_ctx') == 'out_withhold':
-            args += [('type_tax_use', '=', 'sale'),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat','withhold_income_tax'])]
+            args += [('type_tax_use', '=', 'none'),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat_sale', 'withhold_income_sale'])]
         return super(AccountTax, self)._search(args, offset, limit, order, count=count, access_rights_uid=access_rights_uid)

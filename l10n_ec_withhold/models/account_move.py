@@ -87,7 +87,7 @@ class AccountMove(models.Model):
             if invoice.currency_id != invoice.company_id.currency_id:
                 raise ValidationError(u'A fin de emitir retenciones sobre múltiples facturas, deben tener la misma moneda, revise la factura "%s".' % invoice.name)    
             if len(self) > 1 and invoice.move_type != 'out_invoice':
-                raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
+                raise ValidationError(u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')   
 
     def l10n_ec_add_withhold(self):
         #Launches the withholds wizard linked to selected invoices
@@ -133,7 +133,7 @@ class AccountMove(models.Model):
         action = self.env.ref(action)
         result = action.sudo().read()[0]
         result['name'] = _('Withholds')
-        l10n_ec_withhold_ids = self.l10n_ec_withhold_ids.ids or self.env.context.get('withhold', [])
+        l10n_ec_withhold_ids = self.env.context.get('withhold', []) or self.l10n_ec_withhold_ids.ids 
         if len(l10n_ec_withhold_ids) > 1:
             result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"
         else:
@@ -154,10 +154,10 @@ class AccountMove(models.Model):
             l10n_ec_total_base_profit = 0.0
             for line in invoice.l10n_ec_withhold_line_ids:
                 if line.tax_line_id.tax_group_id:
-                    if line.tax_line_id.tax_group_id.l10n_ec_type in ['withhold_vat']:
+                    if line.tax_line_id.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase']:
                         l10n_ec_vat_withhold += line.credit if invoice.l10n_ec_withhold_type == 'in_withhold' else line.debit 
                         l10n_ec_total_base_vat += line.tax_base_amount
-                    if line.tax_line_id.tax_group_id.l10n_ec_type in ['withhold_income_tax']:
+                    if line.tax_line_id.tax_group_id.l10n_ec_type in ['withhold_income_sale', 'withhold_income_purchase']:
                         l10n_ec_profit_withhold += line.credit if invoice.l10n_ec_withhold_type == 'in_withhold' else line.debit
                         l10n_ec_total_base_profit += line.tax_base_amount
             invoice.l10n_ec_vat_withhold = l10n_ec_vat_withhold
@@ -440,7 +440,7 @@ class AccountMoveLine(models.Model):
                             profit_withhold_tax = contributor_type.profit_withhold_tax_id
                         elif self.product_id.withhold_tax_id:
                             profit_withhold_tax = self.product_id.withhold_tax_id
-                        elif 'withhold_income_tax' in tax_groups:
+                        elif 'withhold_income_sale' in tax_groups or 'withhold_income_purchase' in tax_groups:
                             pass #keep the taxes coming from product.product... for now
                         else: #if not any withhold tax then fallback
                             if self.product_id and self.product_id.type == 'service':
@@ -448,12 +448,12 @@ class AccountMoveLine(models.Model):
                             else:
                                 profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_goods
                     else: #remove withholds
-                        super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat', 'withhold_income_tax'])
+                        super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale', 'withhold_vat_purchase', 'withhold_income_sale', 'withhold_income_purchase'])
             if vat_withhold_tax:
-                super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat'])
+                super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale', 'withhold_vat_purchase'])
                 super_tax_ids += vat_withhold_tax
             if profit_withhold_tax:
-                super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_income_tax'])
+                super_tax_ids = super_tax_ids.filtered(lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_income_sale', 'withhold_income_purchase'])
                 super_tax_ids += profit_withhold_tax
         return super_tax_ids
     
