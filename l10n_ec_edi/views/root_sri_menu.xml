@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="sri_electronic_documents_menu"
+        name="Ecuadorian EDI"
+        parent="account.menu_finance_configuration"
+        sequence="25"
+    />
+</odoo>

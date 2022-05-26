@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<odoo>
-	<data noupdate="1">
-		<record id="ec_edi_format_invoice" model="account.edi.format">
-			<field name="name">Servicio de Rentas Internas (Ecuador)</field>
-			<field name="code">l10n_ec_tax_authority</field>
-		</record>
-	</data>
-</odoo>

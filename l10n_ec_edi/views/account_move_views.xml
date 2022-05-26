@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="account_move_form_latam_view" model="ir.ui.view">
+            <field name="name">account.move.form.view</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="l10n_latam_invoice_document.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='l10n_latam_document_number']" position="after">
+                    <field name="l10n_latam_internal_type" invisible="1"/>
+                    <field
+                        name="l10n_ec_sri_payment_id"
+                        options="{'no_create': True}"
+                        attrs="{'invisible': ['|', '|', ('country_code', '!=', 'EC'),
+                            ('move_type', 'in', ('in_refund', 'entry', 'out_receipt', 'in_receipt')), '&amp;', ('move_type', '=', 'in_invoice'), ('l10n_latam_internal_type', '!=', 'purchase_liquidation')]}"
+                    />
+                </xpath>
+            </field>
+        </record>
+        <record id="account_move_form_account_view" model="ir.ui.view">
+            <field name="name">account.move.form.account.view</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath
+                    expr="//sheet//group//group//div[@name='journal_div']"
+                    position="after"
+                >
+                    <field
+                        name="l10n_ec_authorization_number"
+                        attrs="{'invisible': ['|', ('l10n_ec_authorization_number', '=', False), ('move_type', 'not in', ('out_invoice', 'out_refund')), ('l10n_latam_internal_type', '!=', 'purchase_liquidation')]}"
+                    />
+                    <field
+                        name="l10n_ec_authorization_date"
+                        attrs="{'invisible': [('l10n_ec_authorization_date', '=', False)]}"
+                    />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
