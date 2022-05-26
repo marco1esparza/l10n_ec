@@ -1,8 +1,3 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_l10n_ec_payment_method_account_invoice,access_l10n_ec_payment_method_account_invoice,model_l10n_ec_payment_method,account.group_account_invoice,1,0,0,0
-access_l10n_ec_payment_method_account_manager,access_l10n_ec_payment_method_account_manager,model_l10n_ec_payment_method,account.group_account_manager,1,1,1,1
-access_l10n_ec_invoice_payment_method_account_invoice,access_l10n_ec_invoice_payment_method_account_invoice,model_l10n_ec_invoice_payment_method,account.group_account_invoice,1,1,1,1
-access_digital_signature_account_user,access_digital_signature_account_user,model_l10n_ec_digital_signature,account.group_account_invoice,1,0,0,0
-access_digital_signature_account_manager,access_digital_signature_account_manager,model_l10n_ec_digital_signature,account.group_account_manager,1,1,1,1
-access_sri_tax_support_user,access_sri_tax_support_user,model_l10n_ec_sri_tax_support,account.group_account_invoice,1,1,1,0
-access_sri_tax_support_manager,access_sri_tax_support_manager,model_l10n_ec_sri_tax_support,account.group_account_manager,1,1,1,1
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+"access_l10n_ec_certificate_all","access_l10n_ec_certificate_all","l10n_ec_edi.model_l10n_ec_certificate",,1,0,0,0
+"access_l10n_ec_certificate_account_manager","access_l10n_ec_certificate_account_manager","l10n_ec_edi.model_l10n_ec_certificate","account.group_account_manager",1,1,1,1

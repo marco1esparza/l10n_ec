@@ -25,30 +25,22 @@
 			<xsd:pattern value="[^\n]*"/>
 		</xsd:restriction>
 	</xsd:simpleType>
-	
-	<!-- Agregado  temporalmente por trescloud -->
 	<xsd:simpleType name="regimenMicroempresas">
 		<xsd:restriction base="xsd:string">
 			<xsd:minLength value="1"/>
-			<xsd:maxLength value="300"/>
-			<xsd:pattern value="[^\n]*"/>
+			<xsd:maxLength value="50"/>
+			<xsd:whiteSpace value="preserve"/>
+			<xsd:pattern value="([A-Z]|[a-z]|[0-9]|ñ|Ñ)+([\w]|[\S]|[^\n])*"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 	<xsd:simpleType name="agenteRetencion">
 		<xsd:restriction base="xsd:string">
 			<xsd:minLength value="1"/>
-			<xsd:maxLength value="300"/>
-			<xsd:pattern value="[^\n]*"/>
+			<xsd:maxLength value="20"/>
+			<xsd:whiteSpace value="preserve"/>
+			<xsd:pattern value="([A-Z]|[a-z]|[0-9]|ñ|Ñ)+([\w]|[\S]|[^\n])*"/>
 		</xsd:restriction>
 	</xsd:simpleType>
-	<xsd:simpleType name="contribuyenteRimpe">
-		<xsd:restriction base="xsd:string">
-			<xsd:minLength value="1"/>
-			<xsd:maxLength value="27"/>
-			<xsd:pattern value="[^\n]*"/>
-		</xsd:restriction>
-	</xsd:simpleType>
-	
 	<xsd:simpleType name="nombreComercial">
 		<xsd:restriction base="xsd:string">
 			<xsd:minLength value="1"/>
@@ -72,9 +64,8 @@
 			<xsd:element name="ptoEmi" type="puntoEmision"/>
 			<xsd:element name="secuencial" type="secuencial"/>
 			<xsd:element name="dirMatriz" type="dirMatriz"/>
-			<xsd:element name="regimenMicroempresas" minOccurs="0" type="regimenMicroempresas"/>
-			<xsd:element name="agenteRetencion" minOccurs="0" type="agenteRetencion"/>
-			<xsd:element name="contribuyenteRimpe" minOccurs="0" type="contribuyenteRimpe"/>
+			<xsd:element name="regimenMicroempresas" type="regimenMicroempresas" minOccurs="0"> </xsd:element>
+			<xsd:element name="agenteRetencion" type="agenteRetencion" minOccurs="0"> </xsd:element>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:simpleType name="numeroRuc">
@@ -284,7 +275,7 @@
 			<xsd:totalDigits value="14"/>
 			<xsd:fractionDigits value="2"/>
 		</xsd:restriction>
-	</xsd:simpleType>		
+	</xsd:simpleType>
 	<xsd:simpleType name="codigoPorcentaje">
 		<xsd:restriction base="xsd:string">
 			<xsd:pattern value="[0-9]+"/>
@@ -529,7 +520,7 @@
 			<xsd:pattern value="[1][0-9]"/>
 			<xsd:pattern value="[2][0-1]"/>
 		</xsd:restriction>
-	</xsd:simpleType>	
+	</xsd:simpleType>
 	<xsd:simpleType name="total">
 		<xsd:restriction base="xsd:decimal">
 			<xsd:totalDigits value="14"/>
@@ -543,7 +534,7 @@
 			<xsd:fractionDigits value="2"/>
 			<xsd:minInclusive value="0"/>
 		</xsd:restriction>
-	</xsd:simpleType>	
+	</xsd:simpleType>
 	<xsd:simpleType name="unidadTiempo">
 		<xsd:restriction base="xsd:string">
 			<xsd:minLength value="1"/>
@@ -565,7 +556,7 @@
 			<xsd:pattern value="[^\n]*"/>
 		</xsd:restriction>
 	</xsd:simpleType>
-	<xsd:complexType name="pagos">	
+	<xsd:complexType name="pagos">
 		<xsd:sequence>
 			<xsd:element name="pago" minOccurs="1" maxOccurs="unbounded">
 				<xsd:complexType>
@@ -576,7 +567,7 @@
 						<xsd:element name="unidadTiempo" minOccurs="0" type="unidadTiempo"/>
 					</xsd:sequence>
 				</xsd:complexType>
-			</xsd:element>						
+			</xsd:element>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:complexType name="impuesto">
@@ -610,7 +601,7 @@
 			<xsd:minInclusive value="0"/>
 		</xsd:restriction>
 	</xsd:simpleType>
-	<xsd:simpleType name="totalImpuestoReembolso">	
+	<xsd:simpleType name="totalImpuestoReembolso">
 		<xsd:restriction base="xsd:decimal">
 			<xsd:totalDigits value="14"/>
 			<xsd:fractionDigits value="2"/>
@@ -623,7 +614,7 @@
 			<xsd:fractionDigits value="2"/>
 			<xsd:minInclusive value="0"/>
 		</xsd:restriction>
-	</xsd:simpleType>	
+	</xsd:simpleType>
 	<xsd:simpleType name="valorRetRenta">
 		<xsd:restriction base="xsd:decimal">
 			<xsd:totalDigits value="14"/>
@@ -652,12 +643,12 @@
 		<xsd:restriction base="xsd:string">
 			<xsd:pattern value="[0][12]"/>
 		</xsd:restriction>
-	</xsd:simpleType>	
+	</xsd:simpleType>
 	<xsd:simpleType name="codDocReembolso">
 		<xsd:restriction base="xsd:string">
 			<xsd:pattern value="[0-9]{2,3}"/>
 		</xsd:restriction>
-	</xsd:simpleType>	
+	</xsd:simpleType>
 	<xsd:simpleType name="estabDocReembolso">
 		<xsd:restriction base="xsd:string">
 			<xsd:pattern value="[0-9]{3}"/>
@@ -686,7 +677,7 @@
 			<xsd:pattern value="[0-9]{10,49}"/>
 		</xsd:restriction>
 	</xsd:simpleType>
-	<xsd:simpleType name="codigoReembolso">	
+	<xsd:simpleType name="codigoReembolso">
 		<xsd:restriction base="xsd:string">
 			<xsd:pattern value="[235]"/>
 		</xsd:restriction>
@@ -715,7 +706,7 @@
 			<xsd:minInclusive value="0"/>
 		</xsd:restriction>
 	</xsd:simpleType>
-	<xsd:complexType name="detalleImpuestos">	
+	<xsd:complexType name="detalleImpuestos">
 		<xsd:sequence>
 			<xsd:element name="detalleImpuesto" minOccurs="1" maxOccurs="unbounded">
 				<xsd:complexType>
@@ -724,10 +715,10 @@
 						<xsd:element name="codigoPorcentaje" minOccurs="1" type="codigoPorcentajeReembolso"/>
 						<xsd:element name="tarifa" minOccurs="1" type="tarifaReembolso"/>
 						<xsd:element name="baseImponibleReembolso" minOccurs="1" type="baseImponibleReembolso"/>
-						<xsd:element name="impuestoReembolso" minOccurs="1" type="impuestoReembolso"/>							
+						<xsd:element name="impuestoReembolso" minOccurs="1" type="impuestoReembolso"/>
 					</xsd:sequence>
 				</xsd:complexType>
-			</xsd:element>						
+			</xsd:element>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:simpleType name="placa">
@@ -750,23 +741,23 @@
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:complexType name="tipoNegociable">
-		<xsd:sequence>			
+		<xsd:sequence>
 			<xsd:element name="correo" minOccurs="1" maxOccurs="1" type="correo"/>
 		</xsd:sequence>
 	</xsd:complexType>
-	
-	<xsd:complexType name="compensaciones">	
+
+	<xsd:complexType name="compensaciones">
 		<xsd:sequence>
 			<xsd:element name="compensacion" minOccurs="1" maxOccurs="unbounded" type="compensacion"/>
 		</xsd:sequence>
 	</xsd:complexType>
-	
+
 	<xsd:complexType name="compensacionesReembolso">
 		<xsd:sequence>
 			<xsd:element name="compensacionReembolso" minOccurs="1" maxOccurs="unbounded" type="compensacion"/>
 		</xsd:sequence>
 	</xsd:complexType>
-	
+
 	<xsd:complexType name="reembolsos">
 		<xsd:sequence>
 			<xsd:element name="reembolsoDetalle" minOccurs="1" maxOccurs="unbounded">
@@ -775,18 +766,18 @@
 						<xsd:element name="tipoIdentificacionProveedorReembolso" minOccurs="1" type="tipoIdentificacionProveedorReembolso"/>
 						<xsd:element name="identificacionProveedorReembolso" minOccurs="1" type="identificacionProveedorReembolso"/>
 						<xsd:element name="codPaisPagoProveedorReembolso" minOccurs="0" type="codPaisPagoProveedorReembolso"/>
-						<xsd:element name="tipoProveedorReembolso" minOccurs="1" type="tipoProveedorReembolso"/>						
+						<xsd:element name="tipoProveedorReembolso" minOccurs="1" type="tipoProveedorReembolso"/>
 						<xsd:element name="codDocReembolso" minOccurs="1" type="codDocReembolso"/>
 						<xsd:element name="estabDocReembolso" minOccurs="1" type="estabDocReembolso"/>
 						<xsd:element name="ptoEmiDocReembolso" minOccurs="1" type="ptoEmiDocReembolso"/>
 						<xsd:element name="secuencialDocReembolso" minOccurs="1" type="secuencialDocReembolso"/>
-						<xsd:element name="fechaEmisionDocReembolso" minOccurs="1" type="fechaEmisionDocReembolso"/>	
+						<xsd:element name="fechaEmisionDocReembolso" minOccurs="1" type="fechaEmisionDocReembolso"/>
 						<xsd:element name="numeroautorizacionDocReemb" minOccurs="1" type="numeroautorizacionDocReemb"/>
 						<xsd:element name="detalleImpuestos" minOccurs="1" type="detalleImpuestos"/>
  						<xsd:element name="compensacionesReembolso" minOccurs="0" maxOccurs="1" type="compensacionesReembolso"/>
 					</xsd:sequence>
 				</xsd:complexType>
-			</xsd:element>						
+			</xsd:element>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:element name="factura">
@@ -817,10 +808,10 @@
 							<xsd:element name="totalSubsidio" minOccurs="0" type="totalSubsidio"/>
 							<xsd:element name="incoTermTotalSinImpuestos" minOccurs="0" type="incoTermTotalSinImpuestos"/>
 							<xsd:element name="totalDescuento" type="totalDescuentos"/>
-							<xsd:element name="codDocReembolso" minOccurs="0" type="codigoDocumentoReembolso"/>							
-							<xsd:element name="totalComprobantesReembolso" minOccurs="0" type="totalComprobantesReembolso"/>		
-							<xsd:element name="totalBaseImponibleReembolso" minOccurs="0" type="totalBaseImponibleReembolso"/>	
-							<xsd:element name="totalImpuestoReembolso" minOccurs="0" type="totalImpuestoReembolso"/>	
+							<xsd:element name="codDocReembolso" minOccurs="0" type="codigoDocumentoReembolso"/>
+							<xsd:element name="totalComprobantesReembolso" minOccurs="0" type="totalComprobantesReembolso"/>
+							<xsd:element name="totalBaseImponibleReembolso" minOccurs="0" type="totalBaseImponibleReembolso"/>
+							<xsd:element name="totalImpuestoReembolso" minOccurs="0" type="totalImpuestoReembolso"/>
 							<xsd:element name="totalConImpuestos">
 								<xsd:complexType>
 									<xsd:sequence>
@@ -830,7 +821,7 @@
 												<xsd:element name="codigo" type="codigo"/>
 												<xsd:element name="codigoPorcentaje" type="codigoPorcentaje"/>
 												<xsd:element name="descuentoAdicional" minOccurs="0" type="descuentoAdicional"/>
-												<xsd:element name="baseImponible" type="baseImponible"/>												
+												<xsd:element name="baseImponible" type="baseImponible"/>
 												<xsd:element name="tarifa" type="tarifa" minOccurs="0"/>
 												<xsd:element name="valor" minOccurs="1"	type="valor"/>
 												<xsd:element name="valorDevolucionIva" type="valorDevolucionIva" minOccurs="0"/>
@@ -941,12 +932,6 @@
 							</xsd:element>
 						</xsd:sequence>
 					</xsd:complexType>
-				</xsd:element>
-				<xsd:element ref="ds:Signature" minOccurs="0">
-					<xsd:annotation>
-						<xsd:documentation xml:lang="en"> Set of data associated with the invoice which guarantee the authorship and integrity of the message. It is defined as optional to ease the validation and transmission of the file. However, this block of electronic signature must be completed in order for an electronic invoice to be considered legally valid before third parties.</xsd:documentation>
-						<xsd:documentation xml:lang="es"> Conjunto de datos asociados a la factura que garantizarán la autoría y la integridad del mensaje. Se define como opcional para facilitar la verificación y el tránsito del fichero. No obstante, debe cumplimentarse este bloque de firma electrónica para que se considere una factura electrónica válida legalmente frente a terceros.</xsd:documentation>
-					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="id">

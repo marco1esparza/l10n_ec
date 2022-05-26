@@ -1,264 +1,404 @@
-# -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, models, fields, _
-from odoo.tests.common import Form
-from odoo.exceptions import UserError, ValidationError, except_orm
-from odoo.tools import float_repr
-
-import re
-from datetime import date, datetime
-import logging
 import base64
+import logging
+import traceback
+import unicodedata
+from datetime import datetime
+from functools import partial
+from io import BytesIO
+from random import randint
+from xml.etree.ElementTree import Element, SubElement, tostring
 
-import xml.etree.ElementTree as ElementTree
-from xml.dom import minidom
-from time import sleep
+from odoo import _, api, fields, models
+from odoo.addons.l10n_ec_edi.models.xml_utils import L10nEcXmlUtils
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+from odoo.tools import file_open, float_repr, float_round
+from odoo.tools.xml_utils import _check_with_xsd
+from odoo.exceptions import UserError
+from zeep import Client
+from zeep.transports import Transport
+from zeep.exceptions import Error as ZeepError
 
 _logger = logging.getLogger(__name__)
 
+TEST_URL = {
+    "reception": "https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl",
+    "authorization": "https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl",
+}
+
+PRODUCTION_URL = {
+    "reception": "https://cel.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl",
+    "authorization": "https://cel.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl",
+}
+
+DEFAULT_TIMEOUT_WS = 20
 
 class AccountEdiFormat(models.Model):
-    _inherit = 'account.edi.format'
-    
-    #Redefinitions based on account_edi
-    def _is_required_for_invoice(self, invoice):
-        """ Indicate if this EDI must be generated for the move passed as parameter.
 
-        :param invoice: An account.move having the invoice type.
-        :returns:       True if the EDI must be generated, False otherwise.
-        """
-        self.ensure_one()
-        if self.code == 'l10n_ec_tax_authority':
-            is_required_for_invoice = False
-            if invoice.country_code != 'EC':
-                return is_required_for_invoice
-            if invoice.journal_id.l10n_ec_emission_type != 'electronic':
-                #first lets verify that the printer point is an electronic one
-                return is_required_for_invoice
-            #Facturas de venta
-            if invoice.move_type == 'out_invoice' and invoice.l10n_latam_document_type_id.code in ['18','41']:
-                is_required_for_invoice = True
-            #NC en ventas
-            elif invoice.move_type == 'out_refund' and invoice.l10n_latam_document_type_id.code in ['04']:
-                is_required_for_invoice = True
-            # Liquidacion de Compra
-            elif invoice.move_type == 'in_invoice' and invoice.l10n_latam_document_type_id.code in ['03','41'] and invoice.l10n_latam_document_type_id.l10n_ec_authorization == 'own':
-                is_required_for_invoice = True
-            #Retenciones compra
-            elif invoice.is_withholding() and invoice.l10n_ec_withhold_type == 'in_withhold':
-                is_required_for_invoice = True
-            elif invoice.is_waybill():
-                is_required_for_invoice = True
-            return is_required_for_invoice
-        return super()._is_required_for_invoice(invoice)
+    _inherit = "account.edi.format"
+
+    def _is_compatible_with_journal(self, journal):
+        # OVERRIDE
+        if journal.country_code != "EC":
+            return super(AccountEdiFormat, self)._is_compatible_with_journal(journal)
+
+        # TODO let user configure which journal have "electronic" EDI (those that don't are "manual")
+        return journal.type in ("sale", "purchase") and self.code == "ecuadorian_edi"
+
+    def _is_required_for_invoice(self, invoice):
+        # OVERRIDE
+        if invoice.country_code != "EC":
+            return super(AccountEdiFormat, self)._is_required_for_invoice(invoice)
+
+        internal_type = invoice.l10n_latam_document_type_id.internal_type
+        return self.code == "ecuadorian_edi" \
+            and (invoice.move_type in ('out_invoice', 'out_refund') or internal_type == 'purchase_liquidation')
 
     def _needs_web_services(self):
-        #OVERRIDE
-        return True if self.code == 'l10n_ec_tax_authority' else super()._needs_web_services()
-    
-    def _is_compatible_with_journal(self, journal):
-        """ Indicate if the EDI format should appear on the journal passed as parameter to be selected by the user.
-        If True, this EDI format will be selected by default on the journal.
+        # OVERRIDE
+        return self.code == "ecuadorian_edi" or super(AccountEdiFormat, self)._needs_web_services()
 
-        :param journal: The journal.
-        :returns:       True if this format can be enabled by default on the journal, False otherwise.
-        """
-        if self.code == 'l10n_ec_tax_authority':
-            if journal.country_code != 'EC':
-                return False
-            if journal.type == 'purchase':
-                return True #useful for "Liquidaciónn de Compra"
-            elif journal.code == 'RCMPR':
-                return True #useful for purchase withholds
-            elif journal.code == 'GRMSN':
-                return True #useful for waybills
-        return super()._is_compatible_with_journal(journal) #includes sales
+    def _check_move_configuration(self, move):
+        # OVERRIDE
+        if self.code != "ecuadorian_edi":
+            return super(AccountEdiFormat, self)._check_move_configuration(move)
 
-    def _is_embedding_to_invoice_pdf_needed(self):
-        self.ensure_one()        
-        return False if self.code == 'l10n_ec_tax_authority' else super()._is_embedding_to_invoice_pdf_needed()
+        errors = []
+        if self._is_required_for_invoice(move):
+            journal = move.journal_id
+            address = journal.l10n_ec_emission_address_id
+            if not move.company_id.vat:
+                errors.append(
+                    _("You must set vat identification for company %s", move.company_id.display_name)
+                )
+            if not address:
+                errors.append(
+                    _("You must set emission address on journal %s", journal.display_name)
+                )
+            if address and not address.street:
+                errors.append(
+                    _("You must set address on contact %s, fields street must be filled",
+                      address.display_name)
+                )
+            if address and not address.commercial_partner_id.street:
+                errors.append(
+                    _("You must set matrix address on contact %s, fields street must be filled",
+                        address.commercial_partner_id.display_name
+                      )
+                )
+            if not move.l10n_ec_sri_payment_id:
+                errors.append(
+                    _("You have to configure Payment Method SRI on document: %s.", move.display_name)
+                )
+
+        if not move.commercial_partner_id.country_id:
+            errors.append(
+                _("You have to configure Country to Partner: %s.", move.commercial_partner_id.name)
+            )
+        if not move.commercial_partner_id.street:
+            errors.append(
+                _("You have to configure Street to Partner: %s.", move.commercial_partner_id.name)
+            )
+
+        if move.move_type == "out_refund" and not move.reversed_entry_id:
+            errors.append(
+                _("Credit Note %s must have original invoice related, try to use wizard 'Add Credit Note' on original invoice",
+                    move.display_name
+                  )
+            )
+        if move.l10n_latam_document_type_id.internal_type == "debit_note" and not move.debit_origin_id:
+            errors.append(
+                _("Debit Note %s must have original invoice related, try to use wizard 'Add Debit Note' on original invoice",
+                    move.display_name
+                  )
+            )
+        return errors
 
     def _post_invoice_edi(self, invoices):
-        """ Create the file content representing the invoice (and calls web services if necessary).
-        :param invoices:    A list of invoices to post.
-        :returns:           A dictionary with the invoice as key and as value, another dictionary:
-        * attachment:       The attachment representing the invoice in this edi_format if the edi was successfully posted.
-        * error:            An error if the edi was not successfully posted.
-        """
-        #replaces good old attempt_electronic_document from v10
-        #llamamos a super para anexar los errores en "edi_result"
-        edi_result = super()._post_invoice_edi(invoices)
-        if self.code != 'l10n_ec_tax_authority':
-            return edi_result
+        if self.code != "ecuadorian_edi":
+            return super(AccountEdiFormat, self)._post_invoice_edi(invoices)
+
+        res = {}
         for invoice in invoices:
-            #First some validations
-            msgs = []
-            enviroment_type = invoice.company_id.l10n_ec_environment_type
-            test_mode = False
-            if enviroment_type and enviroment_type == '0':
-                test_mode = True
-            # Si estamos en Modo test y tenemos documentos electronicos y tenemos request
-            # asignamos el attachment con dicho documento.
-            edi_ec = invoice.edi_document_ids.filtered(lambda d: d.edi_format_id.code == 'l10n_ec_tax_authority')
-            if test_mode and not edi_ec.attachment_id:
-                attachment = self.env['ir.attachment'].create({
-                    'name': invoice.name+'.xml',
-                    'res_id': invoice.id,
-                    'res_model': invoice._name,
-                    'type': 'binary',
-                    'datas': edi_ec.l10n_ec_request_xml_file,
-                    'mimetype': 'application/xml',
-                    'description': _('Demo Ecuadorian electronic document for the %s document.') % invoice.name,
-                })
-                edi_result[invoice] = {'attachment': attachment}
-                return edi_result
-            if test_mode:
-                res = {'success': True}  # indicates cancell operation success
-                edi_result[invoice] = res
-                return edi_result
-            if invoice.edi_state in ('sent'):
-                raise ValidationError("No se puede enviar al SRI documentos previamente enviados: Documento %s" % str(self.name))
-            if invoice.edi_state in ('canceled'):
-                raise ValidationError("No se puede enviar al SRI documentos previamente anulados: Documento %s \n"
-                                      "En su lugar debe crear un nuevo documento electrónico" % str(self.name)) 
-            if invoice.edi_state not in ('to_send'):
-                raise ValidationError("Error, solo se puede enviar al SRI documentos en estado A ENVIAR: Documento" %s % str(self.name))
-            if len(edi_ec) != 1: #Primera versión, como en v10, relación 1 a 1
-                raise ValidationError("Error, es extraño pero hay más de un documento electrónico a enviar" %s % str(invoice.name))
-            document = edi_ec.filtered(lambda r: r.state == "to_send")
-            #Firts try to download reply, if not available try sending again
-            response_state, response = document._l10n_ec_download_electronic_document_reply()
-            if response_state == 'non-existent':
-                try:
-                    document._l10n_ec_upload_electronic_document()
-                except except_orm as err: #Most errors captured inside Odoo
-                    msgs.append(err.name)
-                except: #all other errors drop to standard output (screen and log)
-                    raise
-                else:
-                    sleep(2) # Esperamos 2 segundos para que el SRI procese el documento
-                    response_state, response = document._l10n_ec_download_electronic_document_reply()
-                finally:
-                    pass #nothing to do until now
-            elif response_state == 'rejected':
-                msgs.append(str(response.autorizaciones.autorizacion[0].mensajes))
-                msgs.append('Corrija el problema reportado por el SRI, anule el documento en Odoo, y reintente nuevamente')
-            if msgs:
-                edi_result[invoice] = {
-                    'error': self._l10n_ec_edi_format_error_message(_("Errors reported by Tax Authority:"), msgs),
+            if not invoice.l10n_ec_authorization_number:  # Assign auth. number if necessary
+                invoice.l10n_ec_authorization_number = self._l10n_ec_get_access_key(invoice)
+            xml_content, errors = self._l10n_ec_generate_xml(invoice)
+
+            # Error management
+            if errors:
+                blocking_level = "error"
+                attachment = None
+            else:
+                errors, blocking_level, attachment = self._l10n_ec_send_xml_to_authorize(invoice, xml_content)
+
+            res.update(
+                {
+                    invoice: {
+                        "success": not errors,
+                        "error": "<br/>".join(errors),
+                        "attachment": attachment,
+                        "blocking_level": blocking_level,
+                    }
                 }
-                continue
-            if response_state in ['sent']:
-                #Create attachment, only if successful
-                datas = self._l10n_ec_build_external_xml(response).encode('utf-8')
-                datas = base64.encodebytes(datas)
-                electronic_document_attachment = self.env['ir.attachment'].create({
-                    'name': invoice.name+'.xml',
-                    'res_id': invoice.id,
-                    'res_model': invoice._name,
-                    'type': 'binary',
-                    'datas': datas,
-                    'mimetype': 'application/xml',
-                    'description': _('Ecuadorian electronic document for the %s document.') % invoice.name,
-                })
-                edi_result[invoice] = {'attachment': electronic_document_attachment, 'success': True}
-        return edi_result
+            )
+        return res
 
     def _cancel_invoice_edi(self, invoices):
-        """Calls the web services to cancel the invoice of this document.
+        if invoices.filtered(lambda x: x.country_code != "EC"):
+            return super(AccountEdiFormat, self)._cancel_invoice_edi(invoices)
 
-        :param invoices:    A list of invoices to cancel.
-        :returns:           A dictionary with the invoice as key and as value, another dictionary:
-        * success:          True if the invoice was successfully cancelled.
-        * error:            An error if the edi was not successfully cancelled.
-        """
-        edi_result = super()._cancel_invoice_edi(invoices)
-        if self.code != 'l10n_ec_tax_authority':
-            return edi_result
-        test_mode = False
-        if test_mode:
-            return edi_result
+        res = {}
         for invoice in invoices:
-            #here invoice refers to any document, an invoice, withhold, waybill
-            document = invoice.edi_document_ids.filtered(lambda r: r.state == "to_cancel" and r.edi_format_id.code == 'l10n_ec_tax_authority')
-            msgs = []
-            enviroment_type = invoice.company_id.l10n_ec_environment_type
-            if enviroment_type and enviroment_type == '0':
-                test_mode = True
-            # Si estamos en Modo test y tenemos documentos electronicos y tenemos request
-            # asignamos el attachment con dicho documento.
-            if test_mode:
-                res = {'success': True} #indicates cancell operation success
-                edi_result[invoice] = res
-                #Chatter, no_new_invoice to prevent creation of another new invoice "from the attachment"
-                invoice.with_context(no_new_invoice=True).message_post(
-                    body=_("The ecuadorian electronic document was successfully voided (Demo mode)")
+            authorization, authorization_date, errors = self._l10n_ec_get_authorization_status(invoice)
+            if authorization:
+                errors.append(
+                    _("You cannot cancel a document that is still authorized (%s, %s), check the SRI portal",
+                      authorization, authorization_date)
                 )
-                return edi_result
-            #Firts try to download reply, if not available try sending again
-            response_state, response = document._l10n_ec_download_electronic_document_reply()
-            if response_state not in ['non-existent']:
-                msgs.append('Por favor verifique que el documento halla sido previamente anulado en el portal web del SRI')
-                edi_result[invoice] = {
-                    'error': self._l10n_ec_edi_format_error_message(_("Error on cancellation"), msgs),
-                }                
-            if response_state in ['non-existent']:
-                res = {'success': True} #indicates cancell operation success
-                edi_result[invoice] = res
-                #Chatter, no_new_invoice to prevent creation of another new invoice "from the attachment"
-                invoice.with_context(no_new_invoice=True).message_post(
-                    body=_("The ecuadorian electronic document was successfully voided")
-                )
-        return edi_result
-    
-    def _l10n_ec_edi_format_error_message(self, error_title, errors):
-        #TODO: Agregar fecha y hora del error, pues en v13 ya no tenemos el campo de fecha de ultimo reintento
-        bullet_list_msg = ''.join('<li>%s</li>' % msg for msg in errors)
-        return '%s<ul>%s</ul>' % (error_title, bullet_list_msg)
-    
-    def _l10n_ec_build_external_xml(self, result):
-        '''
-        Costruye un xml similar al del SRI para ser almacenado y enviado por correo
-        Tiene las siguientes particularidaes:
-        - Almacena el contenido del comprobante en un CDATA para evitar distorsiones
-        - No hay formato del SRI establecido para este xml, nos basamos en el porveedor puntonet para construirlo
-        @result es la respuesta del webservice del SRI
-        '''
-        root = ElementTree.Element("RespuestaAutorizacionComprobante")
-        ElementTree.SubElement(root, "claveAccesoConsultada").text = result.claveAccesoConsultada
-        ElementTree.SubElement(root, "numeroComprobantes").text = result.numeroComprobantes
-        autorizaciones = ElementTree.SubElement(root, "autorizaciones")
-        autorizacion = ElementTree.SubElement(autorizaciones, "autorizacion")
-        ElementTree.SubElement(autorizacion, "estado").text = result.autorizaciones.autorizacion[0].estado
-        # Cuando el documento es 'NO AUTORIZADO' se envia el numero 0000000000 como autorizacion
-        if 'numeroAutorizacion' in result.autorizaciones.autorizacion[0]: 
-            ElementTree.SubElement(autorizacion, "numeroAutorizacion").text = result.autorizaciones.autorizacion[0].numeroAutorizacion
-        else: 
-            ElementTree.SubElement(autorizacion, "numeroAutorizacion").text = '0000000000'
-        date_format = result.autorizaciones.autorizacion[0].fechaAutorizacion.strftime('%Y-%m-%dT%H:%M:%S.000%Z')
-        ElementTree.SubElement(autorizacion, "fechaAutorizacion").text = date_format
-        ElementTree.SubElement(autorizacion, "ambiente").text = result.autorizaciones.autorizacion[0].ambiente
-        # pulimos la respuesta para hacerla estandar
-        comprobante = result.autorizaciones.autorizacion[0].comprobante
-        comprobante = "<![CDATA[" + comprobante + "]]>" 
-        ElementTree.SubElement(autorizacion, "comprobante").text = comprobante 
-        # Mensajes retornados
-        mensajes = ElementTree.SubElement(autorizacion, "mensajes")
-        mesage_tit = ''
-        mesage_desc = ''
-        data_error = result.autorizaciones.autorizacion[0].mensajes
-        if data_error:
-            data_error = data_error[0][0]
-            mesage_tit = data_error.tipo + ", " + data_error.identificador + ", " + data_error.mensaje
-            mesage_desc = data_error.informacionAdicional
-        ElementTree.SubElement(mensajes, "mensaje").text = mesage_tit
-        ElementTree.SubElement(mensajes, "detalle").text = mesage_desc
-        parse_pretty = minidom.parseString('<?xml version="1.0" encoding="utf-8"?>' + ElementTree.tostring(root, encoding='utf-8').decode())
-        response = parse_pretty.toprettyxml()
-        # Cambiar codigo mayor que, menor que, comillas simples por el caracter adecuado
-        response = response.replace("&lt;", "<")
-        response = response.replace("&gt;", ">")
-        response = response.replace("&quot;", "'")
-        return response
-        
+            res[invoice] = {
+                "success": not errors,
+                "error": "\n".join(errors),
+            }
+        return res
+
+    # ===== HELPERS =====
+
+    def _l10n_ec_get_xml_filename(self, invoice, authorized=False):
+        current_document = invoice
+        invoices_name = "%s" % current_document.display_name
+        return invoices_name + (authorized and _("_authorized") or "") + ".xml"
+
+    def _l10n_ec_generate_xml(self, invoice):
+        # Gather XML values
+        invoice_info = {
+            'invoice': invoice,
+            'secuencial': str(self._l10n_ec_get_only_sequence(invoice)).rjust(9, "0"),
+            'format_num_2': self._l10n_ec_format_number,
+            'format_num_6': partial(self._l10n_ec_format_number, decimals=6),
+            'clean_str': self._l10n_ec_clean_str,
+            'strftime': partial(datetime.strftime, format="%d/%m/%Y"),
+        }
+        invoice_info.update(invoice.l10n_ec_get_invoice_edi_data())
+
+        # Render and validate XML
+        xml_content = self.env.ref("l10n_ec_edi.common_main_template")._render(invoice_info)
+        xml_content = L10nEcXmlUtils._cleanup_xml_content(xml_content)
+        xsd_errors = self._l10n_ec_validate_with_xsd(xml_content, invoice.l10n_latam_document_type_id.internal_type)
+
+        xml_string = tostring(xml_content)
+        xml_signed = invoice.company_id.l10n_ec_certificate_id.action_sign(xml_string)
+        xml_signed = b'<?xml version="1.0" encoding="utf-8" standalone="no"?>' + xml_signed.encode()
+        return xml_signed, xsd_errors
+
+    def _l10n_ec_send_xml_to_authorize(self, invoice, xml_content):
+        # === STEP 1 ===
+        errors, info = [], []
+        if not invoice.l10n_ec_authorization_date:
+            # Submit the generated XML
+            response, zeep_errors = self._l10n_ec_get_client_service_response(invoice, "reception", xml=xml_content)
+            if zeep_errors:
+                return zeep_errors, "error", False
+            try:
+                response_state = response.estado
+                response_checks = response.comprobantes and response.comprobantes.comprobante or []
+            except AttributeError as e:
+                return [str(e)], "error", False
+
+            # Parse govt's response for errors or response state
+            already_authorized = False
+            if response_state == "DEVUELTA":
+                for check in response_checks:
+                    for msg in check.mensajes.mensaje:
+                        errors.append(" - ".join(
+                            map(lambda x: x or '',
+                                [msg.identificador, msg.informacionAdicional, msg.mensaje, msg.tipo]))
+                        )
+                        if msg.identificador == "43":  # Access key already registered
+                            already_authorized = True
+            elif response_state != "RECIBIDA":
+                errors.append(_("SRI response state: %s", response_state))
+
+            # If any errors have been found (other than those indicating already-authorized document)
+            if errors and not already_authorized:
+                return errors, "error", False
+
+        # === STEP 2 ===
+        # get authorization status & store response
+        attachment = False
+        authorization_num, authorization_date, auth_errors = self._l10n_ec_get_authorization_status(invoice)
+        errors.extend(auth_errors)
+        if authorization_num and authorization_date:
+            if invoice.l10n_ec_authorization_number != authorization_num:
+                info.append(f"Authorization number {authorization_num} does not match "
+                            "document's {invoice.l10n_ec_authorization_number}")
+            invoice.l10n_ec_authorization_number = authorization_num
+            invoice.l10n_ec_authorization_date = authorization_date.strftime(DTF)
+            attachment = self.env["ir.attachment"].create({
+                "name": self._l10n_ec_get_xml_filename(invoice, True),
+                "res_id": invoice.id,
+                "res_model": invoice._name,
+                "type": "binary",
+                "raw": self._l10n_ec_create_authorization_file(invoice, xml_content, authorization_num, authorization_date),
+                "mimetype": "application/xml",
+                "description": f"Ecuadorian electronic document generated for document {invoice.display_name}."
+            })
+            invoice.with_context(no_new_invoice=True).message_post(
+                body=_(
+                    f"Electronic document authorized.<br/>"
+                    f"<strong>Authorization num:</strong><br/>{invoice.l10n_ec_authorization_number}<br/>"
+                    f"<strong>Authorization date:</strong><br/>{invoice.l10n_ec_authorization_date}",
+                ),
+                attachment_ids=attachment.ids,
+            )
+        else:
+            info.append(f"Document with access key {invoice.l10n_ec_authorization_number} "
+                        "received by govt and pending authorization.")
+
+        return errors or info, "error" if errors else "info", attachment
+
+    def _l10n_ec_get_authorization_status(self, invoice):
+        authorization_num, authorization_date = False, False
+
+        response, zeep_errors = self._l10n_ec_get_client_service_response(
+            invoice, "authorization",
+            claveAccesoComprobante=invoice.l10n_ec_authorization_number
+        )
+        if zeep_errors:
+            return authorization_num, authorization_date, zeep_errors
+        try:
+            response_auth_list = response.autorizaciones and response.autorizaciones.autorizacion or []
+        except AttributeError as err:
+            return authorization_num, authorization_date, [str(err)]
+
+        errors = []
+        if not response_auth_list:
+            errors.append(_("Document not authorized by SRI, please try again later"))
+        elif not isinstance(response_auth_list, list):
+            response_auth_list = [response_auth_list]
+
+        for doc in response_auth_list:
+            if doc.estado == "AUTORIZADO":
+                authorization_num = doc.numeroAutorizacion
+                authorization_date = doc.fechaAutorizacion
+            else:
+                messages = doc.mensajes
+                messages_list = messages.mensaje
+                if messages:
+                    if not isinstance(messages_list, list):
+                        messages_list = messages
+                    for msg in messages_list:
+                        errors.append(" - ".join(
+                            map(lambda x: x or '',
+                                [msg.identificador, msg.informacionAdicional, msg.mensaje, msg.tipo])))
+        return authorization_num, authorization_date, errors
+
+    def _l10n_ec_get_client_service_response(self, invoice, mode, **kwargs):
+        if invoice.company_id.l10n_ec_production_env:
+            wsdl_url = PRODUCTION_URL.get(mode)
+        else:
+            wsdl_url = TEST_URL.get(mode)
+
+        errors = []
+        try:
+            transport = Transport(timeout=DEFAULT_TIMEOUT_WS)
+            client = Client(wsdl=wsdl_url, transport=transport)
+            if mode == "reception":
+                response = client.service.validarComprobante(**kwargs)
+            elif mode == "authorization":
+                response = client.service.autorizacionComprobante(**kwargs)
+            if not response:
+                errors.append(_("No response received."))
+        except ZeepError as e:
+            errors.append(_(
+                f"The SRI service failed with the following error: {e}, "
+                f"traceback: {''.join(traceback.format_tb(e.__traceback__))}"
+            ))
+        return response, errors
+
+    # ===== HELPERS (static) =====
+
+    @api.model
+    def _l10n_ec_get_access_key(self, invoice):
+        company = invoice.company_id
+        document_code_sri = invoice.l10n_ec_get_document_code_sri()
+        environment = company.l10n_ec_production_env and "2" or "1"
+        serie = invoice.journal_id.l10n_ec_entity + invoice.journal_id.l10n_ec_emission
+        sequencial = str(self._l10n_ec_get_only_sequence(invoice)).rjust(9, "0")
+        num_filler = "31215214"  # can be any 8 digits, thanks @3cloud !
+        emission = "1"  # emision normal, ya no se admite contingencia (2)
+
+        if not (document_code_sri and company.partner_id.vat and environment
+                and serie and sequencial and num_filler and emission):
+            return ""
+
+        now_date = invoice.date.strftime("%d%m%Y")
+        key_value = now_date + document_code_sri + company.partner_id.vat + environment + serie + sequencial + num_filler + emission
+        return key_value + str(self._l10n_ec_get_check_digit(key_value))
+
+    @api.model
+    def _l10n_ec_get_check_digit(self, key):
+        sum_total = sum([int(key[-i - 1]) * (i % 6 + 2) for i in range(len(key))])
+        sum_check = 11 - (sum_total % 11)
+        if sum_check >= 10:
+            sum_check = 11 - sum_check
+        return sum_check
+
+    @api.model
+    def _l10n_ec_get_only_sequence(self, invoice):
+        number = invoice.l10n_latam_document_number
+        try:
+            number_splited = number.split("-")
+            res = int(number_splited[2])
+        except Exception as e:
+            _logger.debug(f"Error getting sequence: {e}")
+            res = None
+        return res
+
+    @api.model
+    def _l10n_ec_create_authorization_file(self, invoice, xml_file_content, authorization_number, authorization_date):
+        xml_response = self.env.ref("l10n_ec_edi.authorization_template")._render({
+            'xml_file_content': xml_file_content.decode(),
+            'mode': "PRODUCCION" if invoice.company_id.l10n_ec_production_env else "PRUEBAS",
+            'authorization_number': authorization_number,
+            'authorization_date': authorization_date.strftime(DTF),
+        })
+        xml_response = L10nEcXmlUtils._cleanup_xml_content(xml_response)
+        return tostring(xml_response).decode()
+
+    def _l10n_ec_validate_with_xsd(self, xml_doc, doc_type):
+        try:
+            xsd_attachment = self.env.ref(f"l10n_ec_edi.{doc_type}_xsd")
+        except ValueError:
+            xsd_doc = file_open((f'./l10n_ec_edi/data/xsd/{doc_type}.xsd'))
+            xsd_attachment = self.env['ir.attachment'].create({
+                "name": f"{doc_type}_xsd",
+                "type": "binary",
+                "raw": xsd_doc.read(),
+                "mimetype": "application/xml",
+                "description": f"XSD validation file for {doc_type.replace('_', '')}s",
+            })
+            self.env['ir.model.data'].create({
+                'name': f"{doc_type}_xsd",
+                'module': 'l10n_ec_edi',
+                'res_id': xsd_attachment.id,
+                'model': 'ir.attachment',
+                'noupdate': True,
+            })
+        with BytesIO(xsd_attachment.raw) as xsd:
+            try:
+                _check_with_xsd(xml_doc, xsd, self.env)
+                return []
+            except UserError as e:
+                return [str(e)]
+
+    # ===== PRIVATE (static) =====
+
+    @api.model
+    def _l10n_ec_format_number(self, value, decimals=2):
+        return float_repr(float_round(value, decimals), decimals)
+
+    @api.model
+    def _l10n_ec_clean_str(self, s, max_len=300):
+        return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')[:max_len]

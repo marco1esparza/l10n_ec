@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="common_main_template">
+            <t t-set="company" t-value="invoice.company_id"/>
+            <t t-set="journal" t-value="invoice.journal_id"/>
+            <t t-set="partner" t-value="invoice.commercial_partner_id"/>
+            <t t-set="doc_type" t-value="invoice.l10n_latam_document_type_id.internal_type"/>
+            <t t-set="is_cnote" t-value="doc_type == 'credit_note'"/>
+            <t t-set="is_dnote" t-value="doc_type == 'debit_note'"/>
+            <t t-set="is_invoice" t-value="doc_type == 'invoice'"/>
+            <t t-set="is_liquidation" t-value="doc_type == 'purchase_liquidation'"/>
+
+            <t t-if="is_cnote">
+                <notaCredito version="1.1.0" id="comprobante">
+                    <t t-call="l10n_ec_edi.common_tax_info_template"/>
+                    <infoNotaCredito>
+                        <t t-call="l10n_ec_edi.common_info_template"/>
+                    </infoNotaCredito>
+
+                    <t t-call="l10n_ec_edi.common_details_info_template"/>
+                    <t t-call="l10n_ec_edi.common_additional_info_template"/>
+                </notaCredito>
+            </t>
+
+            <t t-if="is_dnote">
+                <notaDebito version="1.0.0" id="comprobante">
+                    <t t-call="l10n_ec_edi.common_tax_info_template"/>
+                    <infoNotaDebito>
+                        <t t-call="l10n_ec_edi.common_info_template"/>
+                    </infoNotaDebito>
+
+                    <t t-call="l10n_ec_edi.debit_reasons_template"/>
+                    <t t-call="l10n_ec_edi.common_additional_info_template"/>
+                </notaDebito>
+            </t>
+
+            <t t-if="is_invoice">
+                <factura version="1.1.0" id="comprobante">
+                    <t t-call="l10n_ec_edi.common_tax_info_template"/>
+                    <infoFactura>
+                        <t t-call="l10n_ec_edi.common_info_template"/>
+                        <t t-call="l10n_ec_edi.common_payment_terms_template"/>
+                    </infoFactura>
+
+                    <t t-call="l10n_ec_edi.common_details_info_template"/>
+                    <t t-call="l10n_ec_edi.common_additional_info_template"/>
+                </factura>
+            </t>
+
+            <t t-if="is_liquidation">
+                <liquidacionCompra version="1.1.0" id="comprobante">
+                    <t t-call="l10n_ec_edi.common_tax_info_template"/>
+                    <infoLiquidacionCompra>
+                        <t t-call="l10n_ec_edi.common_info_template"/>
+                        <t t-call="l10n_ec_edi.common_payment_terms_template"/>
+                    </infoLiquidacionCompra>
+
+                    <t t-call="l10n_ec_edi.common_details_info_template"/>
+                    <t t-call="l10n_ec_edi.common_additional_info_template"/>
+                </liquidacionCompra>
+            </t>
+        </template>
+
+        <template id="common_tax_info_template">
+            <t t-set="street" t-value="journal.l10n_ec_emission_address_id.street"/>
+            <t t-set="address" t-value="street and clean_str(street) or ''"/>
+            <t t-set="in_production" t-value="company.l10n_ec_production_env"/>
+            <t t-set="nombre_prueba" t-value="'PRUEBAS SERVICIO DE RENTAS INTERNAS'"/>
+            <infoTributaria>
+                <ambiente t-out="'2' if in_production else '1'"/>
+                <tipoEmision>1</tipoEmision>
+                <razonSocial t-out="clean_str(company.l10n_ec_legal_name) if in_production else nombre_prueba"/>
+                <nombreComercial t-out="clean_str(company.partner_id.name) if in_production else nombre_prueba"/>
+                <ruc t-out="company.partner_id.vat"/>
+                <claveAcceso t-out="invoice.l10n_ec_authorization_number"/>
+                <codDoc t-out="invoice.l10n_ec_get_document_code_sri()"/>
+                <estab t-out="journal.l10n_ec_entity"/>
+                <ptoEmi t-out="journal.l10n_ec_emission"/>
+                <secuencial t-out="secuencial"/>
+                <dirMatriz t-out="address"/>
+
+                <agenteRetencion t-if="TODO" t-out="TODO"/>
+                <contribuyenteRimpe t-if="company.l10n_ec_regime == 'rimpe'" t-out="'CONTRIBUYENTE RÉGIMEN RIMPE'"/>
+            </infoTributaria>
+        </template>
+
+        <template id="common_info_template">
+            <fechaEmision t-out="strftime(invoice.invoice_date)"/>
+            <dirEstablecimiento t-out="address"/>
+            <contribuyenteEspecial t-out="company.l10n_ec_special_contributor_number"/>
+            <obligadoContabilidad t-if="is_invoice" t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
+
+            <tipoIdentificacionComprador t-if="is_cnote or is_dnote or is_invoice" t-out="invoice._get_l10n_ec_identification_type()"/>
+            <razonSocialComprador t-if="is_cnote or is_dnote or is_invoice" t-out="clean_str(partner.name)"/>
+            <identificacionComprador t-if="is_cnote or is_dnote or is_invoice" t-out="partner.vat"/>
+            <direccionComprador t-if="is_invoice" t-out="clean_str(partner.street)"/>
+
+            <tipoIdentificacionProveedor t-if="is_liquidation" t-out="invoice._get_l10n_ec_identification_type()"/>
+            <razonSocialProveedor t-if="is_liquidation" t-out="clean_str(partner.name)"/>
+            <identificacionProveedor t-if="is_liquidation" t-out="partner.vat"/>
+            <direccionProveedor t-if="is_liquidation" t-out="clean_str(partner.street)"/>
+
+            <codDocModificado t-if="is_cnote or is_dnote" t-out="'01'"/>
+            <numDocModificado t-if="is_cnote or is_dnote" t-out="modified_doc.l10n_latam_document_number"/>
+            <fechaEmisionDocSustento t-if="is_cnote or is_dnote" t-out="strftime(modified_doc.invoice_date)"/>
+
+            <totalSinImpuestos t-out="format_num_6(invoice.amount_untaxed)"/>
+            <valorModificacion t-if="is_cnote" t-out="format_num_6(abs(invoice.amount_total))"/>
+            <totalDescuento t-if="is_invoice or is_liquidation" t-out="format_num_6(invoice.l10n_ec_compute_amount_discount())"/>
+
+            <t t-set="tax_totals" t-value="taxes_data['tax_details']"/>
+            <totalConImpuestos t-if="tax_totals and (is_cnote or is_invoice or is_liquidation)">
+                <totalImpuesto t-as="tax_data" t-foreach="tax_totals.values()">
+                    <t t-call="l10n_ec_edi.common_tax_lines_template">
+                        <t t-set="tags" t-value="['tarifa_post_base'] if is_invoice else []"/>
+                    </t>
+                </totalImpuesto>
+            </totalConImpuestos>
+            <impuestos t-if="tax_totals and is_dnote">
+                <impuesto t-as="tax_data" t-foreach="tax_totals.values()">
+                    <t t-call="l10n_ec_edi.common_tax_lines_template">
+                        <t t-set="tags" t-value="['tarifa_pre_base']"/>
+                    </t>
+                </impuesto>
+            </impuestos>
+
+            <importeTotal t-if="is_invoice or is_liquidation" t-out="format_num_6(invoice.amount_total)"/>
+            <motivo t-if="is_cnote" t-out="clean_str(invoice.name or 'NOTA DE CREDITO')"/>
+            <moneda t-if="is_invoice or is_liquidation" t-out="invoice.currency_id.name"/>
+            <valorTotal t-if="is_dnote" t-out="format_num_6(invoice.amount_total)"/>
+        </template>
+
+        <template id="common_details_info_template">
+            <t t-set="lines" t-value="taxes_data['invoice_line_tax_details']"/>
+            <detalles t-if="lines">
+                <detalle t-foreach="lines.items()" t-as="line_items">
+                    <t t-set="line" t-value="line_items[0]"/>
+                    <t t-set="line_tax_details" t-value="line_items[1]['tax_details']"/>
+                    <t t-set="product" t-value="line.product_id"/>
+                    <t t-set="product_code" t-value="product and (product.barcode or product.default_code or 'N/A')[:25]"/>
+                    <t t-set="line_edi_values" t-value="line._prepare_edi_vals_to_export()"/>
+                    <codigoInterno t-if="is_cnote" t-out="product_code"/>
+                    <codigoPrincipal t-if="is_invoice or is_liquidation" t-out="product_code"/>
+
+                    <descripcion t-out="clean_str(line.product_id and line.product_id.name or line.name)"/>
+                    <cantidad t-out="format_num_2(line.quantity)"/>
+                    <precioUnitario t-out="format_num_2(line.price_unit)"/>
+                    <descuento t-out="format_num_2(line_edi_values['price_discount'])"/>
+                    <precioTotalSinImpuesto t-out="format_num_2(line_edi_values['price_subtotal_before_discount'])"/>
+
+                    <impuestos t-if="line_tax_details">
+                        <impuesto t-foreach="line_tax_details.values()" t-as="tax_data">
+                            <t t-call="l10n_ec_edi.common_tax_lines_template">
+                                <t t-set="tags" t-value="['tarifa_pre_base']"/>
+                            </t>
+                        </impuesto>
+                    </impuestos>
+                </detalle>
+            </detalles>
+        </template>
+
+        <template id="common_tax_lines_template">
+            <codigo t-out="tax_data['code']"/>
+            <codigoPorcentaje t-out="tax_data['code_percentage']"/>
+            <tarifa t-if="'tarifa_pre_base' in tags" t-out="format_num_6(abs(tax_data['rate']))"/>
+            <baseImponible t-out="format_num_6(abs(tax_data['base_amount_currency']))"/>
+            <tarifa t-if="'tarifa_post_base' in tags" t-out="format_num_6(abs(tax_data['rate']))"/>
+            <valor t-out="format_num_6(abs(tax_data['tax_amount_currency']))"/>
+        </template>
+
+        <template id="common_payment_terms_template">
+            <t t-set="pagos" t-value="invoice._l10n_ec_get_payment_data()"/>
+            <pagos t-if="pagos">
+                <pago t-as="pago" t-foreach="pagos">
+                    <formaPago t-out="pago['payment_code']"/>
+                    <total t-out="format_num_2(pago['payment_total'])"/>
+                    <plazo t-if="is_liquidation" t-out="pago['payment_term']"/>
+                    <unidadTiempo t-if="is_liquidation" t-out="pago['time_unit']"/>
+                </pago>
+            </pagos>
+        </template>
+
+        <template id="debit_reasons_template">
+            <motivos t-if="invoice_lines">
+                <motivo t-foreach="invoice_lines" t-as="line">
+                    <razon t-out="clean_str(line.product_id and line.product_id.name or line.name)"/>
+                    <valor t-out="format_num_6(abs(line.price_subtotal))"/>
+                </motivo>
+            </motivos>
+        </template>
+
+        <template id="common_additional_info_template">
+            <infoAdicional t-if="additional_info">
+                <campoAdicional
+                    t-foreach="additional_info.items()"
+                    t-as="additional_item"
+                    t-att-nombre="additional_item[0]"
+                    t-out="clean_str(additional_item[1])"/>
+            </infoAdicional>
+        </template>
+    </data>
+</odoo>
