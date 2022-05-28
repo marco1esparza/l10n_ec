@@ -5,9 +5,100 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare, float_round
 
-class L10n_ecWizardAccountWithhold(models.TransientModel):
+
+class L10nEcWizardAccountWithhold(models.TransientModel):
     _name = 'l10n_ec.wizard.account.withhold'
     _check_company_auto = True
+
+    journal_id = fields.Many2one(
+        'account.journal',
+        string='Journal',
+        required=True,
+        check_company=True
+    )
+    l10n_latam_document_type_id = fields.Many2one(
+        'l10n_latam.document.type',
+        string='Document Type'
+    )
+    l10n_latam_document_number = fields.Char(
+        string='Document Number',
+    )
+    date = fields.Date(
+        string='Date',
+        default=fields.Date.context_today,
+        help=''
+    )
+    company_id = fields.Many2one(
+        'res.company',
+        required=True,
+        default=lambda self: self.env.company,
+        help=''
+    )
+    related_invoices = fields.Many2many(
+        'account.move',
+        'l10n_ec_account_invoice_withhold_rel',
+        'withhold_id',
+        'invoice_id',
+        string='Invoices',
+        help='Technical field to limit elegible invoices related to this withhold'
+    )
+    withhold_type = fields.Selection(
+        [('out_withhold', 'Sales Withhold'),
+         ('in_withhold', 'Purchase Withhold')],
+        string='Withhold Type',
+        help='Technical field to limit elegible journals and taxes'
+    )
+    withhold_line_ids = fields.One2many(
+        'l10n_ec.wizard.account.withhold.line',
+        'wizard_id',
+        string='Withhold Lines'
+    )
+    # Subtotals
+    currency_id = fields.Many2one(
+        string='Company Currency',
+        readonly=True,
+        related='company_id.currency_id'
+    )
+    l10n_ec_vat_withhold = fields.Monetary(
+        compute='_l10n_ec_compute_move_totals',
+        string='Total IVA',
+        tracking=True,
+        store=False,
+        readonly=True,
+        help='Total IVA value of withhold'
+    )
+    l10n_ec_profit_withhold = fields.Monetary(
+        compute='_l10n_ec_compute_move_totals',
+        string='Total RENTA',
+        tracking=True,
+        store=False,
+        readonly=True,
+        help='Total renta value of withhold'
+    )
+    l10n_ec_total_base_vat = fields.Monetary(
+        compute='_l10n_ec_compute_move_totals',
+        string='Total Base IVA',
+        tracking=True,
+        store=False,
+        readonly=True,
+        help='Total base IVA of withhold'
+    )
+    l10n_ec_total_base_profit = fields.Monetary(
+        compute='_l10n_ec_compute_move_totals',
+        string='Total Base RENTA',
+        tracking=True,
+        store=False,
+        readonly=True,
+        help='Total base renta of withhold'
+    )
+    l10n_ec_total = fields.Monetary(
+        string='Total Withhold',
+        compute='_l10n_ec_compute_move_totals',
+        tracking=True,
+        store=False,
+        readonly=True,
+        help='Total value of withhold'
+    )
     
     @api.model
     def default_get(self, data_fields):
@@ -15,7 +106,7 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         invoice_ids = self.env.context.get('active_ids', False)
         if not invoice_ids or not self.env.context.get('active_model') == 'account.move':
             return res
-        invoices = self.env['account.move'].search([('id','in',invoice_ids)])
+        invoices = self.env['account.move'].search([('id', 'in', invoice_ids)])
         self.env['account.move']._l10n_ec_withhold_validate_related_invoices(invoices)
         default_values = self._prepare_withold_wizard_default_values(invoices)
         res.update(default_values)
@@ -175,10 +266,10 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
         if not self.withhold_line_ids:
             raise ValidationError(u'You must input at least one withhold line')
         related_withholds = self.related_invoices.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted' and x.id != self.id)
-        #if self.withhold_type == 'in_withhold':
+        if self.withhold_type == 'in_withhold':
             #Current MVP allows just one withhold per purchase invoice
             #TODO evaluate allowing 2 withholds per purchase invoice and on several purchase invoces at a time (similar to sales) 
-            #raise ValidationError(u'Another withhold already exists, you can have only one posted withhold per purchase document')
+            raise ValidationError(u'Another withhold already exists, you can have only one posted withhold per purchase document')
         #Validate there where not other withholds for same invoice for same concept (concept might be vat withhold or income withhold)
         current_categories = self.withhold_line_ids.tax_id.tax_group_id.mapped('l10n_ec_type')
         for previous_withhold_line in related_withholds.l10n_ec_withhold_line_ids:
@@ -254,95 +345,56 @@ class L10n_ecWizardAccountWithhold(models.TransientModel):
             wizard.l10n_ec_profit_withhold = l10n_ec_profit_withhold
             wizard.l10n_ec_total_base_vat = l10n_ec_total_base_vat
             wizard.l10n_ec_total_base_profit = l10n_ec_total_base_profit
-            wizard.l10n_ec_total = l10n_ec_vat_withhold + l10n_ec_profit_withhold                                
-                
-    journal_id = fields.Many2one('account.journal', string='Journal', required=True,
-        check_company=True,
-        )
-    l10n_latam_document_type_id = fields.Many2one(
-        'l10n_latam.document.type', 
-        string='Document Type',
-        )
-    l10n_latam_document_number = fields.Char(
-        string='Document Number',
-        )
-    date = fields.Date(
-        string='Date',
-        default=fields.Date.context_today,
-        help=''
-        )
-    company_id = fields.Many2one(
-        'res.company', 
-        required=True,
-        default=lambda self: self.env.company,
-        help=''
-        )
-    related_invoices = fields.Many2many(
-        'account.move',
-        'l10n_ec_account_invoice_withhold_rel',
-        'withhold_id',
-        'invoice_id',
-        string='Invoices',
-        help='Technical field to limit elegible invoices related to this withhold'
-        )
-    withhold_type = fields.Selection(
-        [('out_withhold', 'Sales Withhold'),
-         ('in_withhold', 'Purchase Withhold')],
-        string='Withhold Type',
-        help='Technical field to limit elegible journals and taxes'
-        )
-    withhold_line_ids = fields.One2many(
-        'l10n_ec.wizard.account.withhold.line',
-        'wizard_id',
-        string='Withhold Lines',
-        )
-    #Subtotals
-    currency_id = fields.Many2one(string='Company Currency', readonly=True,
-        related='company_id.currency_id')
-    l10n_ec_vat_withhold = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
-        string='Total IVA',  
-        tracking=True,
-        store=False, 
-        readonly=True, 
-        help='Total IVA value of withhold'
-        )
-    l10n_ec_profit_withhold = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
-        string='Total RENTA', 
-        tracking=True,
-        store=False, 
-        readonly=True, 
-        help='Total renta value of withhold'
-        )    
-    l10n_ec_total_base_vat = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
-        string='Total Base IVA',  
-        tracking=True,
-        store=False, 
-        readonly=True, 
-        help='Total base IVA of withhold'
-        )
-    l10n_ec_total_base_profit = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
-        string='Total Base RENTA', 
-        tracking=True,
-        store=False, 
-        readonly=True, 
-        help='Total base renta of withhold'
-        )
-    l10n_ec_total = fields.Monetary(
-        string='Total Withhold', 
-        compute='_l10n_ec_compute_move_totals', 
-        tracking=True,
-        store=False, 
-        readonly=True, 
-        help='Total value of withhold'
-        )
+            wizard.l10n_ec_total = l10n_ec_vat_withhold + l10n_ec_profit_withhold
 
 
-class L10n_ecWizardAccountWithholdLine(models.TransientModel):
+class L10nEcWizardAccountWithholdLine(models.TransientModel):
     _name = 'l10n_ec.wizard.account.withhold.line'
+
+    tax_id = fields.Many2one(
+        'account.tax',
+        string='Tax'
+    )
+    invoice_id = fields.Many2one(
+        'account.move',
+        string='Invoice'
+    )
+
+    account_id = fields.Many2one(
+        'account.account',
+        string='Account'
+    )
+
+    account_id = fields.Many2one(
+        'account.account',
+        string='Account',
+        domain="[('deprecated', '=', False), ('company_id', '=', 'company_id'),('is_off_balance', '=', False)]",
+        check_company=True
+    )
+    base = fields.Monetary(
+        string='Base'
+    )
+
+    amount = fields.Monetary(
+        string='Amount'
+    )
+
+    company_id = fields.Many2one(
+        related='wizard_id.company_id'
+    )
+
+    currency_id = fields.Many2one(
+        related='company_id.currency_id'
+    )
+
+    wizard_id = fields.Many2one(
+        'l10n_ec.wizard.account.withhold',
+        string='Wizard',
+        required=True,
+        readonly=True,
+        auto_join=True,
+        help='The move of this entry line.'
+    )
         
     @api.onchange('invoice_id', 'tax_id')
     def onchange_invoice_id(self):
@@ -366,35 +418,7 @@ class L10n_ecWizardAccountWithholdLine(models.TransientModel):
             'amount': amount
             })
     
-    tax_id = fields.Many2one('account.tax', string='Tax',)
-    
-    invoice_id = fields.Many2one('account.move', string='Invoice')
-    
-    account_id = fields.Many2one('account.account', string='Account')
-    
-    account_id = fields.Many2one('account.account', string='Account',
-        domain="[('deprecated', '=', False), ('company_id', '=', 'company_id'),('is_off_balance', '=', False)]",
-        check_company=True,
-        )
-    
-    base = fields.Monetary(string='Base')
-    
-    amount = fields.Monetary(string='Amount')
-    
-    company_id = fields.Many2one(related='wizard_id.company_id')
-    
-    currency_id = fields.Many2one(related='company_id.currency_id')
-    
-    wizard_id = fields.Many2one(
-        'l10n_ec.wizard.account.withhold',
-        string='Wizard',
-        required=True,
-        readonly=True,
-        auto_join=True,
-        help='The move of this entry line.'
-        )
-    
-    @api.constrains('base','amount')
+    @api.constrains('base', 'amount')
     def _check_amount(self):
         for line in self:            
             precision = self.currency_id.decimal_places

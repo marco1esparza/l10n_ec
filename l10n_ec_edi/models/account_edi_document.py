@@ -7,10 +7,10 @@ from datetime import datetime, timedelta
 from lxml import etree
 import base64
 
-from odoo.addons.l10n_ec_edi.models.common_methods import clean_xml, validate_xml_vs_xsd, XSD_SRI_100_RETENCION
+#from odoo.addons.l10n_ec_edi.models.common_methods import clean_xml, validate_xml_vs_xsd, XSD_SRI_100_RETENCION
 
-from odoo.addons.l10n_ec_edi.models.account_edi_document import _MICROCOMPANY_REGIME_LABEL
-from odoo.addons.l10n_ec_edi.models.account_edi_document import _RIMPE_REGIME_LABEL
+#from odoo.addons.l10n_ec_edi.models.account_edi_document import _MICROCOMPANY_REGIME_LABEL
+#from odoo.addons.l10n_ec_edi.models.account_edi_document import _RIMPE_REGIME_LABEL
 
 class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_account_journal_use_document_form" model="ir.ui.view">
+            <field name="name">view.account.journal.use.document.form</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="l10n_latam_invoice_document.view_account_journal_form"/>
+            <field name="arch" type="xml">
+				<xpath expr="//field[@name='type']" position="after">
+					<field name="l10n_ec_withhold_type" attrs="{'invisible': [('type', '!=', 'general')]}"/>
+				</xpath>
+            	<xpath expr="//field[@name='l10n_latam_use_documents']" position="attributes">
+            		<!-- #TODO: Review with Odoo team, we need to somehow make it visible for general journal, but it might affect
+            		     other localizations that also overwrites the attributes of this view... could we make a functional field 
+            		     in l10n_latam_document_type to compute when to show it?
+            		-->
+					<attribute name="attrs">{'invisible': ['|', ('l10n_latam_company_use_documents','=',False), ('type','not in',['purchase','sale','general'])]}</attribute>
+				</xpath>
+				<xpath expr="//field[@name='l10n_ec_entity']" position="attributes">
+					<attribute name="attrs">{'invisible':['|', '|', '|', ('country_code', '!=', 'EC'), ('l10n_latam_use_documents', '=', False), ('type', 'not in', ('sale', 'purchase')), ('type', '=', 'general'), ('l10n_ec_withhold_type', '!=', 'in_withhold')], 
+					                         'required':[('country_code', '=', 'EC'), ('l10n_latam_use_documents', '=', True), ('type', 'not in', ('sale', 'purchase'))]}</attribute>
+				</xpath>
+				<xpath expr="//field[@name='l10n_ec_emission']" position="attributes">
+					<attribute name="attrs">{'invisible':['|', '|', '|', ('country_code', '!=', 'EC'), ('l10n_latam_use_documents', '=', False), ('type', 'not in', ('sale', 'purchase')), ('type', '=', 'general'), ('l10n_ec_withhold_type', '!=', 'in_withhold')], 
+					                         'required':[('country_code', '=', 'EC'), ('l10n_latam_use_documents', '=', True), ('type', 'not in', ('sale', 'purchase'))]}</attribute>
+				</xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
