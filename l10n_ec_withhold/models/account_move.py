@@ -5,6 +5,7 @@ from odoo import api, fields, models, _
 from odoo.tools import float_compare, float_round
 from odoo.exceptions import UserError, ValidationError
 
+
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
@@ -279,7 +280,7 @@ class AccountMove(models.Model):
                         result = True
             move.l10n_ec_require_vat_tax = result
             
-    @api.depends('l10n_latam_document_type_id','l10n_ec_sri_tax_support_id')
+    @api.depends('l10n_latam_document_type_id')
     def _l10n_ec_compute_require_withhold_tax(self):
         #Indicates if the invoice requires a withhold or not
         for move in self:

@@ -22,11 +22,18 @@
         "data/account.edi.format.csv",
 
         "security/ir.model.access.csv",
+        "security/l10n_ec_multicompany_security.xml",
 
         "views/root_sri_menu.xml",
+        "views/account_journal_view.xml",
         "views/account_move_views.xml",
+        "views/contributor_type_view.xml",
         "views/l10n_ec_edi_certificate_views.xml",
+        "views/product_view.xml",
+        "views/report_invoice.xml",
+        "views/res_company_view.xml",
         "views/res_config_settings_views.xml",
+        "views/res_partner_view.xml",
     ],
     "installable": True,
     "auto_install": True,
