@@ -7,6 +7,7 @@ from odoo import fields, models
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
     
+    #TODO ANGEL, debe tener el sufjio l10n_ec, ser un campo property
     withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Vendor Withhold',

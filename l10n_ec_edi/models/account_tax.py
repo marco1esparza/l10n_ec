@@ -9,7 +9,7 @@ class AccountTax(models.Model):
     @api.model
     def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
         # Improves Odoo to support withholding taxes, with several conditions:
-        # - Do not show withholding taxes in invoice lines, due to historic setup those taxes are configured as purchase taxes
+        # - Do not show withholding taxes in invoice lines
         # - Show only sales withhold taxes on sales withholds
         # - Show only purchase withhold taxes on purchase withholds
         context = self._context or {}

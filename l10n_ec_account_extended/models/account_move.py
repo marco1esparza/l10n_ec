@@ -266,6 +266,60 @@ class AccountMove(models.Model):
             #     if len(profit_withhold_taxes) + len(vat_withhold_taxes):
             #         raise UserError(_("This document doesn't needs a withholding tax, please remove it for product:\n\n%s") % line.name)
     
+    # TODO 15.3 suggest Odoo to have something like this + bypass
+    @api.depends('l10n_latam_document_type_id')
+    def _l10n_ec_compute_require_vat_tax(self):
+        # Indicates if the invoice requires a vat tax or not
+        for move in self:
+            result = False
+            if move.country_code == 'EC':
+                # TODO agregar regiment especial en un AND al siguiente if
+                if move.move_type in ['in_invoice', 'in_refund', 'out_invoice', 'out_refund']:
+                    if move.l10n_latam_document_type_id.code in [
+                        '01',  # factura compra
+                        '02',  # nota de venta
+                        '03',  # liquidacion compra
+                        '04',  # Notas de credito en compras o ventas
+                        '05',  # Notas de debito en compras o ventas
+                        '08',  # Boletos espectaculos publicos
+                        '09',  # Tiquetes
+                        '11',  # Pasajes
+                        '12',  # Inst FInancieras
+                        '16',  # DAU, acordamos poner IVA en los rubros fodinfa, etc, para que sea fácil
+                        '18',  # Factura de venta
+                        '20',  # Estado
+                        '21',  # Carta porte aereo
+                        '41',  # Reembolsos de gastos compras y ventas, liquidaciones, facturas
+                        '47',  # Nota de crédito de reembolso
+                        '48',  # Nota de débito de reembolso
+                    ]:
+                        result = True
+            move.l10n_ec_require_vat_tax = result
+
+    @api.depends('l10n_latam_document_type_id')
+    def _l10n_ec_compute_require_withhold_tax(self):
+        # Indicates if the invoice requires a withhold or not
+        for move in self:
+            result = False
+            if move.country_code == 'EC':
+                # TODO agregar regiment especial en un AND al siguiente if
+                if move.move_type == 'in_invoice' and move.company_id.l10n_ec_issue_withholds:
+                    if move.l10n_latam_document_type_id.code in [
+                        '01',  # factura compra
+                        '02',  # Nota de venta
+                        '03',  # liquidacion compra
+                        '08',  # Entradas a espectaculos
+                        '09',  # Tiquetes
+                        '11',  # Pasajes
+                        '12',  # Inst FInancieras
+                        '20',  # Estado
+                        '21',  # Carta porte aereo
+                        '47',  # Nota de crédito de reembolso
+                        '48',  # Nota de débito de reembolso
+                    ]:
+                        result = True
+            move.l10n_ec_require_withhold_tax = result
+            
     def _l10n_ec_validate_authorization(self):
         '''
         - Validate the authorization number lenght
@@ -483,6 +537,12 @@ class AccountMove(models.Model):
         '- Permite aprobar facturas sin impuestos',
         )
 
+    l10n_ec_require_withhold_tax = fields.Boolean(
+        compute='_l10n_ec_compute_require_withhold_tax'
+    )
+    l10n_ec_require_vat_tax = fields.Boolean(
+        compute='_l10n_ec_compute_require_vat_tax'
+    )
 #     @api.constrains('l10n_latam_document_type_id', 'name', 'move_type')
 #     def _check_l10n_latam_document_number_doctype_41(self):
 #         for move in self:

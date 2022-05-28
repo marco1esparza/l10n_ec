@@ -8,7 +8,7 @@ class AccountChartTemplate(models.Model):
     _inherit = "account.chart.template"
 
     def _prepare_all_journals(self, acc_template_ref, company, journals_dict=None):
-        # Override to configure ecuadorian withhold data.
+        # Override to setup ecuadorian withhold data.
         res = super(AccountChartTemplate, self)._prepare_all_journals(acc_template_ref, company, journals_dict=journals_dict)
         self._l10n_ec_configure_ecuadorian_withhold_journal(company)
         return res
@@ -47,6 +47,7 @@ class AccountChartTemplate(models.Model):
         return res
     
     def _l10n_ec_configure_ecuadorian_withhold_contributor_type(self, companies):
+        #TODO ANDRES: Clean up the contributor types list, to a minimum
         ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
         for company in ecuadorian_companies:
             self = self.with_company(company)
@@ -64,7 +65,6 @@ class AccountChartTemplate(models.Model):
                 {'sequence': 6, 'name': 'PERSONA NATURAL NO OBLIGADA - PROFESIONALES', 'profit_withhold_tax_id': False},
                 {'sequence': 7, 'name': 'PERSONA NATURAL NO OBLIGADA - LIQUIDACIONES DE COMPRAS', 'profit_withhold_tax_id': False},
                 {'sequence': 8, 'name': 'PERSONA NATURAL NO OBLIGADAS - EMITE FACTURA O NOTA DE VENTA', 'profit_withhold_tax_id': False},
-                {'sequence': 10, 'name': 'PERSONA EXTRANJERA', 'profit_withhold_tax_id': False},
                 {'sequence': 13, 'name': 'CONTRIBUYENTE REGIMEN RIMPE', 'profit_withhold_tax_id': tax_rimpe_id},
                 {'sequence': 14, 'name': 'OTRAS - Sin cálculo automático de retención de IVA', 'profit_withhold_tax_id': False}
                 ]
