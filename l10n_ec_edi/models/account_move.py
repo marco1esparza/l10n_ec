@@ -107,7 +107,6 @@ class AccountMove(models.Model):
     
     def l10n_ec_add_withhold(self):
         # Launches the withholds wizard linked to selected invoices
-        self._l10n_ec_withhold_test_related_invoices()
         view = self.env.ref('l10n_ec_edi.wizard_account_withhold_form')
         return {
             'name': u'Withholding',
@@ -123,17 +122,17 @@ class AccountMove(models.Model):
     
     def l10n_ec_action_view_withholds(self):
         action = 'account.action_move_journal_line'
-        view = 'l10n_ec_edi.view_move_form_withhold'
         action = self.env.ref(action)
         result = action.sudo().read()[0]
         result['name'] = _('Withholds')
         l10n_ec_withhold_ids = self.env.context.get('withhold', []) or self.l10n_ec_withhold_ids.ids
-        if len(l10n_ec_withhold_ids) > 1:
-            result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"
-        else:
-            res = self.env.ref(view)
-            result['views'] = [(res and res.id or False, 'form')]
-            result['res_id'] = l10n_ec_withhold_ids and l10n_ec_withhold_ids[0] or False
+        result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"
+        # TODO ANG: Esta mal utilizar un ID fijo para la vista form pues podría haberse heredado... no puede quedar vacia el id de vista?
+        # if len(l10n_ec_withhold_ids) == 1:
+            #view = 'l10n_ec_edi.view_move_form_withhold'
+            #res = self.env.ref(view)
+            #result['views'] = [(res and res.id or False, 'form')]
+            #result['res_id'] = l10n_ec_withhold_ids and l10n_ec_withhold_ids[0] or False
         return result
 
     # ===== OVERRIDES & ONCHANGES =====
@@ -303,9 +302,11 @@ class AccountMove(models.Model):
             }
 
         def filter_withholding_taxes(tax_values):
-            group_iva_withhold = self.env.ref("l10n_ec.tax_group_withhold_vat")
-            group_rent_withhold = self.env.ref("l10n_ec.tax_group_withhold_income")
-            withhold_group_ids = (group_iva_withhold + group_rent_withhold).ids
+            tax_group_withhold_vat_sale = self.env.ref("l10n_ec.tax_group_withhold_vat_sale")
+            tax_group_withhold_vat_purchase = self.env.ref("l10n_ec.tax_group_withhold_vat_purchase")
+            tax_group_withhold_income_sale = self.env.ref("l10n_ec.tax_group_withhold_income_sale")
+            tax_group_withhold_income_purchase = self.env.ref("l10n_ec.tax_group_withhold_income_purchase")
+            withhold_group_ids = (tax_group_withhold_vat_sale + tax_group_withhold_vat_sale + tax_group_withhold_income_sale + tax_group_withhold_income_purchase).ids
             return tax_values["tax_id"].tax_group_id.id not in withhold_group_ids
 
         taxes_data = self._prepare_edi_tax_details(
@@ -360,33 +361,6 @@ class AccountMove(models.Model):
                 })
             payment_data.append(payment_vals)
         return payment_data
-        
-    def _l10n_ec_withhold_test_related_invoices(self):
-        # Let's test the source invoices for missuse when launching the withhold wizard
-        MAP_INVOICE_TYPE_PARTNER_TYPE = {
-            'out_invoice': 'customer',
-            'out_refund': 'customer',
-            'in_invoice': 'supplier',
-            'in_refund': 'supplier',
-        }
-        for invoice in self:
-            if not invoice.l10n_ec_allow_withhold:
-                raise ValidationError(
-                    u'The selected document type does not support withholds, please check the document "%s".' % invoice.name)
-            if invoice.state not in ['posted']:
-                raise ValidationError(u'Can not create a withhold, the document "%s" not yet posted.' % invoice.name)
-            if invoice.commercial_partner_id != self[0].commercial_partner_id:
-                raise ValidationError(
-                    u'Some documents belong to different partners, please correct the document "%s".' % invoice.name)
-            if MAP_INVOICE_TYPE_PARTNER_TYPE[invoice.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[self[0].move_type]:
-                raise ValidationError(
-                    u'Can not mix documents supplier and customer documents in the same withhold, please correct the document "%s".' % invoice.name)
-            if invoice.currency_id != invoice.company_id.currency_id:
-                raise ValidationError(
-                    u'A fin de emitir retenciones sobre múltiples facturas, deben tener la misma moneda, revise la factura "%s".' % invoice.name)
-            if len(self) > 1 and invoice.move_type != 'out_invoice':
-                raise ValidationError(
-                    u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
 
     @api.depends('l10n_ec_withhold_line_ids')
     def _l10n_ec_compute_move_totals(self):
@@ -428,9 +402,6 @@ class AccountMove(models.Model):
                 [('l10n_ec_withhold_invoice_id', '=', move.id)]).mapped('move_id')
             move.l10n_ec_withhold_origin_ids = move.line_ids.mapped('l10n_ec_withhold_invoice_id')
             move.l10n_ec_withhold_count = len(move.l10n_ec_withhold_ids)
-
-
-
 
     # ===== PRIVATE (static) =====
 
