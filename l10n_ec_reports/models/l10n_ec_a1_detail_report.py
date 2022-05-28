@@ -94,7 +94,7 @@ class L10nECA1DetailReport(models.TransientModel):
             (u'CONCEPTO RET. RENTA', 'withholding_income_name', '', 'std', 20),
             (u'BASE RET. RENTA', 'withholding_income_base', '', 'num', 15),
             (u'VALOR RET. RENTA', 'withholding_income_amt', '', 'num', 15),
-            (u'FORMA PAGO', 'invoice_id', 'l10n_ec_payment_method_id.name', 'std', 25),
+            (u'FORMA PAGO', 'invoice_id', 'l10n_ec_sri_payment_id.name', 'std', 25),
         ]
 
         titleheader = book.add_format(

@@ -534,7 +534,7 @@ class L10nEcSimplifiedTransactionalAannex(models.TransientModel):
                     #excluimos pagos menores a USD 1000
                     formasDePago = doc.createElement('formasDePago')
                     detallecompras.appendChild(formasDePago)
-                    for forma_pago in in_inv.l10n_ec_payment_method_id:
+                    for forma_pago in in_inv.l10n_ec_sri_payment_id:
                         formaPago = doc.createElement('formaPago')
                         formasDePago.appendChild(formaPago)
                         vformaPago = doc.createTextNode(forma_pago.code)

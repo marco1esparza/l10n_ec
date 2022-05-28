@@ -375,11 +375,10 @@ class AccountMove(models.Model):
                     u'The selected document type does not support withholds, please check the document "%s".' % invoice.name)
             if invoice.state not in ['posted']:
                 raise ValidationError(u'Can not create a withhold, the document "%s" not yet posted.' % invoice.name)
-            if invoice.commercial_partner_id != invoices[
-                0].commercial_partner_id:  # and not self.env.context.get('massive_withhold'):
+            if invoice.commercial_partner_id != self[0].commercial_partner_id:
                 raise ValidationError(
                     u'Some documents belong to different partners, please correct the document "%s".' % invoice.name)
-            if MAP_INVOICE_TYPE_PARTNER_TYPE[invoice.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[invoices[0].move_type]:
+            if MAP_INVOICE_TYPE_PARTNER_TYPE[invoice.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[self[0].move_type]:
                 raise ValidationError(
                     u'Can not mix documents supplier and customer documents in the same withhold, please correct the document "%s".' % invoice.name)
             if invoice.currency_id != invoice.company_id.currency_id:
@@ -391,9 +390,7 @@ class AccountMove(models.Model):
 
     @api.depends('l10n_ec_withhold_line_ids')
     def _l10n_ec_compute_move_totals(self):
-        #TODO ANDRES: Remover la llamada a super pues en el core de odoo no creo exista este metodo!
         #TODO ANDRES: Evaluar remover al menos el campo l10n_ec_total
-        res = super(AccountMove, self)._l10n_ec_compute_move_totals()
         for invoice in self:
             l10n_ec_vat_withhold = 0.0
             l10n_ec_profit_withhold = 0.0
@@ -413,7 +410,6 @@ class AccountMove(models.Model):
             invoice.l10n_ec_total_base_vat = l10n_ec_total_base_vat
             invoice.l10n_ec_total_base_profit = l10n_ec_total_base_profit
             invoice.l10n_ec_total = l10n_ec_vat_withhold + l10n_ec_profit_withhold
-        return res
 
     def _l10n_ec_allow_withhold(self):
         # shows/hide "ADD WITHHOLD" button on invoices
@@ -473,7 +469,8 @@ class AccountMoveLine(models.Model):
             profit_withhold_tax = False
             if self.move_id.is_purchase_document(include_receipts=True):
                 if not self.exclude_from_invoice_tab:  # just regular invoice lines
-                    if self.move_id.l10n_ec_require_withhold_tax:  # compute withholds
+                    #if self.move_id.l10n_ec_require_withhold_tax:  # compute withholds #TODO ANDRES refactorizar
+                    if True:
                         company_id = self.move_id.company_id
                         contributor_type = self.partner_id.contributor_type_id
                         tax_groups = super_tax_ids.mapped('tax_group_id').mapped('l10n_ec_type')
@@ -484,7 +481,7 @@ class AccountMoveLine(models.Model):
                             else:  # services
                                 vat_withhold_tax = contributor_type.vat_services_withhold_tax_id
                                 # compute profit withhold
-                        if self.move_id.l10n_ec_payment_method_id.code in ['16', '18', '19']:
+                        if self.move_id.l10n_ec_sri_payment_id.code in ['16', '18', '19']:
                             # payment with debit card, credit card or gift card retains 0%
                             profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
                         elif contributor_type.profit_withhold_tax_id:

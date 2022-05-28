@@ -78,7 +78,7 @@ class L10nECA3DetailReport(models.TransientModel):
             (u'VALOR IVA', 'invoice_id', 'l10n_ec_vat_doce_subtotal', 'num', 12),
             (u'Nro. RETENCIÓN', 'withholding_number', '', 'std', 20),
             (u'AUTORIZACIÓN', 'withholding_authorization', '', 'std', 40),
-            (u'FORMA PAGO', 'invoice_id', 'l10n_ec_payment_method_id.name', 'std', 25),
+            (u'FORMA PAGO', 'invoice_id', 'l10n_ec_sri_payment_id.name', 'std', 25),
         ]
 
         titleheader = book.add_format(

@@ -107,7 +107,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         if not invoice_ids or not self.env.context.get('active_model') == 'account.move':
             return res
         invoices = self.env['account.move'].search([('id', 'in', invoice_ids)])
-        self.env['account.move']._l10n_ec_withhold_validate_related_invoices(invoices)
+        invoices ._l10n_ec_withhold_test_related_invoices()
         default_values = self._prepare_withold_wizard_default_values(invoices)
         res.update(default_values)
         return res
