@@ -2,14 +2,14 @@
 <odoo>
 
 	<record id="view_company_withhold_form" model="ir.ui.view">
-	    <field name="name">res.company.form.withhold.agent.view</field>
-	    <field name="model">res.company</field>
-	    <field name="inherit_id" ref="l10n_ec_edi.view_company_electronic_form"/>
-	    <field name="arch" type="xml">
-	    	<xpath expr="//group[@name='withholds']" position="inside">
+		<field name="name">res.company.form.withhold.agent.view</field>
+		<field name="model">res.company</field>
+		<field name="inherit_id" ref="l10n_ec_edi.view_company_electronic_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//group[@name='withholds']" position="inside">
 				<field name="l10n_ec_issue_withholds" widget="boolean_toggle"/>
 				<div class="text-muted" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
-                	Por favor, configurar los impuestos en la Sección Retenciones del Menu
+					Por favor, configurar los impuestos en la Sección Retenciones del Menu
 					Contabilidad o Facturación -> Configuración -> Ajustes.
 				</div>
 				<field name="l10n_ec_fallback_profit_withhold_goods" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}" readonly="1"/>
