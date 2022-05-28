@@ -434,7 +434,7 @@ class AccountMoveLine(models.Model):
                             else: #services
                                 vat_withhold_tax = contributor_type.vat_services_withhold_tax_id                         
                         #compute profit withhold
-                        if self.move_id.l10n_ec_payment_method_id.code in ['16','18','19']:
+                        if self.move_id.l10n_ec_sri_payment_id.code in ['16','18','19']:
                             #payment with debit card, credit card or gift card retains 0%
                             profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
                         elif contributor_type.profit_withhold_tax_id:

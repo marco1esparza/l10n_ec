@@ -33,10 +33,14 @@
         "views/report_invoice.xml",
         "views/res_company_view.xml",
         "views/res_config_settings_views.xml",
-        "views/res_partner_view.xml",
+        "views/res_partner_view.xml",        
+        #Wizard
+        'wizard/wizard_account_withhold_view.xml',
+
     ],
     "installable": True,
     "auto_install": True,
     "application": False,
+    'post_init_hook': '_post_install_hook_configure_ecuadorian_withhold',
     "external_dependencies": {"python": ["pyOpenSSL", "lxml"]},
 }

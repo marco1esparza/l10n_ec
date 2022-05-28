@@ -40,7 +40,7 @@
         #Wizard
         'wizard/wizard_account_withhold_view.xml',
     ],
-    'installable': True,
+    'installable': False,
     'auto_install': True,
     'post_init_hook': '_post_install_hook_configure_ecuadorian_withhold',
 }
