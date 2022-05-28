@@ -38,7 +38,7 @@
         'views/account_move_view.xml'
     ],
     'installable': True,
-    'auto_install': True,
+    'auto_install': False,
     'post_init_hook': '_post_install_hook_l10n_ec_setup_reimbursement_product',
     
 }

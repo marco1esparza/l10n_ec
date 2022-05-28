@@ -53,6 +53,6 @@
 		</field>
 	</record>
 
-	<menuitem id="menu_contributor_type" action="action_contributor_type" parent="l10n_ec_edi.action_sri_menu" sequence="5"/>
+	<menuitem id="menu_contributor_type" action="action_contributor_type" parent="account.menu_finance_configuration" sequence="26"/>
 
 </odoo>
