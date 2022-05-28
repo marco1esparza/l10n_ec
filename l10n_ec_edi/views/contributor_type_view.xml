@@ -6,23 +6,19 @@
 		<field name="model">l10n_ec.contributor.type</field>
 		<field name="type">form</field>
 		<field name="arch" type="xml">
-            <form string="Contributor Type">
-	    		<sheet>
-					<group>
-						<group name="group_left" string="Contributor Type">
-							<field name="name" required="1"/>
-							<field name="profit_withhold_tax_id"/>
-							<field name="vat_goods_withhold_tax_id"/>
-							<field name="vat_services_withhold_tax_id"/>
-							<field name="company_id" groups="base.group_multi_company" required="1"/>
-						</group>
+		<form string="Contributor Type">
+			<sheet>
+				<group>
+					<group name="group_left" string="Contributor Type">
+						<field name="name"/>
+						<field name="profit_withhold_tax_id"/>
+						<field name="vat_goods_withhold_tax_id"/>
+						<field name="vat_services_withhold_tax_id"/>
+						<field name="company_id" groups="base.group_multi_company"/>
 					</group>
-				</sheet>
-				<div class="oe_chatter">
-                	<field name="message_follower_ids" widget="mail_followers"/>
-                  	<field name="message_ids" widget="mail_thread"/>
-				</div>
-			</form>
+				</group>
+			</sheet>
+		</form>
 		</field>
 	</record>
 
@@ -49,12 +45,12 @@
 		<field name="res_model">l10n_ec.contributor.type</field>
 		<field name="view_mode">tree,form</field>
 		<field name="help" type="html">
-	      <p class="oe_view_nocontent_create">
-	        Click to define a new contributor type.
-	      </p><p>
-	        Define the contributor type used by your company.
-	      </p>
-	    </field>
+			<p class="oe_view_nocontent_create">
+	      		Click to define a new contributor type.
+	      	</p><p>
+	      		Define the contributor type used by your company.
+      		</p>
+		</field>
 	</record>
 
 	<menuitem id="menu_contributor_type" action="action_contributor_type" parent="account.menu_finance_configuration" sequence="26"/>

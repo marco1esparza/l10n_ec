@@ -9,7 +9,7 @@
 	    	<xpath expr="//field[@name='currency_id']" position="after">
 				<field name="l10n_ec_issue_withholds" widget="boolean_toggle"/>
 				<div class="text-muted" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
-                	Por favor, configurar los impuestos en la Sección Retenciones del Menu
+					Por favor, configurar los impuestos en la Sección Retenciones del Menu
 					Contabilidad o Facturación -> Configuración -> Ajustes.
 				</div>
 				<field name="l10n_ec_fallback_profit_withhold_goods" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}" readonly="1"/>

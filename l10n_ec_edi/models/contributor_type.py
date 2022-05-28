@@ -9,45 +9,41 @@ class ContributorType(models.Model):
     _name = 'l10n_ec.contributor.type'
     _description = 'Contributor Type'
     _order = 'sequence, id'
-    _inherit = ['mail.thread']
+    #_check_company_auto = True #TODO decide if it is needed
     
     sequence = fields.Integer(
         default=15
-        )
+    )
     name = fields.Char(
         string='Name',
-        copy=False,
-        tracking=True,
-        help='',
-        )
+        required=True,
+    )
     profit_withhold_tax_id = fields.Many2one(
         'account.tax',
-        string='Force profit withhold',
+        string='Profit withhold',
         domain=[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')),('type_tax_use', '=', 'none')],
-        help='If set forces the vat withhold tax on applicable purchases (also a withhold is required on document type). '
-        'The profit withhold prevalence order is payment method (credit cards retains 0%), then partner, then product'
-        )
+        help='This tax is suggested on vendors withhold wizard based on prevalence. '
+        'The profit withhold prevalence order is payment method (credit cards retains 0%), this contributor type, then product, finally fallback on account settings'
+    )
     vat_goods_withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Goods VAT withhold',
         domain=[('tax_group_id.l10n_ec_type', 'in', ('withhold_vat_sale', 'withhold_vat_purchase')),('type_tax_use', '=', 'none')],
-        help='If set forces vat withhold in invoice lines with product in applicable purchases (also depends on document type)'
-        )
+        help='This tax is suggested on vendors withhold wizard for consumable and stockable products, if not set no vat withhold is suggested'
+    )
     vat_services_withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Services VAT withhold',
         domain=[('tax_group_id.l10n_ec_type', '=', ('withhold_vat_sale', 'withhold_vat_purchase')),('type_tax_use', '=', 'none')],
-        help='This field defines the VAT withholding tax for services'
-        )
+        help='This tax is suggested on vendors withhold wizard for services, if not set no vat withhold is suggested'
+    )
     company_id = fields.Many2one(
         'res.company',
         string='Company',
         required=True,
-        index=True,
         default=lambda self: self.env.company
-        )
+    )
     active = fields.Boolean(
         default=True,
         help='Set active to false to hide the Contributor Type without removing it.',
-        tracking=True
     )
