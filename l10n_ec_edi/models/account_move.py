@@ -67,28 +67,28 @@ class AccountMove(models.Model):
     )
     # subtotals
     l10n_ec_vat_withhold = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
+        compute='_l10n_ec_compute_withhold_totals',
         string='Total IVA',
         store=False,
         readonly=True,
         help='Total IVA value of withhold'
     )
     l10n_ec_profit_withhold = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
+        compute='_l10n_ec_compute_withhold_totals',
         string='Total RENTA',
         store=False,
         readonly=True,
         help='Total renta value of withhold'
     )
     l10n_ec_total_base_vat = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
+        compute='_l10n_ec_compute_withhold_totals',
         string='Total Base IVA',
         store=False,
         readonly=True,
         help='Total base IVA of withhold'
     )
     l10n_ec_total_base_profit = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
+        compute='_l10n_ec_compute_withhold_totals',
         string='Total Base RENTA',
         store=False,
         readonly=True,
@@ -96,7 +96,7 @@ class AccountMove(models.Model):
     )
     l10n_ec_total = fields.Monetary(
         string='Total Withhold',
-        compute='_l10n_ec_compute_move_totals',
+        compute='_l10n_ec_compute_withhold_totals',
         store=False,
         readonly=True,
         help='Total value of withhold'
@@ -107,33 +107,48 @@ class AccountMove(models.Model):
     
     def l10n_ec_add_withhold(self):
         # Launches the withholds wizard linked to selected invoices
-        view = self.env.ref('l10n_ec_edi.wizard_account_withhold_form')
+        ctx = self._context.copy()
+        ctx.update({
+            'active_ids': self.ids,
+            'active_model': 'account.move',
+            })
+        # First create the wizard then show on popup, so a real temporary ID is created (instead of a newID)
+        # doing this way so the "suggested" wihhold line filters by context the taxes and invoices  
+        new_withhold_wizard = self.env['l10n_ec.wizard.account.withhold'].with_context(ctx).create({})
         return {
             'name': u'Withholding',
             'view_type': 'form',
             'view_mode': 'form',
-            'view_id': view.id or False,
+            'view_id': False,
             'res_model': 'l10n_ec.wizard.account.withhold',
             'type': 'ir.actions.act_window',
             'nodestroy': True,
             'target': 'new',
-            'context': self.env.context
+            'context': self.env.context,
+            'res_id': new_withhold_wizard.id,
         }
     
     def l10n_ec_action_view_withholds(self):
-        action = 'account.action_move_journal_line'
-        action = self.env.ref(action)
-        result = action.sudo().read()[0]
-        result['name'] = _('Withholds')
+        # Navigate from the invoice to its withholds
         l10n_ec_withhold_ids = self.env.context.get('withhold', []) or self.l10n_ec_withhold_ids.ids
-        result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"
-        # TODO ANG: Esta mal utilizar un ID fijo para la vista form pues podría haberse heredado... no puede quedar vacia el id de vista?
-        # if len(l10n_ec_withhold_ids) == 1:
-            #view = 'l10n_ec_edi.view_move_form_withhold'
-            #res = self.env.ref(view)
-            #result['views'] = [(res and res.id or False, 'form')]
-            #result['res_id'] = l10n_ec_withhold_ids and l10n_ec_withhold_ids[0] or False
-        return result
+        if len(l10n_ec_withhold_ids) == 1:
+            return {
+                'name': u'Withholding',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'view_id': False,
+                'res_model': 'account.move',
+                'type': 'ir.actions.act_window',
+                'context': self.env.context,
+                'res_id': l10n_ec_withhold_ids[0],
+            }
+        else:
+            action = 'account.action_move_journal_line'
+            action = self.env.ref(action)
+            result = action.sudo().read()[0]
+            result['name'] = _('Withholds')
+            result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"            
+            return result
 
     # ===== OVERRIDES & ONCHANGES =====
 
@@ -151,11 +166,26 @@ class AccountMove(models.Model):
     
     def copy_data(self, default=None):
         # avoid duplicating withholds, should be created always from the withhold wizard
+        # it also correctly blocks user from reversing the withhold
         res = super(AccountMove, self).copy_data(default=default)
         if self.is_withholding():
             raise ValidationError(u'You can not duplicate a withhold, instead create a new one from the invoice.')
         return res
 
+    def is_invoice(self, include_receipts=False):
+        # OVERRIDE: For Ecuador we consider is_invoice for all edis (invoices and wihtholds, in the future maybe waybills, etc)
+        # It enables the send email button, the edi process, the customer portal, printing the qweb report, and other stuff.
+        if self.country_code == 'EC':
+            if self.is_withholding():
+                return True
+        return super(AccountMove, self).is_invoice(include_receipts)
+        
+    def _creation_message(self):
+        # OVERRIDE, withholds should have a dedicated message equivalent to invoices, otherwise a simple "Journal Entry created" was shown
+        if self.is_withholding():
+            return _('Withhold Created')
+        return super()._creation_message()
+        
     def _is_manual_document_number(self):
         # OVERRIDE
         if self.journal_id.company_id.country_id.code == 'EC':
@@ -171,12 +201,12 @@ class AccountMove(models.Model):
         code = super()._get_l10n_ec_identification_type()
         return "08" if code in ("09", "20", "21") else code
     
-    def _get_name_invoice_report(self):
-        #TODO: Evaluate if it is still necesary as now there is a Qweb report, maybe remove the method
-        self.ensure_one()
-        if self.is_withholding():
-            return 'l10n_ec_edi.report_invoice_document'
-        return super()._get_name_invoice_report()
+    #TODO Trescloud&Odoo: Evaluate if it is still necesary as now there is a Qweb report, maybe remove the method after Stan finishes the invoice RIDE
+    # def _get_name_invoice_report(self):
+    #     self.ensure_one()
+    #     if self.is_withholding():
+    #         return 'l10n_ec_edi.report_invoice_document'
+    #     return super()._get_name_invoice_report()
     
     @api.constrains('name', 'journal_id', 'state')
     def _check_unique_sequence_number(self):
@@ -363,13 +393,14 @@ class AccountMove(models.Model):
         return payment_data
 
     @api.depends('l10n_ec_withhold_line_ids')
-    def _l10n_ec_compute_move_totals(self):
-        #TODO ANDRES: Evaluar remover al menos el campo l10n_ec_total
+    def _l10n_ec_compute_withhold_totals(self):
+        # Used for aesthetics, to view withhold subtotal at the bottom of the withhold account.move
         for invoice in self:
             l10n_ec_vat_withhold = 0.0
             l10n_ec_profit_withhold = 0.0
             l10n_ec_total_base_vat = 0.0
             l10n_ec_total_base_profit = 0.0
+            l10n_ec_total = 0.0
             for line in invoice.l10n_ec_withhold_line_ids:
                 if line.tax_line_id.tax_group_id:
                     if line.tax_line_id.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase']:
@@ -421,7 +452,7 @@ class AccountMoveLine(models.Model):
     )
 
     def _l10n_ec_get_computed_taxes(self):
-        #TODO ANDRES: Mover este metodo a la clase del wizard
+        #TODO JOSE: Mover este metodo a la linea del wizard
         '''
         For purchases adds prevalence for tax mapping to ease withholds in Ecuador, in the following order:
         For profit withholding tax:

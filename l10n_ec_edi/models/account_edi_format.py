@@ -84,7 +84,7 @@ class AccountEdiFormat(models.Model):
                 )
             if address and not address.commercial_partner_id.street:
                 errors.append(
-                    _("You must set matrix address on contact %s, fields street must be filled",
+                    _("You must set headquarter address on contact %s, fields street must be filled",
                         address.commercial_partner_id.display_name
                       )
                 )
