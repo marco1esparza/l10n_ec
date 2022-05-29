@@ -106,8 +106,8 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         invoice_ids = self.env.context.get('active_ids', False)
         if not invoice_ids or not self.env.context.get('active_model') == 'account.move':
             return res
-        self._validate_invoices_data()
         invoices = self.env['account.move'].search([('id', 'in', invoice_ids)])
+        self._validate_invoices_data(invoices)
         default_values = self._prepare_withold_wizard_default_values(invoices)
         res.update(default_values)
         return res
@@ -118,7 +118,6 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             withhold_type = 'in_withhold'
         elif invoices[0].move_type == 'out_invoice':
             withhold_type = 'out_withhold'
-        #TODO V15.2, luego de fusionar con Odoo, para compras, debemos preferir el punto de emision que coincida con la factura
         withhold_journal = self.env['account.journal'].search([
             ('l10n_ec_withhold_type', '=', withhold_type),
             ], order="sequence asc", limit=1)
@@ -185,7 +184,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         return default_values
     
     def action_create_and_post_withhold(self):
-        self._validate_invoices_data()
+        self._validate_invoices_data(self.related_invoices)
         self._validate_withhold_data_on_post()
         origins = []
         for invoice in self.related_invoices:
@@ -261,7 +260,8 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             self._reconcile_withhold_vs_invoices(withhold, self.related_invoices)
         return invoice.with_context(withhold=withhold.ids).l10n_ec_action_view_withholds() #TODO V15.2 talvez no retornar pues ya queda en el widget de pago
     
-    def _validate_invoices_data(self):
+    @api.model
+    def _validate_invoices_data(self, invoices):
         # Let's test the source invoices for missuse before showing the withhold wizard
         MAP_INVOICE_TYPE_PARTNER_TYPE = {
             'out_invoice': 'customer',
@@ -269,24 +269,24 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             'in_invoice': 'supplier',
             'in_refund': 'supplier',
         }
-        for invoice in self.related_invoices:
-            if not invoice.l10n_ec_allow_withhold:
-                raise ValidationError(
-                    u'The selected document type does not support withholds, please check the document "%s".' % invoice.name)
+        for invoice in invoices:
             if invoice.state not in ['posted']:
-                raise ValidationError(u'Can not create a withhold, the document "%s" not yet posted.' % invoice.name)
-            if invoice.commercial_partner_id != self.related_invoices[0].commercial_partner_id:
+                raise ValidationError(u'Can not create a withhold, the document "%s" is not yet posted.' % invoice.name)
+            if invoice.commercial_partner_id != invoices[0].commercial_partner_id:
                 raise ValidationError(
                     u'Some documents belong to different partners, please correct the document "%s".' % invoice.name)
-            if MAP_INVOICE_TYPE_PARTNER_TYPE[invoice.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[self.related_invoices[0].move_type]:
+            if MAP_INVOICE_TYPE_PARTNER_TYPE[invoice.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[invoices[0].move_type]:
                 raise ValidationError(
                     u'Can not mix documents supplier and customer documents in the same withhold, please correct the document "%s".' % invoice.name)
             if invoice.currency_id != invoice.company_id.currency_id:
                 raise ValidationError(
                     u'A fin de emitir retenciones sobre múltiples facturas, deben tener la misma moneda, revise la factura "%s".' % invoice.name)
-            if len(self.related_invoices) > 1 and invoice.move_type != 'out_invoice':
+            if len(invoices) > 1 and invoice.move_type != 'out_invoice':
                 raise ValidationError(
                     u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
+            if not invoice.l10n_ec_allow_withhold:
+                raise ValidationError(
+                    u'The selected document type does not support withholds, please check the document "%s".' % invoice.name)
                 
     def _validate_withhold_data_on_post(self):
         #Validations that apply only on withhold post, other validations should be method _validate_invoices_data()
@@ -313,10 +313,10 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             for vat_line in vat_lines:
                 total_base_vat += vat_line.base
             precision = invoice.company_id.currency_id.decimal_places
-            vat_base, vat_amount = self.env['l10n_ec.wizard.account.withhold.line']._get_invoice_vat_base_and_amount(invoice)
-            diff_base_vat = float_compare(total_base_vat, vat_base, precision_digits=precision)
+            (vat_base, vat_amount) = self.env['l10n_ec.wizard.account.withhold.line']._get_invoice_vat_base_and_amount(invoice)
+            diff_base_vat = float_compare(total_base_vat, vat_amount, precision_digits=precision)
             if diff_base_vat > 0:
-                raise ValidationError(u'La base imponible de la retención de iva es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
+                raise ValidationError(u'La base imponible de la retención de IVA es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
             total_base_profit = 0.0
             profit_lines = self.withhold_line_ids.filtered(lambda withhold_line: withhold_line.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_sale', 'withhold_income_purchase'] and withhold_line.invoice_id == invoice)
             for profit_line in profit_lines:
@@ -424,16 +424,23 @@ class L10nEcWizardAccountWithholdLine(models.TransientModel):
         help='The move of this entry line.'
     )
     
-    # TODO ANDRES: Poner la factura por defecto cuando solo hay una
-    # if not self.invoice_id and len(self.wizard_id.related_invoices) == 1:
-    #     self.invoice_id = self.wizard_id.related_invoices
+    @api.model
+    def default_get(self, default_fields):
+        #sets the invoice_id when there is only one invoice
+        default_invoice_id = self._context.get('default_invoice_id')
+        if not default_invoice_id and self._context.get('related_invoices'):
+            invoice_ids = self._context.get('related_invoices')[0][2]
+            if invoice_ids and len(invoice_ids)==1:
+                default_invoice_id = invoice_ids[0]
+        contextual_self = self.with_context(default_invoice_id=default_invoice_id)
+        return super(L10nEcWizardAccountWithholdLine, contextual_self).default_get(default_fields)
 
     @api.onchange('invoice_id', 'tax_id')
     def onchange_invoice_id(self):
         #Suggest a "base amount" according to linked invoice_id and tax type
         base = 0.0
         if self.tax_id.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase']:
-            vat_base, vat_amount = self._get_invoice_vat_base_and_amount(self.invoice_id)
+            (vat_base, vat_amount) = self._get_invoice_vat_base_and_amount(self.invoice_id)
             base = vat_amount
         elif self.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_sale', 'withhold_income_purchase']:
             base = self.invoice_id.amount_untaxed
