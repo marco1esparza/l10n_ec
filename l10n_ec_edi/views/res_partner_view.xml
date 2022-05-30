@@ -7,7 +7,7 @@
 		<field name="inherit_id" ref="account.view_partner_property_form"/>
 		<field name="arch" type="xml">
 			<xpath expr="//field[@name='vat']" position="after">
-				<field name="contributor_type_id"/>
+				<field name="l10n_ec_contributor_type_id"/>
 			</xpath>
 		</field>
 	</record>
