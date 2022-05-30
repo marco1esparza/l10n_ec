@@ -79,7 +79,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_304A" model="account.tax.template">
-            <field name="name">304a 8% comisiones y demas pagos por servicios predomina intelecto no relacionados con el titulo profesional</field>
+            <field name="name">304A 8% comisiones y demas pagos por servicios predomina intelecto no relacionados con el titulo profesional</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -116,7 +116,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_304B" model="account.tax.template">
-            <field name="name">304b 8% pagos a notarios y registradores de la propiedad y mercantil por sus actividades ejercidas como tales</field>
+            <field name="name">304B 8% pagos a notarios y registradores de la propiedad y mercantil por sus actividades ejercidas como tales</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -153,7 +153,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_304C" model="account.tax.template">
-            <field name="name">304c 8% pagos a deportistas, entrenadores, arbitros, miembros del cuerpo tecnico por sus actividades ejercidas como tales</field>
+            <field name="name">304C 8% pagos a deportistas, entrenadores, arbitros, miembros del cuerpo tecnico por sus actividades ejercidas como tales</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -190,7 +190,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_304D" model="account.tax.template">
-            <field name="name">304d 8% pagos a artistas por sus actividades ejercidas como tales</field>
+            <field name="name">304D 8% pagos a artistas por sus actividades ejercidas como tales</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -227,7 +227,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_304E" model="account.tax.template">
-            <field name="name">304e 8% honorarios y demas pagos por servicios de docencia</field>
+            <field name="name">304E 8% honorarios y demas pagos por servicios de docencia</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -486,7 +486,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_312A" model="account.tax.template">
-            <field name="name">312a 1% compra de bienes de origen agricola, avicola, pecuario, apicola, cunicula, bioacuatico, y forestal</field>
+            <field name="name">312A 1% compra de bienes de origen agricola, avicola, pecuario, apicola, cunicula, bioacuatico, y forestal</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -523,7 +523,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_314A" model="account.tax.template">
-            <field name="name">314a 8% regalias por concepto de franquicias de acuerdo a ley de propiedad intelectual - pago a personas naturales</field>
+            <field name="name">314A 8% regalias por concepto de franquicias de acuerdo a ley de propiedad intelectual - pago a personas naturales</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -560,7 +560,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_314B" model="account.tax.template">
-            <field name="name">314b 8% casales, derechos de autor, marcas, patentes y similares de acuerdo a ley de propiedad intelectual – pago a personas naturales</field>
+            <field name="name">314B 8% casales, derechos de autor, marcas, patentes y similares de acuerdo a ley de propiedad intelectual – pago a personas naturales</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -597,7 +597,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_314C" model="account.tax.template">
-            <field name="name">314c 8% regalias por concepto de franquicias de acuerdo a ley de propiedad intelectual - pago a sociedades</field>
+            <field name="name">314C 8% regalias por concepto de franquicias de acuerdo a ley de propiedad intelectual - pago a sociedades</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -634,7 +634,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_314D" model="account.tax.template">
-            <field name="name">314d 8% casales, derechos de autor, marcas, patentes y similares de acuerdo a ley de propiedad intelectual – pago a sociedades</field>
+            <field name="name">314D 8% casales, derechos de autor, marcas, patentes y similares de acuerdo a ley de propiedad intelectual – pago a sociedades</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -816,7 +816,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_332A" model="account.tax.template">
-            <field name="name">332a 0% enajenacion de derechos representativos de capital y otros derechos exentos (mayo 2016)</field>
+            <field name="name">332A 0% enajenacion de derechos representativos de capital y otros derechos exentos (mayo 2016)</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -850,7 +850,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_332B" model="account.tax.template">
-            <field name="name">332b 0% compra de bienes inmuebles</field>
+            <field name="name">332B 0% compra de bienes inmuebles</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -884,7 +884,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_332C" model="account.tax.template">
-            <field name="name">332c 0% transporte publico de pasajeros</field>
+            <field name="name">332C 0% transporte publico de pasajeros</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -918,7 +918,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_332D" model="account.tax.template">
-            <field name="name">332d 0% pagos en el pais por transporte de pasajeros o transporte internacional de carga, a compañias nacionales o extranjeras de aviacion o maritimas</field>
+            <field name="name">332D 0% pagos en el pais por transporte de pasajeros o transporte internacional de carga, a compañias nacionales o extranjeras de aviacion o maritimas</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -952,7 +952,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_332G" model="account.tax.template">
-            <field name="name">332g 0% pagos con tarjeta de credito</field>
+            <field name="name">332G 0% pagos con tarjeta de credito</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -986,7 +986,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_332I" model="account.tax.template">
-            <field name="name">332i 0% pagos a través de convenios de débito (clientes ifi`s)</field>
+            <field name="name">332I 0% pagos a través de convenios de débito (clientes ifi`s)</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -1020,7 +1020,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_343A" model="account.tax.template">
-            <field name="name">343a 1% por energia electrica</field>
+            <field name="name">343A 1% por energia electrica</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -1057,7 +1057,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_343B" model="account.tax.template">
-            <field name="name">343b 1% por actividades de construccion de obra material inmueble, urbanizacion, lotizacion o actividades similares</field>
+            <field name="name">343B 1% por actividades de construccion de obra material inmueble, urbanizacion, lotizacion o actividades similares</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -1538,7 +1538,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_520D_411" model="account.tax.template">
-            <field name="name">520d-411 22% pago al exterior - comisiones por exportaciones y por promocion de turismo receptivo (con convenio de doble tributación)</field>
+            <field name="name">520D-411 22% pago al exterior - comisiones por exportaciones y por promocion de turismo receptivo (con convenio de doble tributación)</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>
@@ -1575,7 +1575,7 @@
                 })]"/>
         </record>
         <record id="tax_withhold_profit_522A_410" model="account.tax.template">
-            <field name="name">522a-410 22% pago al exterior - servicios tecnicos, administrativos o de consultoria y regalias con convenio de doble tributacion (con convenio de doble tributación)</field>
+            <field name="name">522A-410 22% pago al exterior - servicios tecnicos, administrativos o de consultoria y regalias con convenio de doble tributacion (con convenio de doble tributación)</field>
             <field name="type_tax_use">none</field>
             <field name="amount_type">percent</field>
             <field name="sequence">70</field>

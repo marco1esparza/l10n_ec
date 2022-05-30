@@ -123,7 +123,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             ], order="sequence asc", limit=1)
         l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search([
             ('country_id.code', '=', 'EC'),
-            ('l10n_ec_type', '=', withhold_type),
+            #('l10n_ec_type', '=', withhold_type),
             ], order="sequence asc", limit=1)
         default_values = {
             'journal_id': withhold_journal and withhold_journal.id,
