@@ -66,35 +66,35 @@ class AccountMove(models.Model):
         help='Technical field to limit elegible invoices related to this withhold'
     )
     # subtotals
-    l10n_ec_vat_withhold = fields.Monetary(
+    l10n_ec_withhold_vat_amount = fields.Monetary(
         compute='_l10n_ec_compute_withhold_totals',
         string='Total IVA',
         store=False,
         readonly=True,
         help='Total IVA value of withhold'
     )
-    l10n_ec_profit_withhold = fields.Monetary(
+    l10n_ec_withhold_profit_amount = fields.Monetary(
         compute='_l10n_ec_compute_withhold_totals',
         string='Total RENTA',
         store=False,
         readonly=True,
         help='Total renta value of withhold'
     )
-    l10n_ec_total_base_vat = fields.Monetary(
+    l10n_ec_withhold_vat_base = fields.Monetary(
         compute='_l10n_ec_compute_withhold_totals',
         string='Total Base IVA',
         store=False,
         readonly=True,
         help='Total base IVA of withhold'
     )
-    l10n_ec_total_base_profit = fields.Monetary(
+    l10n_ec_withhold_profit_base = fields.Monetary(
         compute='_l10n_ec_compute_withhold_totals',
         string='Total Base RENTA',
         store=False,
         readonly=True,
         help='Total base renta of withhold'
     )
-    l10n_ec_total = fields.Monetary(
+    l10n_ec_withhold_total_amount = fields.Monetary(
         string='Total Withhold',
         compute='_l10n_ec_compute_withhold_totals',
         store=False,
@@ -396,25 +396,25 @@ class AccountMove(models.Model):
     def _l10n_ec_compute_withhold_totals(self):
         # Used for aesthetics, to view withhold subtotal at the bottom of the withhold account.move
         for invoice in self:
-            l10n_ec_vat_withhold = 0.0
-            l10n_ec_profit_withhold = 0.0
-            l10n_ec_total_base_vat = 0.0
-            l10n_ec_total_base_profit = 0.0
-            l10n_ec_total = 0.0
+            l10n_ec_withhold_vat_amount = 0.0
+            l10n_ec_withhold_profit_amount = 0.0
+            l10n_ec_withhold_vat_base = 0.0
+            l10n_ec_withhold_profit_base = 0.0
+            l10n_ec_withhold_total_amount = 0.0
             for line in invoice.l10n_ec_withhold_line_ids:
                 if line.tax_line_id.tax_group_id:
                     if line.tax_line_id.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase']:
-                        l10n_ec_vat_withhold += line.credit if invoice.l10n_ec_withhold_type == 'in_withhold' else line.debit
-                        l10n_ec_total_base_vat += line.tax_base_amount
+                        l10n_ec_withhold_vat_amount += line.credit if invoice.l10n_ec_withhold_type == 'in_withhold' else line.debit
+                        l10n_ec_withhold_vat_base += line.tax_base_amount
                     if line.tax_line_id.tax_group_id.l10n_ec_type in ['withhold_income_sale',
                                                                       'withhold_income_purchase']:
-                        l10n_ec_profit_withhold += line.credit if invoice.l10n_ec_withhold_type == 'in_withhold' else line.debit
-                        l10n_ec_total_base_profit += line.tax_base_amount
-            invoice.l10n_ec_vat_withhold = l10n_ec_vat_withhold
-            invoice.l10n_ec_profit_withhold = l10n_ec_profit_withhold
-            invoice.l10n_ec_total_base_vat = l10n_ec_total_base_vat
-            invoice.l10n_ec_total_base_profit = l10n_ec_total_base_profit
-            invoice.l10n_ec_total = l10n_ec_vat_withhold + l10n_ec_profit_withhold
+                        l10n_ec_withhold_profit_amount += line.credit if invoice.l10n_ec_withhold_type == 'in_withhold' else line.debit
+                        l10n_ec_withhold_profit_base += line.tax_base_amount
+            invoice.l10n_ec_withhold_vat_amount = l10n_ec_withhold_vat_amount
+            invoice.l10n_ec_withhold_profit_amount = l10n_ec_withhold_profit_amount
+            invoice.l10n_ec_withhold_vat_base = l10n_ec_withhold_vat_base
+            invoice.l10n_ec_withhold_profit_base = l10n_ec_withhold_profit_base
+            invoice.l10n_ec_withhold_total_amount = l10n_ec_withhold_vat_amount + l10n_ec_withhold_profit_amount
 
     def _l10n_ec_allow_withhold(self):
         # shows/hide "ADD WITHHOLD" button on invoices

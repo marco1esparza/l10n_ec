@@ -59,7 +59,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         readonly=True,
         related='company_id.currency_id'
     )
-    l10n_ec_vat_withhold = fields.Monetary(
+    l10n_ec_withhold_vat_amount = fields.Monetary(
         compute='_l10n_ec_compute_move_totals',
         string='Total IVA',
         tracking=True,
@@ -67,7 +67,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         readonly=True,
         help='Total IVA value of withhold'
     )
-    l10n_ec_profit_withhold = fields.Monetary(
+    l10n_ec_withhold_profit_amount = fields.Monetary(
         compute='_l10n_ec_compute_move_totals',
         string='Total RENTA',
         tracking=True,
@@ -75,7 +75,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         readonly=True,
         help='Total renta value of withhold'
     )
-    l10n_ec_total_base_vat = fields.Monetary(
+    l10n_ec_withhold_vat_base = fields.Monetary(
         compute='_l10n_ec_compute_move_totals',
         string='Total Base IVA',
         tracking=True,
@@ -83,7 +83,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         readonly=True,
         help='Total base IVA of withhold'
     )
-    l10n_ec_total_base_profit = fields.Monetary(
+    l10n_ec_withhold_profit_base = fields.Monetary(
         compute='_l10n_ec_compute_move_totals',
         string='Total Base RENTA',
         tracking=True,
@@ -91,7 +91,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         readonly=True,
         help='Total base renta of withhold'
     )
-    l10n_ec_total = fields.Monetary(
+    l10n_ec_withhold_total_amount = fields.Monetary(
         string='Total Withhold',
         compute='_l10n_ec_compute_move_totals',
         tracking=True,
@@ -108,11 +108,11 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             return res
         invoices = self.env['account.move'].search([('id', 'in', invoice_ids)])
         self._validate_invoices_data(invoices)
-        default_values = self._prepare_withold_wizard_default_values(invoices)
+        default_values = self._prepare_withhold_wizard_default_values(invoices)
         res.update(default_values)
         return res
     
-    def _prepare_withold_wizard_default_values(self, invoices):
+    def _prepare_withhold_wizard_default_values(self, invoices):
         #Computes new withhold data for provided invoices
         if invoices[0].move_type == 'in_invoice':
             withhold_type = 'in_withhold'
@@ -330,7 +330,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         if invoice_list:
             joined_vals = '\n'.join('* ' + l for l in invoice_list)
             error += u'Las siguientes facturas tienen una fecha posterior a la retención:\n%s\n' % joined_vals        
-        if self.l10n_ec_total > amount_total:
+        if self.l10n_ec_withhold_total_amount > amount_total:
             error += u'La cantidad a retener es mayor que el valor de las facturas.\n'
         if error:
             raise ValidationError(error)
@@ -357,23 +357,23 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         '''
         '''
         for wizard in self:
-            l10n_ec_vat_withhold = 0.0
-            l10n_ec_profit_withhold = 0.0
-            l10n_ec_total_base_vat = 0.0
-            l10n_ec_total_base_profit = 0.0
+            l10n_ec_withhold_vat_amount = 0.0
+            l10n_ec_withhold_profit_amount = 0.0
+            l10n_ec_withhold_vat_base = 0.0
+            l10n_ec_withhold_profit_base = 0.0
             for line in wizard.withhold_line_ids:
                 if line.tax_id.tax_group_id:
                     if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase']:
-                        l10n_ec_vat_withhold += line.amount
-                        l10n_ec_total_base_vat += line.base
+                        l10n_ec_withhold_vat_amount += line.amount
+                        l10n_ec_withhold_vat_base += line.base
                     if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_sale', 'withhold_income_purchase']:
-                        l10n_ec_profit_withhold += line.amount
-                        l10n_ec_total_base_profit += line.base
-            wizard.l10n_ec_vat_withhold = l10n_ec_vat_withhold
-            wizard.l10n_ec_profit_withhold = l10n_ec_profit_withhold
-            wizard.l10n_ec_total_base_vat = l10n_ec_total_base_vat
-            wizard.l10n_ec_total_base_profit = l10n_ec_total_base_profit
-            wizard.l10n_ec_total = l10n_ec_vat_withhold + l10n_ec_profit_withhold
+                        l10n_ec_withhold_profit_amount += line.amount
+                        l10n_ec_withhold_profit_base += line.base
+            wizard.l10n_ec_withhold_vat_amount = l10n_ec_withhold_vat_amount
+            wizard.l10n_ec_withhold_profit_amount = l10n_ec_withhold_profit_amount
+            wizard.l10n_ec_withhold_vat_base = l10n_ec_withhold_vat_base
+            wizard.l10n_ec_withhold_profit_base = l10n_ec_withhold_profit_base
+            wizard.l10n_ec_withhold_total_amount = l10n_ec_withhold_vat_amount + l10n_ec_withhold_profit_amount
 
 
 class L10nEcWizardAccountWithholdLine(models.TransientModel):
