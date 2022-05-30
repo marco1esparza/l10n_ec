@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+
         <record id="res_config_settings_l10n_ec_edi" model="ir.ui.view">
             <field name="name">res.config.settings.l10n.ec.edi</field>
             <field name="model">res.config.settings</field>
@@ -56,48 +57,38 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-12 col-lg-6 o_setting_box" id="default_taxes" title="These taxes are set in any new product created.">
+							<div class="o_setting_left_pane"/>
+							<div class="o_setting_right_pane">
+								<span class="o_form_label">Withholdings</span>
+								<span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
+								<div class="text-muted">
+			                        Default taxes for withholdings
+			                    </div>
+			                    <div class="content-group">
+									<div class="row mt16">
+				                        <label for="l10n_ec_issue_withholds" class="col-lg-3 o_light_label"/>
+				                        <field name="l10n_ec_issue_withholds" widget="boolean_toggle"/>
+				                    </div>
+				                    <div class="row" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
+				                        <label for="l10n_ec_fallback_profit_withhold_goods" class="col-lg-3 o_light_label"/>
+				                        <field name="l10n_ec_fallback_profit_withhold_goods" domain="[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')), ('company_id', '=', company_id)]"/>
+				                    </div>
+				                    <div class="row" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
+				                        <label for="l10n_ec_fallback_profit_withhold_services" class="col-lg-3 o_light_label"/>
+				                        <field name="l10n_ec_fallback_profit_withhold_services" domain="[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')), ('company_id', '=', company_id)]"/>
+				                    </div>
+				                    <div class="row" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
+				                        <label for="l10n_ec_profit_withhold_tax_credit_card" class="col-lg-3 o_light_label"/>
+				                        <field name="l10n_ec_profit_withhold_tax_credit_card" domain="[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')), ('company_id', '=', company_id)]"/>
+				                    </div>
+			                	</div>
+							</div>
+			        	</div>
                     </div>
                 </xpath>
             </field>
         </record>
 
-        <record id="res_config_settings_view_form_l10n_ec_withholding" model="ir.ui.view">
-    	<field name="name">res.config.settings.view.form.inherit.account</field>
-      	<field name="model">res.config.settings</field>
-      	<field name="priority" eval="40"/>
-      	<field name="inherit_id" ref="base.res_config_settings_view_form"/>
-      	<field name="arch" type="xml">
-        	<xpath expr="//div[@id='default_taxes']" position="after">
-            	<div class="col-12 col-lg-6 o_setting_box" id="default_taxes" title="These taxes are set in any new product created.">
-					<div class="o_setting_left_pane"/>
-					<div class="o_setting_right_pane">
-						<span class="o_form_label">Withholdings</span>
-						<span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/>
-						<div class="text-muted">
-	                        Default taxes for withholdings
-	                    </div>
-	                    <div class="content-group">
-							<div class="row mt16">
-		                        <label for="l10n_ec_issue_withholds" class="col-lg-3 o_light_label"/>
-		                        <field name="l10n_ec_issue_withholds" widget="boolean_toggle"/>
-		                    </div>
-		                    <div class="row" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
-		                        <label for="l10n_ec_fallback_profit_withhold_goods" class="col-lg-3 o_light_label"/>
-		                        <field name="l10n_ec_fallback_profit_withhold_goods" domain="[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')), ('company_id', '=', company_id)]"/>
-		                    </div>
-		                    <div class="row" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
-		                        <label for="l10n_ec_fallback_profit_withhold_services" class="col-lg-3 o_light_label"/>
-		                        <field name="l10n_ec_fallback_profit_withhold_services" domain="[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')), ('company_id', '=', company_id)]"/>
-		                    </div>
-		                    <div class="row" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
-		                        <label for="l10n_ec_profit_withhold_tax_credit_card" class="col-lg-3 o_light_label"/>
-		                        <field name="l10n_ec_profit_withhold_tax_credit_card" domain="[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')), ('company_id', '=', company_id)]"/>
-		                    </div>
-	                	</div>
-					</div>
-	        	</div>
-        	</xpath>
-    	</field>
-	</record>
     </data>
 </odoo>

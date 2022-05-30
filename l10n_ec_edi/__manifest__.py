@@ -31,7 +31,6 @@
         "views/l10n_ec_edi_certificate_views.xml",
         "views/product_view.xml",
         "views/report_invoice.xml",
-        "views/res_company_view.xml",
         "views/res_config_settings_views.xml",
         "views/res_partner_view.xml",        
         #Wizard

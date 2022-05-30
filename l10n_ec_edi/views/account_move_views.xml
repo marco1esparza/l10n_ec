@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data>
+
 		<record id="account_move_form_latam_view" model="ir.ui.view">
 			<field name="name">account.move.form.view</field>
 			<field name="model">account.move</field>
@@ -8,33 +9,18 @@
 			<field name="arch" type="xml">
 				<xpath expr="//field[@name='l10n_latam_document_number']" position="after">
 					<field name="l10n_latam_internal_type" invisible="1"/>
-					<field
-							name="l10n_ec_sri_payment_id"
-							options="{'no_create': True}"
+					<field name="l10n_ec_sri_payment_id" options="{'no_create': True}"
 							attrs="{'invisible': ['|', '|', ('country_code', '!=', 'EC'),
-                            ('move_type', 'in', ('in_refund', 'entry', 'out_receipt', 'in_receipt')), '&amp;', ('move_type', '=', 'in_invoice'), ('l10n_latam_internal_type', '!=', 'purchase_liquidation')]}"
-					/>
+                            ('move_type', 'in', ('in_refund', 'entry', 'out_receipt', 'in_receipt')), '&amp;', ('move_type', '=', 'in_invoice'), ('l10n_latam_internal_type', '!=', 'purchase_liquidation')]}"/>
 				</xpath>
 			</field>
 		</record>
+	
 		<record id="account_move_form_account_view" model="ir.ui.view">
 			<field name="name">account.move.form.account.view</field>
 			<field name="model">account.move</field>
 			<field name="inherit_id" ref="account.view_move_form"/>
 			<field name="arch" type="xml">
-				<xpath
-						expr="//sheet//group//group//div[@name='journal_div']"
-						position="after"
-				>
-					<field
-							name="l10n_ec_authorization_number"
-							attrs="{'invisible': ['|', ('l10n_ec_authorization_number', '=', False), ('move_type', 'not in', ('out_invoice', 'out_refund')), ('l10n_latam_internal_type', '!=', 'purchase_liquidation')]}"
-					/>
-					<field
-							name="l10n_ec_authorization_date"
-							attrs="{'invisible': [('l10n_ec_authorization_date', '=', False)]}"
-					/>
-				</xpath>
 				<button name="action_reverse" position="after">
 					<button name="l10n_ec_add_withhold" string="Add Withhold" type="object"
 							groups="account.group_account_invoice"
@@ -54,18 +40,6 @@
 						</div>
 					</button>
 				</div>
-				<xpath expr="//field[@name='restrict_mode_hash_table']" position="after">
-					<field name="l10n_ec_withhold_type" invisible="1"/>
-				</xpath>
-				<xpath expr="//form/sheet/div/h1" position="inside">
-					<span attrs="{'invisible': ['|', '|', ('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold']), ('state', '!=', 'draft'), ('name', '!=', '/')]}">Draft Withhold</span>
-				</xpath>
-				<xpath expr="//field[@name='ref']" position="before">
-					<field name="partner_id" widget="res_partner_many2one" force_save="1"
-						   context="{'show_address': 1, 'default_is_company': True, 'show_vat': True}"
-						   options='{"always_reload": True, "no_quick_create": True}'
-						   attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ('out_withhold', 'in_withhold'))], 'readonly': [('l10n_ec_withhold_type', 'in', ('in_withhold'))]}"/>
-				</xpath>
 				<xpath expr="//field[@name='date']" position="attributes">
 					<attribute name="attrs">{'invisible': ['|', ('move_type', 'in', ('out_invoice', 'out_refund', 'out_receipt')), ('l10n_ec_withhold_type', 'in', ['out_withhold', 'in_withhold'])]}</attribute>
 				</xpath>
@@ -73,23 +47,49 @@
 					<field name="invoice_date" string="Withhold Date" options="{'datepicker': {'warn_future': true}}"
 						   attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])], 'required': [('l10n_ec_withhold_type', 'in', ['out_withhold', 'in_withhold'])]}"/>
 				</xpath>
+				<xpath expr="//field[@name='ref']" position="before">
+					<field name="partner_id" widget="res_partner_many2one" force_save="1"
+						   context="{'show_address': 1, 'default_is_company': True, 'show_vat': True}"
+						   options='{"always_reload": True, "no_quick_create": True}'
+						   attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ('out_withhold', 'in_withhold'))], 'readonly': [('l10n_ec_withhold_type', 'in', ('in_withhold'))]}"/>
+				</xpath>
+				<xpath expr="//field[@name='to_check']" position="after">
+					<field name="edi_document_ids" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
+					<field name="edi_state" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
+				</xpath>
+				<field name="invoice_origin" position="after">
+					<field name="l10n_ec_withhold_count" readonly="1" groups="base.group_no_one"/>
+					<field name="l10n_ec_withhold_type" readonly="1" groups="base.group_no_one"/>
+					<field name="l10n_ec_allow_withhold" readonly="1" groups="base.group_no_one"/>
+					<field name="l10n_ec_withhold_type" invisible="1"/>
+				</field>
+				<xpath expr="//sheet//group//group//div[@name='journal_div']" position="after">
+					<field name="l10n_ec_authorization_number"
+						   attrs="{'invisible': ['|', ('l10n_ec_authorization_number', '=', False), ('move_type', 'not in', ('out_invoice', 'out_refund')), ('l10n_latam_internal_type', '!=', 'purchase_liquidation')]}"/>
+					<field name="l10n_ec_authorization_date" attrs="{'invisible': [('l10n_ec_authorization_date', '=', False)]}"/>
+				</xpath>
+				<xpath expr="//form/sheet/div/h1" position="inside">
+					<span attrs="{'invisible': ['|', '|', ('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold']), ('state', '!=', 'draft'), ('name', '!=', '/')]}">Draft Withhold</span>
+				</xpath>
+				<xpath expr="//page[@id='other_tab_entry']//field[@name='narration']" position="attributes">
+					<attribute name="attrs">{'invisible':[('l10n_ec_withhold_type', '!=', False)]}</attribute>
+				</xpath>
 				<xpath expr="//page[@id='aml_tab']" position="before">
 					<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
 						<field name="l10n_ec_withhold_line_ids">
 							<tree editable="bottom">
 								<field name="tax_line_id" string="Tax"/>
-								<!--field name="invoice_id"/ -->
 								<field name="account_id"/>
 								<field name="tax_base_amount" string="Base"/>
 								<field name="balance" string="Amount"/>
 							</tree>
 						</field>
 						<group class="oe_subtotal_footer oe_right">
-							<field name="l10n_ec_total_base_vat"/>
-							<field name="l10n_ec_vat_withhold"/>
-							<field name="l10n_ec_total_base_profit"/>
-							<field name="l10n_ec_profit_withhold"/>
-							<field name="l10n_ec_total" class="oe_subtotal_footer_separator"/>
+							<field name="l10n_ec_withhold_vat_base"/>
+							<field name="l10n_ec_withhold_vat_amount"/>
+							<field name="l10n_ec_withhold_profit_base"/>
+							<field name="l10n_ec_withhold_profit_amount"/>
+							<field name="l10n_ec_withhold_total_amount" class="oe_subtotal_footer_separator"/>
 						</group>
 						<!-- Internal note -->
 						<field name="narration" placeholder="Add an internal note..." nolabel="1" height="50"/>
@@ -104,9 +104,6 @@
 								<field name="partner_id" string="Customer"/>
 								<field name="invoice_date" string="Invoice Date"/>
 								<field name="name"/>
-								<!--<field name="l10n_ec_base_cero_iva"/>
-								<field name="l10n_ec_base_doce_iva"/>
-								<field name="l10n_ec_vat_doce_subtotal"/>-->
 								<field name="amount_total"/>
 								<field name="state"/>
 							</tree>
@@ -115,20 +112,9 @@
 						</group>
 					</page>
 				</xpath>
-				<xpath expr="//field[@name='to_check']" position="after">
-					<field name="edi_document_ids" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
-					<field name="edi_state" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
-				</xpath>
-				<field name="invoice_origin" position="after">
-					<field name="l10n_ec_withhold_count" readonly="1" groups="base.group_no_one"/>
-					<field name="l10n_ec_withhold_type" readonly="1" groups="base.group_no_one"/>
-					<field name="l10n_ec_allow_withhold" readonly="1" groups="base.group_no_one"/>
-				</field>
-				<xpath expr="//page[@id='other_tab_entry']//field[@name='narration']" position="attributes">
-					<attribute name="attrs">{'invisible':[('l10n_ec_withhold_type', '!=', False)]}</attribute>
-				</xpath>
 			</field>
 		</record>
+		
 		<record id="action_receive_withhold" model="ir.actions.server">
 			<field name="name">Recibir retención</field>
 			<field name="model_id" ref="account.model_account_move"/>
@@ -139,5 +125,6 @@
 				action = records.l10n_ec_add_withhold()
 			</field>
 		</record>
+		
 	</data>
 </odoo>

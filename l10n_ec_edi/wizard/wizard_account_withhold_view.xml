@@ -9,7 +9,7 @@
 				<group>
 					<group>
 						<field name="journal_id" domain="[('l10n_ec_withhold_type', '=', withhold_type)]" options="{'no_open': True, 'no_create': True}"/>
-						<field name="l10n_latam_document_type_id" domain="[('l10n_ec_type', '=', withhold_type)]" options="{'no_open': True, 'no_create': True}"/>
+						<field name="l10n_latam_document_type_id" options="{'no_open': True, 'no_create': True}"/>
 						<field name="l10n_latam_document_number" attrs="{'required': [('withhold_type','=','out_withhold')]}"/>
 						<field name="date"/>
 						<field name="company_id" invisible="1"/>
@@ -36,11 +36,11 @@
 			                </tree>
 				    	</field>
 				    	<group class="oe_subtotal_footer oe_right">
-							<field name="l10n_ec_total_base_vat"/>
-							<field name="l10n_ec_vat_withhold"/>
-							<field name="l10n_ec_total_base_profit"/>
-							<field name="l10n_ec_profit_withhold"/>
-							<field name="l10n_ec_total" class="oe_subtotal_footer_separator"/>
+							<field name="l10n_ec_withhold_vat_base"/>
+							<field name="l10n_ec_withhold_vat_amount"/>
+							<field name="l10n_ec_withhold_profit_base"/>
+							<field name="l10n_ec_withhold_profit_amount"/>
+							<field name="l10n_ec_withhold_total_amount" class="oe_subtotal_footer_separator"/>
 						</group>
 					</page>
 					<page id="invoices_tab" string="Invoices">

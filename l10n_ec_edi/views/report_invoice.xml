@@ -138,7 +138,7 @@
                     <tr class="border-black o_total">
                         <td><strong>Total</strong></td>
                         <td class="text-right">
-                            <span class="text-nowrap" t-field="o.l10n_ec_total"/>
+                            <span class="text-nowrap" t-field="o.l10n_ec_withhold_total_amount"/>
                         </td>
                     </tr>
                 </table>
