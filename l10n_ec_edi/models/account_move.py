@@ -175,7 +175,8 @@ class AccountMove(models.Model):
     def is_invoice(self, include_receipts=False):
         # OVERRIDE: For Ecuador we consider is_invoice for all edis (invoices and wihtholds, in the future maybe waybills, etc)
         # It enables the send email button, the edi process, the customer portal, printing the qweb report, and other stuff.
-        if self.country_code == 'EC':
+        country_code = self.country_code or self.company_id.country_code
+        if country_code == 'EC':
             if self.is_withholding():
                 return True
         return super(AccountMove, self).is_invoice(include_receipts)
@@ -290,7 +291,7 @@ class AccountMove(models.Model):
         data = {
             "taxes_data": self._l10n_ec_get_taxes_grouped_by_tax_group(),
             "additional_info": {
-                "pedido": self.name,
+                "referencia": self.name,
                 "vendedor": self.invoice_user_id.name,
                 "email": self.invoice_user_id.email,
                 "narracion": self._l10n_ec_remove_forbidden_chars(str(self.narration)),
@@ -311,7 +312,8 @@ class AccountMove(models.Model):
         #TODO Discuss with Odoo, the method can be simplified to compute based on journal type, but in the proposed way is more "secure"
         #TODO Discuss with Odoo, method name doesn't have l10n_ec prefix to look alike the is_invoice() method.  
         is_withholding = False
-        if self.country_code == 'EC' and self.move_type in ('entry') \
+        country_code = self.country_code or self.company_id.country_code
+        if country_code == 'EC' and self.move_type in ('entry') \
            and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold') \
            and self.l10n_latam_document_type_id.code in ['07']:
             is_withholding = True
@@ -474,7 +476,7 @@ class AccountMoveLine(models.Model):
                     #if self.move_id.l10n_ec_require_withhold_tax:  # compute withholds #TODO ANDRES refactorizar
                     if True:
                         company_id = self.move_id.company_id
-                        contributor_type = self.partner_id.contributor_type_id
+                        contributor_type = self.partner_id.l10n_ec_contributor_type_id
                         tax_groups = super_tax_ids.mapped('tax_group_id').mapped('l10n_ec_type')
                         # compute vat withhold
                         if 'vat12' in tax_groups or 'vat14' in tax_groups:
@@ -488,8 +490,8 @@ class AccountMoveLine(models.Model):
                             profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
                         elif contributor_type.profit_withhold_tax_id:
                             profit_withhold_tax = contributor_type.profit_withhold_tax_id
-                        elif self.product_id.withhold_tax_id:
-                            profit_withhold_tax = self.product_id.withhold_tax_id
+                        elif self.product_id.l10n_ec_withhold_tax_id:
+                            profit_withhold_tax = self.product_id.l10n_ec_withhold_tax_id
                         elif 'withhold_income_sale' in tax_groups or 'withhold_income_purchase' in tax_groups:
                             pass  # keep the taxes coming from product.product... for now
                         else:  # if not any withhold tax then fallback

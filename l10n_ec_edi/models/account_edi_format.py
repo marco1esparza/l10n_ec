@@ -45,7 +45,7 @@ class AccountEdiFormat(models.Model):
             return super(AccountEdiFormat, self)._is_compatible_with_journal(journal)
 
         # TODO let user configure which journal have "electronic" EDI (those that don't are "manual")
-        return journal.type in ("sale", "purchase") and self.code == "ecuadorian_edi"
+        return self.code == "ecuadorian_edi" and journal.type in ("sale", "purchase") or (journal.type == 'general' and journal.l10n_ec_withhold_type == 'in_withhold')
 
     def _is_required_for_invoice(self, invoice):
         # OVERRIDE
@@ -53,8 +53,10 @@ class AccountEdiFormat(models.Model):
             return super(AccountEdiFormat, self)._is_required_for_invoice(invoice)
 
         internal_type = invoice.l10n_latam_document_type_id.internal_type
+        l10n_ec_type = invoice.l10n_latam_document_type_id.l10n_ec_type
         return self.code == "ecuadorian_edi" \
-            and (invoice.move_type in ('out_invoice', 'out_refund') or internal_type == 'purchase_liquidation')
+               and (invoice.move_type in ('out_invoice', 'out_refund') or internal_type == 'purchase_liquidation'
+                    or l10n_ec_type == 'in_withhold')
 
     def _needs_web_services(self):
         # OVERRIDE
@@ -88,7 +90,7 @@ class AccountEdiFormat(models.Model):
                         address.commercial_partner_id.display_name
                       )
                 )
-            if not move.l10n_ec_sri_payment_id:
+            if not move.l10n_ec_sri_payment_id and move.l10n_latam_document_type_id.l10n_ec_type != 'in_withhold':
                 errors.append(
                     _("You have to configure Payment Method SRI on document: %s.", move.display_name)
                 )

@@ -6,10 +6,12 @@
             <t t-set="journal" t-value="invoice.journal_id"/>
             <t t-set="partner" t-value="invoice.commercial_partner_id"/>
             <t t-set="doc_type" t-value="invoice.l10n_latam_document_type_id.internal_type"/>
+            <t t-set="l10n_ec_type" t-value="invoice.l10n_latam_document_type_id.l10n_ec_type"/>
             <t t-set="is_cnote" t-value="doc_type == 'credit_note'"/>
             <t t-set="is_dnote" t-value="doc_type == 'debit_note'"/>
-            <t t-set="is_invoice" t-value="doc_type == 'invoice'"/>
+            <t t-set="is_invoice" t-value="doc_type == 'invoice' and l10n_ec_type != 'in_withhold'"/>
             <t t-set="is_liquidation" t-value="doc_type == 'purchase_liquidation'"/>
+            <t t-set="is_withhold" t-value="l10n_ec_type == 'in_withhold'"/>
 
             <t t-if="is_cnote">
                 <notaCredito version="1.1.0" id="comprobante">
@@ -60,6 +62,17 @@
                     <t t-call="l10n_ec_edi.common_additional_info_template"/>
                 </liquidacionCompra>
             </t>
+
+            <t t-if="is_withhold">
+                <comprobanteRetencion version="1.0.0" id="comprobante">
+                    <t t-call="l10n_ec_edi.common_tax_info_template"/>
+                    <infoCompRetencion>
+                        <t t-call="l10n_ec_edi.common_info_template"/>
+                    </infoCompRetencion>
+
+                    <t t-call="l10n_ec_edi.common_additional_info_template"/>
+                </comprobanteRetencion>
+            </t>
         </template>
 
         <template id="common_tax_info_template">
@@ -101,11 +114,16 @@
             <identificacionProveedor t-if="is_liquidation" t-out="partner.vat"/>
             <direccionProveedor t-if="is_liquidation" t-out="clean_str(partner.street)"/>
 
+            <tipoIdentificacionSujetoRetenido t-if="is_withhold" t-out="invoice._get_l10n_ec_identification_type()"/>
+            <razonSocialSujetoRetenido t-if="is_withhold" t-out="clean_str(partner.name)"/>
+            <identificacionSujetoRetenido t-if="is_withhold" t-out="partner.vat"/>
+            <periodoFiscal t-if="TODO" t-out="TODO"/>
+
             <codDocModificado t-if="is_cnote or is_dnote" t-out="'01'"/>
             <numDocModificado t-if="is_cnote or is_dnote" t-out="modified_doc.l10n_latam_document_number"/>
             <fechaEmisionDocSustento t-if="is_cnote or is_dnote" t-out="strftime(modified_doc.invoice_date)"/>
 
-            <totalSinImpuestos t-out="format_num_6(invoice.amount_untaxed)"/>
+            <totalSinImpuestos t-if="not is_withhold" t-out="format_num_6(invoice.amount_untaxed)"/>
             <valorModificacion t-if="is_cnote" t-out="format_num_6(abs(invoice.amount_total))"/>
             <totalDescuento t-if="is_invoice or is_liquidation" t-out="format_num_6(invoice.l10n_ec_compute_amount_discount())"/>
 
