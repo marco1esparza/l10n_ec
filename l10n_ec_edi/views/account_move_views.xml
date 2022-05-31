@@ -58,9 +58,9 @@
 					<field name="edi_state" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
 				</xpath>
 				<field name="invoice_origin" position="after">
-					<field name="l10n_ec_withhold_count" readonly="1" groups="base.group_no_one"/>
-					<field name="l10n_ec_withhold_type" readonly="1" groups="base.group_no_one"/>
-					<field name="l10n_ec_allow_withhold" readonly="1" groups="base.group_no_one"/>
+					<field name="l10n_ec_withhold_count" invisible="1"/>
+					<field name="l10n_ec_withhold_type" invisible="1"/>
+					<field name="l10n_ec_allow_withhold" invisible="1"/>
 					<field name="l10n_ec_withhold_type" invisible="1"/>
 				</field>
 				<xpath expr="//sheet//group//group//div[@name='journal_div']" position="after">
@@ -76,12 +76,12 @@
 				</xpath>
 				<xpath expr="//page[@id='aml_tab']" position="before">
 					<page id="withhold_tab" string="Withhold Lines" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
-						<field name="l10n_ec_withhold_line_ids">
+                        <field name="l10n_ec_withhold_line_ids" widget="section_and_note_one2many" mode="tree,kanban">
 							<tree editable="bottom">
 								<field name="tax_line_id" string="Tax"/>
 								<field name="account_id"/>
-								<field name="tax_base_amount" string="Base"/>
-								<field name="balance" string="Amount"/>
+								<field name="tax_base_amount"/>
+								<field name="price_total" string="Amount"/>
 							</tree>
 						</field>
 						<group class="oe_subtotal_footer oe_right">
@@ -116,7 +116,7 @@
 		</record>
 		
 		<record id="action_receive_withhold" model="ir.actions.server">
-			<field name="name">Recibir retención</field>
+			<field name="name">Create Withholds</field>
 			<field name="model_id" ref="account.model_account_move"/>
 			<field name="binding_model_id" ref="account.model_account_move"/>
 			<field name="state">code</field>

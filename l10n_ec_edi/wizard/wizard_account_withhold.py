@@ -60,7 +60,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         related='company_id.currency_id'
     )
     l10n_ec_withhold_vat_amount = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
+        compute='_compute_withhold_totals',
         string='Total IVA',
         tracking=True,
         store=False,
@@ -68,7 +68,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         help='Total IVA value of withhold'
     )
     l10n_ec_withhold_profit_amount = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
+        compute='_compute_withhold_totals',
         string='Total RENTA',
         tracking=True,
         store=False,
@@ -76,7 +76,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         help='Total renta value of withhold'
     )
     l10n_ec_withhold_vat_base = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
+        compute='_compute_withhold_totals',
         string='Total Base IVA',
         tracking=True,
         store=False,
@@ -84,7 +84,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         help='Total base IVA of withhold'
     )
     l10n_ec_withhold_profit_base = fields.Monetary(
-        compute='_l10n_ec_compute_move_totals',
+        compute='_compute_withhold_totals',
         string='Total Base RENTA',
         tracking=True,
         store=False,
@@ -93,7 +93,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
     )
     l10n_ec_withhold_total_amount = fields.Monetary(
         string='Total Withhold',
-        compute='_l10n_ec_compute_move_totals',
+        compute='_compute_withhold_totals',
         tracking=True,
         store=False,
         readonly=True,
@@ -123,7 +123,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             ], order="sequence asc", limit=1)
         l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search([
             ('country_id.code', '=', 'EC'),
-            #('l10n_ec_type', '=', withhold_type),
+            ('internal_type', '=', 'withhold'),
             ], order="sequence asc", limit=1)
         default_values = {
             'journal_id': withhold_journal and withhold_journal.id,
@@ -205,6 +205,8 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             'invoice_origin': origin
         }
         invoice = self.related_invoices[0]
+        #TODO: Trescloud, should not copy the move, it was a hack that worked but should better be a move created from scratch
+        #to be fixed altogether with the fix on the move for the tax reports
         invoice = invoice.with_context(include_business_fields=False) #don't copy sale/purchase links
         withhold = invoice.copy(default=vals)
         lines = self.env['account.move.line'] #empty recordset
@@ -212,45 +214,46 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             total = 0.0
             for line in self.withhold_line_ids:
                 tax_line = line.tax_id.invoice_repartition_line_ids.filtered(lambda x:x.repartition_type == 'tax')
+                withhold_sign = 1.0 if withhold.l10n_ec_withhold_type == 'out_withhold' else -1
                 vals = {
                     'name': line.tax_id.name + ' ' + line.invoice_id.name,
                     'move_id': withhold.id,
                     'partner_id': withhold.partner_id.id,
                     'account_id': line.account_id.id,
-                    'date_maturity': False,
                     'quantity': 1.0,
-                    'amount_currency': 0.0, #Withholds are always in company currency
-                    'price_unit': line.amount,
-                    'price_subtotal': line.amount,
-                    'price_total': line.amount,
+                    'price_unit': line.amount * withhold_sign,
+                    #'price_subtotal': line.amount, #review with Odoo, this line does nothing, it is later overwritted
+                    #'price_total': line.amount, #review with Odoo, this line does nothing, it is later overwritted
                     'debit': line.amount if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
                     'credit': line.amount if withhold.l10n_ec_withhold_type == 'in_withhold' else 0.0,
-                    'is_rounding_line': False,
-                    'l10n_ec_withhold_invoice_id': line.invoice_id.id,
-                    'tax_base_amount': line.base,
+                    'amount_currency': line.amount * withhold_sign, #Withholds are always in company currency, hence 0.0
+                    'tax_base_amount': line.base, #campos computados, no requerimos setearlos
                     'tax_line_id': line.tax_id.id, #originator tax
                     'tax_repartition_line_id': tax_line.id,
                     'tax_tag_ids': [(6, 0, tax_line.tag_ids.ids)],
-                    # 'tax_tag_invert': True, #TODO V15.3 revisar este campo, es el delta
-                    'exclude_from_invoice_tab': True,
+                    # 'tax_tag_invert': True, #TODO TRESCLOUD review this field, 
+                    'exclude_from_invoice_tab': True, #TODO, review with Odoo, a hook in account.move._compute_amount() is needed
+                    'is_rounding_line': False,
+                    'date_maturity': False,
+                    'l10n_ec_withhold_invoice_id': line.invoice_id.id,
                 }
                 total += line.amount
-                line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals)
+                line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals.copy())
                 lines += line
             #Payable/Receivable line
             vals = {
                 'name': False,
                 'move_id': withhold._origin.id,
                 'partner_id': withhold.partner_id.id,
-                'account_id': self._l10n_ec_get_partner_account(withhold.partner_id, withhold.l10n_ec_withhold_type).id,
-                'date_maturity': False,
+                'account_id': self._get_partner_account(withhold.partner_id, withhold.l10n_ec_withhold_type).id,
                 'quantity': 1.0,
-                'amount_currency': total, #Withholds are always in company currency
                 'price_unit': total,
                 'debit': total if withhold.l10n_ec_withhold_type == 'in_withhold' else 0.0,
                 'credit': total if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
+                'amount_currency': 0.0, #Withholds are always in company currency, hence 0.0
                 'tax_base_amount': 0.0,
                 'is_rounding_line': False,
+                'date_maturity': False,
                 'exclude_from_invoice_tab': True,
             }
             line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals)
@@ -258,7 +261,8 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             withhold.line_ids = lines
             withhold._post(soft=False)
             self._reconcile_withhold_vs_invoices(withhold, self.related_invoices)
-        return invoice.with_context(withhold=withhold.ids).l10n_ec_action_view_withholds() #TODO V15.2 talvez no retornar pues ya queda en el widget de pago
+        #TODO Review with Odoo, maybe no need to return the move form as it is already linked in payment widget (similar to payments)
+        return invoice.with_context(withhold=withhold.ids).l10n_ec_action_view_withholds()
     
     @api.model
     def _validate_invoices_data(self, invoices):
@@ -295,7 +299,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         related_withholds = self.related_invoices.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted' and x.id != self.id)
         if related_withholds and self.withhold_type == 'in_withhold':
             #Current MVP allows just one withhold per purchase invoice
-            #TODO evaluate allowing 2 withholds per purchase invoice and on several purchase invoces at a time (similar to sales) 
+            #Future versions might allow several withholds per purchase invoice and on several purchase invoces at a time (similar to sales) 
             raise ValidationError(u'Another withhold already exists, you can have only one posted withhold per purchase document')
         #Validate there where not other withholds for same invoice for same concept (concept might be vat withhold or income withhold)
         current_categories = self.withhold_line_ids.tax_id.tax_group_id.mapped('l10n_ec_type')
@@ -337,14 +341,14 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
     
     @api.model
     def _reconcile_withhold_vs_invoices(self, withhold, related_invoices):
-        #reconciles the withhold against the invoce, pays older open invoice first
+        #reconciles the withhold against the invoice, pays older open invoice first
         partner_id = related_invoices[0].partner_id.commercial_partner_id
         if withhold.l10n_ec_withhold_type in ['out_withhold']:
-            (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == self._l10n_ec_get_partner_account(partner_id, withhold.l10n_ec_withhold_type)).reconcile()
+            (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == self._get_partner_account(partner_id, withhold.l10n_ec_withhold_type)).reconcile()
         elif withhold.l10n_ec_withhold_type in ['in_withhold']:
-            (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == self._l10n_ec_get_partner_account(partner_id, withhold.l10n_ec_withhold_type)).reconcile()
+            (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == self._get_partner_account(partner_id, withhold.l10n_ec_withhold_type)).reconcile()
             
-    def _l10n_ec_get_partner_account(self, partner, withhold_type):
+    def _get_partner_account(self, partner, withhold_type):
         account = self.env['account.account']
         if withhold_type in ['out_withhold']:
             account = partner.property_account_receivable_id
@@ -353,9 +357,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         return account
             
     @api.depends('withhold_line_ids')
-    def _l10n_ec_compute_move_totals(self):
-        '''
-        '''
+    def _compute_withhold_totals(self):
         for wizard in self:
             l10n_ec_withhold_vat_amount = 0.0
             l10n_ec_withhold_profit_amount = 0.0
@@ -469,7 +471,7 @@ class L10nEcWizardAccountWithholdLine(models.TransientModel):
     
     @api.model
     def _get_invoice_vat_base_and_amount(self, invoice):
-        #TODO: Review with Odoo, maybe there is other way to compute it, based on Trescloud method _l10n_ec_compute_move_totals()
+        #TODO: Review with Odoo, maybe there is other way to compute it?
         l10n_ec_vat_base = 0.0
         l10n_ec_vat_amount = 0.0
         for move_line in invoice.line_ids:
@@ -477,4 +479,4 @@ class L10nEcWizardAccountWithholdLine(models.TransientModel):
                 if move_line.tax_group_id.l10n_ec_type in ['vat8','vat12', 'vat14']:
                     l10n_ec_vat_base += move_line.tax_base_amount
                     l10n_ec_vat_amount += move_line.price_subtotal
-        return l10n_ec_vat_base, l10n_ec_vat_amount        
+        return l10n_ec_vat_base, l10n_ec_vat_amount

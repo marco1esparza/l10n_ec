@@ -53,10 +53,9 @@ class AccountEdiFormat(models.Model):
             return super(AccountEdiFormat, self)._is_required_for_invoice(invoice)
 
         internal_type = invoice.l10n_latam_document_type_id.internal_type
-        l10n_ec_type = invoice.l10n_latam_document_type_id.l10n_ec_type
         return self.code == "ecuadorian_edi" \
-               and (invoice.move_type in ('out_invoice', 'out_refund') or internal_type == 'purchase_liquidation'
-                    or l10n_ec_type == 'in_withhold')
+            and (invoice.move_type in ('out_invoice', 'out_refund') or internal_type == 'purchase_liquidation'
+                 or invoice.journal_id.l10n_ec_withhold_type == 'in_withhold')
 
     def _needs_web_services(self):
         # OVERRIDE
@@ -90,7 +89,7 @@ class AccountEdiFormat(models.Model):
                         address.commercial_partner_id.display_name
                       )
                 )
-            if not move.l10n_ec_sri_payment_id and move.l10n_latam_document_type_id.l10n_ec_type != 'in_withhold':
+            if not move.l10n_ec_sri_payment_id and move.journal_id.l10n_ec_withhold_type != 'in_withhold':
                 errors.append(
                     _("You have to configure Payment Method SRI on document: %s.", move.display_name)
                 )
@@ -328,7 +327,7 @@ class AccountEdiFormat(models.Model):
         environment = company.l10n_ec_production_env and "2" or "1"
         serie = invoice.journal_id.l10n_ec_entity + invoice.journal_id.l10n_ec_emission
         sequencial = str(self._l10n_ec_get_only_sequence(invoice)).rjust(9, "0")
-        num_filler = "31215214"  # can be any 8 digits, thanks @3cloud !
+        num_filler = "31215214"  # can be any 8 digits, thanks @trescloud !
         emission = "1"  # emision normal, ya no se admite contingencia (2)
 
         if not (document_code_sri and company.partner_id.vat and environment

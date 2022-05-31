@@ -6,12 +6,12 @@
             <t t-set="journal" t-value="invoice.journal_id"/>
             <t t-set="partner" t-value="invoice.commercial_partner_id"/>
             <t t-set="doc_type" t-value="invoice.l10n_latam_document_type_id.internal_type"/>
-            <t t-set="l10n_ec_type" t-value="invoice.l10n_latam_document_type_id.l10n_ec_type"/>
+            <t t-set="l10n_ec_withhold_type" t-value="invoice.journal_id.l10n_ec_withhold_type"/>
             <t t-set="is_cnote" t-value="doc_type == 'credit_note'"/>
             <t t-set="is_dnote" t-value="doc_type == 'debit_note'"/>
-            <t t-set="is_invoice" t-value="doc_type == 'invoice' and l10n_ec_type != 'in_withhold'"/>
+            <t t-set="is_invoice" t-value="doc_type == 'invoice' and l10n_ec_withhold_type != 'in_withhold'"/>
             <t t-set="is_liquidation" t-value="doc_type == 'purchase_liquidation'"/>
-            <t t-set="is_withhold" t-value="l10n_ec_type == 'in_withhold'"/>
+            <t t-set="is_withhold" t-value="l10n_ec_withhold_type == 'in_withhold'"/>
 
             <t t-if="is_cnote">
                 <notaCredito version="1.1.0" id="comprobante">

@@ -6,7 +6,7 @@
     "description": """
     Ecuadorian Accounting EDI
     """,
-    "author": "Stanislas Gueniffey",
+    "author": "Stanislas Gueniffey,TRESCLOUD",
     "category": "Accounting/Localizations/Account Charts",
     "maintainer": "Josse Colpaert <jco@odoo.com>",
     "license": "LGPL-3",

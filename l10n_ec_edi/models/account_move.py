@@ -113,7 +113,7 @@ class AccountMove(models.Model):
             'active_model': 'account.move',
             })
         # First create the wizard then show on popup, so a real temporary ID is created (instead of a newID)
-        # doing this way so the "suggested" wihhold line filters by context the taxes and invoices  
+        # doing this way so the "suggested" wihhold line filters the taxes and invoices by a context  
         new_withhold_wizard = self.env['l10n_ec.wizard.account.withhold'].with_context(ctx).create({})
         return {
             'name': u'Withholding',
@@ -202,7 +202,7 @@ class AccountMove(models.Model):
         code = super()._get_l10n_ec_identification_type()
         return "08" if code in ("09", "20", "21") else code
     
-    #TODO Trescloud&Odoo: Evaluate if it is still necesary as now there is a Qweb report, maybe remove the method after Stan finishes the invoice RIDE
+    #TODO Trescloud&Odoo: Evaluate if it is still necesary, maybe remove the method after Stan finishes the invoice RIDE
     # def _get_name_invoice_report(self):
     #     self.ensure_one()
     #     if self.is_withholding():
@@ -231,7 +231,8 @@ class AccountMove(models.Model):
                 ''', [tuple(moves.ids), tuple(moves.mapped('partner_id').ids)])
             res = self._cr.fetchone()
             if res:
-                raise ValidationError(_('Posted journal entry must have an unique sequence number per company.'))
+                raise ValidationError(_('Posted journal entry must have an unique sequence number per customer.\n'
+                                    'Problematic IDs: %s\n') % res)
             return
         return super(AccountMove, self)._check_unique_sequence_number()
 
@@ -291,7 +292,7 @@ class AccountMove(models.Model):
         data = {
             "taxes_data": self._l10n_ec_get_taxes_grouped_by_tax_group(),
             "additional_info": {
-                "referencia": self.name,
+                "pedido": self.name,
                 "vendedor": self.invoice_user_id.name,
                 "email": self.invoice_user_id.email,
                 "narracion": self._l10n_ec_remove_forbidden_chars(str(self.narration)),
@@ -454,7 +455,7 @@ class AccountMoveLine(models.Model):
     )
 
     def _l10n_ec_get_computed_taxes(self):
-        #TODO JOSE: Mover este metodo a la linea del wizard
+        #TODO TRESCLOUD: Move this method to class l10n_ec.wizard.account.withhold.line to keep account.move clean
         '''
         For purchases adds prevalence for tax mapping to ease withholds in Ecuador, in the following order:
         For profit withholding tax:
