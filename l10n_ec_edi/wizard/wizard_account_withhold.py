@@ -238,7 +238,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
                     'l10n_ec_withhold_invoice_id': line.invoice_id.id,
                 }
                 total += line.amount
-                line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals.copy())
+                line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals)
                 lines += line
             #Payable/Receivable line
             vals = {

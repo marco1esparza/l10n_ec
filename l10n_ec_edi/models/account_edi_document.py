@@ -11,8 +11,7 @@ class AccountEdiDocument(models.Model):
     _inherit = 'account.edi.document'
 
     def _get_additional_info(self):
-        #TODO TRESCLOUD discuss with Odoo where should it be located, maybe a new method in qweb?
-        raise
+        #TODO TRESCLOUD, discuss with Odoo what should be in the notes and then remove method
         self.ensure_one()
         additional_info = super()._get_additional_info()
         if self.move_id.is_withholding():

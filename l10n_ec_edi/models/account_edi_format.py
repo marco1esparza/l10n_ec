@@ -327,7 +327,7 @@ class AccountEdiFormat(models.Model):
         environment = company.l10n_ec_production_env and "2" or "1"
         serie = invoice.journal_id.l10n_ec_entity + invoice.journal_id.l10n_ec_emission
         sequencial = str(self._l10n_ec_get_only_sequence(invoice)).rjust(9, "0")
-        num_filler = "31215214"  # can be any 8 digits, thanks @trescloud !
+        num_filler = "31215214"  # can be any 8 digits, thanks @3cloud !
         emission = "1"  # emision normal, ya no se admite contingencia (2)
 
         if not (document_code_sri and company.partner_id.vat and environment
