@@ -293,6 +293,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
                     u'The selected document type does not support withholds, please check the document "%s".' % invoice.name)
                 
     def _validate_withhold_data_on_post(self):
+        #TODO: Review with Odoo: Maybe is better to move the method to account.move, so a draft withhold will run validations when posted again
         #Validations that apply only on withhold post, other validations should be method _validate_invoices_data()
         if not self.withhold_line_ids:
             raise ValidationError(u'You must input at least one withhold line')

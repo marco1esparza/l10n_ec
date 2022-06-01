@@ -246,6 +246,38 @@ class AccountMove(models.Model):
         return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit,
                                                      name_get_uid=name_get_uid)
     
+    @api.depends(
+        'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
+        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual',
+        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual_currency',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.payment_id.is_matched',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual_currency',
+        'line_ids.debit',
+        'line_ids.credit',
+        'line_ids.currency_id',
+        'line_ids.amount_currency',
+        'line_ids.amount_residual',
+        'line_ids.amount_residual_currency',
+        'line_ids.payment_id.state',
+        'line_ids.full_reconcile_id')
+    def _compute_amount(self):
+        #Improves the the computation of purchase withhold to have coherent amounts, these are shown in tree view
+        res = super()._compute_amount()
+        for move in self.filtered(lambda x: x.is_withholding()):
+            # amount_tax, amount_total, amount_residual should be positive just like in any invoice or refund
+            # move.amount_untaxed doesn't need fixing as is always zero for withholds
+            move.amount_tax = abs(move.amount_tax)
+            move.amount_total = abs(move.amount_total)
+            move.amount_residual = abs(move.amount_residual)
+            # negative for sale withhold (like an out_refund), positive for purchase withhold (like an in_refund)
+            withhold_sign = -1.0 if move.l10n_ec_withhold_type == 'out_withhold' else 1
+            move.amount_tax_signed = move.amount_tax * withhold_sign
+            move.amount_total_signed = move.amount_total_signed * withhold_sign
+            move.amount_residual_signed = move.amount_residual_signed * withhold_sign
+            move.amount_total_in_currency_signed = move.amount_total_in_currency_signed * withhold_sign
+        return res
+            
     # ===== GETTERS =====
 
     def l10n_ec_get_invoice_type(self):
