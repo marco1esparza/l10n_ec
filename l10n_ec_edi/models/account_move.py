@@ -17,6 +17,9 @@ _L10N_EC_CODES = {
     3: ('ice',),  # ICE
     5: ('irbpnr',),  # IRBPNR
 }
+L10N_EC_WITHHOLD_CODES = {
+    'withhold_vat_purchase': 2,
+}
 
 class AccountMove(models.Model):
     _inherit = "account.move"
@@ -321,24 +324,34 @@ class AccountMove(models.Model):
 
     def l10n_ec_get_invoice_edi_data(self):
         self.ensure_one()
-        data = {
-            "taxes_data": self._l10n_ec_get_taxes_grouped_by_tax_group(),
-            "additional_info": {
-                "pedido": self.name,
-                "vendedor": self.invoice_user_id.name,
-                "email": self.invoice_user_id.email,
-                "narracion": self._l10n_ec_remove_forbidden_chars(str(self.narration)),
-            },
-        }
-        if self.move_type == "out_refund":  # TODO handled in MVP ?
-            data.update({
-                "modified_doc": self.reversed_entry_id,
-            })
-        if self.l10n_latam_document_type_id.internal_type == "debit_note":
-            data.update({
-                "modified_doc": self.debit_origin_id,
-                "invoice_lines": [line for line in self.invoice_line_ids.filtered(lambda x: not x.display_type)],
-            })
+        if not self.is_withholding():
+            data = {
+                "taxes_data": self._l10n_ec_get_taxes_grouped_by_tax_group(),
+                "additional_info": {
+                    "ref": self.name,
+                    "vendedor": self.invoice_user_id.name,
+                    "email": self.invoice_user_id.email,
+                    "narracion": self._l10n_ec_remove_forbidden_chars(str(self.narration)),
+                },
+            }
+            if self.move_type == "out_refund":  # TODO handled in MVP ?
+                data.update({
+                    "modified_doc": self.reversed_entry_id,
+                })
+            if self.l10n_latam_document_type_id.internal_type == "debit_note":
+                data.update({
+                    "modified_doc": self.debit_origin_id,
+                    "invoice_lines": [line for line in self.invoice_line_ids.filtered(lambda x: not x.display_type)],
+                })
+        else:
+            data = {
+                "taxes_data": self._l10n_ec_get_taxes_withhold_grouped(),
+                "additional_info": {
+                    "email": self.commercial_partner_id.email or '',
+                    "direccion": ' '.join([value for value in [self.commercial_partner_id.street, self.commercial_partner_id.street2] if value]),
+                    "telefono": self.commercial_partner_id.phone or '',
+                },
+            }
         return data
 
     def is_withholding(self):
@@ -353,6 +366,22 @@ class AccountMove(models.Model):
         return is_withholding
 
     # ===== PRIVATE =====
+
+    def _l10n_ec_get_taxes_withhold_grouped(self):
+        self.ensure_one()
+        taxes_data = []
+        for line in self.l10n_ec_withhold_line_ids:
+            tax_type_code = L10N_EC_WITHHOLD_CODES.get(line.tax_group_id.l10n_ec_type, '')
+            tax_code = '1'
+            taxes_data += [{'codigo': tax_type_code,
+                            'codigoretencion': tax_code,
+                            'baseimponible': line.tax_base_amount,
+                            'porcentajeretener': line.tax_line_id.amount,
+                            'valorretenido': line.balance,
+                            'coddocsustento': '',
+                            'numdocsustento': '',
+                            'fechaemisiondocsustento': ''}]
+        return taxes_data
 
     def _l10n_ec_get_taxes_grouped_by_tax_group(self, exclude_withholding=True):
         self.ensure_one()
@@ -485,66 +514,3 @@ class AccountMoveLine(models.Model):
         ondelete='restrict',
         help='Link the withholding line to its invoice'
     )
-
-    def _l10n_ec_get_computed_taxes(self):
-        #TODO TRESCLOUD: Move this method to class l10n_ec.wizard.account.withhold.line to keep account.move clean
-        '''
-        For purchases adds prevalence for tax mapping to ease withholds in Ecuador, in the following order:
-        For profit withholding tax:
-        - If payment type == credit card then withhold code 332G, if not then
-        - partner_id.l10n_ec_force_profit_withhold, if not set then
-        - product_id profit withhold, if not set then
-        - company fallback profit withhold for goods or for services
-        For vat withhold tax:
-        - If product is consumable then vat_goods_withhold_tax_id
-        - If product is services or not set then vat_services_withhold_tax_id
-        If withholds doesn't apply to the document type then remove the withholds
-        '''
-        if self.move_id.country_code == 'EC':
-            super_tax_ids = self.env['account.tax']
-            vat_withhold_tax = False
-            profit_withhold_tax = False
-            if self.move_id.is_purchase_document(include_receipts=True):
-                if not self.exclude_from_invoice_tab:  # just regular invoice lines
-                    #if self.move_id.l10n_ec_require_withhold_tax:  # compute withholds #TODO ANDRES refactorizar
-                    if True:
-                        company_id = self.move_id.company_id
-                        contributor_type = self.partner_id.l10n_ec_contributor_type_id
-                        tax_groups = super_tax_ids.mapped('tax_group_id').mapped('l10n_ec_type')
-                        # compute vat withhold
-                        if 'vat12' in tax_groups or 'vat14' in tax_groups:
-                            if not self.product_id or self.product_id.type in ['consu', 'product']:
-                                vat_withhold_tax = contributor_type.vat_goods_withhold_tax_id
-                            else:  # services
-                                vat_withhold_tax = contributor_type.vat_services_withhold_tax_id
-                                # compute profit withhold
-                        if self.move_id.l10n_ec_sri_payment_id.code in ['16', '18', '19']:
-                            # payment with debit card, credit card or gift card retains 0%
-                            profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
-                        elif contributor_type.profit_withhold_tax_id:
-                            profit_withhold_tax = contributor_type.profit_withhold_tax_id
-                        elif self.product_id.l10n_ec_withhold_tax_id:
-                            profit_withhold_tax = self.product_id.l10n_ec_withhold_tax_id
-                        elif 'withhold_income_sale' in tax_groups or 'withhold_income_purchase' in tax_groups:
-                            pass  # keep the taxes coming from product.product... for now
-                        else:  # if not any withhold tax then fallback
-                            if self.product_id and self.product_id.type == 'service':
-                                profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_services
-                            else:
-                                profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_goods
-                    else:  # remove withholds
-                        super_tax_ids = super_tax_ids.filtered(
-                            lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale',
-                                                                              'withhold_vat_purchase',
-                                                                              'withhold_income_sale',
-                                                                              'withhold_income_purchase'])
-            if vat_withhold_tax:
-                super_tax_ids = super_tax_ids.filtered(
-                    lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale', 'withhold_vat_purchase'])
-                super_tax_ids += vat_withhold_tax
-            if profit_withhold_tax:
-                super_tax_ids = super_tax_ids.filtered(
-                    lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_income_sale',
-                                                                      'withhold_income_purchase'])
-                super_tax_ids += profit_withhold_tax
-        return super_tax_ids

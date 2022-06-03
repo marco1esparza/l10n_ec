@@ -127,7 +127,7 @@
             <valorModificacion t-if="is_cnote" t-out="format_num_6(abs(invoice.amount_total))"/>
             <totalDescuento t-if="is_invoice or is_liquidation" t-out="format_num_6(invoice.l10n_ec_compute_amount_discount())"/>
 
-            <t t-set="tax_totals" t-value="taxes_data['tax_details']"/>
+            <t t-if="not is_withhold" t-set="tax_totals" t-value="taxes_data['tax_details']"/>
             <totalConImpuestos t-if="tax_totals and (is_cnote or is_invoice or is_liquidation)">
                 <totalImpuesto t-as="tax_data" t-foreach="tax_totals.values()">
                     <t t-call="l10n_ec_edi.common_tax_lines_template">
@@ -140,6 +140,12 @@
                     <t t-call="l10n_ec_edi.common_tax_lines_template">
                         <t t-set="tags" t-value="['tarifa_pre_base']"/>
                     </t>
+                </impuesto>
+            </impuestos>
+
+            <impuestos t-if="tax_totals and is_withhold">
+                <impuesto t-as="tax_data" t-foreach="tax_totals.values()">
+                    <t t-call="l10n_ec_edi.common_tax_withhold_lines_template"/>
                 </impuesto>
             </impuestos>
 
@@ -185,6 +191,17 @@
             <baseImponible t-out="format_num_6(abs(tax_data['base_amount_currency']))"/>
             <tarifa t-if="'tarifa_post_base' in tags" t-out="format_num_6(abs(tax_data['rate']))"/>
             <valor t-out="format_num_6(abs(tax_data['tax_amount_currency']))"/>
+        </template>
+
+        <template id="common_tax_withhold_lines_template">
+            <codigo t-out="tax_data['codigo']"/>
+            <codigoRetencion t-out="tax_data['codigoretencion']"/>
+            <porcentajeRetener t-out="format_num_6(abs(tax_data['porcentajeretener']))"/>
+            <baseImponible t-out="format_num_6(abs(tax_data['baseimponible']))"/>
+            <valorRetenido t-out="format_num_6(abs(tax_data['valorretenido']))"/>
+            <codDocSustento t-out="tax_data['coddocsustento']"/>
+            <numDocSustento t-out="tax_data['numdocsustento']"/>
+            <fechaEmisionDocSustento t-out="tax_data['fechaemisiondocsustento']"/>
         </template>
 
         <template id="common_payment_terms_template">
