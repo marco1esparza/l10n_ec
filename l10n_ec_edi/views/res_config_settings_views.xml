@@ -72,15 +72,15 @@
 				                    </div>
 				                    <div class="row" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
 				                        <label for="l10n_ec_fallback_profit_withhold_goods" class="col-lg-3 o_light_label"/>
-				                        <field name="l10n_ec_fallback_profit_withhold_goods" domain="[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')), ('company_id', '=', company_id)]"/>
+				                        <field name="l10n_ec_fallback_profit_withhold_goods" domain="[('tax_group_id.l10n_ec_type', '=', 'withhold_income_purchase'), ('company_id', '=', company_id)]"/>
 				                    </div>
 				                    <div class="row" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
 				                        <label for="l10n_ec_fallback_profit_withhold_services" class="col-lg-3 o_light_label"/>
-				                        <field name="l10n_ec_fallback_profit_withhold_services" domain="[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')), ('company_id', '=', company_id)]"/>
+				                        <field name="l10n_ec_fallback_profit_withhold_services" domain="[('tax_group_id.l10n_ec_type', '=', 'withhold_income_purchase'), ('company_id', '=', company_id)]"/>
 				                    </div>
 				                    <div class="row" attrs="{'invisible':[('l10n_ec_issue_withholds', '!=', True)]}">
 				                        <label for="l10n_ec_profit_withhold_tax_credit_card" class="col-lg-3 o_light_label"/>
-				                        <field name="l10n_ec_profit_withhold_tax_credit_card" domain="[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')), ('company_id', '=', company_id)]"/>
+				                        <field name="l10n_ec_profit_withhold_tax_credit_card" domain="[('tax_group_id.l10n_ec_type', '=', 'withhold_income_purchase'), ('company_id', '=', company_id)]"/>
 				                    </div>
 			                	</div>
 							</div>

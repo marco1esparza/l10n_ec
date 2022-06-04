@@ -23,7 +23,7 @@ class AccountJournal(models.Model):
             #TODO find out with Odoo: also REMOVE edi_format_ids
     
     @api.constrains('l10n_ec_withhold_type')
-    def l10n_ec_check_withhold_type(self):
+    def l10n_ec_check_moves_withhold_type(self):
         for rec in self:
             if rec.env['account.move'].search([('journal_id', '=', rec.id), ('posted_before', '=', True)], limit=1):
                 raise ValidationError(_(
