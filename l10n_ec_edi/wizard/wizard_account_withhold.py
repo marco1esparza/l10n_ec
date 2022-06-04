@@ -113,7 +113,70 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         return res
     
     def _prepare_withhold_wizard_default_values(self, invoices):
-        #Computes new withhold data for provided invoices
+
+        def get_l10n_ec_computed_taxes(line):
+            '''
+            For purchases adds prevalence for tax mapping to ease withholds in Ecuador, in the following order:
+            For profit withholding tax:
+            - If payment type == credit card then withhold code 332G, if not then
+            - partner_id.l10n_ec_force_profit_withhold, if not set then
+            - product_id profit withhold, if not set then
+            - company fallback profit withhold for goods or for services
+            For vat withhold tax:
+            - If product is consumable then vat_goods_withhold_tax_id
+            - If product is services or not set then vat_services_withhold_tax_id
+            If withholds doesn't apply to the document type then remove the withholds
+            '''
+            if line.move_id.country_code == 'EC':
+                super_tax_ids = self.env['account.tax']
+                vat_withhold_tax = False
+                profit_withhold_tax = False
+                if line.move_id.is_purchase_document(include_receipts=True):
+                    if not line.exclude_from_invoice_tab:  # just regular invoice lines
+                        # if self.move_id.l10n_ec_require_withhold_tax:  # compute withholds #TODO ANDRES refactorizar
+                        if True:
+                            company_id = line.move_id.company_id
+                            contributor_type = line.partner_id.l10n_ec_contributor_type_id
+                            tax_groups = super_tax_ids.mapped('tax_group_id').mapped('l10n_ec_type')
+                            # compute vat withhold
+                            if 'vat12' in tax_groups or 'vat14' in tax_groups:
+                                if not line.product_id or line.product_id.type in ['consu', 'product']:
+                                    vat_withhold_tax = contributor_type.vat_goods_withhold_tax_id
+                                else:  # services
+                                    vat_withhold_tax = contributor_type.vat_services_withhold_tax_id
+                                    # compute profit withhold
+                            if line.move_id.l10n_ec_sri_payment_id.code in ['16', '18', '19']:
+                                # payment with debit card, credit card or gift card retains 0%
+                                profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
+                            elif contributor_type.profit_withhold_tax_id:
+                                profit_withhold_tax = contributor_type.profit_withhold_tax_id
+                            elif line.product_id.l10n_ec_withhold_tax_id:
+                                profit_withhold_tax = line.product_id.l10n_ec_withhold_tax_id
+                            elif 'withhold_income_sale' in tax_groups or 'withhold_income_purchase' in tax_groups:
+                                pass  # keep the taxes coming from product.product... for now
+                            else:  # if not any withhold tax then fallback
+                                if line.product_id and line.product_id.type == 'service':
+                                    profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_services
+                                else:
+                                    profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_goods
+                        else:  # remove withholds
+                            super_tax_ids = super_tax_ids.filtered(
+                                lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale',
+                                                                                  'withhold_vat_purchase',
+                                                                                  'withhold_income_sale',
+                                                                                  'withhold_income_purchase'])
+                if vat_withhold_tax:
+                    super_tax_ids = super_tax_ids.filtered(
+                        lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale', 'withhold_vat_purchase'])
+                    super_tax_ids += vat_withhold_tax
+                if profit_withhold_tax:
+                    super_tax_ids = super_tax_ids.filtered(
+                        lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_income_sale',
+                                                                          'withhold_income_purchase'])
+                    super_tax_ids += profit_withhold_tax
+            return super_tax_ids
+
+        # Computes new withhold data for provided invoices
         if invoices[0].move_type == 'in_invoice':
             withhold_type = 'in_withhold'
         elif invoices[0].move_type == 'out_invoice':
@@ -138,7 +201,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             group_taxes = {}
             for invoice in invoices:
                 for line in invoice.line_ids:
-                    tax = self._l10n_ec_get_computed_taxes(line)
+                    tax = get_l10n_ec_computed_taxes(line)
                     if tax:
                         tax_line = tax.invoice_repartition_line_ids.filtered(lambda x: x.repartition_type == 'tax')
                         group_taxes.setdefault(tax.id, [{}, 0, 0])
@@ -182,68 +245,6 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
                 'withhold_line_ids': withhold_line_ids
                 })
         return default_values
-
-    def _l10n_ec_get_computed_taxes(self, line):
-        '''
-        For purchases adds prevalence for tax mapping to ease withholds in Ecuador, in the following order:
-        For profit withholding tax:
-        - If payment type == credit card then withhold code 332G, if not then
-        - partner_id.l10n_ec_force_profit_withhold, if not set then
-        - product_id profit withhold, if not set then
-        - company fallback profit withhold for goods or for services
-        For vat withhold tax:
-        - If product is consumable then vat_goods_withhold_tax_id
-        - If product is services or not set then vat_services_withhold_tax_id
-        If withholds doesn't apply to the document type then remove the withholds
-        '''
-        if line.move_id.country_code == 'EC':
-            super_tax_ids = self.env['account.tax']
-            vat_withhold_tax = False
-            profit_withhold_tax = False
-            if line.move_id.is_purchase_document(include_receipts=True):
-                if not line.exclude_from_invoice_tab:  # just regular invoice lines
-                    #if self.move_id.l10n_ec_require_withhold_tax:  # compute withholds #TODO ANDRES refactorizar
-                    if True:
-                        company_id = line.move_id.company_id
-                        contributor_type = line.partner_id.l10n_ec_contributor_type_id
-                        tax_groups = super_tax_ids.mapped('tax_group_id').mapped('l10n_ec_type')
-                        # compute vat withhold
-                        if 'vat12' in tax_groups or 'vat14' in tax_groups:
-                            if not line.product_id or line.product_id.type in ['consu', 'product']:
-                                vat_withhold_tax = contributor_type.vat_goods_withhold_tax_id
-                            else:  # services
-                                vat_withhold_tax = contributor_type.vat_services_withhold_tax_id
-                                # compute profit withhold
-                        if line.move_id.l10n_ec_sri_payment_id.code in ['16', '18', '19']:
-                            # payment with debit card, credit card or gift card retains 0%
-                            profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
-                        elif contributor_type.profit_withhold_tax_id:
-                            profit_withhold_tax = contributor_type.profit_withhold_tax_id
-                        elif line.product_id.l10n_ec_withhold_tax_id:
-                            profit_withhold_tax = line.product_id.l10n_ec_withhold_tax_id
-                        elif 'withhold_income_sale' in tax_groups or 'withhold_income_purchase' in tax_groups:
-                            pass  # keep the taxes coming from product.product... for now
-                        else:  # if not any withhold tax then fallback
-                            if line.product_id and line.product_id.type == 'service':
-                                profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_services
-                            else:
-                                profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_goods
-                    else:  # remove withholds
-                        super_tax_ids = super_tax_ids.filtered(
-                            lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale',
-                                                                              'withhold_vat_purchase',
-                                                                              'withhold_income_sale',
-                                                                              'withhold_income_purchase'])
-            if vat_withhold_tax:
-                super_tax_ids = super_tax_ids.filtered(
-                    lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale', 'withhold_vat_purchase'])
-                super_tax_ids += vat_withhold_tax
-            if profit_withhold_tax:
-                super_tax_ids = super_tax_ids.filtered(
-                    lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_income_sale',
-                                                                      'withhold_income_purchase'])
-                super_tax_ids += profit_withhold_tax
-        return super_tax_ids
     
     def action_create_and_post_withhold(self):
         self._validate_invoices_data(self.related_invoices)

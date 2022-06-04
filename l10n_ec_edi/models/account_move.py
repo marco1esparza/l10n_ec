@@ -19,6 +19,7 @@ _L10N_EC_CODES = {
 }
 L10N_EC_WITHHOLD_CODES = {
     'withhold_vat_purchase': 2,
+    'withhold_income_purchase': 1,
 }
 
 class AccountMove(models.Model):
@@ -351,6 +352,7 @@ class AccountMove(models.Model):
                     "direccion": ' '.join([value for value in [self.commercial_partner_id.street, self.commercial_partner_id.street2] if value]),
                     "telefono": self.commercial_partner_id.phone or '',
                 },
+                "fiscalperiod": str(self.invoice_date.month).zfill(2) + '/' + str(self.invoice_date.year),
             }
         return data
 
@@ -368,19 +370,48 @@ class AccountMove(models.Model):
     # ===== PRIVATE =====
 
     def _l10n_ec_get_taxes_withhold_grouped(self):
+
+        def get_electronic_tax_code(withhold_line):
+            """
+            Analiza si un codigo de impuesto es de tipo IVA y lo devuelve segun los
+            parametros del SRI.
+            :return: Devuelve un numero entero del codigo del impuesto.
+            """
+            code = False
+            l10n_ec_type = withhold_line.tax_group_id.l10n_ec_type
+            percentage = abs(line.tax_line_id.amount)
+            if l10n_ec_type == 'withhold_income_purchase':
+                code = withhold_line.tax_line_id.l10n_ec_code_ats
+            elif l10n_ec_type == 'withhold_vat_purchase':
+                if percentage == 0.0:  # retencion iva 0%
+                    code = 7
+                elif percentage == 10.0:
+                    code = 9
+                elif percentage == 20.0:
+                    code = 10
+                elif percentage == 30.0:
+                    code = 1
+                elif percentage == 70.0:
+                    code = 2
+                elif percentage == 100.0:
+                    code = 3
+            if not code:
+                raise ValidationError('Not vat code.' % line.tax_line_id.name)
+            return code
+
         self.ensure_one()
         taxes_data = []
         for line in self.l10n_ec_withhold_line_ids:
-            tax_type_code = L10N_EC_WITHHOLD_CODES.get(line.tax_group_id.l10n_ec_type, '')
-            tax_code = '1'
+            tax_type_code = L10N_EC_WITHHOLD_CODES.get(line.tax_group_id.l10n_ec_type, 6)
+            tax_code = get_electronic_tax_code(line)
             taxes_data += [{'codigo': tax_type_code,
                             'codigoretencion': tax_code,
                             'baseimponible': line.tax_base_amount,
                             'porcentajeretener': line.tax_line_id.amount,
                             'valorretenido': line.balance,
-                            'coddocsustento': '',
-                            'numdocsustento': '',
-                            'fechaemisiondocsustento': ''}]
+                            'coddocsustento': line.l10n_ec_withhold_invoice_id.l10n_latam_document_type_id_code,
+                            'numdocsustento': line.l10n_ec_withhold_invoice_id.l10n_latam_document_number.replace('-', ''),
+                            'fechaemisiondocsustento': line.l10n_ec_withhold_invoice_id.invoice_date.strftime("%d%m%Y")}]
         return taxes_data
 
     def _l10n_ec_get_taxes_grouped_by_tax_group(self, exclude_withholding=True):

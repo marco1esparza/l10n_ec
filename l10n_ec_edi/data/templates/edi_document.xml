@@ -12,6 +12,7 @@
             <t t-set="is_invoice" t-value="doc_type == 'invoice' and l10n_ec_withhold_type != 'in_withhold'"/>
             <t t-set="is_liquidation" t-value="doc_type == 'purchase_liquidation'"/>
             <t t-set="is_withhold" t-value="l10n_ec_withhold_type == 'in_withhold'"/>
+            <t t-if="is_withhold" t-set="tax_totals" t-value="taxes_data"/>
 
             <t t-if="is_cnote">
                 <notaCredito version="1.1.0" id="comprobante">
@@ -70,6 +71,12 @@
                         <t t-call="l10n_ec_edi.common_info_template"/>
                     </infoCompRetencion>
 
+                    <impuestos t-if="tax_totals and is_withhold">
+                        <impuesto t-as="tax_data" t-foreach="tax_totals">
+                            <t t-call="l10n_ec_edi.common_tax_withhold_lines_template"/>
+                    </impuesto>
+            </impuestos>
+
                     <t t-call="l10n_ec_edi.common_additional_info_template"/>
                 </comprobanteRetencion>
             </t>
@@ -93,7 +100,7 @@
                 <secuencial t-out="secuencial"/>
                 <dirMatriz t-out="address"/>
 
-                <agenteRetencion t-if="TODO" t-out="TODO"/>
+                <agenteRetencion t-out="'SI' if company.l10n_ec_issue_withholds else 'NO'"/>
                 <contribuyenteRimpe t-if="company.l10n_ec_regime == 'rimpe'" t-out="'CONTRIBUYENTE RÉGIMEN RIMPE'"/>
             </infoTributaria>
         </template>
@@ -117,7 +124,7 @@
             <tipoIdentificacionSujetoRetenido t-if="is_withhold" t-out="invoice._get_l10n_ec_identification_type()"/>
             <razonSocialSujetoRetenido t-if="is_withhold" t-out="clean_str(partner.name)"/>
             <identificacionSujetoRetenido t-if="is_withhold" t-out="partner.vat"/>
-            <periodoFiscal t-if="TODO" t-out="TODO"/>
+            <periodoFiscal t-if="is_withhold and fiscalperiod" t-out="fiscalperiod"/>
 
             <codDocModificado t-if="is_cnote or is_dnote" t-out="'01'"/>
             <numDocModificado t-if="is_cnote or is_dnote" t-out="modified_doc.l10n_latam_document_number"/>
@@ -140,12 +147,6 @@
                     <t t-call="l10n_ec_edi.common_tax_lines_template">
                         <t t-set="tags" t-value="['tarifa_pre_base']"/>
                     </t>
-                </impuesto>
-            </impuestos>
-
-            <impuestos t-if="tax_totals and is_withhold">
-                <impuesto t-as="tax_data" t-foreach="tax_totals.values()">
-                    <t t-call="l10n_ec_edi.common_tax_withhold_lines_template"/>
                 </impuesto>
             </impuestos>
 
