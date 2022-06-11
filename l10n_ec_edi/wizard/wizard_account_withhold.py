@@ -99,6 +99,8 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         readonly=True,
         help='Total value of withhold'
     )
+    l10n_latam_manual_document_number = fields.Boolean(compute='_compute_l10n_latam_manual_document_number',
+                                                       string='Manual Number')
     
     @api.model
     def default_get(self, data_fields):
@@ -419,6 +421,17 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         elif withhold_type in ['in_withhold']:
             account = partner.property_account_payable_id
         return account
+
+    @api.depends('journal_id', 'l10n_latam_document_type_id')
+    def _compute_l10n_latam_manual_document_number(self):
+        self.l10n_latam_manual_document_number = False
+        move = self.env['account.move']
+        for rec in self:
+            if rec.journal_id and rec.journal_id.l10n_latam_use_documents and rec.l10n_latam_document_type_id:
+                rec.l10n_latam_manual_document_number = move.search_count([('journal_id', '=', rec.journal_id.id),
+                                                                           ('l10n_latam_document_type_id', '=',
+                                                                            rec.l10n_latam_document_type_id.id),
+                                                                           ('state', 'in', ['posted', 'cancel'])])
             
     @api.depends('withhold_line_ids')
     def _compute_withhold_totals(self):
