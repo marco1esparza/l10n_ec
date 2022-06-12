@@ -25,7 +25,7 @@
                     -->
                     <field name="l10n_ec_emission_address_id"
                            attrs="{'invisible':['|', '|', ('country_code', '!=', 'EC'), ('l10n_latam_use_documents', '=', False), ('type', 'not in', ('sale', 'purchase'))]}"
-                    />						                       
+                    />
                 </field>
             </field>
         </record>
