@@ -1,32 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <record id="view_account_journal_form" model="ir.ui.view">
             <field name="name">account.journal.form</field>
             <field name="model">account.journal</field>
             <field name="inherit_id" ref="l10n_latam_invoice_document.view_account_journal_form"/>
             <field name="arch" type="xml">
-				<xpath expr="//field[@name='type']" position="after">
-					<!-- Repeat field declaration from l10n_ec but for withhold -->
-					<field name="l10n_ec_withhold_type" 
-						   attrs="{'invisible': ['|',('country_code', '!=', 'EC'), ('type', '!=', 'general')]}"
-						   />
-					<field name="l10n_latam_use_documents" 
-					       attrs="{'invisible': ['|', ('l10n_latam_company_use_documents', '=', False), ('l10n_ec_withhold_type', 'not in', ['out_withhold','in_withhold'])]}"
-					       />
-					<field name="l10n_ec_entity" 
-						   attrs="{'invisible':[('l10n_ec_withhold_type', '!=', 'in_withhold')], 'required':[('l10n_ec_withhold_type', '=', 'in_withhold')]}"
-						   />
+                <xpath expr="//field[@name='type']" position="after">
+                    <!-- Repeat field declaration from l10n_ec but for withhold -->
+                    <field name="l10n_ec_withhold_type" 
+                           attrs="{'invisible': ['|',('country_code', '!=', 'EC'), ('type', '!=', 'general')]}"
+                           />
+                    <field name="l10n_latam_use_documents" 
+                           attrs="{'invisible': ['|', ('l10n_latam_company_use_documents', '=', False), ('l10n_ec_withhold_type', 'not in', ['out_withhold','in_withhold'])]}"
+                           />
+                    <field name="l10n_ec_entity" 
+                           attrs="{'invisible':[('l10n_ec_withhold_type', '!=', 'in_withhold')], 'required':[('l10n_ec_withhold_type', '=', 'in_withhold')]}"
+                           />
                     <field name="l10n_ec_emission" 
-                    	   attrs="{'invisible':[('l10n_ec_withhold_type', '!=', 'in_withhold')], 'required':[('l10n_ec_withhold_type', '=', 'in_withhold')]}"
-                    	   />
-					<field name="l10n_ec_emission_address_id" 
-						   attrs="{'invisible':[('l10n_ec_withhold_type', '!=', 'in_withhold')], 'required':[('l10n_ec_withhold_type', '=', 'in_withhold')]}"
-						   />
-				</xpath>
+                           attrs="{'invisible':[('l10n_ec_withhold_type', '!=', 'in_withhold')], 'required':[('l10n_ec_withhold_type', '=', 'in_withhold')]}"
+                           />
+                    <field name="l10n_ec_emission_address_id" 
+                           attrs="{'invisible':[('l10n_ec_withhold_type', '!=', 'in_withhold')], 'required':[('l10n_ec_withhold_type', '=', 'in_withhold')]}"
+                           />
+                </xpath>
             </field>
         </record>
-
     </data>
 </odoo>
