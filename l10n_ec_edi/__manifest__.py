@@ -19,6 +19,7 @@
         "data/templates/edi_authorization.xml",
         "data/templates/edi_signature.xml",
 
+        "data/contributor_type_data.xml",
         "data/account.edi.format.csv",
 
         "security/ir.model.access.csv",

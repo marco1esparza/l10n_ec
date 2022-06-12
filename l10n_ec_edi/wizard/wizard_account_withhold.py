@@ -427,7 +427,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         self.l10n_latam_manual_document_number = False
         move = self.env['account.move']
         for rec in self:
-            if rec.journal_id and rec.journal_id.l10n_latam_use_documents and rec.l10n_latam_document_type_id:
+            if rec.journal_id and rec.journal_id.l10n_latam_use_documents and rec.journal_id.l10n_ec_withhold_type == 'in_withhold' and rec.l10n_latam_document_type_id:
                 rec.l10n_latam_manual_document_number = move.search_count([('journal_id', '=', rec.journal_id.id),
                                                                            ('l10n_latam_document_type_id', '=',
                                                                             rec.l10n_latam_document_type_id.id),

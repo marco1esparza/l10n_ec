@@ -9,7 +9,6 @@ class ContributorType(models.Model):
     _name = 'l10n_ec.contributor.type'
     _description = 'Contributor Type'
     _order = 'sequence, id'
-    #_check_company_auto = True #TODO decide if it is needed
     
     sequence = fields.Integer(
         default=15
@@ -36,12 +35,6 @@ class ContributorType(models.Model):
         string='Services VAT withhold',
         domain=[('tax_group_id.l10n_ec_type', '=', ('withhold_vat_sale', 'withhold_vat_purchase')),('type_tax_use', '=', 'none')],
         help='This tax is suggested on vendors withhold wizard for services, if not set no vat withhold is suggested'
-    )
-    company_id = fields.Many2one(
-        'res.company',
-        string='Company',
-        required=True,
-        default=lambda self: self.env.company
     )
     active = fields.Boolean(
         default=True,
