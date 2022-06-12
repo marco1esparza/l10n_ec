@@ -431,7 +431,8 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
                 rec.l10n_latam_manual_document_number = move.search_count([('journal_id', '=', rec.journal_id.id),
                                                                            ('l10n_latam_document_type_id', '=',
                                                                             rec.l10n_latam_document_type_id.id),
-                                                                           ('state', 'in', ['posted', 'cancel'])])
+                                                                           ('state', 'in', ['posted',
+                                                                                            'cancel'])]) > 0 and True or False
             
     @api.depends('withhold_line_ids')
     def _compute_withhold_totals(self):
