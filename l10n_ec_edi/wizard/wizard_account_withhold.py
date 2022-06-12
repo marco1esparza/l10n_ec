@@ -99,8 +99,6 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         readonly=True,
         help='Total value of withhold'
     )
-    l10n_latam_manual_document_number = fields.Boolean(compute='_compute_l10n_latam_manual_document_number',
-                                                       string='Manual Number')
     
     @api.model
     def default_get(self, data_fields):
@@ -115,70 +113,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         return res
     
     def _prepare_withhold_wizard_default_values(self, invoices):
-
-        def get_l10n_ec_computed_taxes(line):
-            '''
-            For purchases adds prevalence for tax mapping to ease withholds in Ecuador, in the following order:
-            For profit withholding tax:
-            - If payment type == credit card then withhold code 332G, if not then
-            - partner_id.l10n_ec_force_profit_withhold, if not set then
-            - product_id profit withhold, if not set then
-            - company fallback profit withhold for goods or for services
-            For vat withhold tax:
-            - If product is consumable then vat_goods_withhold_tax_id
-            - If product is services or not set then vat_services_withhold_tax_id
-            If withholds doesn't apply to the document type then remove the withholds
-            '''
-            if line.move_id.country_code == 'EC':
-                super_tax_ids = self.env['account.tax']
-                vat_withhold_tax = False
-                profit_withhold_tax = False
-                if line.move_id.is_purchase_document(include_receipts=True):
-                    if not line.exclude_from_invoice_tab:  # just regular invoice lines
-                        # if self.move_id.l10n_ec_require_withhold_tax:  # compute withholds #TODO ANDRES refactorizar
-                        if True:
-                            company_id = line.move_id.company_id
-                            contributor_type = line.partner_id.l10n_ec_contributor_type_id
-                            tax_groups = super_tax_ids.mapped('tax_group_id').mapped('l10n_ec_type')
-                            # compute vat withhold
-                            if 'vat12' in tax_groups or 'vat14' in tax_groups:
-                                if not line.product_id or line.product_id.type in ['consu', 'product']:
-                                    vat_withhold_tax = contributor_type.vat_goods_withhold_tax_id
-                                else:  # services
-                                    vat_withhold_tax = contributor_type.vat_services_withhold_tax_id
-                                    # compute profit withhold
-                            if line.move_id.l10n_ec_sri_payment_id.code in ['16', '18', '19']:
-                                # payment with debit card, credit card or gift card retains 0%
-                                profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
-                            elif contributor_type.profit_withhold_tax_id:
-                                profit_withhold_tax = contributor_type.profit_withhold_tax_id
-                            elif line.product_id.l10n_ec_withhold_tax_id:
-                                profit_withhold_tax = line.product_id.l10n_ec_withhold_tax_id
-                            elif 'withhold_income_sale' in tax_groups or 'withhold_income_purchase' in tax_groups:
-                                pass  # keep the taxes coming from product.product... for now
-                            else:  # if not any withhold tax then fallback
-                                if line.product_id and line.product_id.type == 'service':
-                                    profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_services
-                                else:
-                                    profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_goods
-                        else:  # remove withholds
-                            super_tax_ids = super_tax_ids.filtered(
-                                lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale',
-                                                                                  'withhold_vat_purchase',
-                                                                                  'withhold_income_sale',
-                                                                                  'withhold_income_purchase'])
-                if vat_withhold_tax:
-                    super_tax_ids = super_tax_ids.filtered(
-                        lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale', 'withhold_vat_purchase'])
-                    super_tax_ids += vat_withhold_tax
-                if profit_withhold_tax:
-                    super_tax_ids = super_tax_ids.filtered(
-                        lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_income_sale',
-                                                                          'withhold_income_purchase'])
-                    super_tax_ids += profit_withhold_tax
-            return super_tax_ids
-
-        # Computes new withhold data for provided invoices
+        #Computes new withhold data for provided invoices
         if invoices[0].move_type == 'in_invoice':
             withhold_type = 'in_withhold'
         elif invoices[0].move_type == 'out_invoice':
@@ -203,7 +138,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             group_taxes = {}
             for invoice in invoices:
                 for line in invoice.line_ids:
-                    tax = get_l10n_ec_computed_taxes(line)
+                    tax = line._l10n_ec_get_computed_taxes()
                     if tax:
                         tax_line = tax.invoice_repartition_line_ids.filtered(lambda x: x.repartition_type == 'tax')
                         group_taxes.setdefault(tax.id, [{}, 0, 0])
@@ -253,7 +188,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         self._validate_withhold_data_on_post()
         origins = []
         for invoice in self.related_invoices:
-            origin = invoice.name #Usamos name en lugar del l10n_latam_document_number para aprovechar el prefijo del tipo de doc
+            origin = invoice.name
             if invoice.invoice_origin:
                 origin += ';' + invoice.invoice_origin
             origins.append(origin)
@@ -292,12 +227,12 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
                     'debit': line.amount if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
                     'credit': line.amount if withhold.l10n_ec_withhold_type == 'in_withhold' else 0.0,
                     'amount_currency': line.amount * withhold_sign, #Withholds are always in company currency, hence 0.0
-                    'tax_base_amount': line.base, #campos computados, no requerimos setearlos
+                    'tax_base_amount': line.base, #TODO: campos computados, no requerimos setearlos
                     'tax_line_id': line.tax_id.id, #originator tax
                     'tax_repartition_line_id': tax_line.id,
                     'tax_tag_ids': [(6, 0, tax_line.tag_ids.ids)],
                     # 'tax_tag_invert': True, #TODO TRESCLOUD review this field, 
-                    'exclude_from_invoice_tab': True, #TODO, review with Odoo, a hook in account.move._compute_amount() is needed
+                    'exclude_from_invoice_tab': True,
                     'is_rounding_line': False,
                     'date_maturity': False,
                     'l10n_ec_withhold_invoice_id': line.invoice_id.id,
@@ -358,7 +293,6 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
                     u'The selected document type does not support withholds, please check the document "%s".' % invoice.name)
                 
     def _validate_withhold_data_on_post(self):
-        #TODO: Review with Odoo: Maybe is better to move the method to account.move, so a draft withhold will run validations when posted again
         #Validations that apply only on withhold post, other validations should be method _validate_invoices_data()
         if not self.withhold_line_ids:
             raise ValidationError(u'You must input at least one withhold line')
@@ -421,18 +355,6 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         elif withhold_type in ['in_withhold']:
             account = partner.property_account_payable_id
         return account
-
-    @api.depends('journal_id', 'l10n_latam_document_type_id')
-    def _compute_l10n_latam_manual_document_number(self):
-        self.l10n_latam_manual_document_number = False
-        move = self.env['account.move']
-        for rec in self:
-            if rec.journal_id and rec.journal_id.l10n_latam_use_documents and rec.l10n_latam_document_type_id:
-                rec.l10n_latam_manual_document_number = move.search_count([('journal_id', '=', rec.journal_id.id),
-                                                                           ('l10n_latam_document_type_id', '=',
-                                                                            rec.l10n_latam_document_type_id.id),
-                                                                           ('state', 'in', ['posted',
-                                                                                            'cancel'])]) > 0 and True or False
             
     @api.depends('withhold_line_ids')
     def _compute_withhold_totals(self):
@@ -549,7 +471,6 @@ class L10nEcWizardAccountWithholdLine(models.TransientModel):
     
     @api.model
     def _get_invoice_vat_base_and_amount(self, invoice):
-        #TODO: Review with Odoo, maybe there is other way to compute it?
         l10n_ec_vat_base = 0.0
         l10n_ec_vat_amount = 0.0
         for move_line in invoice.line_ids:
