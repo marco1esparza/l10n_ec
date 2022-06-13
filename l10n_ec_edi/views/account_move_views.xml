@@ -24,7 +24,7 @@
 				<button name="action_reverse" position="after">
 					<button name="l10n_ec_add_withhold" string="Add Withhold" type="object"
 							groups="account.group_account_invoice"
-							attrs="{'invisible':[('l10n_ec_allow_withhold','!=',True)]}"/>
+							attrs="{'invisible':[('l10n_ec_show_add_withhold','!=',True)]}"/>
 					<button name="action_invoice_sent"
 							type="object"
 							string="Send &amp; Print"
@@ -60,7 +60,7 @@
 				<field name="invoice_origin" position="after">
 					<field name="l10n_ec_withhold_count" invisible="1"/>
 					<field name="l10n_ec_withhold_type" invisible="1"/>
-					<field name="l10n_ec_allow_withhold" invisible="1"/>
+					<field name="l10n_ec_show_add_withhold" invisible="1"/>
 					<field name="l10n_ec_withhold_type" invisible="1"/>
 				</field>
 				<xpath expr="//sheet//group//group//div[@name='journal_div']" position="after">

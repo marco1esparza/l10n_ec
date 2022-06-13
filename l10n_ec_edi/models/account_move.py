@@ -40,8 +40,8 @@ class AccountMove(models.Model):
     l10n_ec_withhold_type = fields.Selection(
         related='journal_id.l10n_ec_withhold_type',
     )
-    l10n_ec_allow_withhold = fields.Boolean(
-        compute='_l10n_ec_allow_withhold',
+    l10n_ec_show_add_withhold = fields.Boolean(
+        compute='_l10n_ec_show_add_withhold',
         string='Allow Withhold',
         help='Technical field to show/hide "ADD WITHHOLD" button'
     )
@@ -120,7 +120,7 @@ class AccountMove(models.Model):
         # doing this way so the "suggested" wihhold line filters the taxes and invoices by a context  
         new_withhold_wizard = self.env['l10n_ec.wizard.account.withhold'].with_context(ctx).create({})
         return {
-            'name': u'Withholding',
+            'name': _('Withholding'),
             'view_type': 'form',
             'view_mode': 'form',
             'view_id': False,
@@ -137,7 +137,7 @@ class AccountMove(models.Model):
         l10n_ec_withhold_ids = self.env.context.get('withhold', []) or self.l10n_ec_withhold_ids.ids
         if len(l10n_ec_withhold_ids) == 1:
             return {
-                'name': u'Withholding',
+                'name': _('Withholding'),
                 'view_type': 'form',
                 'view_mode': 'form',
                 'view_id': False,
@@ -172,7 +172,7 @@ class AccountMove(models.Model):
         # avoid duplicating withholds, should be created always from the withhold wizard
         # it also correctly blocks user from reversing the withhold
         res = super(AccountMove, self).copy_data(default=default)
-        if self.is_withholding():
+        if self._l10n_ec_is_withholding():
             raise ValidationError(u'You can not duplicate a withhold, instead create a new one from the invoice.')
         return res
 
@@ -181,13 +181,13 @@ class AccountMove(models.Model):
         # It enables the send email button, the edi process, the customer portal, printing the qweb report, and other stuff.
         country_code = self.country_code or self.company_id.country_code
         if country_code == 'EC':
-            if self.is_withholding():
+            if self._l10n_ec_is_withholding():
                 return True
         return super(AccountMove, self).is_invoice(include_receipts)
         
     def _creation_message(self):
         # OVERRIDE, withholds should have a dedicated message equivalent to invoices, otherwise a simple "Journal Entry created" was shown
-        if self.is_withholding():
+        if self._l10n_ec_is_withholding():
             return _('Withhold Created')
         return super()._creation_message()
         
@@ -209,7 +209,7 @@ class AccountMove(models.Model):
     #TODO Trescloud&Odoo: Evaluate if it is still necesary, maybe remove the method after Stan finishes the invoice RIDE
     # def _get_name_invoice_report(self):
     #     self.ensure_one()
-    #     if self.is_withholding():
+    #     if self._l10n_ec_is_withholding():
     #         return 'l10n_ec_edi.report_invoice_document'
     #     return super()._get_name_invoice_report()
     
@@ -268,7 +268,7 @@ class AccountMove(models.Model):
     def _compute_amount(self):
         #Improves the the computation of purchase withhold to have coherent amounts, these are shown in tree view
         res = super()._compute_amount()
-        for move in self.filtered(lambda x: x.is_withholding()):
+        for move in self.filtered(lambda x: x._l10n_ec_is_withholding()):
             # amount_tax, amount_total, amount_residual should be positive just like in any invoice or refund
             # move.amount_untaxed doesn't need fixing as is always zero for withholds
             move.amount_tax = abs(move.amount_tax)
@@ -325,7 +325,7 @@ class AccountMove(models.Model):
 
     def l10n_ec_get_invoice_edi_data(self):
         self.ensure_one()
-        if not self.is_withholding():
+        if not self._l10n_ec_is_withholding():
             data = {
                 "taxes_data": self._l10n_ec_get_taxes_grouped_by_tax_group(),
                 "additional_info": {
@@ -356,14 +356,12 @@ class AccountMove(models.Model):
             }
         return data
 
-    def is_withholding(self):
+    def _l10n_ec_is_withholding(self):
         #TODO Discuss with Odoo, the method can be simplified to compute based on journal type, but in the proposed way is more "secure"
         #TODO Discuss with Odoo, method name doesn't have l10n_ec prefix to look alike the is_invoice() method.  
         is_withholding = False
         country_code = self.country_code or self.company_id.country_code
-        if country_code == 'EC' and self.move_type in ('entry') \
-           and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold') \
-           and self.l10n_latam_document_type_id.code in ['07']:
+        if country_code == 'EC' and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold'):
             is_withholding = True
         return is_withholding
 
@@ -511,14 +509,14 @@ class AccountMove(models.Model):
             invoice.l10n_ec_withhold_profit_base = l10n_ec_withhold_profit_base
             invoice.l10n_ec_withhold_total_amount = l10n_ec_withhold_vat_amount + l10n_ec_withhold_profit_amount
 
-    def _l10n_ec_allow_withhold(self):
+    def _l10n_ec_show_add_withhold(self):
         # shows/hide "ADD WITHHOLD" button on invoices
         for invoice in self:
             result = False
             if invoice.country_code == 'EC' and invoice.state == 'posted':
                 if invoice.l10n_latam_document_type_id.code in ['01', '02', '03', '18']:
                     result = True
-            invoice.l10n_ec_allow_withhold = result
+            invoice.l10n_ec_show_add_withhold = result
     
     @api.depends('line_ids')
     def _compute_l10n_ec_withhold_ids(self):

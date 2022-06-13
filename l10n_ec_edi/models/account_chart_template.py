@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import models
+from odoo import models, _
 
 
 class AccountChartTemplate(models.Model):
@@ -9,14 +9,9 @@ class AccountChartTemplate(models.Model):
 
     def _prepare_all_journals(self, acc_template_ref, company, journals_dict=None):
         # Override to setup ecuadorian withhold data.
-        res = super(AccountChartTemplate, self)._prepare_all_journals(acc_template_ref, company, journals_dict=journals_dict)
-        self._l10n_ec_configure_ecuadorian_withhold_journal(company)
-        return res
-
-    def _l10n_ec_configure_ecuadorian_withhold_journal(self, companies):
-        ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
+        journal_data = super(AccountChartTemplate, self)._prepare_all_journals(acc_template_ref, company, journals_dict=journals_dict)
+        ecuadorian_companies = company.filtered(lambda r: r.country_code == 'EC')
         for company in ecuadorian_companies:
-            self = self.with_company(company)
             #Create withhold journals
             new_journals = [
                 {'code': 'RVNTA', 'name': 'Retenciones en ventas', 'l10n_ec_withhold_type': 'out_withhold',
@@ -29,7 +24,7 @@ class AccountChartTemplate(models.Model):
                     ('code', '=', new_journal['code']),
                     ('company_id', '=', company.id)])
                 if not journal:
-                    journal = self.env['account.journal'].create({
+                    vals = {
                         'name': new_journal['name'],
                         'code': new_journal['code'],
                         'l10n_ec_withhold_type': new_journal['l10n_ec_withhold_type'],
@@ -37,7 +32,9 @@ class AccountChartTemplate(models.Model):
                         'type': 'general',
                         'company_id': company.id,
                         'show_on_dashboard': True
-                    })              
+                    }
+                    journal_data.append(vals)
+        return journal_data
     
     def _load(self, sale_tax_rate, purchase_tax_rate, company):
         # Override to setup withhold taxes in company configuration
@@ -50,7 +47,6 @@ class AccountChartTemplate(models.Model):
         #TODO ANDRES: Clean up the contributor types list, to a minimum
         ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
         for company in ecuadorian_companies:
-            self = self.with_company(company)
             #Create withhold Distribution Type
             tax_rimpe_id = False
             tax_rimpe = self.env['account.tax'].search([('l10n_ec_code_base', '=', '343')], limit=1)
@@ -83,7 +79,6 @@ class AccountChartTemplate(models.Model):
     def _l10n_ec_setup_profit_withhold_taxes(self, companies):
         ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
         for company in ecuadorian_companies:
-            self = self.with_company(company)
             
             company.l10n_ec_fallback_profit_withhold_services = self.env['account.tax'].search([
                 ('l10n_ec_code_ats', '=', '3440'),

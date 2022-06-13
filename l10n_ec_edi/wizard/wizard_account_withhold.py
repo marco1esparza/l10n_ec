@@ -351,7 +351,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             if len(invoices) > 1 and invoice.move_type != 'out_invoice':
                 raise ValidationError(
                     u'En Odoo las retenciones sobre múltiples facturas solo se permiten en facturas de ventas.')
-            if not invoice.l10n_ec_allow_withhold:
+            if not invoice.l10n_ec_show_add_withhold:
                 raise ValidationError(
                     u'The selected document type does not support withholds, please check the document "%s".' % invoice.name)
                 
