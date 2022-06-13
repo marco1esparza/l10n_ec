@@ -65,43 +65,33 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
     )
     l10n_ec_withhold_vat_amount = fields.Monetary(
         compute='_compute_withhold_totals',
-        string='Total IVA',
-        tracking=True,
-        store=False,
+        string='VAT Withhold',
         readonly=True,
-        help='Total IVA value of withhold'
+        help='The total amount of withhold over VAT'
     )
     l10n_ec_withhold_profit_amount = fields.Monetary(
         compute='_compute_withhold_totals',
-        string='Total RENTA',
-        tracking=True,
-        store=False,
+        string='Profit Withhold',
         readonly=True,
-        help='Total renta value of withhold'
+        help='The total amount of withhold over profits'
     )
     l10n_ec_withhold_vat_base = fields.Monetary(
         compute='_compute_withhold_totals',
-        string='Total Base IVA',
-        tracking=True,
-        store=False,
+        string='VAT Withhold Base',
         readonly=True,
-        help='Total base IVA of withhold'
+        help='The total vat base amount affected by the taxes in this withhold'
     )
     l10n_ec_withhold_profit_base = fields.Monetary(
         compute='_compute_withhold_totals',
-        string='Total Base RENTA',
-        tracking=True,
-        store=False,
+        string='Profit Withhold Base',
         readonly=True,
-        help='Total base renta of withhold'
+        help='The total profit base amount affected by the taxes in this withhold'
     )
     l10n_ec_withhold_total_amount = fields.Monetary(
-        string='Total Withhold',
+        string='Withhold Total',
         compute='_compute_withhold_totals',
-        tracking=True,
-        store=False,
         readonly=True,
-        help='Total value of withhold'
+        help='The total value of the withhold, this value will be reconciled with the older invoice'
     )
     
     @api.model
@@ -411,7 +401,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         for previous_withhold_line in related_withholds.l10n_ec_withhold_line_ids:
             previous_category = previous_withhold_line.tax_line_id.tax_group_id.l10n_ec_type
             if previous_category in current_categories:
-                raise ValidationError(_("Error, another withhold already exists for %s, withhold number %s", (previous_category, previous_withhold_line.move_id.name)))
+                raise ValidationError(_("Error, another withhold already exists for %s, withhold number %s" % (previous_category, previous_withhold_line.move_id.name)))
         error = ''
         invoice_list = []
         amount_total = 0.0
@@ -465,7 +455,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         self.l10n_latam_manual_document_number = False
         move = self.env['account.move']
         for rec in self:
-            if rec.journal_id and rec.journal_id.l10n_latam_use_documents and rec.l10n_latam_document_type_id:
+            if rec.journal_id and rec.journal_id.l10n_latam_use_documents and rec.journal_id.l10n_ec_withhold_type == 'in_withhold' and rec.l10n_latam_document_type_id:
                 rec.l10n_latam_manual_document_number = move.search_count([('journal_id', '=', rec.journal_id.id),
                                                                            ('l10n_latam_document_type_id', '=',
                                                                             rec.l10n_latam_document_type_id.id),
@@ -554,7 +544,7 @@ class L10nEcWizardAccountWithholdLine(models.TransientModel):
         return super(L10nEcWizardAccountWithholdLine, contextual_self).default_get(default_fields)
 
     @api.onchange('invoice_id', 'tax_id')
-    def onchange_invoice_id(self):
+    def _onchange_invoice_id(self):
         #Suggest a "base amount" according to linked invoice_id and tax type
         base = 0.0
         if self.tax_id.tax_group_id.l10n_ec_type in ['withhold_vat_sale', 'withhold_vat_purchase']:
@@ -565,7 +555,7 @@ class L10nEcWizardAccountWithholdLine(models.TransientModel):
         self.base = base
     
     @api.onchange('base', 'tax_id')
-    def onchange_base(self):
+    def _onchange_base(self):
         # Recomputes amount according to "base amount" and tax percentage
         amount = self.base * abs(self.tax_id.amount) / 100
         accounts = self.tax_id.invoice_repartition_line_ids.mapped('account_id')
