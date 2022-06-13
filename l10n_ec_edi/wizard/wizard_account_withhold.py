@@ -141,9 +141,9 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             withhold_line_ids = []
             group_taxes = {}
             for invoice in invoices:
-                for line in invoice.line_ids:
-                    tax = _get_computed_taxes(line)
-                    if tax:
+                for line in invoice.invoice_line_ids.filtered(lambda line: not line.display_type):
+                    withhold_taxes = self._get_suggested_supplier_withhold_taxes(line)
+                    for tax in withhold_taxes:
                         tax_line = tax.invoice_repartition_line_ids.filtered(lambda x: x.repartition_type == 'tax')
                         group_taxes.setdefault(tax.id, [{}, 0, 0])
                         if tax.tax_group_id.l10n_ec_type in ['withhold_income_sale', 'withhold_income_purchase']:
@@ -188,67 +188,46 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         return default_values
     
     @api.model
-    def _get_computed_taxes(line):
+    def _get_suggested_supplier_withhold_taxes(self, line):
         '''
         For purchases adds prevalence for tax mapping to ease withholds in Ecuador, in the following order:
+        - If payment type == credit card then only use withhold code 332G, else:
         For profit withholding tax:
-        - If payment type == credit card then withhold code 332G, if not then
         - partner_id.l10n_ec_force_profit_withhold, if not set then
         - product_id profit withhold, if not set then
         - company fallback profit withhold for goods or for services
         For vat withhold tax:
         - If product is consumable then vat_goods_withhold_tax_id
         - If product is services or not set then vat_services_withhold_tax_id
-        If withholds doesn't apply to the document type then remove the withholds
         '''
-        if line.move_id.country_code == 'EC':
-            super_tax_ids = self.env['account.tax']
-            vat_withhold_tax = False
-            profit_withhold_tax = False
-            if line.move_id.is_purchase_document(include_receipts=True):
-                if not line.exclude_from_invoice_tab:  # just regular invoice lines
-                    # if self.move_id.l10n_ec_require_withhold_tax:  # compute withholds #TODO ANDRES refactorizar
-                    if True:
-                        company_id = line.move_id.company_id
-                        contributor_type = line.partner_id.l10n_ec_contributor_type_id
-                        tax_groups = super_tax_ids.mapped('tax_group_id').mapped('l10n_ec_type')
-                        # compute vat withhold
-                        if 'vat12' in tax_groups or 'vat14' in tax_groups:
-                            if not line.product_id or line.product_id.type in ['consu', 'product']:
-                                vat_withhold_tax = contributor_type.vat_goods_withhold_tax_id
-                            else:  # services
-                                vat_withhold_tax = contributor_type.vat_services_withhold_tax_id
-                                # compute profit withhold
-                        if line.move_id.l10n_ec_sri_payment_id.code in ['16', '18', '19']:
-                            # payment with debit card, credit card or gift card retains 0%
-                            profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
-                        elif contributor_type.profit_withhold_tax_id:
-                            profit_withhold_tax = contributor_type.profit_withhold_tax_id
-                        elif line.product_id.l10n_ec_withhold_tax_id:
-                            profit_withhold_tax = line.product_id.l10n_ec_withhold_tax_id
-                        elif 'withhold_income_sale' in tax_groups or 'withhold_income_purchase' in tax_groups:
-                            pass  # keep the taxes coming from product.product... for now
-                        else:  # if not any withhold tax then fallback
-                            if line.product_id and line.product_id.type == 'service':
-                                profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_services
-                            else:
-                                profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_goods
-                    else:  # remove withholds
-                        super_tax_ids = super_tax_ids.filtered(
-                            lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale',
-                                                                              'withhold_vat_purchase',
-                                                                              'withhold_income_sale',
-                                                                              'withhold_income_purchase'])
-            if vat_withhold_tax:
-                super_tax_ids = super_tax_ids.filtered(
-                    lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_vat_sale', 'withhold_vat_purchase'])
-                super_tax_ids += vat_withhold_tax
-            if profit_withhold_tax:
-                super_tax_ids = super_tax_ids.filtered(
-                    lambda tax: tax.tax_group_id.l10n_ec_type not in ['withhold_income_sale',
-                                                                      'withhold_income_purchase'])
-                super_tax_ids += profit_withhold_tax
-        return super_tax_ids
+        vat_withhold_tax = self.env['account.tax'] #empty recordset
+        profit_withhold_tax = self.env['account.tax'] #empty recordset
+        company_id = line.move_id.company_id
+        contributor_type = line.move_id.commercial_partner_id.l10n_ec_contributor_type_id
+        product_type = 'services' #it includes service, event, course and others
+        if line.product_id.type in ['consu', 'product']:
+            produt_type = 'goods'
+        # override all withholds on payments with credit card, debit card or gift card
+        if line.move_id.l10n_ec_sri_payment_id.code in ['16', '18', '19']:
+            profit_withhold_tax = company_id.l10n_ec_profit_withhold_tax_credit_card
+            return profit_withhold_tax
+        # compute profit withhold
+        if contributor_type.profit_withhold_tax_id:
+            profit_withhold_tax = contributor_type.profit_withhold_tax_id
+        elif line.product_id.l10n_ec_withhold_tax_id:
+            profit_withhold_tax = line.product_id.l10n_ec_withhold_tax_id
+        elif product_type == 'services':
+            profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_services
+        elif product_type == 'goods':
+            profit_withhold_tax = company_id.l10n_ec_fallback_profit_withhold_goods
+        # compute vat withhold
+        tax_groups = line.tax_ids.mapped('tax_group_id').mapped('l10n_ec_type') 
+        if 'vat08' in tax_groups or 'vat12' in tax_groups or 'vat14' in tax_groups:
+            if product_type == 'services':
+                vat_withhold_tax = contributor_type.vat_services_withhold_tax_id
+            else: #goods
+                vat_withhold_tax = contributor_type.vat_goods_withhold_tax_id
+        return vat_withhold_tax + profit_withhold_tax
     
     def action_create_and_post_withhold(self):
         self._validate_invoices_data(self.related_invoices)
@@ -399,38 +378,40 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         }
         for invoice in invoices:
             if invoice.state not in ['posted']:
-                raise ValidationError(u'Can not create a withhold, the document "%s" is not yet posted.' % invoice.name)
+                raise ValidationError(_("Can not create a withhold, the document %s is not yet posted", invoice.name))
             if invoice.commercial_partner_id != invoices[0].commercial_partner_id:
                 raise ValidationError(
-                    u'Some documents belong to different partners, please correct the document "%s".' % invoice.name)
+                    _("Some documents belong to different partners, please correct the document %s", invoice.name))
             if MAP_INVOICE_TYPE_PARTNER_TYPE[invoice.move_type] != MAP_INVOICE_TYPE_PARTNER_TYPE[invoices[0].move_type]:
                 raise ValidationError(
-                    u'Can not mix documents supplier and customer documents in the same withhold, please correct the document "%s".' % invoice.name)
+                    _("Can't mix supplier and customer documents in the same withhold, please correct the document %s.", invoice.name))
             if invoice.currency_id != invoice.company_id.currency_id:
                 raise ValidationError(
-                    u'The withhold currency should and the invoices currencies should be the same, review invoice "%s".' % invoice.name)
-            if len(invoices) > 1 and invoice.move_type != 'out_invoice':
+                    _("The withhold currency and the invoices currencies should be the same, review invoice %s", invoice.name))
+            if len(invoices) > 1 and invoice.move_type == 'in_invoice':
+                # Current MVP allows supplier withhold over one single supplier invoice
+                # Future versions might allow several withholds per purchase invoice and on several purchase invoces at a time (similar to sales) 
                 raise ValidationError(
-                    u'At the moment withholds over multiple invoices are only supported in customer withholds')
+                    _("At the moment withholds over multiple invoices are only supported in customer withholds"))
             if not invoice.l10n_ec_allow_withhold:
                 raise ValidationError(
-                    u'The selected document type does not support withholds, please check the document "%s".' % invoice.name)
+                    _("The selected document type does not support withholds, please check the document %s", invoice.name))
                 
     def _validate_withhold_data_on_post(self):
         # Validations that apply only on withhold post, other validations should be method _validate_invoices_data()
         if not self.withhold_line_ids:
-            raise ValidationError(u'You must input at least one withhold line')
+            raise ValidationError(_("You must input at least one withhold line"))
         related_withholds = self.related_invoices.l10n_ec_withhold_ids.filtered(lambda x: x.state == 'posted' and x.id != self.id)
         if related_withholds and self.withhold_type == 'in_withhold':
-            # Current MVP allows just one withhold per purchase invoice
+            # Current MVP allows just one withhold (no matter vat or profit) per supplier invoice
             # Future versions might allow several withholds per purchase invoice and on several purchase invoces at a time (similar to sales) 
-            raise ValidationError(u'Another withhold already exists, you can have only one posted withhold per purchase document')
+            raise ValidationError(_("Another withhold already exists, you can have only one posted withhold per purchase document"))
         # Validate there where not other withholds for same invoice for same concept (concept might be vat withhold or income withhold)
         current_categories = self.withhold_line_ids.tax_id.tax_group_id.mapped('l10n_ec_type')
         for previous_withhold_line in related_withholds.l10n_ec_withhold_line_ids:
             previous_category = previous_withhold_line.tax_line_id.tax_group_id.l10n_ec_type
             if previous_category in current_categories:
-                raise ValidationError("Error, another withhold already exists for %s, withhold number %s" % (previous_category, previous_withhold_line.move_id.name))
+                raise ValidationError(_("Error, another withhold already exists for %s, withhold number %s", (previous_category, previous_withhold_line.move_id.name)))
         error = ''
         invoice_list = []
         amount_total = 0.0
@@ -443,22 +424,22 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             (vat_base, vat_amount) = self.env['l10n_ec.wizard.account.withhold.line']._get_invoice_vat_base_and_amount(invoice)
             diff_base_vat = float_compare(total_base_vat, vat_amount, precision_digits=precision)
             if diff_base_vat > 0:
-                raise ValidationError(u'La base imponible de la retención de IVA es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)
+                raise ValidationError(_("The VAT base amount on the withhold should not be higher to the VAT value on the invoice %s", invoice.l10n_latam_document_number))
             total_base_profit = 0.0
             profit_lines = self.withhold_line_ids.filtered(lambda withhold_line: withhold_line.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_sale', 'withhold_income_purchase'] and withhold_line.invoice_id == invoice)
             for profit_line in profit_lines:
                 total_base_profit += profit_line.base
             diff_base_profit = float_compare(total_base_profit, invoice.amount_untaxed, precision_digits=precision)
             if diff_base_profit > 0:
-                raise ValidationError(u'La base imponible de la retención de renta es mayor a la base imponible de la factura %s.' % invoice.l10n_latam_document_number)            
+                raise ValidationError(_("The profit base amount on the withhold should not be higher to the subtotal on the invoice %s", invoice.l10n_latam_document_number))
             if self.date < invoice.invoice_date:
                 invoice_list.append(invoice.name)
             amount_total += invoice.amount_total
         if invoice_list:
             joined_vals = '\n'.join('* ' + l for l in invoice_list)
-            error += u'Las siguientes facturas tienen una fecha posterior a la retención:\n%s\n' % joined_vals        
+            error += _("Following invoices has a later date than the withhold, fix the dates:\n%s\n", joined_vals)        
         if self.l10n_ec_withhold_total_amount > amount_total:
-            error += u'La cantidad a retener es mayor que el valor de las facturas.\n'
+            error += _("The withhold amount is bigger than the total amount of the invoices")
         if error:
             raise ValidationError(error)
     
@@ -599,9 +580,9 @@ class L10nEcWizardAccountWithholdLine(models.TransientModel):
         for line in self:            
             precision = self.currency_id.decimal_places
             if float_compare(line.amount, 0.0, precision_digits=precision) < 0:
-                raise ValidationError(_('Negative values ​​are not allowed in amount for withhold lines.'))
+                raise ValidationError(_("Negative values ​​are not allowed in amount for withhold lines"))
             if float_compare(line.base, 0.0, precision_digits=precision) < 0:
-                raise ValidationError(_('Negative or zero values ​​are not allowed in base for withhold lines.'))
+                raise ValidationError(_("Negative or zero values ​​are not allowed in base for withhold lines"))
     
     @api.model
     def _get_invoice_vat_base_and_amount(self, invoice):
