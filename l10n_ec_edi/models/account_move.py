@@ -239,16 +239,6 @@ class AccountMove(models.Model):
                                     'Problematic IDs: %s\n') % res)
             return
         return super(AccountMove, self)._check_unique_sequence_number()
-
-    @api.model
-    def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
-        # only shows previously selected invoices in the withhold wizard lines
-        if self.env.context.get('l10n_ec_related_invoices_ctx'):
-            return super(AccountMove, self)._name_search(name, args=[
-                ('id', 'in', self.env.context.get('l10n_ec_related_invoices_ctx'))], operator=operator, limit=limit,
-                                                         name_get_uid=name_get_uid)
-        return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit,
-                                                     name_get_uid=name_get_uid)
     
     @api.depends(
         'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
