@@ -40,12 +40,17 @@ class AccountEdiFormat(models.Model):
     _inherit = "account.edi.format"
 
     def _is_compatible_with_journal(self, journal):
-        # OVERRIDE
+        # For Ecuador include the journals for sales invoices, purchase liquidations and purchase withholds 
         if journal.country_code != "EC":
             return super(AccountEdiFormat, self)._is_compatible_with_journal(journal)
-
-        # TODO let user configure which journal have "electronic" EDI (those that don't are "manual")
-        return self.code == "ecuadorian_edi" and journal.type in ("sale", "purchase") or (journal.type == 'general' and journal.l10n_ec_withhold_type == 'in_withhold')
+        if journal.type == 'sale' and journal.l10n_latam_use_documents: #Only sales with use documents should be electronic
+            return self.code == "ecuadorian_edi"
+        elif journal.type == 'general' and journal.l10n_ec_withhold_type == 'in_withhold': #Purchase withhold
+            return self.code == "ecuadorian_edi"
+        elif journal.type == 'purchase': #TODO Odoo: implement or explain the purchase liquidation
+            return self.code == "ecuadorian_edi"
+        else:
+            return False
 
     def _is_required_for_invoice(self, invoice):
         # OVERRIDE

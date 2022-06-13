@@ -4,8 +4,6 @@ from odoo import api, SUPERUSER_ID
 
 
 def _post_install_hook_configure_ecuadorian_withhold(cr, registry):
-    # configurar la "Cuenta Transitoria para Guia de Remision" en las compañía existentes al instalar el modulo.
-    # crear el diario para guias de remisión
     env = api.Environment(cr, SUPERUSER_ID, {})
     companies = env['res.company'].search([])
     for company in companies:
