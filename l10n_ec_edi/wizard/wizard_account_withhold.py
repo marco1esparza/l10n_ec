@@ -231,15 +231,16 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
     
     def _create_move_header(self):
         origins = []
-        for invoice in self.related_invoices:
+        invoices = self.withhold_line_ids.mapped('invoice_id')
+        for invoice in invoices:
             origin = invoice.name
             if invoice.invoice_origin:
                 origin += ';' + invoice.invoice_origin
             origins.append(origin)
         withhold_origin = ','.join(origins)
-        to_withhold_name = ", ".join(self.related_invoices.mapped('name'))
+        to_withhold_name = ", ".join(invoices.mapped('name'))
         withhold_ref = _('Withhold on: %s') % to_withhold_name
-        partner_id = self.related_invoices[-1].partner_id #the contact from latest invoice
+        partner_id = invoices[-1].partner_id #the contact from latest invoice
         vals = {
             'date': self.date,
             'invoice_date': self.date,
@@ -252,7 +253,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             'l10n_latam_document_number': self.l10n_latam_document_number,
             'l10n_ec_withhold_type': self.withhold_type,
             'invoice_origin': withhold_origin,
-            'ref': withhold_ref,
+            'ref': withhold_ref, #TODO: review with Odoo, seems the Odoo way but might take too much space on the screen
         }
         withhold = self.env['account.move'].create(vals)
         return withhold
@@ -314,6 +315,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
                     'debit': line.base if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
                     'credit': line.base if withhold.l10n_ec_withhold_type == 'in_withhold' else 0.0,
                     'tax_base_amount': 0.0,
+                    'tax_ids': [(6, 0, line.tax_id.ids)],
                     'tax_tag_ids': [(6, 0, base_line.tag_ids.ids)],
                     'tax_tag_invert': withhold.l10n_ec_withhold_type == 'in_withhold',
                     'exclude_from_invoice_tab': True,
