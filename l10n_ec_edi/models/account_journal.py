@@ -19,7 +19,7 @@ class AccountJournal(models.Model):
         return super()._compute_compatible_edi_ids()
     
     @api.onchange('type', 'l10n_ec_withhold_type')
-    def onchange_withhold_type(self):
+    def _onchange_withhold_type(self):
         #forcefully clear the field as the field becomes invisible
         if self.type != 'general':
             self.l10n_ec_withhold_type = False
@@ -31,7 +31,7 @@ class AccountJournal(models.Model):
         self.l10n_latam_use_documents = self.l10n_latam_use_documents or (self.l10n_ec_withhold_type and self.l10n_latam_company_use_documents)
     
     @api.constrains('l10n_ec_withhold_type')
-    def l10n_ec_check_moves_withhold_type(self):
+    def _l10n_ec_check_moves_withhold_type(self):
         for rec in self:
             if rec.env['account.move'].search([('journal_id', '=', rec.id), ('posted_before', '=', True)], limit=1):
                 raise ValidationError(_(

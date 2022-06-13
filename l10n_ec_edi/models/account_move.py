@@ -206,13 +206,6 @@ class AccountMove(models.Model):
         code = super()._get_l10n_ec_identification_type()
         return "08" if code in ("09", "20", "21") else code
     
-    #TODO Trescloud&Odoo: Evaluate if it is still necesary, maybe remove the method after Stan finishes the invoice RIDE
-    # def _get_name_invoice_report(self):
-    #     self.ensure_one()
-    #     if self.is_withholding():
-    #         return 'l10n_ec_edi.report_invoice_document'
-    #     return super()._get_name_invoice_report()
-    
     @api.constrains('name', 'journal_id', 'state')
     def _check_unique_sequence_number(self):
         # Override to allow duplicated numbers in sales withhold as those are issued by different customers 
