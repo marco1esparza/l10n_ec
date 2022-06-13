@@ -65,43 +65,33 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
     )
     l10n_ec_withhold_vat_amount = fields.Monetary(
         compute='_compute_withhold_totals',
-        string='Total IVA',
-        tracking=True,
-        store=False,
+        string='VAT Withhold',
         readonly=True,
-        help='Total IVA value of withhold'
+        help='The total amount of withhold over VAT'
     )
     l10n_ec_withhold_profit_amount = fields.Monetary(
         compute='_compute_withhold_totals',
-        string='Total RENTA',
-        tracking=True,
-        store=False,
+        string='Profit Withhold',
         readonly=True,
-        help='Total renta value of withhold'
+        help='The total amount of withhold over profits'
     )
     l10n_ec_withhold_vat_base = fields.Monetary(
         compute='_compute_withhold_totals',
-        string='Total Base IVA',
-        tracking=True,
-        store=False,
+        string='VAT Withhold Base',
         readonly=True,
-        help='Total base IVA of withhold'
+        help='The total vat base amount affected by the taxes in this withhold'
     )
     l10n_ec_withhold_profit_base = fields.Monetary(
         compute='_compute_withhold_totals',
-        string='Total Base RENTA',
-        tracking=True,
-        store=False,
+        string='Profit Withhold Base',
         readonly=True,
-        help='Total base renta of withhold'
+        help='The total profit base amount affected by the taxes in this withhold'
     )
     l10n_ec_withhold_total_amount = fields.Monetary(
-        string='Total Withhold',
+        string='Withhold Total',
         compute='_compute_withhold_totals',
-        tracking=True,
-        store=False,
         readonly=True,
-        help='Total value of withhold'
+        help='The total value of the withhold, this value will be reconciled with the older invoice'
     )
     
     @api.model

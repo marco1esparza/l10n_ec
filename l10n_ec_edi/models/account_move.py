@@ -72,38 +72,38 @@ class AccountMove(models.Model):
     # subtotals
     l10n_ec_withhold_vat_amount = fields.Monetary(
         compute='_l10n_ec_compute_withhold_totals',
-        string='Total IVA',
+        string='VAT Withhold',
         store=False,
         readonly=True,
-        help='Total IVA value of withhold'
+        help='The total amount of withhold over VAT'
     )
     l10n_ec_withhold_profit_amount = fields.Monetary(
         compute='_l10n_ec_compute_withhold_totals',
-        string='Total RENTA',
+        string='Profit Withhold',
         store=False,
         readonly=True,
-        help='Total renta value of withhold'
+        help='The total amount of withhold over profits'
     )
     l10n_ec_withhold_vat_base = fields.Monetary(
         compute='_l10n_ec_compute_withhold_totals',
-        string='Total Base IVA',
+        string='VAT Withhold Base',
         store=False,
         readonly=True,
-        help='Total base IVA of withhold'
+        help='The total vat base amount affected by the taxes in this withhold'
     )
     l10n_ec_withhold_profit_base = fields.Monetary(
         compute='_l10n_ec_compute_withhold_totals',
-        string='Total Base RENTA',
+        string='Profit Withhold Base',
         store=False,
         readonly=True,
-        help='Total base renta of withhold'
+        help='The total profit base amount affected by the taxes in this withhold'
     )
     l10n_ec_withhold_total_amount = fields.Monetary(
-        string='Total Withhold',
+        string='Withhold Total',
         compute='_l10n_ec_compute_withhold_totals',
         store=False,
         readonly=True,
-        help='Total value of withhold'
+        help='The total value of the withhold, sent to the payable or receivable journal line'
     )
 
     # ===== OTHER METHODS =====
@@ -120,7 +120,7 @@ class AccountMove(models.Model):
         # doing this way so the "suggested" wihhold line filters the taxes and invoices by a context  
         new_withhold_wizard = self.env['l10n_ec.wizard.account.withhold'].with_context(ctx).create({})
         return {
-            'name': u'Withholding',
+            'name': _("Withhold"),
             'view_type': 'form',
             'view_mode': 'form',
             'view_id': False,
@@ -173,7 +173,7 @@ class AccountMove(models.Model):
         # it also correctly blocks user from reversing the withhold
         res = super(AccountMove, self).copy_data(default=default)
         if self.is_withholding():
-            raise ValidationError(u'You can not duplicate a withhold, instead create a new one from the invoice.')
+            raise ValidationError(_("You can not duplicate a withhold, instead create a new one from the invoice"))
         return res
 
     def is_invoice(self, include_receipts=False):
