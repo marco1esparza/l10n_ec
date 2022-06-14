@@ -8,22 +8,30 @@ from odoo.exceptions import UserError, ValidationError
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
     
+    @api.depends('l10n_ec_withhold_type')
+    def _compute_edi_format_ids(self):
+        # Add the dependency to l10n_ec_withhold_type used by '_is_compatible_with_journal()'
+        return super()._compute_edi_format_ids()
+
+    @api.depends('l10n_ec_withhold_type')
+    def _compute_compatible_edi_ids(self):
+        # Add the dependency to l10n_ec_withhold_type'
+        return super()._compute_compatible_edi_ids()
+    
     @api.onchange('type', 'l10n_ec_withhold_type')
-    def onchange_withhold_type(self):
+    def _onchange_withhold_type(self):
+        #forcefully clear the field as the field becomes invisible
         if self.type != 'general':
             self.l10n_ec_withhold_type = False
-        elif self.type == 'general' and self.l10n_ec_withhold_type == 'in_withhold':
-            self.l10n_latam_use_documents = True
-            #TODO find out with Odoo: also SET edi_format_ids to ecuadorian edi 
-        elif self.type == 'general' and self.l10n_ec_withhold_type == 'out_withhold':
-            self.l10n_latam_use_documents = True
-            #TODO find out with Odoo: also REMOVE edi_format_ids
-        elif self.type == 'general' and self.l10n_ec_withhold_type == False:
-            self.l10n_latam_use_documents = False
-            #TODO find out with Odoo: also REMOVE edi_format_ids
+    
+    @api.onchange('company_id', 'type','l10n_ec_withhold_type')
+    def _onchange_company(self):
+        # Sets l10n_latam_use_documents for withholds
+        super()._onchange_company()
+        self.l10n_latam_use_documents = self.l10n_latam_use_documents or (self.l10n_ec_withhold_type and self.l10n_latam_company_use_documents)
     
     @api.constrains('l10n_ec_withhold_type')
-    def l10n_ec_check_moves_withhold_type(self):
+    def _l10n_ec_check_moves_withhold_type(self):
         for rec in self:
             if rec.env['account.move'].search([('journal_id', '=', rec.id), ('posted_before', '=', True)], limit=1):
                 raise ValidationError(_(
