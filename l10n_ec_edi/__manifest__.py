@@ -23,7 +23,6 @@
         "data/account.edi.format.csv",
 
         "security/ir.model.access.csv",
-        "security/l10n_ec_multicompany_security.xml",
 
         "views/root_sri_menu.xml",
         "views/account_journal_view.xml",
