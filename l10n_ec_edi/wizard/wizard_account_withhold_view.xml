@@ -43,7 +43,9 @@
 							<field name="l10n_ec_withhold_total_amount" class="oe_subtotal_footer_separator"/>
 						</group>
 						<field name="available_taxes" invisible="1"/>
-						<field name="related_invoices" invisible="1"/>
+					</page>
+					<page id="invoices_tab" string="Invoices">
+						<field name="related_invoices"/>
 					</page>
 				</notebook>
 				<footer>
