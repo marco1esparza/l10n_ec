@@ -14,7 +14,6 @@
 						<field name="profit_withhold_tax_id"/>
 						<field name="vat_goods_withhold_tax_id"/>
 						<field name="vat_services_withhold_tax_id"/>
-						<field name="company_id" groups="base.group_multi_company"/>
 					</group>
 				</group>
 			</sheet>
@@ -33,7 +32,6 @@
 				<field name="profit_withhold_tax_id"/>
 				<field name="vat_goods_withhold_tax_id"/>
 				<field name="vat_services_withhold_tax_id"/>
-			    <field name="company_id"/>
 				<field name="active" widget="boolean_toggle"/>
 			</tree>
 		</field>

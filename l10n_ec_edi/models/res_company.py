@@ -23,6 +23,10 @@ class ResCompany(models.Model):
         string='Special Tax Contributor Number',
         help='If set, your company is considered a Special Tax Contributor, this number will be printed in electronic invoices and reports'
     )
+    l10n_ec_wihhold_agent_number = fields.Char(
+        string='Withhold Agent Number',
+        help='',
+    )
     l10n_ec_forced_accounting = fields.Boolean(
         string='Forced to Keep Accounting Books',
         default=True,

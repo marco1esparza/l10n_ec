@@ -28,6 +28,10 @@ class ResConfigSettings(models.TransientModel):
         related="company_id.l10n_ec_special_contributor_number",
         readonly=False,
     )
+    l10n_ec_wihhold_agent_number = fields.Char(
+        related="company_id.l10n_ec_wihhold_agent_number",
+        readonly=False,
+    )
     l10n_ec_regime = fields.Selection(
         related="company_id.l10n_ec_regime",
         readonly=False,

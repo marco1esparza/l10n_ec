@@ -100,7 +100,7 @@
                 <secuencial t-out="secuencial"/>
                 <dirMatriz t-out="address"/>
 
-                <agenteRetencion t-out="'SI' if company.l10n_ec_issue_withholds else 'NO'"/>
+                <agenteRetencion t-out="company.l10n_ec_wihhold_agent_number"/>
                 <contribuyenteRimpe t-if="company.l10n_ec_regime == 'rimpe'" t-out="'CONTRIBUYENTE RÉGIMEN RIMPE'"/>
             </infoTributaria>
         </template>
@@ -109,7 +109,7 @@
             <fechaEmision t-out="strftime(invoice.invoice_date)"/>
             <dirEstablecimiento t-out="address"/>
             <contribuyenteEspecial t-out="company.l10n_ec_special_contributor_number"/>
-            <obligadoContabilidad t-if="is_invoice" t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
+            <obligadoContabilidad t-if="is_invoice or is_withhold" t-out="'SI' if company.l10n_ec_forced_accounting else 'NO'"/>
 
             <tipoIdentificacionComprador t-if="is_cnote or is_dnote or is_invoice" t-out="invoice._get_l10n_ec_identification_type()"/>
             <razonSocialComprador t-if="is_cnote or is_dnote or is_invoice" t-out="clean_str(partner.name)"/>
@@ -197,8 +197,8 @@
         <template id="common_tax_withhold_lines_template">
             <codigo t-out="tax_data['codigo']"/>
             <codigoRetencion t-out="tax_data['codigoretencion']"/>
-            <porcentajeRetener t-out="format_num_6(abs(tax_data['porcentajeretener']))"/>
             <baseImponible t-out="format_num_6(abs(tax_data['baseimponible']))"/>
+            <porcentajeRetener t-out="format_num_6(abs(tax_data['porcentajeretener']))"/>
             <valorRetenido t-out="format_num_6(abs(tax_data['valorretenido']))"/>
             <codDocSustento t-out="tax_data['coddocsustento']"/>
             <numDocSustento t-out="tax_data['numdocsustento']"/>
