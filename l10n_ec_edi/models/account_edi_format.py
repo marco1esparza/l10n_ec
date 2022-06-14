@@ -285,8 +285,8 @@ class AccountEdiFormat(models.Model):
                 authorization_date = doc.fechaAutorizacion
             else:
                 messages = doc.mensajes
-                messages_list = messages.mensaje
                 if messages:
+                    messages_list = messages.mensaje
                     if not isinstance(messages_list, list):
                         messages_list = messages
                     for msg in messages_list:

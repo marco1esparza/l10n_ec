@@ -6,6 +6,7 @@ from re import compile as re_compile
 from odoo import _, api, fields, models
 from odoo.tools.misc import format_date
 from odoo.exceptions import ValidationError, UserError
+from odoo.addons.l10n_ec.models.res_partner import verify_final_consumer
 
 L10N_EC_VAT_RATES = {
     2: 12.0,
@@ -206,6 +207,7 @@ class AccountMove(models.Model):
         if self.is_withholding():
             return _('Withhold Created')
         return super()._creation_message()
+
         
     def _is_manual_document_number(self):
         # OVERRIDE
@@ -220,6 +222,23 @@ class AccountMove(models.Model):
         # TODO fix l10n_ec function ? Why is there a difference ?
         # https://github.com/odoo/odoo/blob/15.0/addons/l10n_ec/models/account_move.py#L137
         code = super()._get_l10n_ec_identification_type()
+        move = self
+        it_ruc = self.env.ref("l10n_ec.ec_ruc", False)
+        it_dni = self.env.ref("l10n_ec.ec_dni", False)
+        it_passport = self.env.ref("l10n_ec.ec_passport", False)
+        is_final_consumer = verify_final_consumer(move.partner_id.commercial_partner_id.vat)
+        is_ruc = move.partner_id.commercial_partner_id.l10n_latam_identification_type_id.id == it_ruc.id
+        is_dni = move.partner_id.commercial_partner_id.l10n_latam_identification_type_id.id == it_dni.id
+        is_passport = move.partner_id.commercial_partner_id.l10n_latam_identification_type_id.id == it_passport.id
+        if move.is_withholding():
+            if is_final_consumer:
+                code = "07"
+            elif is_ruc:
+                code = "04"
+            elif is_dni:
+                code = "05"
+            elif is_passport:
+                code = "06"
         return "08" if code in ("09", "20", "21") else code
     
     #TODO Trescloud&Odoo: Evaluate if it is still necesary, maybe remove the method after Stan finishes the invoice RIDE
@@ -364,9 +383,9 @@ class AccountMove(models.Model):
             data = {
                 "taxes_data": self._l10n_ec_get_taxes_withhold_grouped(),
                 "additional_info": {
-                    "email": self.commercial_partner_id.email or '',
+                    "email": self.commercial_partner_id.email or 'NA',
                     "direccion": ' '.join([value for value in [self.commercial_partner_id.street, self.commercial_partner_id.street2] if value]),
-                    "telefono": self.commercial_partner_id.phone or '',
+                    "telefono": self.commercial_partner_id.phone or 'NA',
                 },
                 "fiscalperiod": str(self.invoice_date.month).zfill(2) + '/' + str(self.invoice_date.year),
             }
@@ -427,7 +446,7 @@ class AccountMove(models.Model):
                             'valorretenido': line.balance,
                             'coddocsustento': line.l10n_ec_withhold_invoice_id.l10n_latam_document_type_id_code,
                             'numdocsustento': line.l10n_ec_withhold_invoice_id.l10n_latam_document_number.replace('-', ''),
-                            'fechaemisiondocsustento': line.l10n_ec_withhold_invoice_id.invoice_date.strftime("%d%m%Y")}]
+                            'fechaemisiondocsustento': line.l10n_ec_withhold_invoice_id.invoice_date.strftime("%d/%m/%Y")}]
         return taxes_data
 
     def _l10n_ec_get_taxes_grouped_by_tax_group(self, exclude_withholding=True):
