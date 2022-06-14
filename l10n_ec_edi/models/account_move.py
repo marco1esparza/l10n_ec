@@ -4,7 +4,9 @@
 from re import compile as re_compile
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.tools.misc import format_date
+from odoo.exceptions import ValidationError, UserError
+
 L10N_EC_VAT_RATES = {
     2: 12.0,
     3: 14.0,
@@ -115,6 +117,13 @@ class AccountMove(models.Model):
         if any(self.env['account.move']._field_will_change(self, vals, field_name) for field_name in PROTECTED_FIELDS_TAX_LOCK_DATE):
             self._check_tax_lock_date()
         return super().write(vals)
+
+    def _check_tax_lock_date(self):
+        for move in self.filtered(lambda x: x.state == 'posted'):
+            if move.company_id.tax_lock_date and move.date <= move.company_id.tax_lock_date:
+                raise UserError(_("The operation is refused as it would impact an already issued tax statement. "
+                                  "Please change the journal entry date or the tax lock date set in the settings (%s) to proceed.")
+                                % format_date(self.env, move.company_id.tax_lock_date))
     
     def l10n_ec_add_withhold(self):
         # Launches the withholds wizard linked to selected invoices
