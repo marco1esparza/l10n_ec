@@ -42,7 +42,7 @@ class AccountChartTemplate(models.Model):
     def _load(self, sale_tax_rate, purchase_tax_rate, company):
         # Override to setup withhold taxes in company configuration
         res = super()._load(sale_tax_rate, purchase_tax_rate, company)
-        #self._l10n_ec_configure_ecuadorian_withhold_contributor_type(company)
+        self._l10n_ec_configure_ecuadorian_withhold_contributor_type(company)
         self._l10n_ec_setup_profit_withhold_taxes(company)
         return res
     
@@ -51,34 +51,10 @@ class AccountChartTemplate(models.Model):
         ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
         for company in ecuadorian_companies:
             self = self.with_company(company)
-            #Create withhold Distribution Type
-            tax_rimpe_id = False
             tax_rimpe = self.env['account.tax'].search([('l10n_ec_code_base', '=', '343')], limit=1)
-            if tax_rimpe:
-                tax_rimpe_id = tax_rimpe.id
-            new_distribution_types = [
-                {'sequence': 1, 'name': 'SOCIEDADES - PERSONAS JURIDICAS', 'profit_withhold_tax_id': False},
-                {'sequence': 2, 'name': 'CONTRIBUYENTES ESPECIALES', 'profit_withhold_tax_id': False},
-                {'sequence': 3, 'name': 'SECTOR PUBLICO Y EP', 'profit_withhold_tax_id': False},
-                {'sequence': 4, 'name': 'PERSONA NATURAL OBLIGADA A LLEVAR CONTABILIDAD', 'profit_withhold_tax_id': False},
-                {'sequence': 5, 'name': 'PERSONA NATURAL NO OBLIGADA - ARRIENDOS', 'profit_withhold_tax_id': False},
-                {'sequence': 6, 'name': 'PERSONA NATURAL NO OBLIGADA - PROFESIONALES', 'profit_withhold_tax_id': False},
-                {'sequence': 7, 'name': 'PERSONA NATURAL NO OBLIGADA - LIQUIDACIONES DE COMPRAS', 'profit_withhold_tax_id': False},
-                {'sequence': 8, 'name': 'PERSONA NATURAL NO OBLIGADAS - EMITE FACTURA O NOTA DE VENTA', 'profit_withhold_tax_id': False},
-                {'sequence': 13, 'name': 'CONTRIBUYENTE REGIMEN RIMPE', 'profit_withhold_tax_id': tax_rimpe_id},
-                {'sequence': 14, 'name': 'OTRAS - Sin cálculo automático de retención de IVA', 'profit_withhold_tax_id': False}
-                ]
-            for new_distribution_type in new_distribution_types:
-                distribution_type = self.env['l10n_ec.contributor.type'].search([
-                    ('name', '=', new_distribution_type['name']),
-                    ('company_id', '=', company.id)])
-                if not distribution_type:
-                    distribution_type = self.env['l10n_ec.contributor.type'].create({
-                        'sequence': new_distribution_type['sequence'],
-                        'name': new_distribution_type['name'],
-                        'profit_withhold_tax_id': new_distribution_type['profit_withhold_tax_id'],
-                        'company_id': company.id
-                    })
+            rimpe_contributor = self.env.ref('l10n_ec_edi.l10n_ec_contributor_type_13', raise_if_not_found=False) # RIMPE Contributor
+            if tax_rimpe and rimpe_contributor:
+                rimpe_contributor.profit_withhold_tax_id = tax_rimpe.id
 
     def _l10n_ec_setup_profit_withhold_taxes(self, companies):
         ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
