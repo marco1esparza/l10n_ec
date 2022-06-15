@@ -35,8 +35,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
     company_id = fields.Many2one(
         'res.company',
         required=True,
-        default=lambda self: self.env.company,
-        help=''
+        help='Technical field used to filter the available journals'
     )
     available_taxes = fields.Many2many(
         'account.tax',
@@ -122,6 +121,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             withhold_type = 'out_withhold'
         withhold_journal = self.env['account.journal'].search([
             ('l10n_ec_withhold_type', '=', withhold_type),
+            ('company_id', '=', invoices[0].company_id.id),
             ], order="sequence asc", limit=1)
         l10n_latam_document_type_id = self.env['l10n_latam.document.type'].search([
             ('country_id.code', '=', 'EC'),
@@ -129,9 +129,9 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             ], order="sequence asc", limit=1)
         taxes = self.env['account.tax']
         if withhold_type == 'in_withhold':
-            taxes = self.env['account.tax'].search([('type_tax_use', '=', 'none'),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat_purchase', 'withhold_income_purchase'])])
+            taxes = self.env['account.tax'].search([('company_id', '=', invoices[0].company_id.id),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat_purchase', 'withhold_income_purchase'])])
         elif withhold_type == 'out_withhold':
-            taxes = self.env['account.tax'].search([('type_tax_use', '=', 'none'),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat_sale', 'withhold_income_sale'])])
+            taxes = self.env['account.tax'].search([('company_id', '=', invoices[0].company_id.id),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat_sale', 'withhold_income_sale'])])
         default_values = {
             'journal_id': withhold_journal and withhold_journal.id,
             'l10n_latam_document_type_id': l10n_latam_document_type_id and l10n_latam_document_type_id.id,
@@ -459,6 +459,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             (withhold + related_invoices).line_ids.filtered(lambda line: not line.reconciled and line.account_id == self._get_partner_account(partner_id, withhold.l10n_ec_withhold_type)).reconcile()
             
     def _get_partner_account(self, partner, withhold_type):
+        partner = partner.with_company(self.company_id)
         account = self.env['account.account']
         if withhold_type in ['out_withhold']:
             account = partner.property_account_receivable_id
