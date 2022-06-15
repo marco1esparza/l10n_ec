@@ -11,7 +11,9 @@
 						<field name="journal_id" domain="[('l10n_ec_withhold_type', '=', withhold_type)]" options="{'no_open': True, 'no_create': True}"/>
 						<field name="l10n_latam_document_type_id" domain="[('internal_type', '=', 'withhold')]" options="{'no_open': True, 'no_create': True}"/>
 						<field name="l10n_latam_manual_document_number" invisible="1"/>
-						<field name="l10n_latam_document_number" attrs="{'required': [('withhold_type','=','out_withhold'), ('l10n_latam_manual_document_number','!=', False)], 'invisible': [('l10n_latam_manual_document_number','!=', False)]}"/>
+						<field name="l10n_latam_document_number" 
+							   attrs="{'required': [('l10n_latam_manual_document_number','=', True)],
+						               'invisible': [('l10n_latam_manual_document_number','=', False)]}"/>
 						<field name="date"/>
 						<field name="company_id" invisible="1"/>
 						<field name="withhold_type" invisible="1"/>
@@ -25,10 +27,12 @@
 							   context="{'available_taxes': available_taxes, 'related_invoices': related_invoices}">
 				            <tree editable="bottom">
 			                    <field name="company_id" invisible="1"/>
-								<field name="tax_id"
+								<field name="tax_id" required="True"
 									   domain="[('id', 'in', context.get('available_taxes'))]"
-									   options="{'no_create': True,'no_open': True}" required="True"/>
-			                    <field name="invoice_id" required="True" domain="[('id', 'in', context.get('available_tax_ids'))]"/>
+									   options="{'no_create': True,'no_open': True}"/>
+			                    <field name="invoice_id" required="True" 
+			                    	   domain="[('id', 'in', context.get('related_invoices}'))]"
+			                    	   options="{'no_create': True,'no_open': True}"/>
 			                    <field name="account_id" readonly="1" groups="account.group_account_user"/>
 			                    <field name="account_id" readonly="0" invisible="1"/> <!-- editable version to be able to write from onchange -->
 			                    <field name="base"/>
