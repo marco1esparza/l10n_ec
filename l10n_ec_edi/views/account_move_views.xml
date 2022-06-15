@@ -105,6 +105,9 @@
                         <field name="narration" placeholder="Add an internal note..." nolabel="1" height="50"/>
                     </page>
                 </xpath>
+                <xpath expr="//field[@name='reversed_entry_id']" position="after">
+                	 <field name="invoice_origin"/>
+ 				</xpath>
             </field>
         </record>
         
