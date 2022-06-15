@@ -254,7 +254,7 @@ class AccountMove(models.Model):
     def _get_l10n_ec_identification_type(self):
         # OVERRIDE
         code = super()._get_l10n_ec_identification_type()
-        if self.is_withholding():
+        if self._l10n_ec_is_withholding():
             #Codes are the same as for a regular out_invoice, but the is_withholding method don't exist in l10n_ec module
             it_ruc = self.env.ref("l10n_ec.ec_ruc", False)
             it_dni = self.env.ref("l10n_ec.ec_dni", False)
