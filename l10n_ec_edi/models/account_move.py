@@ -69,6 +69,11 @@ class AccountMove(models.Model):
         copy=False,
         help='Technical field to limit elegible invoices related to this withhold'
     )
+    l10n_ec_withhold_origin_count = fields.Integer(
+        compute='_compute_l10n_ec_withhold_ids',
+        string='Invoices Count',
+        help='Technical field to count linked invoice for the smart button'
+    )
     # subtotals
     l10n_ec_withhold_vat_amount = fields.Monetary(
         compute='_l10n_ec_compute_withhold_totals',
@@ -152,6 +157,35 @@ class AccountMove(models.Model):
             result = action.sudo().read()[0]
             result['name'] = _('Withholds')
             result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"            
+            return result
+        
+        
+        account.view_out_invoice_tree
+        
+        account.view_move_form
+        
+    def l10n_ec_action_view_invoices(self):
+        # Navigate from the invoice to its withholds
+        l10n_ec_withhold_origin_ids = self.env.context.get('withhold', []) or self.l10n_ec_withhold_origin_ids.ids
+        if len(l10n_ec_withhold_origin_ids) == 1:
+            return {
+                'name': _('Invoices'),
+                'view_type': 'form',
+                'view_mode': 'form',
+                'view_id': False,
+                'res_model': 'account.move',
+                'type': 'ir.actions.act_window',
+                'context': self.env.context,
+                'res_id': l10n_ec_withhold_origin_ids[0],
+            }
+        else:
+            action = 'account.action_move_out_invoice_type'
+            if self.l10n_ec_withhold_type == 'in_withhold':                
+                action = 'account.action_move_in_invoice_type'
+            action = self.env.ref(action)
+            result = action.sudo().read()[0]
+            result['name'] = _('Invoices')
+            result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_origin_ids) + ")]"            
             return result
 
     # ===== OVERRIDES & ONCHANGES =====
@@ -505,10 +539,10 @@ class AccountMove(models.Model):
     def _compute_l10n_ec_withhold_ids(self):
         for move in self:
             move.l10n_ec_withhold_line_ids = move.line_ids.filtered(lambda l: l.tax_line_id)
-            move.l10n_ec_withhold_ids = self.env['account.move.line'].search(
-                [('l10n_ec_withhold_invoice_id', '=', move.id)]).mapped('move_id')
-            move.l10n_ec_withhold_origin_ids = move.line_ids.mapped('l10n_ec_withhold_invoice_id')
+            move.l10n_ec_withhold_ids = self.env['account.move.line'].search([('l10n_ec_withhold_invoice_id', '=', move.id)]).mapped('move_id')
             move.l10n_ec_withhold_count = len(move.l10n_ec_withhold_ids)
+            move.l10n_ec_withhold_origin_ids = move.line_ids.mapped('l10n_ec_withhold_invoice_id')
+            move.l10n_ec_withhold_origin_count = len(move.l10n_ec_withhold_origin_ids)
 
     # ===== PRIVATE (static) =====
 

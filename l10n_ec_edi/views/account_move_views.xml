@@ -39,6 +39,13 @@
                             <span class="o_stat_text">Withholds</span>
                         </div>
                     </button>
+                     <button type="object" class="oe_stat_button" name="l10n_ec_action_view_invoices" icon="fa-list-alt"
+                            attrs="{'invisible': [('l10n_ec_withhold_origin_count', '=', 0)]}">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value"><field name="l10n_ec_withhold_origin_count"/></span>
+                            <span class="o_stat_text">Invoices</span>
+                        </div>
+                    </button>
                 </div>
                 <xpath expr="//field[@name='date']" position="attributes">
                     <attribute name="attrs">{'invisible': ['|', ('move_type', 'in', ('out_invoice', 'out_refund', 'out_receipt')), ('l10n_ec_withhold_type', 'in', ['out_withhold', 'in_withhold'])]}</attribute>
@@ -94,23 +101,9 @@
                         <!-- Internal note -->
                         <field name="narration" placeholder="Add an internal note..." nolabel="1" height="50"/>
                     </page>
-                    <page id="invoice_tab" string="Invoices" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['out_withhold', 'in_withhold'])]}">
-                        <group>
-                            <field name="invoice_origin"/>
-                        </group>
-                        <p class="oe_grey" nolabel="1" colspan="2">Listado de facturas afectadas por esta retención</p>
-                        <field name="l10n_ec_withhold_origin_ids" readonly="1" nolabel="1">
-                            <tree editable="bottom">
-                                <field name="partner_id" string="Customer"/>
-                                <field name="invoice_date" string="Invoice Date"/>
-                                <field name="name"/>
-                                <field name="amount_total"/>
-                                <field name="state"/>
-                            </tree>
-                        </field>
-                        <group>
-                        </group>
-                    </page>
+                    	<xpath expr="//field[@name='auto_post']" position="before">
+                    	<field name="invoice_origin"/>
+                	</xpath>
                 </xpath>
             </field>
         </record>
