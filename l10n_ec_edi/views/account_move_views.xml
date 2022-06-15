@@ -67,14 +67,12 @@
                     <field name="edi_document_ids" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
                     <field name="edi_state" attrs="{'invisible': [('l10n_ec_withhold_type', 'not in', ['in_withhold'])]}"/>
                 </xpath>
-    
-                <xpath expr="//field[@name='auto_post']" position="before">
-                   	<field name="invoice_origin"/>
-                   	<field name="l10n_ec_withhold_count" invisible="1"/>
+                <field name="invoice_origin" position="after">
+                    <field name="l10n_ec_withhold_count" invisible="1"/>
                     <field name="l10n_ec_withhold_type" invisible="1"/>
                     <field name="l10n_ec_show_add_withhold" invisible="1"/>
                     <field name="l10n_ec_withhold_type" invisible="1"/>
-				</xpath>
+                </field>
                 <xpath expr="//sheet//group//group//div[@name='journal_div']" position="after">
                     <field name="l10n_ec_authorization_number"
                            attrs="{'invisible': ['|', ('l10n_ec_authorization_number', '=', False), ('move_type', 'not in', ('out_invoice', 'out_refund')), ('l10n_latam_internal_type', '!=', 'purchase_liquidation')]}"/>
