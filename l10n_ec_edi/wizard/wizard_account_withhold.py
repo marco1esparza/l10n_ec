@@ -455,15 +455,19 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
     @api.depends('journal_id', 'l10n_latam_document_type_id')
     def _compute_l10n_latam_manual_document_number(self):
         self.l10n_latam_manual_document_number = False
-        move = self.env['account.move']
-        for rec in self:
-            if rec.journal_id and rec.journal_id.l10n_latam_use_documents and rec.journal_id.l10n_ec_withhold_type == 'in_withhold' and rec.l10n_latam_document_type_id:
-                rec.l10n_latam_manual_document_number = move.search_count([('journal_id', '=', rec.journal_id.id),
-                                                                           ('l10n_latam_document_type_id', '=',
-                                                                            rec.l10n_latam_document_type_id.id),
-                                                                           ('state', 'in', ['posted',
-                                                                                            'cancel'])]) > 0 and True or False
-    
+        if self.journal_id and self.journal_id.l10n_latam_use_documents and self.l10n_latam_document_type_id:
+            if self.journal_id.l10n_ec_withhold_type == 'out_withhold':
+                # customer withhold number is provided by the customer
+                self.l10n_latam_manual_document_number = True
+            elif self.journal_id.l10n_ec_withhold_type == 'in_withhold':
+                # manual when there are not any posted entry with journal
+                count = self.env['account.move'].search_count([
+                    ('journal_id', '=', self.journal_id.id),
+                    ('l10n_latam_document_type_id', '=', self.l10n_latam_document_type_id.id),
+                    ('state', 'in', ['posted','cancel'])
+                    ])
+                self.l10n_latam_manual_document_number = True if not bool(count) else False
+                
     @api.depends('withhold_line_ids')
     def _compute_withhold_totals(self):
         for wizard in self:

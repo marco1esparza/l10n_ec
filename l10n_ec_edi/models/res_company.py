@@ -25,7 +25,8 @@ class ResCompany(models.Model):
     )
     l10n_ec_wihhold_agent_number = fields.Char(
         string='Withhold Agent Number',
-        help='',
+        help=u"Last digits from the SRI resolution number in which your company became a designated withholder agent. \n"
+        u"If the resolution number where NAC-DNCRASC20-00000001 ten the number should be 1",
     )
     l10n_ec_forced_accounting = fields.Boolean(
         string='Forced to Keep Accounting Books',
@@ -39,7 +40,9 @@ class ResCompany(models.Model):
         string=u"Regimen",
         default='regular',
         required=True,
-        # TODO help text ?
+        help=u"Will show an additional label on the RIDE and XML called 'CONTRIBUYENTE REGIMEN RIMPE', \n"
+        u"select it if your company is in the SRI Excel registry, \n"
+        u"It doesn't affect the computation of withholds\n"
     )
     l10n_ec_issue_withholds = fields.Boolean(
         string='Issue Withhols',
