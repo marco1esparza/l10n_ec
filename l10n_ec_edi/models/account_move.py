@@ -177,8 +177,8 @@ class AccountMove(models.Model):
             return result
             
     def l10n_ec_action_view_invoices(self):
-        # Navigate from the invoice to its withholds
-        l10n_ec_withhold_origin_ids = self.env.context.get('withhold', []) or self.l10n_ec_withhold_origin_ids.ids
+        # Navigate from the withhold to its invoices
+        l10n_ec_withhold_origin_ids = self.l10n_ec_withhold_origin_ids.ids
         if len(l10n_ec_withhold_origin_ids) == 1:
             return {
                 'name': _('Invoices'),
@@ -272,30 +272,46 @@ class AccountMove(models.Model):
 
     @api.constrains('name', 'journal_id', 'state')
     def _check_unique_sequence_number(self):
-        # Override to allow duplicated numbers in sales withhold as those are issued by different customers 
-        moves = self.filtered(lambda move: move.state == 'posted')
-        if not moves:
-            return
-        self.flush()
-        out_withhold = self.filtered(lambda move: move.l10n_ec_withhold_type == 'out_withhold')
-        if out_withhold:
-            # /!\ Computed stored fields are not yet inside the database.
-            self._cr.execute('''
-                    SELECT move2.id
-                    FROM account_move move
-                    INNER JOIN account_move move2 ON
-                        move2.name = move.name
-                        AND move2.journal_id = move.journal_id
-                        AND move2.move_type = move.move_type
-                        AND move2.id != move.id
-                    WHERE move.id IN %s AND move2.partner_id IN %s AND move2.state = 'posted'
-                ''', [tuple(moves.ids), tuple(moves.mapped('partner_id').ids)])
-            res = self._cr.fetchone()
-            if res:
-                raise ValidationError(_('Posted journal entry must have an unique sequence number per customer.\n'
-                                    'Problematic IDs: %s\n') % res)
-            return
-        return super(AccountMove, self)._check_unique_sequence_number()
+        # Exclude sales withhold number as it is issued by the customer
+        sale_withhold = self.filtered(lambda x: x.l10n_ec_withhold_type == 'out_withhold' and x.l10n_latam_use_documents)
+        return super(AccountMove, self - sale_withhold)._check_unique_sequence_number()
+    
+    @api.constrains('name', 'partner_id', 'company_id', 'posted_before')
+    def _check_unique_vendor_number(self):
+        super(AccountMove, self.with_context(l10n_ec_withhold_type=self.l10n_ec_withhold_type))._check_unique_vendor_number() 
+    
+    def is_purchase_document(self, include_receipts=False):
+        # Used in _check_unique_vendor_number: In the context of validating sales withhold number for same partner make it behave like a purchase
+        if self._context.get('l10n_ec_withhold_type',False) == 'out_withhold':
+            return True
+        return super().is_purchase_document(include_receipts = include_receipts)
+    
+#     @api.constrains('name', 'journal_id', 'state')
+#     def _check_unique_sequence_number(self):
+#         # Override to allow duplicated numbers in sales withhold as those are issued by different customers 
+#         moves = self.filtered(lambda move: move.state == 'posted')
+#         if not moves:
+#             return
+#         self.flush()
+#         out_withhold = self.filtered(lambda move: move.l10n_ec_withhold_type == 'out_withhold')
+#         if out_withhold:
+#             # /!\ Computed stored fields are not yet inside the database.
+#             self._cr.execute('''
+#                     SELECT move2.id
+#                     FROM account_move move
+#                     INNER JOIN account_move move2 ON
+#                         move2.name = move.name
+#                         AND move2.journal_id = move.journal_id
+#                         AND move2.move_type = move.move_type
+#                         AND move2.id != move.id
+#                     WHERE move.id IN %s AND move2.partner_id IN %s AND move2.state = 'posted'
+#                 ''', [tuple(moves.ids), tuple(moves.mapped('partner_id').ids)])
+#             res = self._cr.fetchone()
+#             if res:
+#                 raise ValidationError(_('Posted journal entry must have an unique sequence number per customer.\n'
+#                                     'Problematic IDs: %s\n') % res)
+#             return
+#         return super(AccountMove, self)._check_unique_sequence_number()
     
     @api.depends(
         'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
@@ -403,12 +419,10 @@ class AccountMove(models.Model):
             }
         return data
 
-    def _l10n_ec_is_withholding(self):
-        #TODO Discuss with Odoo, the method can be simplified to compute based on journal type, but in the proposed way is more "secure"
-        #TODO Discuss with Odoo, method name doesn't have l10n_ec prefix to look alike the is_invoice() method.  
+    def _l10n_ec_is_withholding(self):  
         is_withholding = False
         country_code = self.country_code or self.company_id.country_code
-        if country_code == 'EC' and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold'):
+        if country_code == 'EC' and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold'):
             is_withholding = True
         return is_withholding
 
@@ -555,15 +569,27 @@ class AccountMove(models.Model):
             invoice.l10n_ec_withhold_vat_base = l10n_ec_withhold_vat_base
             invoice.l10n_ec_withhold_profit_base = l10n_ec_withhold_profit_base
             invoice.l10n_ec_withhold_total_amount = l10n_ec_withhold_vat_amount + l10n_ec_withhold_profit_amount
-
+    
     def _l10n_ec_show_add_withhold(self):
         # shows/hide "ADD WITHHOLD" button on invoices
+        # TODO: Trescloud finish polishing the scenarios for showing the withhold button
         for invoice in self:
             result = False
-            if invoice.country_code == 'EC' and invoice.state == 'posted':
-                if invoice.l10n_latam_document_type_id.code in ['01', '02', '03', '18']:
-                    result = True
-            invoice.l10n_ec_show_add_withhold = result
+            codes_to_withhold = [
+                '01', # factura compra
+                '02', # Nota de venta
+                '03', # liquidacion compra
+                '08', # Entradas a espectaculos
+                '09', # Tiquetes
+                '18', # Factura de Venta
+                '11', # Pasajes
+                '12', # Inst FInancieras
+                '20', # Estado
+                '21', # Carta porte aereo
+                '47', # Nota de crédito de reembolso
+                '48', # Nota de débito de reembolso
+                ]
+            invoice.l10n_ec_show_add_withhold = invoice.country_code == 'EC' and invoice.state == 'posted' and invoice.l10n_latam_document_type_id.code in codes_to_withhold
     
     @api.depends('line_ids')
     def _compute_l10n_ec_withhold_ids(self):

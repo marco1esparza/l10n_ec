@@ -296,6 +296,7 @@ class AccountMove(models.Model):
                         result = True
             move.l10n_ec_require_vat_tax = result
 
+    #ESTE METODO DEBE REMOVERSE PUES FUE INCORPORADO EN EL _l10n_ec_show_add_withhold
     @api.depends('l10n_latam_document_type_id')
     def _l10n_ec_compute_require_withhold_tax(self):
         # Indicates if the invoice requires a withhold or not
