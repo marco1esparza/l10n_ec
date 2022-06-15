@@ -286,33 +286,6 @@ class AccountMove(models.Model):
             return True
         return super().is_purchase_document(include_receipts = include_receipts)
     
-#     @api.constrains('name', 'journal_id', 'state')
-#     def _check_unique_sequence_number(self):
-#         # Override to allow duplicated numbers in sales withhold as those are issued by different customers 
-#         moves = self.filtered(lambda move: move.state == 'posted')
-#         if not moves:
-#             return
-#         self.flush()
-#         out_withhold = self.filtered(lambda move: move.l10n_ec_withhold_type == 'out_withhold')
-#         if out_withhold:
-#             # /!\ Computed stored fields are not yet inside the database.
-#             self._cr.execute('''
-#                     SELECT move2.id
-#                     FROM account_move move
-#                     INNER JOIN account_move move2 ON
-#                         move2.name = move.name
-#                         AND move2.journal_id = move.journal_id
-#                         AND move2.move_type = move.move_type
-#                         AND move2.id != move.id
-#                     WHERE move.id IN %s AND move2.partner_id IN %s AND move2.state = 'posted'
-#                 ''', [tuple(moves.ids), tuple(moves.mapped('partner_id').ids)])
-#             res = self._cr.fetchone()
-#             if res:
-#                 raise ValidationError(_('Posted journal entry must have an unique sequence number per customer.\n'
-#                                     'Problematic IDs: %s\n') % res)
-#             return
-#         return super(AccountMove, self)._check_unique_sequence_number()
-    
     @api.depends(
         'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
         'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual',
