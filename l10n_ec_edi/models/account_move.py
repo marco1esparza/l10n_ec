@@ -175,12 +175,7 @@ class AccountMove(models.Model):
             result['name'] = _('Withholds')
             result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"            
             return result
-        
-        
-        account.view_out_invoice_tree
-        
-        account.view_move_form
-        
+            
     def l10n_ec_action_view_invoices(self):
         # Navigate from the invoice to its withholds
         l10n_ec_withhold_origin_ids = self.env.context.get('withhold', []) or self.l10n_ec_withhold_origin_ids.ids
