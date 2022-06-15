@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import models
+from odoo import models, _
 
 
 class AccountChartTemplate(models.Model):
@@ -37,7 +37,7 @@ class AccountChartTemplate(models.Model):
                         'type': 'general',
                         'company_id': company.id,
                         'show_on_dashboard': True
-                    })              
+                    })
     
     def _load(self, sale_tax_rate, purchase_tax_rate, company):
         # Override to setup withhold taxes in company configuration

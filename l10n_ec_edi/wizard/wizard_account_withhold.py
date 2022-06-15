@@ -38,6 +38,14 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         default=lambda self: self.env.company,
         help=''
     )
+    available_taxes = fields.Many2many(
+        'account.tax',
+        'l10n_ec_account_invoice_taxes_rel',
+        'tax_id',
+        'invoice_id',
+        string='Taxes',
+        help='Technical field to limit elegible taxes related to this withhold'
+    )
     related_invoices = fields.Many2many(
         'account.move',
         'l10n_ec_account_invoice_withhold_rel',
@@ -119,11 +127,17 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             ('country_id.code', '=', 'EC'),
             ('internal_type', '=', 'withhold'),
             ], order="sequence asc", limit=1)
+        taxes = self.env['account.tax']
+        if withhold_type == 'in_withhold':
+            taxes = self.env['account.tax'].search([('type_tax_use', '=', 'none'),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat_purchase', 'withhold_income_purchase'])])
+        elif withhold_type == 'out_withhold':
+            taxes = self.env['account.tax'].search([('type_tax_use', '=', 'none'),('tax_group_id.l10n_ec_type', 'in', ['withhold_vat_sale', 'withhold_income_sale'])])
         default_values = {
             'journal_id': withhold_journal and withhold_journal.id,
             'l10n_latam_document_type_id': l10n_latam_document_type_id and l10n_latam_document_type_id.id,
             'date': fields.Date.context_today(self),
             'withhold_type': withhold_type,
+            'available_taxes': [(6, 0, taxes.ids)],
             'related_invoices': [(6, 0, invoices.ids)],
             'company_id': invoices[0].company_id.id,
             }
@@ -385,7 +399,7 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
                 # Future versions might allow several withholds per purchase invoice and on several purchase invoces at a time (similar to sales) 
                 raise ValidationError(
                     _("At the moment withholds over multiple invoices are only supported in customer withholds"))
-            if not invoice.l10n_ec_allow_withhold:
+            if not invoice.l10n_ec_show_add_withhold:
                 raise ValidationError(
                     _("The selected document type does not support withholds, please check the document %s", invoice.name))
                 

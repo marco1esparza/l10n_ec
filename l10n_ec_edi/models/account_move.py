@@ -43,8 +43,8 @@ class AccountMove(models.Model):
     l10n_ec_withhold_type = fields.Selection(
         related='journal_id.l10n_ec_withhold_type',
     )
-    l10n_ec_allow_withhold = fields.Boolean(
-        compute='_l10n_ec_allow_withhold',
+    l10n_ec_show_add_withhold = fields.Boolean(
+        compute='_l10n_ec_show_add_withhold',
         string='Allow Withhold',
         help='Technical field to show/hide "ADD WITHHOLD" button'
     )
@@ -71,6 +71,11 @@ class AccountMove(models.Model):
         string='Invoices',
         copy=False,
         help='Technical field to limit elegible invoices related to this withhold'
+    )
+    l10n_ec_withhold_origin_count = fields.Integer(
+        compute='_compute_l10n_ec_withhold_ids',
+        string='Invoices Count',
+        help='Technical field to count linked invoice for the smart button'
     )
     # subtotals
     l10n_ec_withhold_vat_amount = fields.Monetary(
@@ -154,7 +159,7 @@ class AccountMove(models.Model):
         l10n_ec_withhold_ids = self.env.context.get('withhold', []) or self.l10n_ec_withhold_ids.ids
         if len(l10n_ec_withhold_ids) == 1:
             return {
-                'name': u'Withholding',
+                'name': _('Withholding'),
                 'view_type': 'form',
                 'view_mode': 'form',
                 'view_id': False,
@@ -169,6 +174,35 @@ class AccountMove(models.Model):
             result = action.sudo().read()[0]
             result['name'] = _('Withholds')
             result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_ids) + ")]"            
+            return result
+        
+        
+        account.view_out_invoice_tree
+        
+        account.view_move_form
+        
+    def l10n_ec_action_view_invoices(self):
+        # Navigate from the invoice to its withholds
+        l10n_ec_withhold_origin_ids = self.env.context.get('withhold', []) or self.l10n_ec_withhold_origin_ids.ids
+        if len(l10n_ec_withhold_origin_ids) == 1:
+            return {
+                'name': _('Invoices'),
+                'view_type': 'form',
+                'view_mode': 'form',
+                'view_id': False,
+                'res_model': 'account.move',
+                'type': 'ir.actions.act_window',
+                'context': self.env.context,
+                'res_id': l10n_ec_withhold_origin_ids[0],
+            }
+        else:
+            action = 'account.action_move_out_invoice_type'
+            if self.l10n_ec_withhold_type == 'in_withhold':                
+                action = 'account.action_move_in_invoice_type'
+            action = self.env.ref(action)
+            result = action.sudo().read()[0]
+            result['name'] = _('Invoices')
+            result['domain'] = "[('id', 'in', " + str(l10n_ec_withhold_origin_ids) + ")]"            
             return result
 
     # ===== OVERRIDES & ONCHANGES =====
@@ -189,7 +223,7 @@ class AccountMove(models.Model):
         # avoid duplicating withholds, should be created always from the withhold wizard
         # it also correctly blocks user from reversing the withhold
         res = super(AccountMove, self).copy_data(default=default)
-        if self.is_withholding():
+        if self._l10n_ec_is_withholding():
             raise ValidationError(_("You can not duplicate a withhold, instead create a new one from the invoice"))
         return res
 
@@ -198,13 +232,13 @@ class AccountMove(models.Model):
         # It enables the send email button, the edi process, the customer portal, printing the qweb report, and other stuff.
         country_code = self.country_code or self.company_id.country_code
         if country_code == 'EC':
-            if self.is_withholding():
+            if self._l10n_ec_is_withholding():
                 return True
         return super(AccountMove, self).is_invoice(include_receipts)
         
     def _creation_message(self):
         # OVERRIDE, withholds should have a dedicated message equivalent to invoices, otherwise a simple "Journal Entry created" was shown
-        if self.is_withholding():
+        if self._l10n_ec_is_withholding():
             return _('Withhold Created')
         return super()._creation_message()
 
@@ -220,7 +254,7 @@ class AccountMove(models.Model):
     def _get_l10n_ec_identification_type(self):
         # OVERRIDE
         code = super()._get_l10n_ec_identification_type()
-        if self.is_withholding():
+        if self._l10n_ec_is_withholding():
             #Codes are the same as for a regular out_invoice, but the is_withholding method don't exist in l10n_ec module
             it_ruc = self.env.ref("l10n_ec.ec_ruc", False)
             it_dni = self.env.ref("l10n_ec.ec_dni", False)
@@ -240,7 +274,7 @@ class AccountMove(models.Model):
         # TODO fix l10n_ec function ? Why is there a difference ?
         # https://github.com/odoo/odoo/blob/15.0/addons/l10n_ec/models/account_move.py#L137
         return "08" if code in ("09", "20", "21") else code
-    
+
     @api.constrains('name', 'journal_id', 'state')
     def _check_unique_sequence_number(self):
         # Override to allow duplicated numbers in sales withhold as those are issued by different customers 
@@ -267,16 +301,6 @@ class AccountMove(models.Model):
                                     'Problematic IDs: %s\n') % res)
             return
         return super(AccountMove, self)._check_unique_sequence_number()
-
-    @api.model
-    def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
-        # only shows previously selected invoices in the withhold wizard lines
-        if self.env.context.get('l10n_ec_related_invoices_ctx'):
-            return super(AccountMove, self)._name_search(name, args=[
-                ('id', 'in', self.env.context.get('l10n_ec_related_invoices_ctx'))], operator=operator, limit=limit,
-                                                         name_get_uid=name_get_uid)
-        return super(AccountMove, self)._name_search(name, args=args, operator=operator, limit=limit,
-                                                     name_get_uid=name_get_uid)
     
     @api.depends(
         'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
@@ -296,7 +320,7 @@ class AccountMove(models.Model):
     def _compute_amount(self):
         #Improves the the computation of purchase withhold to have coherent amounts, these are shown in tree view
         res = super()._compute_amount()
-        for move in self.filtered(lambda x: x.is_withholding()):
+        for move in self.filtered(lambda x: x._l10n_ec_is_withholding()):
             # amount_tax, amount_total, amount_residual should be positive just like in any invoice or refund
             # move.amount_untaxed doesn't need fixing as is always zero for withholds
             move.amount_tax = abs(move.amount_tax)
@@ -353,7 +377,7 @@ class AccountMove(models.Model):
 
     def l10n_ec_get_invoice_edi_data(self):
         self.ensure_one()
-        if not self.is_withholding():
+        if not self._l10n_ec_is_withholding():
             data = {
                 "taxes_data": self._l10n_ec_get_taxes_grouped_by_tax_group(),
                 "additional_info": {
@@ -384,14 +408,12 @@ class AccountMove(models.Model):
             }
         return data
 
-    def is_withholding(self):
+    def _l10n_ec_is_withholding(self):
         #TODO Discuss with Odoo, the method can be simplified to compute based on journal type, but in the proposed way is more "secure"
         #TODO Discuss with Odoo, method name doesn't have l10n_ec prefix to look alike the is_invoice() method.  
         is_withholding = False
         country_code = self.country_code or self.company_id.country_code
-        if country_code == 'EC' and self.move_type in ('entry') \
-           and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold') \
-           and self.l10n_latam_document_type_id.code in ['07']:
+        if country_code == 'EC' and self.l10n_ec_withhold_type and self.l10n_ec_withhold_type in ('in_withhold', 'out_withhold'):
             is_withholding = True
         return is_withholding
 
@@ -539,23 +561,23 @@ class AccountMove(models.Model):
             invoice.l10n_ec_withhold_profit_base = l10n_ec_withhold_profit_base
             invoice.l10n_ec_withhold_total_amount = l10n_ec_withhold_vat_amount + l10n_ec_withhold_profit_amount
 
-    def _l10n_ec_allow_withhold(self):
+    def _l10n_ec_show_add_withhold(self):
         # shows/hide "ADD WITHHOLD" button on invoices
         for invoice in self:
             result = False
             if invoice.country_code == 'EC' and invoice.state == 'posted':
                 if invoice.l10n_latam_document_type_id.code in ['01', '02', '03', '18']:
                     result = True
-            invoice.l10n_ec_allow_withhold = result
+            invoice.l10n_ec_show_add_withhold = result
     
     @api.depends('line_ids')
     def _compute_l10n_ec_withhold_ids(self):
         for move in self:
             move.l10n_ec_withhold_line_ids = move.line_ids.filtered(lambda l: l.tax_line_id)
-            move.l10n_ec_withhold_ids = self.env['account.move.line'].search(
-                [('l10n_ec_withhold_invoice_id', '=', move.id)]).mapped('move_id')
-            move.l10n_ec_withhold_origin_ids = move.line_ids.mapped('l10n_ec_withhold_invoice_id')
+            move.l10n_ec_withhold_ids = self.env['account.move.line'].search([('l10n_ec_withhold_invoice_id', '=', move.id)]).mapped('move_id')
             move.l10n_ec_withhold_count = len(move.l10n_ec_withhold_ids)
+            move.l10n_ec_withhold_origin_ids = move.line_ids.mapped('l10n_ec_withhold_invoice_id')
+            move.l10n_ec_withhold_origin_count = len(move.l10n_ec_withhold_origin_ids)
 
     # ===== PRIVATE (static) =====
 
