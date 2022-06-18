@@ -383,13 +383,17 @@ class AccountMove(models.Model):
         else:
             data = {
                 "taxes_data": self._l10n_ec_get_taxes_withhold_grouped(),
-                "additional_info": {
-                    "email": self.commercial_partner_id.email or 'NA',
-                    "direccion": ' '.join([value for value in [self.commercial_partner_id.street, self.commercial_partner_id.street2] if value]),
-                    "telefono": self.commercial_partner_id.phone or 'NA',
-                },
                 "fiscalperiod": str(self.invoice_date.month).zfill(2) + '/' + str(self.invoice_date.year),
+                "additional_info": {
+                    "direccion": ' '.join(
+                        [value for value in [self.commercial_partner_id.street, self.commercial_partner_id.street2] if
+                         value]),
+                },
             }
+            if self.commercial_partner_id.email:
+                data['additional_info']['email'] = self.commercial_partner_id.email
+            if self.commercial_partner_id.phone:
+                data['additional_info']['telefono'] = self.commercial_partner_id.phone
         return data
 
     def _l10n_ec_is_withholding(self):  
