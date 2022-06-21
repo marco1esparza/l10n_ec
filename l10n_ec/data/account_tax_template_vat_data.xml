@@ -69,13 +69,13 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_report_line_ids': [ref('tax_report_line_104_411')],
+                    'minus_report_line_ids': [ref('tax_report_line_104_412')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('l10n_ec.ec_sale_vat'),
-                    'minus_report_line_ids': [ref('tax_report_line_104_421')],
+                    'minus_report_line_ids': [ref('tax_report_line_104_422')],
                 })]"/>
         </record>
         <record id="tax_vat_415" model="account.tax.template">
@@ -127,7 +127,7 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_report_line_ids': [ref('tax_report_line_104_414')],
+                    'plus_report_line_ids': [ref('tax_report_line_104_416')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
@@ -138,7 +138,7 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_report_line_ids': [ref('tax_report_line_104_414')],
+                    'minus_report_line_ids': [ref('tax_report_line_104_416')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
@@ -333,25 +333,25 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_report_line_ids': [ref('tax_report_line_104_412')],
+                    'plus_report_line_ids': [ref('tax_report_line_104_444')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('l10n_ec.ec_other_downpayments'),
-                    'plus_report_line_ids': [ref('tax_report_line_104_422')],
+                    'plus_report_line_ids': [ref('tax_report_line_104_454')],
                 })]"/>
             <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_report_line_ids': [ref('tax_report_line_104_411')],
+                    'minus_report_line_ids': [ref('tax_report_line_104_444')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('l10n_ec.ec_other_downpayments'),
-                    'minus_report_line_ids': [ref('tax_report_line_104_421')],
+                    'minus_report_line_ids': [ref('tax_report_line_104_454')],
                 })]"/>
         </record>        
         <record id="tax_vat_411_08" model="account.tax.template">
