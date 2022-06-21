@@ -1146,25 +1146,25 @@
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'plus_report_line_ids': [ref('tax_report_line_103_396')],
+                    'plus_report_line_ids': [ref('tax_report_line_103_34446')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('l10n_ec.ret_ir_1_75x100'),
-                    'plus_report_line_ids': [ref('tax_report_line_103_346')],
+                    'plus_report_line_ids': [ref('tax_report_line_103_396')],
                 })]"/>
             <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'base',
-                    'minus_report_line_ids': [ref('tax_report_line_103_396')],
+                    'minus_report_line_ids': [ref('tax_report_line_103_346')],
                 }),
                 (0,0, {
                     'factor_percent': 100,
                     'repartition_type': 'tax',
                     'account_id': ref('l10n_ec.ret_ir_1_75x100'),
-                    'minus_report_line_ids': [ref('tax_report_line_103_346')],
+                    'minus_report_line_ids': [ref('tax_report_line_103_396')],
                 })]"/>
         </record>
         <record id="tax_withhold_profit_347_346" model="account.tax.template">
