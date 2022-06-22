@@ -20,6 +20,7 @@
 						               'invisible': [('l10n_latam_manual_document_number','=', False)]}"/>
 						<field name="company_id" invisible="1"/>
 						<field name="withhold_type" invisible="1"/>
+						<field name="l10n_ec_related_invoices_count" invisible="1"/>
 					</group>
 					<group>
 					</group>
@@ -35,7 +36,8 @@
 									   options="{'no_create': True,'no_open': True}"/>
 			                    <field name="invoice_id" required="True" 
 			                    	   domain="[('id', 'in', context.get('related_invoices'))]"
-			                    	   options="{'no_create': True,'no_open': True}"/>
+			                    	   options="{'no_create': True,'no_open': True}"
+			                    	   attrs="{'column_invisible': [('parent.l10n_ec_related_invoices_count', '=', 1)]}"/>
 			                    <field name="account_id" readonly="1" groups="account.group_account_user"/>
 			                    <field name="account_id" readonly="0" invisible="1"/> <!-- editable version to be able to write from onchange -->
 			                    <field name="base"/>
