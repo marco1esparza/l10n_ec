@@ -100,6 +100,12 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         readonly=True,
         help='The total value of the withhold, this value will be reconciled with the older invoice'
     )
+    l10n_ec_related_invoices_count = fields.Integer(
+        string='Related Invoice Count',
+        compute='_compute_related_invoices_count',
+        readonly=True,
+        help='Number of invoices related to withholding'
+    )
     
     @api.model
     def default_get(self, data_fields):
@@ -503,6 +509,11 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             wizard.l10n_ec_withhold_vat_base = l10n_ec_withhold_vat_base
             wizard.l10n_ec_withhold_profit_base = l10n_ec_withhold_profit_base
             wizard.l10n_ec_withhold_total_amount = l10n_ec_withhold_vat_amount + l10n_ec_withhold_profit_amount
+            
+    @api.depends('related_invoices')
+    def _compute_related_invoices_count(self):
+        for wizard in self:
+            wizard.l10n_ec_related_invoices_count = len(wizard.related_invoices.ids)
 
 
 class L10nEcWizardAccountWithholdLine(models.TransientModel):
