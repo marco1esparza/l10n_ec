@@ -314,52 +314,51 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             total += line.amount
             
             # 2. Create the tax base line and its counterpart
-            if line.tax_id.tax_group_id.l10n_ec_type in ['withhold_income_sale','withhold_income_purchase']:
-                # For profit withhold we need to add the base in a separate line for tax report 103
-                # For VAT withhold not necesary as the base line was created in the invoice entry, this base is in report 104
-                nice_base_label_elements = []
-                if line.tax_id.l10n_ec_code_base:
-                    nice_base_label_elements.append(line.tax_id.l10n_ec_code_base)
-                nice_base_label_elements.append("{:.2f}".format(abs(line.tax_id.amount))+"%")
-                nice_base_label_elements.append(line.invoice_id.name)
-                nice_base_label = ", ".join(nice_base_label_elements)
-                
-                base_line = line.tax_id.invoice_repartition_line_ids.filtered(lambda x:x.repartition_type == 'base')
-                vals_base_line = {
-                    'name': 'Base Ret: ' + nice_base_label,
-                    'move_id': withhold.id,
-                    'partner_id': withhold.partner_id.commercial_partner_id.id,
-                    'account_id': line.account_id.id,
-                    'quantity': 1.0,
-                    'price_unit': line.base,
-                    'debit': line.base if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
-                    'credit': line.base if withhold.l10n_ec_withhold_type == 'in_withhold' else 0.0,
-                    'tax_base_amount': 0.0,
-                    'tax_ids': [(6, 0, line.tax_id.ids)],
-                    'tax_tag_ids': [(6, 0, base_line.tag_ids.ids)],
-                    'tax_tag_invert': withhold.l10n_ec_withhold_type == 'in_withhold',
-                    'exclude_from_invoice_tab': True,
-                    'is_rounding_line': False,
-                    'date_maturity': False,
-                    'l10n_ec_withhold_invoice_id': line.invoice_id.id,
-                }
-                move_line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals_base_line)
-                vals_base_line_counterpart = { # Pretty much the same but inverted and with no tax
-                    'name': 'Base Ret Cont: ' + nice_base_label,
-                    'move_id': withhold.id,
-                    'partner_id': withhold.partner_id.commercial_partner_id.id,
-                    'account_id': line.account_id.id,
-                    'quantity': 1.0,
-                    'price_unit': line.base,
-                    'debit': line.base if withhold.l10n_ec_withhold_type == 'in_withhold' else 0.0,
-                    'credit': line.base if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
-                    'tax_base_amount': 0.0, 
-                    'exclude_from_invoice_tab': True,
-                    'is_rounding_line': False,
-                    'date_maturity': False,
-                    'l10n_ec_withhold_invoice_id': line.invoice_id.id,
-                }
-                move_line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals_base_line_counterpart)
+            # For profit withhold on purchases we need to add the base in a separate line for tax report 103
+            # We do the same for other taxes for homogeneity
+            nice_base_label_elements = []
+            if line.tax_id.l10n_ec_code_base:
+                nice_base_label_elements.append(line.tax_id.l10n_ec_code_base)
+            nice_base_label_elements.append("{:.2f}".format(abs(line.tax_id.amount))+"%")
+            nice_base_label_elements.append(line.invoice_id.name)
+            nice_base_label = ", ".join(nice_base_label_elements)
+            
+            base_line = line.tax_id.invoice_repartition_line_ids.filtered(lambda x:x.repartition_type == 'base')
+            vals_base_line = {
+                'name': 'Base Ret: ' + nice_base_label,
+                'move_id': withhold.id,
+                'partner_id': withhold.partner_id.commercial_partner_id.id,
+                'account_id': line.account_id.id,
+                'quantity': 1.0,
+                'price_unit': line.base,
+                'debit': line.base if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
+                'credit': line.base if withhold.l10n_ec_withhold_type == 'in_withhold' else 0.0,
+                'tax_base_amount': 0.0,
+                'tax_ids': [(6, 0, line.tax_id.ids)],
+                'tax_tag_ids': [(6, 0, base_line.tag_ids.ids)],
+                'tax_tag_invert': withhold.l10n_ec_withhold_type == 'in_withhold',
+                'exclude_from_invoice_tab': True,
+                'is_rounding_line': False,
+                'date_maturity': False,
+                'l10n_ec_withhold_invoice_id': line.invoice_id.id,
+            }
+            move_line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals_base_line)
+            vals_base_line_counterpart = { # Pretty much the same but inverted and with no tax
+                'name': 'Base Ret Cont: ' + nice_base_label,
+                'move_id': withhold.id,
+                'partner_id': withhold.partner_id.commercial_partner_id.id,
+                'account_id': line.account_id.id,
+                'quantity': 1.0,
+                'price_unit': line.base,
+                'debit': line.base if withhold.l10n_ec_withhold_type == 'in_withhold' else 0.0,
+                'credit': line.base if withhold.l10n_ec_withhold_type == 'out_withhold' else 0.0,
+                'tax_base_amount': 0.0, 
+                'exclude_from_invoice_tab': True,
+                'is_rounding_line': False,
+                'date_maturity': False,
+                'l10n_ec_withhold_invoice_id': line.invoice_id.id,
+            }
+            move_line = self.env['account.move.line'].with_context(check_move_validity=False).create(vals_base_line_counterpart)
         
         # 3. Payable/Receivable line
         # TODO: Discuss with Odoo, perhaps make one payable entry per linked invoice?
