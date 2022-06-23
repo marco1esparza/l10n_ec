@@ -279,6 +279,16 @@ class AccountMove(models.Model):
         # https://github.com/odoo/odoo/blob/15.0/addons/l10n_ec/models/account_move.py#L137
         return "08" if code in ("09", "20", "21") else code
 
+    def _get_name_invoice_report(self):
+        # EXTENDS account_move
+        self.ensure_one()
+        if self.l10n_latam_use_documents and self.country_code == 'EC':
+            if (self.move_type in ('out_invoice', 'out_refund') and self.l10n_latam_document_type_id.code in ['04', '18', '05', '41']) \
+                or (self.move_type in ('in_invoice') and self.l10n_latam_document_type_id.code in ['03', '41']
+                    and self.l10n_latam_document_type_id.l10n_ec_authorization == 'own'):
+                return 'l10n_ec_edi.report_invoice_document'
+        return super(AccountMove, self)._get_name_invoice_report()
+
     @api.constrains('name', 'journal_id', 'state')
     def _check_unique_sequence_number(self):
         # Exclude sales withhold number as it is issued by the customer
@@ -326,7 +336,7 @@ class AccountMove(models.Model):
             move.amount_residual_signed = move.amount_residual_signed * withhold_sign
             move.amount_total_in_currency_signed = move.amount_total_in_currency_signed * withhold_sign
         return res
-            
+
     # ===== GETTERS =====
 
     def l10n_ec_get_invoice_type(self):
@@ -462,6 +472,12 @@ class AccountMove(models.Model):
     def _l10n_ec_get_taxes_grouped_by_tax_group(self, exclude_withholding=True):
         self.ensure_one()
 
+        def filter_withholding_taxes(tax_values):
+            group_iva_withhold = self.env.ref("l10n_ec.tax_group_withhold_vat")
+            group_rent_withhold = self.env.ref("l10n_ec.tax_group_withhold_income")
+            withhold_group_ids = (group_iva_withhold + group_rent_withhold).ids
+            return tax_values["tax_id"].tax_group_id.id not in withhold_group_ids
+
         def group_by_tax_group(tax_values):
             code_percentage = self._l10n_ec_map_vat_subtaxes(tax_values["tax_id"])
             return {
@@ -480,7 +496,7 @@ class AccountMove(models.Model):
             return tax_values["tax_id"].tax_group_id.id not in withhold_group_ids
 
         taxes_data = self._prepare_edi_tax_details(
-            filter_to_apply=exclude_withholding and filter_withholding_taxes or None,
+            filter_to_apply=filter_withholding_taxes,
             grouping_key_generator=group_by_tax_group,
         )
         return taxes_data
@@ -592,6 +608,11 @@ class AccountMove(models.Model):
     def _l10n_ec_remove_forbidden_chars(self, s, max_len=300):
         return "".join("".join(x) for x in re_compile(r'([A-Z]|[a-z]|[0-9]|ñ|Ñ)+([\w]|[\S]|[^\n])*').findall(s))[:max_len]
 
+    def _l10n_ec_get_invoice_total_for_reports(self):
+        self.ensure_one()
+        tax_types = ('vat12', 'vat14', 'zero_vat', 'irbpnr')
+        tax_group_lines = self.line_ids.filtered(lambda line: line.tax_group_id and line.tax_group_id.l10n_ec_type in tax_types)
+        return self.amount_untaxed + sum(line.price_subtotal for line in tax_group_lines)
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
@@ -602,3 +623,4 @@ class AccountMoveLine(models.Model):
         ondelete='restrict',
         help='Link the withholding line to its invoice'
     )
+

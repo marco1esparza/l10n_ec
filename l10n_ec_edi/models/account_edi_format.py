@@ -103,6 +103,7 @@ class AccountEdiFormat(models.Model):
             errors.append(
                 _("You have to configure Country to Partner: %s.", move.commercial_partner_id.name)
             )
+
         if not move.commercial_partner_id.street:
             errors.append(
                 _("You have to configure Street to Partner: %s.", move.commercial_partner_id.name)
@@ -194,7 +195,7 @@ class AccountEdiFormat(models.Model):
         xsd_errors = self._l10n_ec_validate_with_xsd(xml_content, invoice.l10n_latam_document_type_id.internal_type)
 
         xml_string = tostring(xml_content)
-        xml_signed = invoice.company_id.l10n_ec_certificate_id.action_sign(xml_string)
+        xml_signed = invoice.company_id.l10n_ec_edi_certificate_id.action_sign(xml_string)
         xml_signed = b'<?xml version="1.0" encoding="utf-8" standalone="no"?>' + xml_signed.encode()
         return xml_signed, xsd_errors
 
