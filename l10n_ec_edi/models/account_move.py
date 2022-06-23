@@ -240,13 +240,6 @@ class AccountMove(models.Model):
     #             return True
     #     return super(AccountMove, self)._is_edi_invoice(include_receipts)
     
-    def _creation_message(self):
-        # OVERRIDE, withholds should have a dedicated message equivalent to invoices, otherwise a simple "Journal Entry created" was shown
-        if self._l10n_ec_is_withholding():
-            return _('Withhold Created')
-        return super()._creation_message()
-
-        
     def _is_manual_document_number(self):
         # OVERRIDE
         if self.journal_id.company_id.country_id.code == 'EC':
@@ -596,11 +589,13 @@ class AccountMove(models.Model):
     @api.depends('line_ids')
     def _compute_l10n_ec_withhold_ids(self):
         for move in self:
-            move.l10n_ec_withhold_line_ids = move.line_ids.filtered(lambda l: l.tax_line_id)
-            move.l10n_ec_withhold_ids = self.env['account.move.line'].search([('l10n_ec_withhold_invoice_id', '=', move.id)]).mapped('move_id')
-            move.l10n_ec_withhold_count = len(move.l10n_ec_withhold_ids)
-            move.l10n_ec_withhold_origin_ids = move.line_ids.mapped('l10n_ec_withhold_invoice_id')
-            move.l10n_ec_withhold_origin_count = len(move.l10n_ec_withhold_origin_ids)
+            if move._l10n_ec_is_withholding(): #fields related to a withhold entry
+                move.l10n_ec_withhold_line_ids = move.line_ids.filtered(lambda l: l.tax_line_id)
+                move.l10n_ec_withhold_origin_ids = move.line_ids.mapped('l10n_ec_withhold_invoice_id') #also removes duplicates
+                move.l10n_ec_withhold_origin_count = len(move.l10n_ec_withhold_origin_ids)
+            elif move.is_invoice(): #fields related to an invoice entry
+                move.l10n_ec_withhold_ids = self.env['account.move.line'].search([('l10n_ec_withhold_invoice_id', '=', move.id)]).mapped('move_id')
+                move.l10n_ec_withhold_count = len(move.l10n_ec_withhold_ids)
 
     # ===== PRIVATE (static) =====
 
