@@ -16,7 +16,6 @@ class AccountChartTemplate(models.Model):
     def _l10n_ec_configure_ecuadorian_withhold_journal(self, companies):
         ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
         for company in ecuadorian_companies:
-            self = self.with_company(company)
             #Create withhold journals
             new_journals = [
                 {'code': 'RVNTA', 'name': 'Retenciones de clientes', 'l10n_ec_withhold_type': 'out_withhold',
@@ -47,11 +46,13 @@ class AccountChartTemplate(models.Model):
         return res
     
     def _l10n_ec_configure_ecuadorian_withhold_contributor_type(self, companies):
-        #TODO ANDRES: Clean up the contributor types list, to a minimum
+        # Set proper profit withhold tax on RIMPE on contributor type
         ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
         for company in ecuadorian_companies:
-            self = self.with_company(company)
-            tax_rimpe = self.env['account.tax'].search([('l10n_ec_code_base', '=', '343')], limit=1)
+            tax_rimpe = self.env['account.tax'].search([
+                ('l10n_ec_code_base', '=', '343'),
+                ('company_id', '=', company.id)
+                ], limit=1)
             rimpe_contributor = self.env.ref('l10n_ec_edi.l10n_ec_contributor_type_13', raise_if_not_found=False) # RIMPE Contributor
             if tax_rimpe and rimpe_contributor:
                 rimpe_contributor.profit_withhold_tax_id = tax_rimpe.id
@@ -59,25 +60,21 @@ class AccountChartTemplate(models.Model):
     def _l10n_ec_setup_profit_withhold_taxes(self, companies):
         ecuadorian_companies = companies.filtered(lambda r: r.country_code == 'EC')
         for company in ecuadorian_companies:
-            self = self.with_company(company)
-            
             company.l10n_ec_fallback_profit_withhold_services = self.env['account.tax'].search([
                 ('l10n_ec_code_ats', '=', '3440'),
-                ('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'),
-                ('type_tax_use', '=', 'purchase'),
-                ('company_id', '=', company.id)
-            ], limit=1)
-
+                ('tax_group_id.l10n_ec_type', '=', 'withhold_income_purchase'),
+                ('type_tax_use', '=', 'none'),
+                ('company_id', '=', company.id),
+                ], limit=1)
             company.l10n_ec_profit_withhold_tax_credit_card = self.env['account.tax'].search([
                 ('l10n_ec_code_ats', '=', '332G'),
-                ('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'),
-                ('type_tax_use', '=', 'purchase'),
-                ('company_id', '=', company.id)
-            ], limit=1)
-
+                ('tax_group_id.l10n_ec_type', '=', 'withhold_income_purchase'),
+                ('type_tax_use', '=', 'none'),
+                ('company_id', '=', company.id),
+                ], limit=1)
             company.l10n_ec_fallback_profit_withhold_goods = self.env['account.tax'].search([
                 ('l10n_ec_code_ats', '=', '312'),
-                ('tax_group_id.l10n_ec_type', '=', 'withhold_income_tax'),
-                ('type_tax_use', '=', 'purchase'),
-                ('company_id', '=', company.id)
-            ], limit=1)
+                ('tax_group_id.l10n_ec_type', '=', 'withhold_income_purchase'),
+                ('type_tax_use', '=', 'none'),
+                ('company_id', '=', company.id),
+                ], limit=1)

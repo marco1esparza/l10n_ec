@@ -11,7 +11,10 @@ class AccountChartTemplate(models.Model):
         res = super(AccountChartTemplate, self)._prepare_all_journals(acc_template_ref, company, journals_dict=journals_dict)
         for r in res:
             if r.get('code') == 'INV':
-                r.update({'name': '001-001 ' + r.get('name')})
+                r.update({'name': '001-001 ' + r.get('name'),
+                          'l10n_ec_entity': '001',
+                          'l10n_ec_emission': '001',
+                          })
         self._l10n_ec_configure_ecuadorian_journal(company)
         return res
 
@@ -34,5 +37,7 @@ class AccountChartTemplate(models.Model):
                         'type': 'purchase',
                         'company_id': company.id,
                         'show_on_dashboard': True,
+                        'l10n_ec_entity': '001',
+                        'l10n_ec_emission': '001',
                     })
     

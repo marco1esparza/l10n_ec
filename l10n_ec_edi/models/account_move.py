@@ -230,7 +230,16 @@ class AccountMove(models.Model):
             if self._l10n_ec_is_withholding():
                 return True
         return super(AccountMove, self).is_invoice(include_receipts)
-        
+    
+    # def _is_edi_invoice(self, include_receipts=False):
+    #     # OVERRIDE: For Ecuador we consider _is_edi_invoice for all edis (invoices and wihtholds, in the future maybe waybills, etc)
+    #     # It enables the send email button, the edi process, the customer portal, printing the qweb report, and other stuff.
+    #     country_code = self.country_code or self.company_id.country_code
+    #     if country_code == 'EC':
+    #         if self._l10n_ec_is_withholding():
+    #             return True
+    #     return super(AccountMove, self)._is_edi_invoice(include_receipts)
+    
     def _creation_message(self):
         # OVERRIDE, withholds should have a dedicated message equivalent to invoices, otherwise a simple "Journal Entry created" was shown
         if self._l10n_ec_is_withholding():
