@@ -10,12 +10,6 @@ from datetime import datetime
 
 class AccountMove(models.Model):
     _inherit='account.move'
-    
-    def _creation_message(self):
-        # OVERRIDE, withholds should have a dedicated message equivalent to invoices, otherwise a simple "Journal Entry created" was shown
-        if self._l10n_ec_is_withholding():
-            return _('Withhold Created')
-        return super()._creation_message()
 
     def _is_manual_document_number(self):
         #override for manual entry of invoice numbers, usefull for re-typing documents from old system
