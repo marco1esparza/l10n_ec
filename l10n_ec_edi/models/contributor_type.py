@@ -21,7 +21,7 @@ class ContributorType(models.Model):
         'account.tax',
         string='Profit withhold',
         company_dependent=True,
-        domain=[('tax_group_id.l10n_ec_type', 'in', ('withhold_income_sale', 'withhold_income_purchase')),('type_tax_use', '=', 'none')],
+        domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_income_purchase')],
         help='This tax is suggested on vendors withhold wizard based on prevalence. '
         'The profit withhold prevalence order is payment method (credit cards retains 0%), this contributor type, then product, finally fallback on account settings'
     )
@@ -29,14 +29,14 @@ class ContributorType(models.Model):
         'account.tax',
         string='Goods VAT withhold',
         company_dependent=True,
-        domain=[('tax_group_id.l10n_ec_type', 'in', ('withhold_vat_sale', 'withhold_vat_purchase')),('type_tax_use', '=', 'none')],
+        domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_vat_purchase')],
         help='This tax is suggested on vendors withhold wizard for consumable and stockable products, if not set no vat withhold is suggested'
     )
     vat_services_withhold_tax_id = fields.Many2one(
         'account.tax',
         string='Services VAT withhold',
         company_dependent=True,
-        domain=[('tax_group_id.l10n_ec_type', '=', ('withhold_vat_sale', 'withhold_vat_purchase')),('type_tax_use', '=', 'none')],
+        domain=[('tax_group_id.l10n_ec_type', '=', 'withhold_vat_purchase')],
         help='This tax is suggested on vendors withhold wizard for services, if not set no vat withhold is suggested'
     )
     active = fields.Boolean(

@@ -9,7 +9,6 @@ class ResPartner(models.Model):
 
     l10n_ec_contributor_type_id = fields.Many2one(
         'l10n_ec.contributor.type',
-        company_dependent=True,
         string='Contributor Type',
         help=''
     )
