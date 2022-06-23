@@ -47,8 +47,8 @@
                                 <span class="o_form_label">Electronic Certificate File</span>
                                 <div class="content-group">
                                     <div class="row">
-                                        <label for="l10n_ec_certificate_id" class="col-lg-4 o_light_label"/>
-                                        <field name="l10n_ec_certificate_id" class="o_light_label" domain="[('state', '=', 'valid')]"/>
+                                        <label for="l10n_ec_edi_certificate_id" class="col-lg-4 o_light_label"/>
+                                        <field name="l10n_ec_edi_certificate_id" class="o_light_label" domain="[('state', '=', 'valid')]"/>
                                     </div>
                                     <div class="row">
                                         <label for="l10n_ec_special_contributor_number" class="col-lg-4 o_light_label"/>

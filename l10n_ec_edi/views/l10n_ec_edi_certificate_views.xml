@@ -2,7 +2,7 @@
 <odoo>
     <record id="sri_key_type_tree_view" model="ir.ui.view">
         <field name="name">l10n.ec.certificate.tree</field>
-        <field name="model">l10n_ec.certificate</field>
+        <field name="model">l10n_ec_edi.certificate</field>
         <field name="arch" type="xml">
             <tree
                 decoration-info="state == 'unverified'"
@@ -16,13 +16,13 @@
     </record>
     <record id="sri_key_type_form_view" model="ir.ui.view">
         <field name="name">l10n.ec.certificate.form</field>
-        <field name="model">l10n_ec.certificate</field>
+        <field name="model">l10n_ec_edi.certificate</field>
         <field name="arch" type="xml">
             <form duplicate="0">
                 <header>
                     <button
                         name="action_validate_and_load"
-                        string="Validate Cert"
+                        string="Verify Certificate"
                         type="object"
                         class="oe_highlight"
                         states="unverified"
@@ -48,7 +48,7 @@
                         </group>
                         <group>
                             <field
-                                name="file_content"
+                                name="content"
                                 required="1"
                                 filename="file_name"
                             />
@@ -59,7 +59,7 @@
                         <page string="Cert Info">
                             <group>
                                 <group>
-                                    <field name="emission_date"/>
+                                    <field name="date_start"/>
                                     <field name="subject_common_name"/>
                                     <field
                                         name="subject_serial_number"
@@ -67,7 +67,7 @@
                                     />
                                 </group>
                                 <group>
-                                    <field name="expiration_date"/>
+                                    <field name="date_end"/>
                                     <field name="issuer_common_name"/>
                                     <field
                                         name="cert_serial_number"
@@ -90,7 +90,7 @@
     </record>
     <record id="sri_key_type_search_view" model="ir.ui.view">
         <field name="name">l10n.ec.certificate.search</field>
-        <field name="model">l10n_ec.certificate</field>
+        <field name="model">l10n_ec_edi.certificate</field>
         <field name="arch" type="xml">
             <search>
                 <field name="name"/>
@@ -99,16 +99,16 @@
         </field>
     </record>
     <record id="sri_key_type_action" model="ir.actions.act_window">
-        <field name="name">Electronic Signature Certs</field>
+        <field name="name">Digital Certificates</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="res_model">l10n_ec.certificate</field>
+        <field name="res_model">l10n_ec_edi.certificate</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="sri_key_type_tree_view"/>
         <field name="search_view_id" ref="sri_key_type_search_view"/>
     </record>
     <menuitem
         id="sri_key_type_menu"
-        name="Electronic Signature Certs"
+        name="Digital Certificates"
         sequence="2"
         parent="sri_electronic_documents_menu"
         action="sri_key_type_action"

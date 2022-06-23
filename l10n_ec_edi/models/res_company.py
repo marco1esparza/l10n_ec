@@ -14,9 +14,9 @@ class ResCompany(models.Model):
         string="Use production servers",
         default=False,
     )
-    l10n_ec_certificate_id = fields.Many2one(
+    l10n_ec_edi_certificate_id = fields.Many2one(
         string="Certificate file for Ecuadorian EDI",
-        comodel_name="l10n_ec.certificate",
+        comodel_name="l10n_ec_edi.certificate",
         ondelete="restrict",
     )
     l10n_ec_special_contributor_number = fields.Char(

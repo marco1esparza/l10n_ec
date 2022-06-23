@@ -9,7 +9,7 @@
     "author": "Stanislas Gueniffey,TRESCLOUD",
     "category": "Accounting/Localizations/Account Charts",
     "maintainer": "Josse Colpaert <jco@odoo.com>",
-    "license": "LGPL-3",
+    "license": "OPL-1",
     "depends": [
         "account_edi",
         "l10n_ec",
@@ -23,13 +23,16 @@
         "data/account.edi.format.csv",
 
         "security/ir.model.access.csv",
+        "security/l10n_ec_edi_certificate.xml",
 
         "views/root_sri_menu.xml",
         "views/account_journal_view.xml",
         "views/account_move_views.xml",
         "views/contributor_type_view.xml",
-        "views/l10n_ec_edi_certificate_views.xml",
         "views/product_view.xml",
+        "views/account_report.xml",
+        "views/l10n_ec_edi_certificate_views.xml",
+        "views/report_invoice.xml",
         "views/res_config_settings_views.xml",
         "views/res_partner_view.xml",        
         #Wizard
