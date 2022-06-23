@@ -51,31 +51,31 @@ class AccountMove(models.Model):
     l10n_ec_withhold_line_ids = fields.One2many(
         'account.move.line',
         string='Withhold Lines',
-        compute='_compute_l10n_ec_withhold_ids',
+        compute='_compute_l10n_ec_withhold_wth_fields',
         readonly=True
+    )
+    l10n_ec_withhold_origin_ids = fields.Many2many(
+        'account.move',
+        compute='_compute_l10n_ec_withhold_wth_fields',
+        string='Invoices',
+        copy=False,
+        help='Technical field for invoices related to this withhold'
+    )
+    l10n_ec_withhold_origin_count = fields.Integer(
+        compute='_compute_l10n_ec_withhold_wth_fields',
+        string='Invoices Count',
+        help='Technical field to count linked invoice for the smart button'
     )
     l10n_ec_withhold_ids = fields.Many2many(
         'account.move',
-        compute='_compute_l10n_ec_withhold_ids',
+        compute='_compute_l10n_ec_withhold_inv_fields',
         string='Withholds',
         help='Link to withholds related to this invoice'
     )
     l10n_ec_withhold_count = fields.Integer(
-        compute='_compute_l10n_ec_withhold_ids',
+        compute='_compute_l10n_ec_withhold_inv_fields',
         string='Withholds Count',
         help='Technical field to count linked withhold for the smart button'
-    )
-    l10n_ec_withhold_origin_ids = fields.Many2many(
-        'account.move',
-        compute='_compute_l10n_ec_withhold_ids',
-        string='Invoices',
-        copy=False,
-        help='Technical field to limit elegible invoices related to this withhold'
-    )
-    l10n_ec_withhold_origin_count = fields.Integer(
-        compute='_compute_l10n_ec_withhold_ids',
-        string='Invoices Count',
-        help='Technical field to count linked invoice for the smart button'
     )
     # subtotals
     l10n_ec_withhold_vat_amount = fields.Monetary(
@@ -245,8 +245,7 @@ class AccountMove(models.Model):
         if self._l10n_ec_is_withholding():
             return _('Withhold Created')
         return super()._creation_message()
-
-        
+    
     def _is_manual_document_number(self):
         # OVERRIDE
         if self.journal_id.company_id.country_id.code == 'EC':
@@ -594,13 +593,30 @@ class AccountMove(models.Model):
             invoice.l10n_ec_show_add_withhold = invoice.country_code == 'EC' and invoice.state == 'posted' and invoice.l10n_latam_document_type_id.code in codes_to_withhold
     
     @api.depends('line_ids')
-    def _compute_l10n_ec_withhold_ids(self):
-        for move in self:
-            move.l10n_ec_withhold_line_ids = move.line_ids.filtered(lambda l: l.tax_line_id)
-            move.l10n_ec_withhold_ids = self.env['account.move.line'].search([('l10n_ec_withhold_invoice_id', '=', move.id)]).mapped('move_id')
-            move.l10n_ec_withhold_count = len(move.l10n_ec_withhold_ids)
-            move.l10n_ec_withhold_origin_ids = move.line_ids.mapped('l10n_ec_withhold_invoice_id')
-            move.l10n_ec_withhold_origin_count = len(move.l10n_ec_withhold_origin_ids)
+    def _compute_l10n_ec_withhold_wth_fields(self):
+        for withhold in self:
+            l10n_ec_withhold_line_ids = False
+            l10n_ec_withhold_origin_ids = False
+            l10n_ec_withhold_origin_count = False
+            if withhold._l10n_ec_is_withholding(): #fields related to a withhold entry
+                l10n_ec_withhold_line_ids = withhold.line_ids.filtered(lambda l: l.tax_line_id)
+                l10n_ec_withhold_origin_ids = withhold.line_ids.mapped('l10n_ec_withhold_invoice_id') #also removes duplicates
+                l10n_ec_withhold_origin_count = len(l10n_ec_withhold_origin_ids)
+            withhold.l10n_ec_withhold_line_ids = l10n_ec_withhold_line_ids
+            withhold.l10n_ec_withhold_origin_ids = l10n_ec_withhold_origin_ids
+            withhold.l10n_ec_withhold_origin_count = l10n_ec_withhold_origin_count     
+    
+    
+    @api.depends('line_ids')
+    def _compute_l10n_ec_withhold_inv_fields(self):
+        for invoice in self:
+            l10n_ec_withhold_ids = False
+            l10n_ec_withhold_count = False
+            if invoice.is_invoice() and not invoice._l10n_ec_is_withholding():
+                l10n_ec_withhold_ids = self.env['account.move.line'].search([('l10n_ec_withhold_invoice_id', '=', invoice.id)]).mapped('move_id')
+                l10n_ec_withhold_count = len(l10n_ec_withhold_ids)
+            invoice.l10n_ec_withhold_ids = l10n_ec_withhold_ids
+            invoice.l10n_ec_withhold_count = l10n_ec_withhold_count
 
     # ===== PRIVATE (static) =====
 
