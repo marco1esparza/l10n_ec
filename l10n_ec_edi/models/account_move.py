@@ -239,13 +239,7 @@ class AccountMove(models.Model):
     #         if self._l10n_ec_is_withholding():
     #             return True
     #     return super(AccountMove, self)._is_edi_invoice(include_receipts)
-    
-    def _creation_message(self):
-        # OVERRIDE, withholds should have a dedicated message equivalent to invoices, otherwise a simple "Journal Entry created" was shown
-        if self._l10n_ec_is_withholding():
-            return _('Withhold Created')
-        return super()._creation_message()
-    
+        
     def _is_manual_document_number(self):
         # OVERRIDE
         if self.journal_id.company_id.country_id.code == 'EC':
@@ -472,9 +466,11 @@ class AccountMove(models.Model):
         self.ensure_one()
 
         def filter_withholding_taxes(tax_values):
-            group_iva_withhold = self.env.ref("l10n_ec.tax_group_withhold_vat")
-            group_rent_withhold = self.env.ref("l10n_ec.tax_group_withhold_income")
-            withhold_group_ids = (group_iva_withhold + group_rent_withhold).ids
+            tax_group_withhold_vat_sale = self.env.ref("l10n_ec.tax_group_withhold_vat_sale")
+            tax_group_withhold_vat_purchase = self.env.ref("l10n_ec.tax_group_withhold_vat_purchase")
+            tax_group_withhold_income_sale = self.env.ref("l10n_ec.tax_group_withhold_income_sale")
+            tax_group_withhold_income_purchase = self.env.ref("l10n_ec.tax_group_withhold_income_purchase")
+            withhold_group_ids = (tax_group_withhold_vat_sale + tax_group_withhold_vat_sale + tax_group_withhold_income_sale + tax_group_withhold_income_purchase).ids
             return tax_values["tax_id"].tax_group_id.id not in withhold_group_ids
 
         def group_by_tax_group(tax_values):
@@ -485,15 +481,7 @@ class AccountMove(models.Model):
                 "code_percentage": code_percentage,
                 "rate": L10N_EC_VAT_RATES[code_percentage],
             }
-
-        def filter_withholding_taxes(tax_values):
-            tax_group_withhold_vat_sale = self.env.ref("l10n_ec.tax_group_withhold_vat_sale")
-            tax_group_withhold_vat_purchase = self.env.ref("l10n_ec.tax_group_withhold_vat_purchase")
-            tax_group_withhold_income_sale = self.env.ref("l10n_ec.tax_group_withhold_income_sale")
-            tax_group_withhold_income_purchase = self.env.ref("l10n_ec.tax_group_withhold_income_purchase")
-            withhold_group_ids = (tax_group_withhold_vat_sale + tax_group_withhold_vat_sale + tax_group_withhold_income_sale + tax_group_withhold_income_purchase).ids
-            return tax_values["tax_id"].tax_group_id.id not in withhold_group_ids
-
+        
         taxes_data = self._prepare_edi_tax_details(
             filter_to_apply=filter_withholding_taxes,
             grouping_key_generator=group_by_tax_group,

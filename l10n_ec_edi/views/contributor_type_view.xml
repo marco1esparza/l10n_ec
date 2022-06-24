@@ -51,6 +51,11 @@
 		</field>
 	</record>
 
-	<menuitem id="menu_contributor_type" action="action_contributor_type" parent="account.menu_finance_configuration" sequence="26"/>
-
+	<menuitem
+        id="menu_contributor_type"
+        name="Contributor Type SRI"
+        action="action_contributor_type"
+        parent="l10n_ec.sri_menu"
+        sequence="26"/>
+    
 </odoo>

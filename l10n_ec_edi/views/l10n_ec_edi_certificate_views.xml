@@ -108,9 +108,9 @@
     </record>
     <menuitem
         id="sri_key_type_menu"
-        name="Digital Certificates"
+        name="Digital Certificates SRI"
         sequence="2"
-        parent="sri_electronic_documents_menu"
+        parent="l10n_ec.sri_menu"
         action="sri_key_type_action"
         groups="base.group_system"
     />

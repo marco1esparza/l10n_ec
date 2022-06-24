@@ -42,6 +42,6 @@
     "installable": True,
     "auto_install": True,
     "application": False,
-    'post_init_hook': '_post_install_hook_configure_ecuadorian_withhold',
+    'post_init_hook': '_post_install_hook_configure_ecuadorian_data',
     "external_dependencies": {"python": ["pyOpenSSL", "lxml"]},
 }

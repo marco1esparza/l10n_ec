@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-	<!-- Temporary duplicate from l10n_ec, until PR https://github.com/odoo/odoo/pull/92472 is merged  -->
 	<menuitem
-        id="l10n_ec.sri_menu"
+        id="sri_menu"
         name="Ecuadorian SRI"
         parent="account.menu_finance_configuration"
         sequence="25"/>
