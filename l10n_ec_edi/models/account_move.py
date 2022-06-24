@@ -239,7 +239,14 @@ class AccountMove(models.Model):
     #         if self._l10n_ec_is_withholding():
     #             return True
     #     return super(AccountMove, self)._is_edi_invoice(include_receipts)
-        
+    
+    def _creation_message(self):
+        # OVERRIDE, withholds should have a dedicated message equivalent to invoices, otherwise a simple "Journal Entry created" was shown
+        # TODO: Would be removed but an alternate solution for is_invoice() is needed
+        if self._l10n_ec_is_withholding():
+            return _('Withhold Created')
+        return super()._creation_message()
+    
     def _is_manual_document_number(self):
         # OVERRIDE
         if self.journal_id.company_id.country_id.code == 'EC':
