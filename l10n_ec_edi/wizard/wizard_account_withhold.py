@@ -4,6 +4,8 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare, float_round
+from datetime import date
+import calendar
 
 
 class L10nEcWizardAccountWithhold(models.TransientModel):
@@ -261,8 +263,14 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
         to_withhold_name = ", ".join(invoices.mapped('name'))
         withhold_ref = _('Withhold on: %s') % to_withhold_name
         partner_id = invoices[-1].partner_id #the contact from latest invoice
+        accounting_date = self.date
+        invoice_date = invoices[0].invoice_date
+        last_day_of_month = calendar.monthrange(invoice_date.year, invoice_date.month)[1]
+        last_date_in_withhold = date(invoice_date.year, invoice_date.month, last_day_of_month)
+        if accounting_date > last_date_in_withhold:
+            accounting_date = last_date_in_withhold
         vals = {
-            'date': self.date,
+            'date': accounting_date,
             'invoice_date': self.date,
             'journal_id': self.journal_id.id,
             'company_id': self.company_id.id,
