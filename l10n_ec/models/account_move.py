@@ -136,9 +136,10 @@ class AccountMove(models.Model):
     )
 
     def _post(self, soft=True):
-        res =  super(AccountMove, self)._post(soft)
+        res = super(AccountMove, self)._post(soft)
         for move in self:
-            move.l10n_ec_check_sequence()
+            if move.country_code == 'EC':
+                move.l10n_ec_check_sequence()
         return res
     
     def l10n_ec_check_sequence(self):
