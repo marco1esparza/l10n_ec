@@ -395,7 +395,11 @@ class L10nEcWizardAccountWithhold(models.TransientModel):
             'in_invoice': 'supplier',
             'in_refund': 'supplier',
         }
+        invoice_months = []
         for invoice in invoices:
+            invoice_months.append((invoice.invoice_date.month, invoice.invoice_date.year))
+            if len(set(invoice_months)) > 1:
+                raise ValidationError(_('All invoices must be from the same month.'))
             if invoice.state not in ['posted']:
                 raise ValidationError(_("Can not create a withhold, the document %s is not yet posted", invoice.name))
             if invoice.commercial_partner_id != invoices[0].commercial_partner_id:
