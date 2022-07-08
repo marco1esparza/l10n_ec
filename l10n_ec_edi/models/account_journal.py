@@ -64,3 +64,15 @@ class AccountJournal(models.Model):
          ('in_withhold', 'Purchase Withhold')],
         string='Withhold Type'
         )
+
+    l10n_ec_is_purchase_liquidation = fields.Boolean(
+        string='Purchase Liquidations',
+        store=True, readonly=False, default=False,
+        compute='_compute_is_purchase_liquidation',
+        help='Whether this journal is for purchase liquidations')
+
+    @api.depends('type')
+    def _compute_is_purchase_liquidation(self):
+        for record in self:
+            if record.env.company.country_id.code != 'EC' or record.type != 'purchase':
+                record.l10n_ec_is_purchase_liquidation = False

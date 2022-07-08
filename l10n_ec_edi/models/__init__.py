@@ -7,7 +7,6 @@ from . import contributor_type
 from . import l10n_ec_edi_certificate
 from . import product
 from . import res_company
-from . import res_partner
 from . import res_config_settings
 from . import res_partner
 from . import xml_utils

@@ -53,16 +53,6 @@
                         </div>
                     </button>
                 </div>
-                <xpath
-                    expr="//sheet//group//group//div[@name='journal_div']"
-                    position="after">
-                    <field
-                        name="l10n_ec_authorization_number"
-                        attrs="{'invisible': [('l10n_ec_authorization_number', '=', False)]}"/>
-                    <field
-                        name="l10n_ec_authorization_date"
-                        attrs="{'invisible': [('l10n_ec_authorization_date', '=', False)]}"/>
-                </xpath>
                 <xpath expr="//field[@name='date']" position="attributes">
                     <attribute name="attrs">{'invisible': ['|', ('move_type', 'in', ('out_invoice', 'out_refund', 'out_receipt')), ('l10n_ec_withhold_type', 'in', ['out_withhold', 'in_withhold'])]}</attribute>
                 </xpath>

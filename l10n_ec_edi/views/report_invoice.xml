@@ -156,7 +156,8 @@
                     <tr>
                         <td class="text-center" t-esc="o.l10n_ec_sri_payment_id.name"/>
                         <td class="text-center">
-                            <span t-esc="sum(d['payment_total'] for d in o._l10n_ec_get_payment_data())"/>
+                            <span t-esc="sum(d['payment_total'] for d in o._l10n_ec_get_payment_data())"
+                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                         </td>
                     </tr>
                 </table>
@@ -193,7 +194,8 @@
                     <tr class="border-black o_total">
                         <td><strong>Total</strong></td>
                         <td class="text-right">
-                            <span class="text-nowrap" t-esc="o._l10n_ec_get_invoice_total_for_reports()"/>
+                            <span class="text-nowrap" t-esc="o._l10n_ec_get_invoice_total_for_reports()"
+                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                         </td>
                     </tr>
                 </table>

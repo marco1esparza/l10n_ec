@@ -239,14 +239,7 @@ class AccountMove(models.Model):
     #         if self._l10n_ec_is_withholding():
     #             return True
     #     return super(AccountMove, self)._is_edi_invoice(include_receipts)
-    
-    def _creation_message(self):
-        # OVERRIDE, withholds should have a dedicated message equivalent to invoices, otherwise a simple "Journal Entry created" was shown
-        # TODO: Would be removed but an alternate solution for is_invoice() is needed
-        if self._l10n_ec_is_withholding():
-            return _('Withhold Created')
-        return super()._creation_message()
-    
+        
     def _is_manual_document_number(self):
         # OVERRIDE
         if self.journal_id.company_id.country_id.code == 'EC':
@@ -254,6 +247,12 @@ class AccountMove(models.Model):
                                                         self.l10n_latam_document_type_id.internal_type) == 'purchase_liquidation'
             return self.journal_id.type == 'purchase' and not purchase_liquidation
         return super()._is_manual_document_number()
+
+    def _creation_message(self):
+        # OVERRIDE, withholds should have a dedicated message equivalent to invoices, otherwise a simple "Journal Entry created" was shown
+        if self._l10n_ec_is_withholding():
+            return _('Withhold Created')
+        return super()._creation_message()
 
     def _get_l10n_ec_identification_type(self):
         # OVERRIDE
@@ -612,6 +611,14 @@ class AccountMove(models.Model):
                 l10n_ec_withhold_count = len(l10n_ec_withhold_ids)
             invoice.l10n_ec_withhold_ids = l10n_ec_withhold_ids
             invoice.l10n_ec_withhold_count = l10n_ec_withhold_count
+
+    def _get_l10n_latam_documents_domain(self):
+        # INHERIT l10n_ec
+        domain = super()._get_l10n_latam_documents_domain()
+        if not self.journal_id.l10n_ec_is_purchase_liquidation:
+            return domain
+        else:
+            return [('country_id.code', '=', 'EC'), ('internal_type', 'in', ['purchase_liquidation'])]
 
     # ===== PRIVATE (static) =====
 
