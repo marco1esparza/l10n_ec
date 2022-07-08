@@ -133,6 +133,11 @@ class AccountMove(models.Model):
     
     def l10n_ec_add_withhold(self):
         # Launches the withholds wizard linked to selected invoices
+        invoice_date = []
+        for move in self:
+            invoice_date.append((move.invoice_date.month, move.invoice_date.year))
+        if len(set(invoice_date)) > 1:
+            raise ValidationError(_('All invoices must be from the same month.'))
         ctx = self._context.copy()
         ctx.update({
             'active_ids': self.ids,

@@ -38,7 +38,7 @@ class AccountJournal(models.Model):
                     'You can not modify the "Withhold Type" if there are validated withholds in this journal!'))
 
     #TODO: Wait for purchase liquidation to be ready, then flag it in the search domain
-    # @api.constrains('l10n_ec_entity', 'l10n_ec_emmision')
+    # @api.constrains('l10n_ec_entity', 'l10n_ec_emission')
     # def l10n_ec_check_duplicated_entity_emmision(self):
     #     for journal in self:
     #         if not journal.country_code == 'EC' or not journal.l10n_ec_entity or not journal.l10n_ec_emission:
