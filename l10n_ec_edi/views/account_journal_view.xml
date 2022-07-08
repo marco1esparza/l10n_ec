@@ -15,6 +15,8 @@
                     <field name="l10n_latam_use_documents" 
                            attrs="{'invisible': ['|', ('l10n_latam_company_use_documents', '=', False), ('l10n_ec_withhold_type', 'not in', ['out_withhold','in_withhold'])]}"
                            />
+                    <field name="l10n_ec_is_purchase_liquidation"
+                           attrs="{'invisible': ['|',('country_code', '!=', 'EC'), ('type', '!=', 'purchase')]}"/>
                     <field name="l10n_ec_entity" 
                            attrs="{'invisible':[('l10n_ec_withhold_type', '!=', 'in_withhold')], 'required':[('l10n_ec_withhold_type', '=', 'in_withhold')]}"
                            />
