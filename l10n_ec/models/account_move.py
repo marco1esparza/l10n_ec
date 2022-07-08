@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models, _
+from odoo import fields, models, api
 from odoo.addons.l10n_ec.models.res_partner import verify_final_consumer
-from odoo.exceptions import ValidationError
 
 _DOCUMENTS_MAPPING = {
     "01": [
@@ -134,19 +133,7 @@ class AccountMove(models.Model):
         comodel_name="l10n_ec.sri.payment",
         string="Payment Method (SRI)",
     )
-
-    def _post(self, soft=True):
-        res = super(AccountMove, self)._post(soft)
-        for move in self:
-            if move.country_code == 'EC':
-                move.l10n_ec_check_sequence()
-        return res
     
-    def l10n_ec_check_sequence(self):
-        prefix = self.journal_id.l10n_ec_entity + '-' + self.journal_id.l10n_ec_emission
-        if prefix != self.l10n_latam_document_number[:7]:
-           raise ValidationError(_('Check the document number "%s", the expected prefix is "%s".' % (self.l10n_latam_document_number, prefix)))
-
     def _get_l10n_ec_identification_type(self):
         self.ensure_one()
         move = self

@@ -36,28 +36,39 @@ class AccountJournal(models.Model):
             if rec.env['account.move'].search([('journal_id', '=', rec.id), ('posted_before', '=', True)], limit=1):
                 raise ValidationError(_(
                     'You can not modify the "Withhold Type" if there are validated withholds in this journal!'))
-
-    #TODO: Wait for purchase liquidation to be ready, then flag it in the search domain
-    # @api.constrains('l10n_ec_entity', 'l10n_ec_emission')
-    # def l10n_ec_check_duplicated_entity_emmision(self):
-    #     for journal in self:
-    #         if not journal.country_code == 'EC' or not journal.l10n_ec_entity or not journal.l10n_ec_emission:
-    #             continue
-    #         duplicated_journals = self.search([
-    #             ('id','!=',journal.id), #other journals
-    #             ('company_id','=',journal.company_id.id),
-    #             ('type','=',journal.type),
-    #             ('l10n_ec_withhold_type','=',journal.l10n_ec_withhold_type),
-    #             ('l10n_ec_entity','=',journal.l10n_ec_entity),
-    #             ('l10n_ec_emission','=',journal.l10n_ec_emission),
-    #             ]) 
-    #         if duplicated_journals:
-    #             raise ValidationError(_('Duplicated journal entity and emission detected. You probably encoded twice the same journal:\n%s') % "\n".join(
-    #                 duplicated_journals.mapped(lambda j: "%(l10n_ec_entity)s-%(l10n_ec_emission)s" % {
-    #                     'l10n_ec_entity': j.l10n_ec_entity,
-    #                     'l10n_ec_emission': j.l10n_ec_emission.display_name,
-    #                 })
-    #             ))
+    
+    @api.constrains('l10n_ec_entity', 'l10n_ec_emission','type','l10n_ec_withhold_type','l10n_ec_is_purchase_liquidation')
+    def l10n_ec_check_duplicated_entity_emmision(self):
+        for journal in self:
+            if not journal.country_code == 'EC' or not journal.l10n_ec_entity or not journal.l10n_ec_emission:
+                continue
+            duplicated_journals = self.search([
+                ('id','!=',journal.id), #other journals
+                ('company_id','=',journal.company_id.id),
+                ('type','=',journal.type),
+                ('l10n_ec_withhold_type','=',journal.l10n_ec_withhold_type),
+                ('l10n_ec_is_purchase_liquidation','=',journal.l10n_ec_is_purchase_liquidation),
+                ('l10n_ec_entity','=',journal.l10n_ec_entity),
+                ('l10n_ec_emission','=',journal.l10n_ec_emission),
+                ]) 
+            if duplicated_journals:
+                raise ValidationError(_('Duplicated journal entity and emission detected. You probably encoded twice the same journal:\n%s') % "\n".join(
+                    duplicated_journals.mapped(lambda j: "%(l10n_ec_entity)s-%(l10n_ec_emission)s" % {
+                        'l10n_ec_entity': j.l10n_ec_entity,
+                        'l10n_ec_emission': j.l10n_ec_emission,
+                    })
+                ))
+    
+    def _l10n_ec_requiere_emission(self):
+        #TODO: Make it a required field to ease the xml file for the form views
+        if self.country_code == 'EC' and self.l10n_latam_use_documents:
+            if self.type == 'sale':
+                return True
+            elif self.type == 'purchase' and self.l10n_ec_is_purchase_liquidation:
+                return True
+            elif self.l10n_ec_withhold_type == 'in_withhold':
+                return True
+        return False
         
     l10n_ec_withhold_type = fields.Selection(
         [('out_withhold', 'Sales Withhold'),

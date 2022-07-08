@@ -133,11 +133,6 @@ class AccountMove(models.Model):
     
     def l10n_ec_add_withhold(self):
         # Launches the withholds wizard linked to selected invoices
-        invoice_date = []
-        for move in self:
-            invoice_date.append((move.invoice_date.month, move.invoice_date.year))
-        if len(set(invoice_date)) > 1:
-            raise ValidationError(_('All invoices must be from the same month.'))
         ctx = self._context.copy()
         ctx.update({
             'active_ids': self.ids,
@@ -339,6 +334,12 @@ class AccountMove(models.Model):
             move.amount_total_signed = move.amount_total_signed * withhold_sign
             move.amount_residual_signed = move.amount_residual_signed * withhold_sign
             move.amount_total_in_currency_signed = move.amount_total_in_currency_signed * withhold_sign
+        return res
+    
+    def _post(self, soft=True):
+        res = super(AccountMove, self)._post(soft)
+        for move in self.filtered(lambda x: x.country_code == 'EC' and x.journal_id._l10n_ec_requiere_emission()):
+            move.l10n_ec_check_sequence()
         return res
 
     # ===== GETTERS =====
@@ -636,6 +637,12 @@ class AccountMove(models.Model):
         tax_types = ('vat12', 'vat14', 'zero_vat', 'irbpnr')
         tax_group_lines = self.line_ids.filtered(lambda line: line.tax_group_id and line.tax_group_id.l10n_ec_type in tax_types)
         return self.amount_untaxed + sum(line.price_subtotal for line in tax_group_lines)
+        
+    def l10n_ec_check_sequence(self):
+        prefix = self.journal_id.l10n_ec_entity + '-' + self.journal_id.l10n_ec_emission
+        if prefix != self.l10n_latam_document_number[:7]:
+           raise ValidationError(_('Check the document number "%s", the expected prefix is "%s".' % (self.l10n_latam_document_number, prefix)))
+
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'

@@ -32,7 +32,7 @@ class AccountJournal(models.Model):
             if self.env['account.move'].search([('journal_id', '=', journal.id), ('posted_before', '=', True)], limit=1):
                 raise ValidationError(_(
                     'You can not modify the field "Emission Entity or Emission Point" if there are validated invoices in this journal!'))
-            if not re.match(r'(\d{3})', journal.l10n_ec_entity):
+            if journal.l10n_ec_entity and not re.match(r'(\d{3})', journal.l10n_ec_entity):
                 raise ValidationError(_('The "Emission Entity" must be three numeric digits.'))
-            if not re.match(r'(\d{3})', journal.l10n_ec_emission):
+            if journal.l10n_ec_emission and not re.match(r'(\d{3})', journal.l10n_ec_emission):
                 raise ValidationError(_('The "Emission Point" must be three numeric digits.'))
