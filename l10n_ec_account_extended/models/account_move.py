@@ -38,7 +38,7 @@ class AccountMove(models.Model):
         return super()._is_manual_document_number()
 
     def write(self, vals):
-        PROTECTED_FIELDS_TAX_LOCK_DATE = ['l10n_ec_authorization', 'l10n_ec_sri_tax_support_id']
+        PROTECTED_FIELDS_TAX_LOCK_DATE = ['l10n_ec_sri_payment_id','l10n_ec_authorization', 'l10n_ec_sri_tax_support_id']
         # Check the tax lock date.
         if any(self.env['account.move']._field_will_change(self, vals, field_name) for field_name in PROTECTED_FIELDS_TAX_LOCK_DATE):
             self._check_tax_lock_date()

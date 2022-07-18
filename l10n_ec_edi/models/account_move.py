@@ -54,6 +54,9 @@ class AccountMove(models.Model):
         compute='_compute_l10n_ec_withhold_wth_fields',
         readonly=True
     )
+    
+    
+    
     l10n_ec_withhold_origin_ids = fields.Many2many(
         'account.move',
         compute='_compute_l10n_ec_withhold_wth_fields',
@@ -116,20 +119,6 @@ class AccountMove(models.Model):
 
     # ===== OTHER METHODS =====
     #TODO Trescloud&Odoo, decide where should this methods be located inside the file
-
-    def write(self, vals):
-        PROTECTED_FIELDS_TAX_LOCK_DATE = ['l10n_ec_sri_payment_id']
-        # Check the tax lock date.
-        if any(self.env['account.move']._field_will_change(self, vals, field_name) for field_name in PROTECTED_FIELDS_TAX_LOCK_DATE):
-            self._l10n_ec_check_tax_lock_date()
-        return super().write(vals)
-
-    def _l10n_ec_check_tax_lock_date(self):
-        for move in self.filtered(lambda x: x.state == 'posted'):
-            if move.company_id.tax_lock_date and move.date <= move.company_id.tax_lock_date:
-                raise UserError(_("The operation is refused as it would impact an already issued tax statement. "
-                                  "Please change the journal entry date or the tax lock date set in the settings (%s) to proceed.")
-                                % format_date(self.env, move.company_id.tax_lock_date))
     
     def l10n_ec_add_withhold(self):
         # Launches the withholds wizard linked to selected invoices
@@ -547,7 +536,6 @@ class AccountMove(models.Model):
             payment_data.append(payment_vals)
         return payment_data
 
-    @api.depends('l10n_ec_withhold_line_ids')
     def _l10n_ec_compute_withhold_totals(self):
         # Used for aesthetics, to view withhold subtotal at the bottom of the withhold account.move
         for invoice in self:
@@ -595,18 +583,14 @@ class AccountMove(models.Model):
     @api.depends('line_ids')
     def _compute_l10n_ec_withhold_wth_fields(self):
         for withhold in self:
-            l10n_ec_withhold_line_ids = False
             l10n_ec_withhold_origin_ids = False
             l10n_ec_withhold_origin_count = False
             if withhold._l10n_ec_is_withholding(): #fields related to a withhold entry
-                l10n_ec_withhold_line_ids = withhold.line_ids.filtered(lambda l: l.tax_line_id)
                 l10n_ec_withhold_origin_ids = withhold.line_ids.mapped('l10n_ec_withhold_invoice_id') #also removes duplicates
                 l10n_ec_withhold_origin_count = len(l10n_ec_withhold_origin_ids)
-            withhold.l10n_ec_withhold_line_ids = l10n_ec_withhold_line_ids
             withhold.l10n_ec_withhold_origin_ids = l10n_ec_withhold_origin_ids
             withhold.l10n_ec_withhold_origin_count = l10n_ec_withhold_origin_count     
-    
-    
+
     @api.depends('line_ids')
     def _compute_l10n_ec_withhold_inv_fields(self):
         for invoice in self:
