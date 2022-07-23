@@ -139,7 +139,7 @@ class AccountMove(models.Model):
             ) % (self.display_name,str(self.id),self.state,str(procesing_edi_job)))
     
     def _post(self, soft=True):
-        #Execute ecuadorian validations with bypass option
+        #Execute ecuadorian validations with bypass option    
         for document in self:
             document._fix_partner_in_amls()
             if document.country_code == 'EC':
@@ -191,8 +191,16 @@ class AccountMove(models.Model):
         # Se modifica la ejecucion del post al final porque res se debe devolver con la ejecucion de todos los documentos
         res = super(AccountMove, self)._post(soft)
         self.l10n_ec_bypass_validations = False #Reset bypass to default value
+        # Prevent the user to type in different prefix (like 001-002) than the concatenation of journal entity and emission (for instance 001-001)
+        for move in self.filtered(lambda x: x.country_code == 'EC' and x.journal_id._l10n_ec_require_emission()):
+            move._l10n_ec_check_sequence()
         return res
     
+    def _l10n_ec_check_sequence(self):
+        prefix = self.journal_id.l10n_ec_entity + '-' + self.journal_id.l10n_ec_emission
+        if prefix != self.l10n_latam_document_number[:7]:
+            raise ValidationError(_('Check the document number "%s", the expected prefix is "%s".', self.l10n_latam_document_number, prefix))
+
     def _fix_partner_in_amls(self):
         # Ticket #18334, a veces los amls llevan un partner distinto que la cabecera
         # Ticket #19729, a veces los amls tienen partner vacío
